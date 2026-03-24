@@ -4,7 +4,7 @@ Assumption: no `## Naming` convention found; using `docs/plans/personal-finance-
 
 ### Phases
 
-- Phase 01: Foundation + Auth (status: in_progress)
+- Phase 01: Foundation + Auth (status: completed)
   - Link: `docs/plans/personal-finance-mvp/phase-01-foundation-auth.md`
 - Phase 02: Accounts + Transactions (status: in_progress)
   - Link: `docs/plans/personal-finance-mvp/phase-02-accounts-transactions.md`
@@ -17,5 +17,5 @@ Assumption: no `## Naming` convention found; using `docs/plans/personal-finance-
 
 ### Progress
 
-- Overall: 84% (all phases reviewed; phase 05 advanced with create flow)
+- Overall: 88% (phase 01 completed; all phases reviewed)
 - Gate: user approval required before implementation

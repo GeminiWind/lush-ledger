@@ -7,7 +7,7 @@
 
 - Date: 2026-03-20
 - Priority: high
-- Status: in_progress (reviewed 2026-03-24)
+- Status: completed (reviewed 2026-03-24)
 
 ## Key Insights
 
@@ -77,11 +77,12 @@
 - Completed: Protected routes via middleware and request session checks
 - Completed: Currency persisted in `UserSettings` and consumed across UI formatting
 - Completed: settings API and page are present (`/api/settings`, `/app/settings`)
-- Gap: auth endpoint rate limiting is not implemented yet
+- Completed: auth endpoint rate limiting added with exponential backoff for login/register attempts
+- Note: phase-1 limiter is in-memory (instance-local); distributed persistence can be added in a hardening phase
 
 ## Recommendation
 
-- Keep phase as `in_progress` until auth endpoint rate limiting is added.
+- Mark phase as `completed` and move next security hardening items to backlog.
 
 ## Risk Assessment
 
