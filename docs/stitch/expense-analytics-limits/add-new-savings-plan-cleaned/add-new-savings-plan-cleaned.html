@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Add New Savings Plan - Lush Ledger</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "outline": "#647e8c",
+                        "on-primary": "#eaffe2",
+                        "surface": "#f4faff",
+                        "on-surface": "#1b3641",
+                        "on-surface-variant": "#49636f",
+                        "on-background": "#1b3641",
+                        "tertiary-dim": "#545622",
+                        "tertiary-container": "#fcfeb9",
+                        "surface-tint": "#006f1d",
+                        "error": "#a73b21",
+                        "primary": "#006f1d",
+                        "on-tertiary-fixed": "#4d501d",
+                        "on-secondary-fixed-variant": "#495f69",
+                        "error-container": "#fd795a",
+                        "inverse-primary": "#91f78e",
+                        "primary-fixed": "#91f78e",
+                        "on-tertiary-container": "#60622d",
+                        "tertiary": "#60622d",
+                        "on-primary-fixed": "#00480f",
+                        "inverse-surface": "#041015",
+                        "secondary-fixed-dim": "#c1d8e4",
+                        "primary-dim": "#006118",
+                        "surface-dim": "#c3deed",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed": "#2d424c",
+                        "on-error": "#fff7f6",
+                        "on-error-container": "#6e1400",
+                        "primary-fixed-dim": "#83e881",
+                        "on-primary-container": "#005e17",
+                        "surface-container-high": "#d4ecf9",
+                        "inverse-on-surface": "#929fa6",
+                        "tertiary-fixed": "#fcfeb9",
+                        "primary-container": "#91f78e",
+                        "background": "#f4faff",
+                        "secondary-fixed": "#cfe6f2",
+                        "on-secondary": "#f2faff",
+                        "surface-bright": "#f4faff",
+                        "tertiary-fixed-dim": "#edefac",
+                        "surface-container-low": "#e7f6ff",
+                        "on-tertiary": "#fcfdb9",
+                        "surface-variant": "#cbe7f6",
+                        "surface-container": "#dcf1fd",
+                        "secondary": "#4d626c",
+                        "on-tertiary-fixed-variant": "#6a6d37",
+                        "secondary-dim": "#415660",
+                        "secondary-container": "#cfe6f2",
+                        "on-primary-fixed-variant": "#00691a",
+                        "surface-container-highest": "#cbe7f6",
+                        "error-dim": "#791903",
+                        "on-secondary-container": "#40555f",
+                        "outline-variant": "#9bb6c4"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4faff;
+            color: #1b3641;
+        }
+        .editorial-shadow {
+            box-shadow: 32px 0 32px -10px rgba(27, 54, 65, 0.06);
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(27%) sepia(85%) saturate(1900%) hue-rotate(114deg) brightness(95%) contrast(101%);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-surface selection:bg-primary-container">
+<!-- SideNavBar Integration -->
+<aside class="fixed left-0 top-0 h-full flex flex-col p-6 h-screen w-64 border-r-0 bg-emerald-50 shadow-[32px_0_32px_-10px_rgba(27,54,65,0.06)] z-50">
+<div class="mb-12 px-4">
+<h1 class="text-2xl font-bold text-emerald-900 tracking-tight font-headline">Lush Ledger</h1>
+<p class="text-xs text-on-surface-variant font-medium opacity-70">The Fiscal Atelier</p>
+</div>
+<nav class="flex-1 space-y-2">
+<!-- Dashboard -->
+<a class="flex items-center gap-3 px-4 py-3 text-emerald-700/70 hover:bg-emerald-100/50 transition-all duration-300 rounded-xl font-manrope text-sm font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<!-- Atelier -->
+<a class="flex items-center gap-3 px-4 py-3 text-emerald-700/70 hover:bg-emerald-100/50 transition-all duration-300 rounded-xl font-manrope text-sm font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="palette">palette</span>
+<span>Atelier</span>
+</a>
+<!-- Ledger -->
+<a class="flex items-center gap-3 px-4 py-3 text-emerald-700/70 hover:bg-emerald-100/50 transition-all duration-300 rounded-xl font-manrope text-sm font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span>Ledger</span>
+</a>
+<!-- Savings (Active) -->
+<a class="flex items-center gap-3 px-4 py-3 text-emerald-900 bg-white/80 rounded-xl backdrop-blur-md shadow-sm font-manrope text-sm font-medium tracking-tight scale-[0.98] active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="savings" style="font-variation-settings: 'FILL' 1;">savings</span>
+<span>Savings</span>
+</a>
+<!-- Settings -->
+<a class="flex items-center gap-3 px-4 py-3 text-emerald-700/70 hover:bg-emerald-100/50 transition-all duration-300 rounded-xl font-manrope text-sm font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-4">
+<button class="w-full bg-primary text-on-primary py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:opacity-90 transition-all active:scale-95">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+<span>New Entry</span>
+</button>
+</div>
+</aside>
+<!-- TopNavBar Integration (Synced with Dashboard Overview) -->
+<header class="flex justify-between items-center w-full px-8 py-3 max-w-screen-2xl mx-auto pl-72 bg-white/80 backdrop-blur-xl fixed top-0 left-0 right-0 z-40">
+<h2 class="text-lg font-bold text-emerald-900 font-headline">Add New Savings Plan</h2>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex items-center bg-surface-container-low px-4 py-1.5 rounded-full w-64">
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-xs w-full placeholder:text-on-surface-variant/50" placeholder="Search accounts..." type="text"/>
+</div>
+<div class="flex items-center gap-3">
+<button class="w-8 h-8 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl" data-icon="notifications">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container-high border-2 border-primary-container">
+<img alt="User avatar" class="w-full h-full object-cover" data-alt="Profile photo of the account holder" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYZ2xdXTpEWwsz9X2X7JxshmhJsGaWREUtnx8C3q-89xewbgrqaWjtUccYIfEB4aXZSCRbQcKZ7WAFRjgkp1tkrsxq6qBdgcuD_IkxcWZdD65Qv7hiOBO_5cUoNsKkp2qcYaXNlLeoXFz7g-LIFopwHbdNTPLU4VJCj1V2bVzx-ifhT1UUKJlc9wc0Kz6HNkBmGoJOZOaBFOPBhRC1NTJAIL28TSbwA1Uhg69pnhEftFDdJxFSWJWXGkovA7GCBGwznlwrOV7srDk"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-64 pt-24 p-10 min-h-screen">
+<div class="max-w-6xl mx-auto">
+<!-- Header Section -->
+<div class="flex justify-between items-end mb-12">
+<div class="max-w-xl">
+<h2 class="font-headline text-5xl font-extrabold text-on-surface tracking-tight leading-none mb-4">Architect Your Future</h2>
+<p class="font-body text-lg text-on-surface-variant font-medium">Design a bespoke financial vessel for your next milestone. Every great structure begins with a single, intentional brick.</p>
+</div>
+<div class="flex gap-4">
+<button class="px-6 py-3 rounded-full font-label font-semibold text-primary hover:bg-surface-container-high transition-all">Discard Draft</button>
+<button class="px-8 py-3 rounded-full font-label font-semibold text-on-primary bg-gradient-to-br from-primary to-primary-dim shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform">Create Savings Plan</button>
+</div>
+</div>
+<!-- Bento Grid Content -->
+<div class="grid grid-cols-12 gap-8">
+<!-- Form Section -->
+<div class="col-span-12 lg:col-span-7 space-y-8">
+<section class="bg-surface-container-lowest rounded-3xl p-10 shadow-sm">
+<h3 class="font-headline text-xl font-bold mb-8 text-on-surface">The Blueprint</h3>
+<div class="space-y-6">
+<!-- Plan Name -->
+<div class="space-y-2">
+<label class="font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant opacity-70">Plan Name</label>
+<input class="w-full bg-surface-container-low border-none rounded-2xl p-4 font-body text-on-surface placeholder:text-on-surface-variant/40 focus:ring-2 focus:ring-primary/40 transition-all outline-none" placeholder="e.g., Kyoto Sanctuary Fund" type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-6">
+<!-- Savings Target -->
+<div class="space-y-2">
+<label class="font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant opacity-70">Savings Target</label>
+<div class="relative">
+<input class="w-full bg-surface-container-low border-none rounded-2xl p-4 pr-10 font-body font-bold text-on-surface focus:ring-2 focus:ring-primary/40 transition-all outline-none" type="text" value="500.000.000"/>
+<span class="absolute right-4 top-1/2 -translate-y-1/2 font-headline text-primary font-bold">₫</span>
+</div>
+</div>
+<!-- Monthly Contribution -->
+<div class="space-y-2">
+<label class="font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant opacity-70">Monthly Contribution</label>
+<div class="relative">
+<input class="w-full bg-surface-container-low border-none rounded-2xl p-4 pr-10 font-body font-bold text-on-surface focus:ring-2 focus:ring-primary/40 transition-all outline-none" type="text" value="15.000.000"/>
+<span class="absolute right-4 top-1/2 -translate-y-1/2 font-headline text-primary font-bold">₫</span>
+</div>
+</div>
+</div>
+<!-- Arrival Date -->
+<div class="space-y-2">
+<label class="font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant opacity-70">Arrival Date</label>
+<input class="w-full bg-surface-container-low border-none rounded-2xl p-4 font-body text-on-surface focus:ring-2 focus:ring-primary/40 transition-all outline-none" type="date" value="2027-10-01"/>
+</div>
+<!-- Icon Selection -->
+<div class="space-y-4 pt-4">
+<label class="font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant opacity-70">Plan Identity (Icon)</label>
+<div class="flex gap-4">
+<button class="w-16 h-16 rounded-2xl bg-primary text-on-primary flex items-center justify-center shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-3xl" data-icon="home">home</span>
+</button>
+<button class="w-16 h-16 rounded-2xl bg-surface-container-low text-on-surface-variant flex items-center justify-center hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-3xl" data-icon="directions_car">directions_car</span>
+</button>
+<button class="w-16 h-16 rounded-2xl bg-surface-container-low text-on-surface-variant flex items-center justify-center hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-3xl" data-icon="flight">flight</span>
+</button>
+<button class="w-16 h-16 rounded-2xl bg-surface-container-low text-on-surface-variant flex items-center justify-center hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-3xl" data-icon="shield">shield</span>
+</button>
+<button class="w-16 h-16 rounded-2xl bg-surface-container-low text-on-surface-variant flex items-center justify-center border-2 border-dashed border-outline-variant/30 opacity-50">
+<span class="material-symbols-outlined text-3xl" data-icon="add">add</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Preview Section -->
+<div class="col-span-12 lg:col-span-5 space-y-8">
+<section class="bg-primary text-on-primary rounded-3xl p-10 shadow-xl overflow-hidden relative group">
+<!-- Abstract Texture -->
+<div class="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all duration-700"></div>
+<h3 class="font-headline text-xl font-bold mb-10 relative z-10">Projection Preview</h3>
+<div class="relative z-10 flex flex-col items-center text-center space-y-6">
+<div class="w-32 h-32 rounded-full border-8 border-primary-fixed-dim/30 flex items-center justify-center relative">
+<svg class="absolute inset-0 w-full h-full -rotate-90">
+<circle class="text-on-primary" cx="64" cy="64" fill="transparent" r="56" stroke="currentColor" stroke-dasharray="351.8" stroke-dashoffset="105" stroke-width="8"></circle>
+</svg>
+<span class="font-headline text-4xl font-extrabold">34</span>
+</div>
+<div>
+<p class="font-headline text-2xl font-bold">Estimated Months</p>
+<p class="font-body text-sm opacity-80 mt-1">To reach your 500.000.000 ₫ target</p>
+</div>
+<div class="w-full pt-8 space-y-4">
+<div class="flex justify-between items-center text-sm font-label uppercase tracking-widest opacity-70">
+<span>Arrival Date</span>
+<span class="font-bold opacity-100">October 2027</span>
+</div>
+<div class="h-[1px] w-full bg-on-primary/10"></div>
+<div class="flex justify-between items-center text-sm font-label uppercase tracking-widest opacity-70">
+<span>Efficiency</span>
+<span class="font-bold opacity-100">Optimal Growth</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Growth Tip Card -->
+<section class="bg-surface-container-high rounded-3xl p-8 relative">
+<div class="flex items-start gap-4">
+<div class="p-3 bg-white rounded-2xl shadow-sm text-primary">
+<span class="material-symbols-outlined" data-icon="lightbulb" style="font-variation-settings: 'FILL' 1;">lightbulb</span>
+</div>
+<div>
+<h4 class="font-headline text-lg font-bold text-on-surface mb-2">The Atelier Tip</h4>
+<p class="text-on-surface-variant font-body leading-relaxed text-sm">Increasing your monthly contribution by just <span class="font-bold text-primary">2.500.000 ₫</span> would shave 6 months off your architectural timeline.</p>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+</main>
+</body></html>
