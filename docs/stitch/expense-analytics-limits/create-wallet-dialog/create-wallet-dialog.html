@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Create New Wallet - Lush Ledger</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-bright": "#f4faff",
+                        "on-surface-variant": "#49636f",
+                        "on-tertiary-fixed": "#4d501d",
+                        "on-primary-fixed-variant": "#00691a",
+                        "error-dim": "#791903",
+                        "outline": "#647e8c",
+                        "tertiary-dim": "#545622",
+                        "on-surface": "#1b3641",
+                        "surface-variant": "#cbe7f6",
+                        "on-primary-fixed": "#00480f",
+                        "on-tertiary-fixed-variant": "#6a6d37",
+                        "outline-variant": "#9bb6c4",
+                        "on-background": "#1b3641",
+                        "background": "#f4faff",
+                        "surface": "#f4faff",
+                        "secondary-fixed": "#cfe6f2",
+                        "tertiary": "#60622d",
+                        "error-container": "#fd795a",
+                        "surface-dim": "#c3deed",
+                        "surface-container": "#dcf1fd",
+                        "primary-fixed-dim": "#83e881",
+                        "inverse-on-surface": "#929fa6",
+                        "surface-tint": "#006f1d",
+                        "secondary-dim": "#415660",
+                        "inverse-primary": "#91f78e",
+                        "on-secondary-fixed-variant": "#495f69",
+                        "primary": "#006f1d",
+                        "primary-container": "#91f78e",
+                        "primary-dim": "#006118",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-container": "#fcfeb9",
+                        "on-error": "#fff7f6",
+                        "surface-container-highest": "#cbe7f6",
+                        "on-secondary": "#f2faff",
+                        "inverse-surface": "#041015",
+                        "secondary-fixed-dim": "#c1d8e4",
+                        "tertiary-fixed": "#fcfeb9",
+                        "on-primary": "#eaffe2",
+                        "primary-fixed": "#91f78e",
+                        "secondary-container": "#cfe6f2",
+                        "surface-container-high": "#d4ecf9",
+                        "tertiary-fixed-dim": "#edefac",
+                        "surface-container-low": "#e7f6ff",
+                        "on-secondary-fixed": "#2d424c",
+                        "error": "#a73b21",
+                        "on-tertiary-container": "#60622d",
+                        "on-tertiary": "#fcfdb9",
+                        "on-secondary-container": "#40555f",
+                        "on-error-container": "#6e1400",
+                        "secondary": "#4d626c",
+                        "on-primary-container": "#005e17"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4faff;
+            color: #1b3641;
+        }
+        h1, h2, h3, .headline {
+            font-family: 'Manrope', sans-serif;
+        }
+    </style>
+</head>
+<body class="overflow-hidden">
+<!-- Background Content (Blurred) -->
+<div class="fixed inset-0 z-0 blur-xl opacity-60">
+<!-- SideNavBar Shell -->
+<aside class="fixed left-0 top-0 h-screen flex flex-col p-6 bg-emerald-50 h-full w-72 rounded-r-3xl border-none">
+<div class="mb-10 px-4">
+<h1 class="text-2xl font-bold tracking-tight text-emerald-900">Lush Ledger</h1>
+<p class="text-xs font-medium text-emerald-700/60 uppercase tracking-widest mt-1">The Fiscal Atelier</p>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 bg-white/80 text-emerald-900 rounded-xl font-semibold scale-95" href="#">
+<span class="material-symbols-outlined fill-icon" data-icon="account_balance_wallet" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+<span class="font-label text-sm tracking-wide">Portfolio</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-emerald-700/70" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="font-label text-sm tracking-wide">Transactions</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-emerald-700/70" href="#">
+<span class="material-symbols-outlined" data-icon="savings">savings</span>
+<span class="font-label text-sm tracking-wide">Budgets</span>
+</a>
+</nav>
+<div class="mt-auto pt-6">
+<div class="w-full py-4 bg-primary text-on-primary rounded-xl font-bold flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-xl">add</span>
+<span class="text-sm">Add Transaction</span>
+</div>
+</div>
+</aside>
+<!-- Main Canvas Background -->
+<main class="ml-72 min-h-screen relative flex flex-col">
+<header class="fixed top-0 right-0 w-full lg:w-[calc(100%-18rem)] z-30 flex justify-between items-center px-12 py-6">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container">
+<span class="material-symbols-outlined text-on-surface">arrow_back</span>
+</div>
+<h2 class="text-2xl font-extrabold text-emerald-800 font-headline tracking-tight">Portfolio Overview</h2>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-3 pl-4 border-l border-outline-variant/20">
+<img alt="User avatar" class="w-10 h-10 rounded-full object-cover ring-2 ring-emerald-100" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYN0qxM7Ltc1KGfOIIENY_pf0BjV5ONVaLL__uBdDjT_9aFGa1_CU62HkbeIxnl20-YFypU5VWx-R0eaCv0Ce6GIsNR4LOLm7lu2OcDwRfxusSQY8YyLosWOxV2aWbvzs1_6w_mC8_w-ztg_vTFfK588Oo9LxnR-ro-9VN_eW3IDI6LkXK3FeRZklXCqvyCaPiUMQ99MZOrF8N7WlYqkveKl1DwDiparhlMn3njKk-5QS4Obnyn7W_2B8fe34-rX_oSw836y8dJ6U"/>
+</div>
+</div>
+</header>
+<div class="flex-1 bg-slate-50"></div>
+</main>
+</div>
+<!-- Modal Overlay -->
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xl">
+<!-- Modal Container -->
+<div class="w-full max-w-2xl bg-surface-container-low rounded-[2.5rem] p-10 relative overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300">
+<!-- Visual Decoration -->
+<div class="absolute -top-24 -right-24 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
+<div class="absolute -bottom-24 -left-24 w-64 h-64 bg-tertiary/10 rounded-full blur-3xl"></div>
+<button class="absolute top-8 right-8 w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-lowest hover:bg-surface-container transition-colors z-20">
+<span class="material-symbols-outlined text-on-surface-variant">close</span>
+</button>
+<div class="relative z-10 space-y-10">
+<div class="space-y-2">
+<span class="text-primary font-bold text-xs uppercase tracking-[0.2em]">New Asset Allocation</span>
+<h3 class="text-4xl font-extrabold text-on-surface tracking-tight font-headline">Wallet Details</h3>
+<p class="text-on-surface-variant max-w-md">Define your financial silo. Use wallets to separate freelance income, personal savings, or project-specific funds.</p>
+</div>
+<form class="space-y-8">
+<!-- Wallet Name -->
+<div class="space-y-3">
+<label class="block text-sm font-bold text-on-surface px-1" for="wallet-name">Wallet Name</label>
+<input class="w-full bg-surface-container-lowest border-none rounded-2xl p-5 text-lg font-medium text-on-surface placeholder:text-on-surface-variant/40 focus:ring-2 focus:ring-primary/20 transition-all outline-none shadow-sm" id="wallet-name" placeholder="e.g., Freelance Fund" type="text"/>
+</div>
+<!-- Starting Earning -->
+<div class="space-y-3">
+<label class="block text-sm font-bold text-on-surface px-1" for="wallet-balance">Starting Earning</label>
+<div class="relative flex items-center">
+<span class="absolute left-5 text-2xl font-headline font-bold text-primary">₫</span>
+<input class="w-full bg-surface-container-lowest border-none rounded-2xl p-5 pl-12 text-2xl font-headline font-bold text-on-surface placeholder:text-on-surface-variant/20 focus:ring-2 focus:ring-primary/20 transition-all outline-none shadow-sm" id="wallet-balance" placeholder="10.000.000" type="text"/>
+</div>
+<p class="text-[11px] text-on-surface-variant/60 font-medium px-1 tracking-wide">Values are formatted in Vietnamese Dong (₫).</p>
+</div>
+<!-- Set as Default Toggle -->
+<div class="flex items-center justify-between p-6 bg-surface-container-lowest rounded-2xl shadow-sm">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined fill-icon" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">Set as Default Wallet</p>
+<p class="text-xs text-on-surface-variant">All new transactions will default to this wallet</p>
+</div>
+</div>
+<!-- Pill Toggle -->
+<button class="relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none bg-emerald-700" type="button">
+<span class="translate-x-6 inline-block h-5 w-5 transform rounded-full bg-white transition-transform"></span>
+</button>
+</div>
+<!-- Primary Action -->
+<div class="pt-4">
+<button class="w-full py-5 bg-gradient-to-r from-primary to-primary-dim text-on-primary text-lg font-extrabold rounded-2xl shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3">
+<span>Create Wallet</span>
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</form>
+</div>
+</div>
+</div>
+</body></html>
