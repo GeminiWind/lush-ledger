@@ -1,0 +1,451 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
+import DatePicker from "react-datepicker";
+import { useFormik } from "formik";
+
+type Option = {
+  id: string;
+  name: string;
+};
+
+type Props = {
+  wallets: Option[];
+  defaultWalletId: string;
+  categories: Option[];
+  currency: string;
+};
+
+type FormValues = {
+  type: "expense" | "income";
+  amountDisplay: string;
+  categoryId: string;
+  walletId: string;
+  date: Date | null;
+  isRecurring: boolean;
+  recurringInterval: "monthly" | "yearly";
+  recurringDayOfMonth: string;
+  recurringEndDate: Date | null;
+  description: string;
+  note: string;
+};
+
+type FormErrors = Partial<Record<keyof FormValues, string>>;
+
+const iconForCategory = (name: string) => {
+  const value = name.toLowerCase();
+  if (value.includes("food") || value.includes("dining") || value.includes("coffee")) return "restaurant";
+  if (value.includes("rent") || value.includes("home") || value.includes("housing")) return "home";
+  if (value.includes("grocer") || value.includes("market") || value.includes("shop")) return "shopping_cart";
+  if (value.includes("travel") || value.includes("flight")) return "flight";
+  if (value.includes("maint") || value.includes("repair") || value.includes("utility")) return "build";
+  if (value.includes("entertain") || value.includes("ticket")) return "confirmation_number";
+  return "payments";
+};
+
+const parseAmount = (value: string) => {
+  const cleaned = value.replaceAll(",", "").replaceAll(".", "").trim();
+  const asNumber = Number(cleaned);
+  return Number.isFinite(asNumber) ? asNumber : 0;
+};
+
+const formatDateForApi = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+export default function NewEntryForm({ wallets = [], defaultWalletId, categories, currency }: Props) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const categoryOptions = useMemo(() => categories.slice(0, 6), [categories]);
+
+  const formik = useFormik<FormValues>({
+    initialValues: {
+      type: "expense",
+      amountDisplay: "125.000",
+      categoryId: categories[0]?.id || "",
+      walletId: defaultWalletId || wallets[0]?.id || "",
+      date: new Date(),
+      isRecurring: false,
+      recurringInterval: "monthly",
+      recurringDayOfMonth: String(new Date().getDate()),
+      recurringEndDate: null,
+      description: "",
+      note: "",
+    },
+    validate: (values) => {
+      const errors: FormErrors = {};
+      const amount = parseAmount(values.amountDisplay);
+      const recurringDay = Number(values.recurringDayOfMonth || "1");
+
+      if (amount <= 0) {
+        errors.amountDisplay = "Amount is required.";
+      }
+
+      if (!values.description.trim()) {
+        errors.description = "Description is required.";
+      }
+
+      if (!values.date) {
+        errors.date = "Date is required.";
+      }
+
+      if (values.type === "income" && !values.walletId) {
+        errors.walletId = "Wallet is required.";
+      }
+
+      if (values.isRecurring && (!Number.isInteger(recurringDay) || recurringDay < 1 || recurringDay > 31)) {
+        errors.recurringDayOfMonth = "Recurring day must be between 1 and 31.";
+      }
+
+      if (values.isRecurring && values.recurringEndDate && values.date && values.recurringEndDate < values.date) {
+        errors.recurringEndDate = "End date must be on or after date.";
+      }
+
+      return errors;
+    },
+    onSubmit: async (values) => {
+      setError(null);
+      setLoading(true);
+
+      const date = values.date ? formatDateForApi(values.date) : "";
+      const amount = parseAmount(values.amountDisplay);
+      const description = values.description.trim();
+      const note = values.note.trim();
+      const notes = [description, note].filter(Boolean).join(" - ");
+
+      const response = await fetch("/api/ledger", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          accountId: values.walletId,
+          categoryId: values.type === "expense" ? values.categoryId : "",
+          type: values.type,
+          amount,
+          date,
+          notes,
+          recurring: {
+            enabled: values.isRecurring,
+            interval: values.recurringInterval,
+            dayOfMonth: Number(values.recurringDayOfMonth || "1"),
+            endDate: values.recurringEndDate ? formatDateForApi(values.recurringEndDate) : null,
+          },
+        }),
+      });
+
+      setLoading(false);
+
+      if (!response.ok) {
+        const data = await response.json();
+        setError(data.error || "Could not add transaction.");
+        return;
+      }
+
+      router.push("/app/ledger");
+      router.refresh();
+    },
+  });
+
+  const onAmountChange = (rawValue: string) => {
+    const digits = rawValue.replace(/\D/g, "");
+    if (!digits) {
+      formik.setFieldValue("amountDisplay", "");
+      return;
+    }
+    const locale = currency === "VND" ? "vi-VN" : "en-US";
+    const formatted = new Intl.NumberFormat(locale, {
+      maximumFractionDigits: 0,
+    }).format(Number(digits));
+    formik.setFieldValue("amountDisplay", formatted);
+  };
+
+  return (
+    <form onSubmit={formik.handleSubmit} className="space-y-10">
+      <div className="space-y-2 text-center">
+        <label className="block text-xs font-bold uppercase tracking-[0.2em] text-[#7f97a4]">
+          Transaction Amount <span className="text-[#a73b21]">*</span>
+        </label>
+        <div className="flex items-center justify-center">
+          <span className="font-[var(--font-manrope)] text-4xl font-light text-[#7f97a4]">
+            {currency === "VND" ? "VND" : currency}
+          </span>
+          <input
+            name="amountDisplay"
+            value={formik.values.amountDisplay}
+            onChange={(event) => onAmountChange(event.target.value)}
+            onBlur={() => formik.setFieldTouched("amountDisplay", true)}
+            placeholder="0"
+            inputMode="numeric"
+            className="w-full bg-transparent p-0 text-center font-[var(--font-manrope)] text-6xl font-extrabold text-[#1b3641] placeholder:text-[#c2d8e5] outline-none"
+          />
+        </div>
+        {formik.touched.amountDisplay && formik.errors.amountDisplay ? (
+          <p className="text-sm text-[#a73b21]">{formik.errors.amountDisplay}</p>
+        ) : null}
+        <div className="mx-auto h-0.5 w-1/3 rounded-full bg-[#d4ecf9]">
+          <div className="h-full w-1/2 rounded-full bg-[#006f1d]" />
+        </div>
+      </div>
+
+      <div className="space-y-8">
+        <div className="space-y-3">
+          <label className="font-[var(--font-manrope)] text-sm font-bold text-[#1b3641]">Type</label>
+          <div className="grid grid-cols-2 rounded-xl bg-[#e7f6ff] p-1">
+            <button
+              type="button"
+              onClick={() => formik.setFieldValue("type", "expense")}
+              className={`rounded-lg px-4 py-3 text-sm font-semibold transition ${
+                formik.values.type === "expense" ? "bg-white text-[#1b3641] shadow-sm" : "text-[#6f8793]"
+              }`}
+            >
+              Expense
+            </button>
+            <button
+              type="button"
+              onClick={() => formik.setFieldValue("type", "income")}
+              className={`rounded-lg px-4 py-3 text-sm font-semibold transition ${
+                formik.values.type === "income" ? "bg-white text-[#1b3641] shadow-sm" : "text-[#6f8793]"
+              }`}
+            >
+              Income
+            </button>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex items-center justify-between gap-4 rounded-xl bg-[#e7f6ff] px-4 py-3">
+            <label className="font-[var(--font-manrope)] text-sm font-bold text-[#1b3641]">Recurring</label>
+            <button
+              type="button"
+              onClick={() => formik.setFieldValue("isRecurring", !formik.values.isRecurring)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
+                formik.values.isRecurring ? "bg-[#2e7d32]" : "bg-[#9bb6c4]"
+              }`}
+              aria-pressed={formik.values.isRecurring}
+            >
+              <span
+                className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${
+                  formik.values.isRecurring ? "translate-x-5" : "translate-x-0.5"
+                }`}
+              />
+            </button>
+          </div>
+
+          {formik.values.isRecurring ? (
+            <div className="grid grid-cols-1 gap-4 rounded-xl bg-[#f1f9ff] p-4 md:grid-cols-3">
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-[0.16em] text-[#6f8793]">Frequency</label>
+                <select
+                  value={formik.values.recurringInterval}
+                  onChange={formik.handleChange}
+                  name="recurringInterval"
+                  className="w-full appearance-none rounded-xl border-none bg-white px-4 py-3 text-sm font-semibold text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/20"
+                >
+                  <option value="monthly">Monthly</option>
+                  <option value="yearly">Yearly</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-[0.16em] text-[#6f8793]">Day of month</label>
+                <input
+                  value={formik.values.recurringDayOfMonth}
+                  onChange={(event) => {
+                    formik.setFieldValue("recurringDayOfMonth", event.target.value.replace(/[^0-9]/g, "").slice(0, 2));
+                  }}
+                  onBlur={() => formik.setFieldTouched("recurringDayOfMonth", true)}
+                  inputMode="numeric"
+                  placeholder="5"
+                  className="w-full rounded-xl border-none bg-white px-4 py-3 text-sm font-semibold text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/20"
+                />
+                {formik.touched.recurringDayOfMonth && formik.errors.recurringDayOfMonth ? (
+                  <p className="text-xs text-[#a73b21]">{formik.errors.recurringDayOfMonth}</p>
+                ) : null}
+                <p className="text-xs text-[#6f8793]">Example: set to 5 for every 5th day.</p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-[0.16em] text-[#6f8793]">End date</label>
+                <DatePicker
+                  selected={formik.values.recurringEndDate}
+                  onChange={(date: Date | null) => {
+                    formik.setFieldValue("recurringEndDate", date);
+                    formik.setFieldTouched("recurringEndDate", true, false);
+                  }}
+                  dateFormat="yyyy-MM-dd"
+                  showMonthDropdown
+                  showYearDropdown
+                  dropdownMode="select"
+                  minDate={formik.values.date ?? undefined}
+                  isClearable
+                  placeholderText="No end date"
+                  wrapperClassName="w-full"
+                  className="w-full rounded-xl border-none bg-white px-4 py-3 text-sm font-semibold text-[#1b3641] placeholder:text-[#8ea6b3] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/20"
+                  calendarClassName="ledger-datepicker"
+                />
+                {formik.touched.recurringEndDate && formik.errors.recurringEndDate ? (
+                  <p className="text-xs text-[#a73b21]">{formik.errors.recurringEndDate}</p>
+                ) : null}
+                <p className="text-xs text-[#6f8793]">Optional. Stop recurring after this date.</p>
+              </div>
+            </div>
+          ) : null}
+        </div>
+
+        <div className="space-y-3">
+          <label className="font-[var(--font-manrope)] text-sm font-bold text-[#1b3641]">
+            Description <span className="text-[#a73b21]">*</span>
+          </label>
+          <input
+            name="description"
+            value={formik.values.description}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            placeholder="e.g. Coffee at The Roasting Atelier"
+            className="w-full rounded-xl border-none bg-[#e7f6ff] px-6 py-4 text-[#1b3641] placeholder:text-[#7f97a4] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/20"
+          />
+          {formik.touched.description && formik.errors.description ? (
+            <p className="text-sm text-[#a73b21]">{formik.errors.description}</p>
+          ) : null}
+        </div>
+
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+          {formik.values.type === "expense" ? (
+            <div className="space-y-3">
+              <label className="font-[var(--font-manrope)] text-sm font-bold text-[#1b3641]">Category</label>
+              <div className="relative">
+                <select
+                  name="categoryId"
+                  value={formik.values.categoryId}
+                  onChange={formik.handleChange}
+                  className="w-full appearance-none rounded-xl border-none bg-[#e7f6ff] px-6 py-4 text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/20"
+                >
+                  <option value="">No category</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+                <span className="material-symbols-outlined pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#7f97a4]">
+                  expand_more
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <label className="font-[var(--font-manrope)] text-sm font-bold text-[#1b3641]">
+                Wallet <span className="text-[#a73b21]">*</span>
+              </label>
+              <div className="relative">
+                <select
+                  name="walletId"
+                  value={formik.values.walletId}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className="w-full appearance-none rounded-xl border-none bg-[#e7f6ff] px-6 py-4 text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/20"
+                >
+                  <option value="">Select wallet</option>
+                  {(Array.isArray(wallets) ? wallets : []).map((wallet) => (
+                    <option key={wallet.id} value={wallet.id}>
+                      {wallet.name}
+                    </option>
+                  ))}
+                </select>
+                <span className="material-symbols-outlined pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#7f97a4]">
+                  expand_more
+                </span>
+              </div>
+              {formik.touched.walletId && formik.errors.walletId ? (
+                <p className="text-sm text-[#a73b21]">{formik.errors.walletId}</p>
+              ) : null}
+            </div>
+          )}
+
+          <div className="space-y-3">
+            <label className="font-[var(--font-manrope)] text-sm font-bold text-[#1b3641]">
+              Date <span className="text-[#a73b21]">*</span>
+            </label>
+            <div className="relative">
+              <DatePicker
+                selected={formik.values.date}
+                onChange={(date: Date | null) => {
+                  formik.setFieldValue("date", date);
+                  formik.setFieldTouched("date", true, false);
+                }}
+                dateFormat="yyyy-MM-dd"
+                showMonthDropdown
+                showYearDropdown
+                dropdownMode="select"
+                className="w-full rounded-xl border-none bg-[#e7f6ff] px-6 py-4 text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/20"
+                calendarClassName="ledger-datepicker"
+              />
+            </div>
+            {formik.touched.date && formik.errors.date ? (
+              <p className="text-sm text-[#a73b21]">{formik.errors.date}</p>
+            ) : null}
+          </div>
+        </div>
+
+        {formik.values.type === "expense" ? (
+          <div className="grid grid-cols-3 gap-3 md:grid-cols-6">
+            {categoryOptions.map((category) => {
+              const selected = formik.values.categoryId === category.id;
+              return (
+                <button
+                  key={category.id}
+                  type="button"
+                  onClick={() => formik.setFieldValue("categoryId", category.id)}
+                  className={`flex flex-col items-center justify-center rounded-xl p-3 text-center transition ${
+                    selected
+                      ? "bg-[#91f78e]/45 text-[#005e17] ring-2 ring-[#006f1d]"
+                      : "bg-[#e7f6ff] text-[#6f8793] hover:bg-[#dff0fa]"
+                  }`}
+                >
+                  <span className="material-symbols-outlined mb-1 text-xl">{iconForCategory(category.name)}</span>
+                  <span className="w-full truncate text-[10px] font-bold">{category.name}</span>
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
+
+        <div className="space-y-3">
+          <label className="font-[var(--font-manrope)] text-sm font-bold text-[#1b3641]">
+            Notes <span className="ml-1 font-normal text-[#7f97a4]">(Optional)</span>
+          </label>
+          <textarea
+            name="note"
+            value={formik.values.note}
+            onChange={formik.handleChange}
+            rows={3}
+            placeholder="Add additional details about this fiscal event..."
+            className="w-full resize-none rounded-xl border-none bg-[#e7f6ff] px-6 py-4 text-[#1b3641] placeholder:text-[#7f97a4] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/20"
+          />
+        </div>
+      </div>
+
+      {error ? <p className="rounded-xl border border-[#f8cfc4] bg-[#fff3ef] px-4 py-3 text-sm text-[#a73b21]">{error}</p> : null}
+
+      <div className="pt-2">
+        <button
+          type="submit"
+          disabled={loading}
+          className="flex w-full items-center justify-center gap-3 rounded-2xl bg-[#006f1d] py-6 font-[var(--font-manrope)] text-lg font-bold text-[#eaffe2] shadow-[0_12px_40px_-10px_rgba(0,111,29,0.3)] transition hover:bg-[#006118] disabled:cursor-not-allowed disabled:opacity-70"
+        >
+          <span className="material-symbols-outlined">check_circle</span>
+          <span>{loading ? "Adding Transaction..." : "Add Transaction"}</span>
+        </button>
+        <p className="mt-4 text-center text-xs font-medium text-[#7f97a4]">
+          Press <span className="rounded bg-[#d4ecf9] px-1.5 py-0.5 text-[10px]">CMD</span> +{" "}
+          <span className="rounded bg-[#d4ecf9] px-1.5 py-0.5 text-[10px]">Enter</span> to save quickly.
+        </p>
+      </div>
+    </form>
+  );
+}

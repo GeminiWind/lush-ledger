@@ -1,0 +1,111 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getSessionFromRequest } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+import { getLedgerData } from "@/lib/ledger";
+import { ensureDefaultWallet } from "@/lib/wallet";
+
+export const GET = async (request: NextRequest) => {
+  const session = await getSessionFromRequest(request);
+  if (!session?.sub) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(request.url);
+  const query = searchParams.get("query") || undefined;
+  const type = searchParams.get("type") || undefined;
+  const accountId = searchParams.get("accountId") || undefined;
+  const categoryId = searchParams.get("categoryId") || undefined;
+
+  const ledger = await getLedgerData(session.sub, {
+    query,
+    type,
+    accountId,
+    categoryId,
+  });
+
+  return NextResponse.json({ ledger });
+};
+
+export const POST = async (request: NextRequest) => {
+  const session = await getSessionFromRequest(request);
+  if (!session?.sub) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const body = await request.json();
+  const requestedAccountId = String(body.accountId || "").trim();
+  const categoryId = String(body.categoryId || "").trim();
+  const type = body.type === "income" ? "income" : "expense";
+  const amount = Number(body.amount);
+  const notes = String(body.notes || "").trim();
+  const date = new Date(String(body.date || ""));
+  const recurringEnabled = Boolean(body.recurring?.enabled);
+  const recurringInterval = body.recurring?.interval === "yearly" ? "yearly" : "monthly";
+  const recurringDayOfMonth = Number(body.recurring?.dayOfMonth || date.getDate());
+  const recurringEndDateRaw = String(body.recurring?.endDate || "").trim();
+  const recurringEndDate = recurringEndDateRaw ? new Date(recurringEndDateRaw) : null;
+
+  if (Number.isNaN(amount) || amount <= 0 || Number.isNaN(date.getTime())) {
+    return NextResponse.json(
+      { error: "Amount and valid date are required." },
+      { status: 400 }
+    );
+  }
+
+  if (recurringEnabled && (!Number.isInteger(recurringDayOfMonth) || recurringDayOfMonth < 1 || recurringDayOfMonth > 31)) {
+    return NextResponse.json({ error: "Recurring day must be between 1 and 31." }, { status: 400 });
+  }
+
+  if (recurringEnabled && recurringEndDate && Number.isNaN(recurringEndDate.getTime())) {
+    return NextResponse.json({ error: "Recurring end date is invalid." }, { status: 400 });
+  }
+
+  if (recurringEnabled && recurringEndDate && recurringEndDate.getTime() < date.getTime()) {
+    return NextResponse.json({ error: "Recurring end date must be on or after the transaction date." }, { status: 400 });
+  }
+
+  const account = requestedAccountId
+    ? await prisma.account.findFirst({
+        where: { id: requestedAccountId, userId: session.sub },
+      })
+    : await prisma.account.findFirst({
+        where: { userId: session.sub },
+        orderBy: { createdAt: "asc" },
+      });
+
+  const activeAccount = account || (await ensureDefaultWallet(session.sub));
+
+  if (categoryId) {
+    const category = await prisma.category.findFirst({
+      where: { id: categoryId, userId: session.sub },
+    });
+    if (!category) {
+      return NextResponse.json({ error: "Invalid category." }, { status: 400 });
+    }
+  }
+
+  if (requestedAccountId && !account) {
+    return NextResponse.json({ error: "Invalid wallet." }, { status: 400 });
+  }
+
+  const transaction = await prisma.transaction.create({
+    data: {
+      userId: session.sub,
+      accountId: activeAccount.id,
+      categoryId: categoryId || null,
+      type,
+      amount,
+      date,
+      notes: notes || null,
+      isRecurringTemplate: recurringEnabled,
+      recurringInterval: recurringEnabled ? recurringInterval : null,
+      recurringDayOfMonth: recurringEnabled ? recurringDayOfMonth : null,
+      recurringMonth: recurringEnabled && recurringInterval === "yearly" ? date.getMonth() + 1 : null,
+      recurringStartDate: recurringEnabled ? date : null,
+      recurringEndDate: recurringEnabled ? recurringEndDate : null,
+      lastRecurringRunAt: recurringEnabled ? date : null,
+    },
+  });
+
+  return NextResponse.json({ transaction }, { status: 201 });
+};

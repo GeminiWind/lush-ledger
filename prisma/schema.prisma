@@ -1,0 +1,141 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String       @id @default(cuid())
+  name         String?
+  email        String       @unique
+  passwordHash String
+  createdAt    DateTime     @default(now())
+  settings     UserSettings?
+  accounts     Account[]
+  categories   Category[]
+  transactions Transaction[]
+  savingsPlans SavingsPlan[]
+  monthlyCaps  UserMonthlyCap[]
+  categoryMonthlyLimits CategoryMonthlyLimit[]
+}
+
+model UserSettings {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  currency  String   @default("VND")
+  unallocatedBackup Decimal @default(0)
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model UserMonthlyCap {
+  id                String   @id @default(cuid())
+  userId            String
+  monthStart        DateTime
+  totalLimit        Decimal  @default(0)
+  totalCap          Decimal  @default(0)
+  unallocatedBackup Decimal  @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, monthStart])
+  @@index([userId])
+  @@index([monthStart])
+}
+
+model CategoryMonthlyLimit {
+  id         String   @id @default(cuid())
+  userId     String
+  categoryId String
+  monthStart DateTime
+  limit      Decimal  @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  @@unique([userId, categoryId, monthStart])
+  @@index([userId, monthStart])
+  @@index([categoryId])
+}
+
+model Account {
+  id             String        @id @default(cuid())
+  userId         String
+  name           String
+  type           String
+  openingBalance Decimal       @default(0)
+  createdAt      DateTime      @default(now())
+  user           User          @relation(fields: [userId], references: [id])
+  transactions   Transaction[]
+
+  @@index([userId])
+}
+
+model Category {
+  id            String        @id @default(cuid())
+  userId        String
+  name          String
+  monthlyLimit  Decimal       @default(0)
+  createdAt     DateTime      @default(now())
+  user          User          @relation(fields: [userId], references: [id])
+  transactions  Transaction[]
+  monthlyLimits CategoryMonthlyLimit[]
+
+  @@index([userId])
+}
+
+model Transaction {
+  id             String       @id @default(cuid())
+  userId         String
+  accountId      String
+  categoryId     String?
+  savingsPlanId  String?
+  recurringTemplateId String?
+  recurringInterval   String?
+  recurringDayOfMonth Int?
+  recurringMonth      Int?
+  recurringStartDate  DateTime?
+  recurringEndDate    DateTime?
+  isRecurringTemplate Boolean      @default(false)
+  lastRecurringRunAt  DateTime?
+  amount         Decimal
+  type           String
+  date           DateTime
+  notes          String?
+  createdAt      DateTime     @default(now())
+  user           User         @relation(fields: [userId], references: [id])
+  account        Account      @relation(fields: [accountId], references: [id])
+  category       Category?    @relation(fields: [categoryId], references: [id])
+  savingsPlan    SavingsPlan? @relation(fields: [savingsPlanId], references: [id])
+
+  @@index([userId])
+  @@index([accountId])
+  @@index([categoryId])
+  @@index([savingsPlanId])
+  @@index([recurringTemplateId])
+  @@index([isRecurringTemplate])
+  @@index([date])
+  @@unique([recurringTemplateId, date])
+}
+
+model SavingsPlan {
+  id                 String        @id @default(cuid())
+  userId             String
+  name               String
+  targetAmount       Decimal
+  monthlyContribution Decimal
+  targetDate         DateTime
+  createdAt          DateTime      @default(now())
+  user               User          @relation(fields: [userId], references: [id])
+  transactions       Transaction[]
+
+  @@index([userId])
+}

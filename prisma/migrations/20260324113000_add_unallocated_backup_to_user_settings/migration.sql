@@ -1,0 +1,1 @@
+ALTER TABLE "UserSettings" ADD COLUMN "unallocatedBackup" DECIMAL NOT NULL DEFAULT 0;

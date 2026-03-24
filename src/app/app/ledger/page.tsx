@@ -1,0 +1,311 @@
+import { getLedgerData } from "@/lib/ledger";
+import { requireUser } from "@/lib/user";
+import Link from "next/link";
+
+type SearchParams = Promise<{
+  query?: string;
+  type?: string;
+  accountId?: string;
+  categoryId?: string;
+}>;
+
+const asCurrency = (value: number, currency: string) => {
+  const locale = currency === "VND" ? "vi-VN" : "en-US";
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency,
+    maximumFractionDigits: currency === "VND" ? 0 : 2,
+  }).format(value);
+};
+
+const asDayLabel = (value: Date) => {
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+
+  if (value.toDateString() === today.toDateString()) {
+    return "Today";
+  }
+  if (value.toDateString() === yesterday.toDateString()) {
+    return "Yesterday";
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    day: "2-digit",
+  }).format(value);
+};
+
+const asTime = (value: Date) => {
+  return new Intl.DateTimeFormat("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(value);
+};
+
+const txVisual = (type: string, name: string) => {
+  if (type === "income") {
+    return {
+      icon: "trending_up",
+      badge: "bg-[#0f7a2f] text-white",
+      amountClass: "text-[#0f7a2f]",
+    };
+  }
+
+  const label = name.toLowerCase();
+  if (label.includes("coffee") || label.includes("dining") || label.includes("food")) {
+    return {
+      icon: "coffee",
+      badge: "bg-emerald-100 text-emerald-800",
+      amountClass: "text-[#1b3641]",
+    };
+  }
+
+  if (label.includes("rent") || label.includes("home") || label.includes("utility")) {
+    return {
+      icon: "apartment",
+      badge: "bg-orange-100 text-orange-700",
+      amountClass: "text-[#1b3641]",
+    };
+  }
+
+  if (label.includes("travel") || label.includes("flight")) {
+    return {
+      icon: "flight",
+      badge: "bg-violet-100 text-violet-800",
+      amountClass: "text-[#1b3641]",
+    };
+  }
+
+  return {
+    icon: "inventory_2",
+    badge: "bg-sky-100 text-sky-800",
+    amountClass: "text-[#1b3641]",
+  };
+};
+
+export default async function LedgerPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const user = await requireUser();
+  const currency = user.settings?.currency ?? "VND";
+  const params = await searchParams;
+
+  const data = await getLedgerData(user.id, {
+    query: params.query,
+    type: params.type,
+    accountId: params.accountId,
+    categoryId: params.categoryId,
+  });
+
+  type LedgerTransaction = (typeof data.transactions)[number];
+  const groupedTransactions = data.transactions.reduce(
+    (groups: Array<{ key: string; label: string; items: LedgerTransaction[] }>, transaction) => {
+      const key = transaction.date.toISOString().slice(0, 10);
+      const currentGroup = groups[groups.length - 1];
+
+      if (currentGroup && currentGroup.key === key) {
+        currentGroup.items.push(transaction);
+        return groups;
+      }
+
+      groups.push({
+        key,
+        label: asDayLabel(transaction.date),
+        items: [transaction],
+      });
+      return groups;
+    },
+    [],
+  );
+
+  const renderedCount = groupedTransactions.reduce((sum, group) => sum + group.items.length, 0);
+
+  return (
+    <div className="space-y-10">
+      <section className="flex items-center gap-8 border-b border-[#dce9e2] pb-2">
+        <Link href="/app/ledger" className="border-b-2 border-[#006f1d] pb-2 font-[var(--font-manrope)] text-lg font-semibold text-[#1b3641]">
+          Activity
+        </Link>
+        <Link href="/app/ledger/reports" className="pb-2 font-[var(--font-manrope)] text-lg font-semibold text-[#006f1d]/60 hover:text-[#1b3641]">
+          Reports
+        </Link>
+        <Link href="/app/categories" className="pb-2 font-[var(--font-manrope)] text-lg font-semibold text-[#006f1d]/60 hover:text-[#1b3641]">
+          Budgets
+        </Link>
+      </section>
+
+      <section className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+        <div>
+          <h1 className="font-[var(--font-manrope)] text-5xl font-extrabold tracking-[-0.03em] text-[#1b3641]">
+            The Ledger
+          </h1>
+          <p className="mt-2 max-w-xl text-sm font-medium text-[#49636f]">
+            A curated overview of your fiscal flow. Keep every transaction visible and aligned with your monthly goals.
+          </p>
+        </div>
+
+        <div className="grid w-full gap-4 sm:w-auto sm:grid-cols-1">
+          <article className="rounded-2xl border border-slate-100 bg-white px-8 py-5 text-center shadow-[0_6px_24px_-18px_rgba(27,54,65,0.4)]">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7b939f]">MTD Spending</p>
+            <p className="mt-1 font-[var(--font-manrope)] text-2xl font-extrabold tracking-tight text-[#1b3641]">
+              {asCurrency(data.summary.monthExpense, currency)}
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section className="space-y-5">
+        <form className="flex flex-wrap items-center gap-3" method="get" role="search">
+          <label className="sr-only" htmlFor="query">
+            Search entries
+          </label>
+          <div className="flex items-center gap-2 rounded-xl border border-slate-100 bg-white px-4 py-2 shadow-sm">
+            <span className="material-symbols-outlined text-sm text-slate-400">search</span>
+            <input
+              id="query"
+              name="query"
+              defaultValue={params.query || ""}
+              placeholder="Search entries..."
+              className="w-40 border-none bg-transparent p-0 text-sm text-[#1b3641] placeholder:text-[#8aa2b0] focus:ring-0"
+            />
+          </div>
+
+          <div className="flex items-center gap-2 rounded-xl border border-slate-100 bg-white px-4 py-2 shadow-sm">
+            <span className="material-symbols-outlined text-sm text-slate-400">filter_list</span>
+            <select
+              name="categoryId"
+              defaultValue={params.categoryId || ""}
+              className="border-none bg-transparent p-0 text-sm font-semibold text-[#1b3641] focus:ring-0"
+            >
+              <option value="">Category</option>
+              {data.categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2 rounded-xl border border-slate-100 bg-white px-4 py-2 shadow-sm">
+            <span className="material-symbols-outlined text-sm text-slate-400">payments</span>
+            <select
+              name="type"
+              defaultValue={params.type || ""}
+              className="border-none bg-transparent p-0 text-sm font-semibold text-[#1b3641] focus:ring-0"
+            >
+              <option value="">Amount</option>
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2 rounded-xl border border-slate-100 bg-white px-4 py-2 shadow-sm">
+            <span className="material-symbols-outlined text-sm text-slate-400">account_balance_wallet</span>
+            <select
+              name="accountId"
+              defaultValue={params.accountId || ""}
+              className="border-none bg-transparent p-0 text-sm font-semibold text-[#1b3641] focus:ring-0"
+            >
+              <option value="">Wallet</option>
+              {data.accounts.map((account) => (
+                <option key={account.id} value={account.id}>
+                  {account.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="ml-auto flex items-center gap-1 sm:gap-2">
+            <button type="button" className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-[#006f1d]">
+              <span className="material-symbols-outlined">view_list</span>
+            </button>
+            <button type="button" className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-[#006f1d]">
+              <span className="material-symbols-outlined">grid_view</span>
+            </button>
+            <button
+              type="submit"
+              className="rounded-xl bg-[#006f1d] px-4 py-2 text-sm font-bold text-[#eaffe2] shadow-[0_10px_20px_-12px_rgba(0,111,29,0.6)] hover:brightness-105"
+            >
+              Apply
+            </button>
+          </div>
+        </form>
+
+        <section className="space-y-8">
+          {groupedTransactions.length === 0 ? (
+            <p className="rounded-2xl border border-dashed border-[#d7e5dc] bg-white px-4 py-8 text-center text-sm text-[#647e8c]">
+              No entries match your filters.
+            </p>
+          ) : (
+            groupedTransactions.map((group) => (
+              <div key={group.key} className="space-y-3">
+                <h2 className="flex items-center gap-4 px-2 text-xs font-bold uppercase tracking-[0.2em] text-[#6f8793]">
+                  <span>{group.label}</span>
+                  <span className="h-px flex-1 bg-[#c8dbe7]/50" />
+                </h2>
+
+                <div className="space-y-2">
+                  {group.items.map((tx) => {
+                    const subject = tx.notes?.trim() || tx.category?.name || tx.account.name;
+                    const detail = `${tx.category?.name || "Uncategorized"} • ${asTime(tx.date)}`;
+                    const visual = txVisual(tx.type, subject);
+
+                    return (
+                      <article
+                        key={tx.id}
+                        className="group flex items-center justify-between rounded-2xl border border-transparent bg-white p-4 transition hover:border-emerald-100 hover:bg-emerald-50/40"
+                      >
+                        <div className="flex min-w-0 items-center gap-5">
+                          <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${visual.badge}`}>
+                            <span className="material-symbols-outlined">{visual.icon}</span>
+                          </div>
+                          <div className="min-w-0">
+                            <p className="truncate font-bold text-[#1b3641] transition group-hover:text-[#006f1d]">
+                              {subject}
+                            </p>
+                            <p className="truncate text-xs font-medium text-[#6f8793]">{detail}</p>
+                          </div>
+                        </div>
+
+                        <div className="ml-4 flex items-center gap-6">
+                          <div className="text-right">
+                            <p className={`font-[var(--font-manrope)] text-lg font-extrabold ${visual.amountClass}`}>
+                              {tx.type === "income" ? "+" : "-"}
+                              {asCurrency(Number(tx.amount), currency)}
+                            </p>
+                            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#7f97a4]">
+                              {tx.account.name}
+                            </p>
+                          </div>
+                          <span className="material-symbols-outlined text-slate-300">chevron_right</span>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              </div>
+            ))
+          )}
+        </section>
+      </section>
+
+      <footer className="flex items-center justify-between border-t border-slate-200/60 pt-8">
+        <p className="text-sm font-medium text-[#6f8793]">Showing {renderedCount} transaction(s)</p>
+        <div className="flex items-center gap-2">
+          <button type="button" className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100">
+            <span className="material-symbols-outlined">chevron_left</span>
+          </button>
+          <button type="button" className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#006f1d] text-sm font-bold text-[#eaffe2]">
+            1
+          </button>
+          <button type="button" className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100">
+            <span className="material-symbols-outlined">chevron_right</span>
+          </button>
+        </div>
+      </footer>
+    </div>
+  );
+}

@@ -1,0 +1,188 @@
+import { prisma } from "@/lib/db";
+import { getMonthRange } from "@/lib/date";
+import { formatCurrency } from "@/lib/format";
+import { materializeRecurringTransactions } from "@/lib/recurring";
+import { requireUser } from "@/lib/user";
+import { ensureMonthlyCapSnapshot, monthKeyOf } from "@/lib/monthly-cap";
+import AddCategoryModal from "@/app/app/atelier/AddCategoryModal";
+import TotalCapCard from "@/app/app/atelier/TotalCapCard";
+import CategoryAtelierGrid from "@/app/app/atelier/CategoryAtelierGrid";
+
+const toNumber = (value: unknown) => Number(value ?? 0);
+
+export default async function AtelierPage() {
+  const user = await requireUser();
+  await materializeRecurringTransactions(user.id);
+  const currency = user.settings?.currency || "VND";
+  const { start, end } = getMonthRange(new Date());
+
+  const [categories, monthTransactions, savingsPlans, monthlyCap] = await Promise.all([
+    prisma.category.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.transaction.findMany({
+      where: { userId: user.id, date: { gte: start, lte: end } },
+    }),
+    prisma.savingsPlan.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+    }),
+    ensureMonthlyCapSnapshot(user.id, start, 0),
+  ]);
+
+  const monthIncome = monthTransactions
+    .filter((tx) => tx.type === "income")
+    .reduce((sum, tx) => sum + toNumber(tx.amount), 0);
+
+  const categoryStats = categories
+    .map((category) => {
+      const spent = monthTransactions
+        .filter((tx) => tx.categoryId === category.id && tx.type === "expense")
+        .reduce((sum, tx) => sum + toNumber(tx.amount), 0);
+
+      const limit = toNumber(category.monthlyLimit);
+      const usage = limit > 0 ? Math.min(spent / limit, 1) : 0;
+
+      return {
+        id: category.id,
+        name: category.name,
+        limit,
+        spent,
+        usage,
+      };
+    })
+    .sort((a, b) => b.limit - a.limit || b.spent - a.spent);
+
+  const totalCap = toNumber(monthlyCap.totalCap);
+  const allocated = toNumber(monthlyCap.totalLimit);
+  const remaining = Math.max(totalCap - allocated, 0);
+  const capProgress = totalCap > 0 ? Math.min(allocated / totalCap, 1) : 0;
+
+  const savingsTarget = savingsPlans.reduce(
+    (sum, plan) => sum + toNumber(plan.monthlyContribution),
+    0,
+  );
+
+  const savingsByPlan = savingsPlans.map((plan) => {
+    const saved = monthTransactions
+      .filter((tx) => tx.savingsPlanId === plan.id)
+      .reduce((sum, tx) => sum + toNumber(tx.amount), 0);
+
+    return {
+      id: plan.id,
+      name: plan.name,
+      target: toNumber(plan.monthlyContribution),
+      saved,
+    };
+  });
+
+  const savingsSaved = savingsByPlan.reduce((sum, plan) => sum + plan.saved, 0);
+  const savingsCoverage =
+    savingsTarget > 0 ? Math.min((savingsSaved / savingsTarget) * 100, 100) : 0;
+
+  const monthLabel = new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    year: "numeric",
+  }).format(new Date());
+
+  return (
+    <div className="flex w-full flex-col gap-10">
+        <section className="space-y-6">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-sm font-medium text-[#49636f]">Fiscal Masterplan</p>
+              <h1 className="font-[var(--font-manrope)] text-4xl font-extrabold tracking-[-0.02em] text-[#1b3641]">
+                Budget Allocation
+              </h1>
+            </div>
+            <div className="text-right">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">Period</p>
+              <p className="font-[var(--font-manrope)] text-xl font-bold text-[#2e7d32]">{monthLabel}</p>
+            </div>
+          </div>
+
+          <div className="grid gap-6 xl:grid-cols-[2fr_1fr]">
+            <TotalCapCard
+              currency={currency}
+              month={monthKeyOf(start)}
+              totalCap={totalCap}
+              allocated={allocated}
+              remaining={remaining}
+              monthIncome={monthIncome}
+              capProgress={capProgress}
+            />
+
+            <article className="rounded-[2rem] bg-white p-8 shadow-[0_24px_48px_-12px_rgba(27,54,65,0.08)]">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h2 className="font-[var(--font-manrope)] text-xl font-bold">Monthly Savings Plan</h2>
+                  <p className="text-xs text-[#49636f]">Automatic Vault Allocation</p>
+                </div>
+                <div className="rounded-xl bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800">
+                  ON
+                </div>
+              </div>
+
+              <div className="mt-7 space-y-5">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">Savings Target</p>
+                  <p className="mt-1 font-[var(--font-manrope)] text-3xl font-extrabold text-[#1b3641]">
+                    {formatCurrency(savingsTarget, currency)}
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  {savingsByPlan.length === 0 ? (
+                    <p className="text-sm text-[#6f8793]">No savings plans yet.</p>
+                  ) : (
+                    savingsByPlan.slice(0, 3).map((plan) => (
+                      <div key={plan.id} className="flex items-center justify-between text-sm">
+                        <span className="text-[#49636f]">{plan.name}</span>
+                        <span className="font-semibold text-[#1b3641]">
+                          {formatCurrency(plan.target, currency)}
+                        </span>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-end justify-between">
+                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">Goal Coverage</p>
+                    <p className="font-[var(--font-manrope)] text-sm font-bold text-[#2e7d32]">
+                      {Math.round(savingsCoverage)}% Covered
+                    </p>
+                  </div>
+                  <div className="h-3 overflow-hidden rounded-full bg-[#e4f1fa]">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-[#2e7d32] to-[#1f6f3a]"
+                      style={{ width: `${Math.round(savingsCoverage)}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-[#6f8793]">
+                    Saved this month: <span className="font-semibold text-[#1b3641]">{formatCurrency(savingsSaved, currency)}</span>
+                  </p>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section className="space-y-5">
+          {categoryStats.length === 0 ? (
+            <div className="space-y-5">
+              <div className="rounded-3xl border-2 border-dashed border-[#c7dce9] bg-white p-12 text-center text-[#6f8793]">
+                Add categories with monthly limits to start your atelier view.
+              </div>
+              <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                <AddCategoryModal currency={currency} />
+              </div>
+            </div>
+          ) : (
+            <CategoryAtelierGrid categories={categoryStats} currency={currency} />
+          )}
+        </section>
+    </div>
+  );
+}
