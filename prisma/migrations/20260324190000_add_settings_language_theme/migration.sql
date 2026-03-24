@@ -1,0 +1,2 @@
+ALTER TABLE "UserSettings" ADD COLUMN "language" TEXT NOT NULL DEFAULT 'en-US';
+ALTER TABLE "UserSettings" ADD COLUMN "theme" TEXT NOT NULL DEFAULT 'light';

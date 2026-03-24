@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import DatePicker from "react-datepicker";
 import { useFormik } from "formik";
+import { getDictionary } from "@/lib/i18n";
 
 type Option = {
   id: string;
@@ -15,6 +16,7 @@ type Props = {
   defaultWalletId: string;
   categories: Option[];
   currency: string;
+  language: string;
 };
 
 type FormValues = {
@@ -57,8 +59,9 @@ const formatDateForApi = (date: Date) => {
   return `${year}-${month}-${day}`;
 };
 
-export default function NewEntryForm({ wallets = [], defaultWalletId, categories, currency }: Props) {
+export default function NewEntryForm({ wallets = [], defaultWalletId, categories, currency, language }: Props) {
   const router = useRouter();
+  const t = getDictionary(language);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -84,27 +87,27 @@ export default function NewEntryForm({ wallets = [], defaultWalletId, categories
       const recurringDay = Number(values.recurringDayOfMonth || "1");
 
       if (amount <= 0) {
-        errors.amountDisplay = "Amount is required.";
+        errors.amountDisplay = t.txErrorAmountRequired;
       }
 
       if (!values.description.trim()) {
-        errors.description = "Description is required.";
+        errors.description = t.txErrorDescriptionRequired;
       }
 
       if (!values.date) {
-        errors.date = "Date is required.";
+        errors.date = t.txErrorDateRequired;
       }
 
       if (values.type === "income" && !values.walletId) {
-        errors.walletId = "Wallet is required.";
+        errors.walletId = t.txErrorWalletRequired;
       }
 
       if (values.isRecurring && (!Number.isInteger(recurringDay) || recurringDay < 1 || recurringDay > 31)) {
-        errors.recurringDayOfMonth = "Recurring day must be between 1 and 31.";
+        errors.recurringDayOfMonth = t.txErrorRecurringDayRange;
       }
 
       if (values.isRecurring && values.recurringEndDate && values.date && values.recurringEndDate < values.date) {
-        errors.recurringEndDate = "End date must be on or after date.";
+        errors.recurringEndDate = t.txErrorRecurringEndDate;
       }
 
       return errors;
@@ -203,7 +206,7 @@ export default function NewEntryForm({ wallets = [], defaultWalletId, categories
                 formik.values.type === "expense" ? "bg-white text-[#1b3641] shadow-sm" : "text-[#6f8793]"
               }`}
             >
-              Expense
+              {t.txTypeExpense}
             </button>
             <button
               type="button"
@@ -212,14 +215,14 @@ export default function NewEntryForm({ wallets = [], defaultWalletId, categories
                 formik.values.type === "income" ? "bg-white text-[#1b3641] shadow-sm" : "text-[#6f8793]"
               }`}
             >
-              Income
+              {t.txTypeIncome}
             </button>
           </div>
         </div>
 
         <div className="space-y-3">
           <div className="flex items-center justify-between gap-4 rounded-xl bg-[#e7f6ff] px-4 py-3">
-            <label className="font-[var(--font-manrope)] text-sm font-bold text-[#1b3641]">Recurring</label>
+            <label className="font-[var(--font-manrope)] text-sm font-bold text-[#1b3641]">{t.txRecurring}</label>
             <button
               type="button"
               onClick={() => formik.setFieldValue("isRecurring", !formik.values.isRecurring)}
@@ -239,20 +242,20 @@ export default function NewEntryForm({ wallets = [], defaultWalletId, categories
           {formik.values.isRecurring ? (
             <div className="grid grid-cols-1 gap-4 rounded-xl bg-[#f1f9ff] p-4 md:grid-cols-3">
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-[0.16em] text-[#6f8793]">Frequency</label>
+                <label className="text-xs font-bold uppercase tracking-[0.16em] text-[#6f8793]">{t.txFrequency}</label>
                 <select
                   value={formik.values.recurringInterval}
                   onChange={formik.handleChange}
                   name="recurringInterval"
                   className="w-full appearance-none rounded-xl border-none bg-white px-4 py-3 text-sm font-semibold text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/20"
                 >
-                  <option value="monthly">Monthly</option>
-                  <option value="yearly">Yearly</option>
+                  <option value="monthly">{t.txFrequencyMonthly}</option>
+                  <option value="yearly">{t.txFrequencyYearly}</option>
                 </select>
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-[0.16em] text-[#6f8793]">Day of month</label>
+                <label className="text-xs font-bold uppercase tracking-[0.16em] text-[#6f8793]">{t.txDayOfMonth}</label>
                 <input
                   value={formik.values.recurringDayOfMonth}
                   onChange={(event) => {
@@ -266,11 +269,11 @@ export default function NewEntryForm({ wallets = [], defaultWalletId, categories
                 {formik.touched.recurringDayOfMonth && formik.errors.recurringDayOfMonth ? (
                   <p className="text-xs text-[#a73b21]">{formik.errors.recurringDayOfMonth}</p>
                 ) : null}
-                <p className="text-xs text-[#6f8793]">Example: set to 5 for every 5th day.</p>
+                <p className="text-xs text-[#6f8793]">{t.txDayOfMonthHelp}</p>
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-[0.16em] text-[#6f8793]">End date</label>
+                <label className="text-xs font-bold uppercase tracking-[0.16em] text-[#6f8793]">{t.txEndDate}</label>
                 <DatePicker
                   selected={formik.values.recurringEndDate}
                   onChange={(date: Date | null) => {
@@ -283,7 +286,7 @@ export default function NewEntryForm({ wallets = [], defaultWalletId, categories
                   dropdownMode="select"
                   minDate={formik.values.date ?? undefined}
                   isClearable
-                  placeholderText="No end date"
+                  placeholderText={t.txNoEndDate}
                   wrapperClassName="w-full"
                   className="w-full rounded-xl border-none bg-white px-4 py-3 text-sm font-semibold text-[#1b3641] placeholder:text-[#8ea6b3] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/20"
                   calendarClassName="ledger-datepicker"
@@ -291,7 +294,7 @@ export default function NewEntryForm({ wallets = [], defaultWalletId, categories
                 {formik.touched.recurringEndDate && formik.errors.recurringEndDate ? (
                   <p className="text-xs text-[#a73b21]">{formik.errors.recurringEndDate}</p>
                 ) : null}
-                <p className="text-xs text-[#6f8793]">Optional. Stop recurring after this date.</p>
+                <p className="text-xs text-[#6f8793]">{t.txEndDateHelp}</p>
               </div>
             </div>
           ) : null}
@@ -299,14 +302,14 @@ export default function NewEntryForm({ wallets = [], defaultWalletId, categories
 
         <div className="space-y-3">
           <label className="font-[var(--font-manrope)] text-sm font-bold text-[#1b3641]">
-            Description <span className="text-[#a73b21]">*</span>
+            {t.txDescription} <span className="text-[#a73b21]">*</span>
           </label>
           <input
             name="description"
             value={formik.values.description}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            placeholder="e.g. Coffee at The Roasting Atelier"
+            placeholder={t.txDescriptionPlaceholder}
             className="w-full rounded-xl border-none bg-[#e7f6ff] px-6 py-4 text-[#1b3641] placeholder:text-[#7f97a4] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/20"
           />
           {formik.touched.description && formik.errors.description ? (
@@ -317,7 +320,7 @@ export default function NewEntryForm({ wallets = [], defaultWalletId, categories
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
           {formik.values.type === "expense" ? (
             <div className="space-y-3">
-              <label className="font-[var(--font-manrope)] text-sm font-bold text-[#1b3641]">Category</label>
+              <label className="font-[var(--font-manrope)] text-sm font-bold text-[#1b3641]">{t.txCategory}</label>
               <div className="relative">
                 <select
                   name="categoryId"
@@ -325,7 +328,7 @@ export default function NewEntryForm({ wallets = [], defaultWalletId, categories
                   onChange={formik.handleChange}
                   className="w-full appearance-none rounded-xl border-none bg-[#e7f6ff] px-6 py-4 text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/20"
                 >
-                  <option value="">No category</option>
+                  <option value="">{t.txNoCategory}</option>
                   {categories.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}
@@ -340,7 +343,7 @@ export default function NewEntryForm({ wallets = [], defaultWalletId, categories
           ) : (
             <div className="space-y-3">
               <label className="font-[var(--font-manrope)] text-sm font-bold text-[#1b3641]">
-                Wallet <span className="text-[#a73b21]">*</span>
+                {t.txWallet} <span className="text-[#a73b21]">*</span>
               </label>
               <div className="relative">
                 <select
@@ -369,7 +372,7 @@ export default function NewEntryForm({ wallets = [], defaultWalletId, categories
 
           <div className="space-y-3">
             <label className="font-[var(--font-manrope)] text-sm font-bold text-[#1b3641]">
-              Date <span className="text-[#a73b21]">*</span>
+              {t.txDate} <span className="text-[#a73b21]">*</span>
             </label>
             <div className="relative">
               <DatePicker
@@ -417,14 +420,14 @@ export default function NewEntryForm({ wallets = [], defaultWalletId, categories
 
         <div className="space-y-3">
           <label className="font-[var(--font-manrope)] text-sm font-bold text-[#1b3641]">
-            Notes <span className="ml-1 font-normal text-[#7f97a4]">(Optional)</span>
+            {t.txNotes} <span className="ml-1 font-normal text-[#7f97a4]">({t.txOptional})</span>
           </label>
           <textarea
             name="note"
             value={formik.values.note}
             onChange={formik.handleChange}
             rows={3}
-            placeholder="Add additional details about this fiscal event..."
+            placeholder={t.txNotesPlaceholder}
             className="w-full resize-none rounded-xl border-none bg-[#e7f6ff] px-6 py-4 text-[#1b3641] placeholder:text-[#7f97a4] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/20"
           />
         </div>
@@ -439,7 +442,7 @@ export default function NewEntryForm({ wallets = [], defaultWalletId, categories
           className="flex w-full items-center justify-center gap-3 rounded-2xl bg-[#006f1d] py-6 font-[var(--font-manrope)] text-lg font-bold text-[#eaffe2] shadow-[0_12px_40px_-10px_rgba(0,111,29,0.3)] transition hover:bg-[#006118] disabled:cursor-not-allowed disabled:opacity-70"
         >
           <span className="material-symbols-outlined">check_circle</span>
-          <span>{loading ? "Adding Transaction..." : "Add Transaction"}</span>
+          <span>{loading ? t.txAdding : t.txAdd}</span>
         </button>
         <p className="mt-4 text-center text-xs font-medium text-[#7f97a4]">
           Press <span className="rounded bg-[#d4ecf9] px-1.5 py-0.5 text-[10px]">CMD</span> +{" "}

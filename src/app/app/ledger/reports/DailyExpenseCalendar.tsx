@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { useEffect, useMemo, useState } from "react";
+import { tr } from "@/lib/i18n";
 
 type CalendarEntry = {
   id: string;
@@ -25,6 +26,7 @@ type Props = {
   selectedMonth: number;
   selectedYear: number;
   yearOptions: number[];
+  language: string;
   days: CalendarDay[];
 };
 
@@ -37,31 +39,39 @@ const asCurrency = (value: number, currency: string) => {
   }).format(value);
 };
 
-const weekdayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
-const monthOptions = [
-  { value: 1, label: "January" },
-  { value: 2, label: "February" },
-  { value: 3, label: "March" },
-  { value: 4, label: "April" },
-  { value: 5, label: "May" },
-  { value: 6, label: "June" },
-  { value: 7, label: "July" },
-  { value: 8, label: "August" },
-  { value: 9, label: "September" },
-  { value: 10, label: "October" },
-  { value: 11, label: "November" },
-  { value: 12, label: "December" },
-];
-
 export default function DailyExpenseCalendar({
   currency,
   monthLabel,
   selectedMonth,
   selectedYear,
   yearOptions,
+  language,
   days,
 }: Props) {
+  const weekdayLabels = [
+    tr(language, "Mon", "T2"),
+    tr(language, "Tue", "T3"),
+    tr(language, "Wed", "T4"),
+    tr(language, "Thu", "T5"),
+    tr(language, "Fri", "T6"),
+    tr(language, "Sat", "T7"),
+    tr(language, "Sun", "CN"),
+  ];
+
+  const monthOptions = [
+    { value: 1, label: tr(language, "January", "Tháng 1") },
+    { value: 2, label: tr(language, "February", "Tháng 2") },
+    { value: 3, label: tr(language, "March", "Tháng 3") },
+    { value: 4, label: tr(language, "April", "Tháng 4") },
+    { value: 5, label: tr(language, "May", "Tháng 5") },
+    { value: 6, label: tr(language, "June", "Tháng 6") },
+    { value: 7, label: tr(language, "July", "Tháng 7") },
+    { value: 8, label: tr(language, "August", "Tháng 8") },
+    { value: 9, label: tr(language, "September", "Tháng 9") },
+    { value: 10, label: tr(language, "October", "Tháng 10") },
+    { value: 11, label: tr(language, "November", "Tháng 11") },
+    { value: 12, label: tr(language, "December", "Tháng 12") },
+  ];
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -94,7 +104,7 @@ export default function DailyExpenseCalendar({
     <>
       <section className="space-y-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h3 className="font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">Daily Expense Calendar</h3>
+          <h3 className="font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">{tr(language, "Daily Expense Calendar", "Lịch chi tiêu theo ngày")}</h3>
           <form ref={formRef} className="flex items-center gap-2" method="get">
             <div className="rounded-full border border-[#d7e5dc] bg-white px-3 py-2 text-sm font-semibold text-[#1b3641]">
               <select
@@ -177,7 +187,7 @@ export default function DailyExpenseCalendar({
           >
             <div className="space-y-4 p-6">
               <div className="flex items-center justify-between">
-                <h4 className="font-[var(--font-manrope)] text-lg font-bold text-[#1b3641]">Daily Details</h4>
+                <h4 className="font-[var(--font-manrope)] text-lg font-bold text-[#1b3641]">{tr(language, "Daily Details", "Chi tiết trong ngày")}</h4>
                 <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#7f97a4]">{monthLabel}</p>
               </div>
 
@@ -194,7 +204,7 @@ export default function DailyExpenseCalendar({
               </div>
 
               <div className="flex items-center justify-between pt-1">
-                <span className="text-xs font-bold uppercase tracking-[0.15em] text-[#7f97a4]">Total Spent</span>
+                <span className="text-xs font-bold uppercase tracking-[0.15em] text-[#7f97a4]">{tr(language, "Total Spent", "Tổng đã chi")}</span>
                 <span className="font-[var(--font-manrope)] text-sm font-extrabold text-[#006f1d]">
                   {asCurrency(selectedDay.total, currency)}
                 </span>
@@ -205,7 +215,7 @@ export default function DailyExpenseCalendar({
                 onClick={() => setSelectedKey(null)}
                 className="w-full rounded-xl bg-[#e7f6ff] py-2.5 text-xs font-bold text-[#1b3641] transition hover:bg-[#d6ecf9]"
               >
-                Close View
+                {tr(language, "Close View", "Đóng")}
               </button>
             </div>
           </div>

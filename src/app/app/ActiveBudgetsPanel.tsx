@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { getDictionary } from "@/lib/i18n";
 
 type BudgetItem = {
   id: string;
@@ -15,6 +16,7 @@ type Props = {
   budgets: BudgetItem[];
   currency: string;
   daysRemaining: number;
+  language: string;
 };
 
 const toCurrencyLabel = (amount: number, currency: string) => {
@@ -26,9 +28,10 @@ const toCurrencyLabel = (amount: number, currency: string) => {
   }).format(amount);
 };
 
-export default function ActiveBudgetsPanel({ budgets, currency, daysRemaining }: Props) {
+export default function ActiveBudgetsPanel({ budgets, currency, daysRemaining, language }: Props) {
   const [pageIndex, setPageIndex] = useState(0);
   const [filter, setFilter] = useState<"all" | "healthy" | "overspent">("all");
+  const t = getDictionary(language);
   const itemsPerPage = 2;
 
   const filteredBudgets = useMemo(() => {
@@ -55,7 +58,7 @@ export default function ActiveBudgetsPanel({ budgets, currency, daysRemaining }:
   return (
     <article className="xl:col-span-2 rounded-2xl bg-[#edf3ee] p-6">
       <div className="flex items-center justify-between">
-        <h2 className="font-[var(--font-manrope)] text-2xl font-bold">Active Budgets</h2>
+        <h2 className="font-[var(--font-manrope)] text-2xl font-bold">{t.activeBudgetsTitle}</h2>
         <div className="flex items-center gap-2 text-[#49636f]">
           <span className="mr-1 text-xs font-semibold text-[#647e8c]">
             {filteredBudgets.length === 0 ? "0/0" : `${activePageIndex + 1}/${pageCount}`}
@@ -69,11 +72,11 @@ export default function ActiveBudgetsPanel({ budgets, currency, daysRemaining }:
                 setPageIndex(0);
               }}
               className="appearance-none rounded-full bg-white py-2 pl-8 pr-7 text-xs font-semibold capitalize text-[#1b3641] shadow-[0_1px_2px_rgba(0,0,0,0.06)] outline-none ring-[#93b3a0] focus:ring-2"
-              aria-label="Filter budgets by status"
+              aria-label={t.activeBudgetsFilterLabel}
             >
-              <option value="all">All</option>
-              <option value="healthy">Healthy</option>
-              <option value="overspent">Overspent</option>
+              <option value="all">{t.activeBudgetsFilterAll}</option>
+              <option value="healthy">{t.activeBudgetsFilterHealthy}</option>
+              <option value="overspent">{t.activeBudgetsFilterOverspent}</option>
             </select>
             <span className="pointer-events-none material-symbols-outlined absolute right-2 text-[14px] text-[#647e8c]">expand_more</span>
           </label>
@@ -82,7 +85,7 @@ export default function ActiveBudgetsPanel({ budgets, currency, daysRemaining }:
             disabled={!canGoPrev}
             onClick={() => setPageIndex(Math.max(0, activePageIndex - 1))}
             className="rounded-full bg-white p-2 shadow-[0_1px_2px_rgba(0,0,0,0.06)] disabled:cursor-not-allowed disabled:opacity-40"
-            aria-label="Previous budgets"
+            aria-label={t.activeBudgetsPrev}
           >
             <span className="material-symbols-outlined text-[18px]">chevron_left</span>
           </button>
@@ -91,7 +94,7 @@ export default function ActiveBudgetsPanel({ budgets, currency, daysRemaining }:
             disabled={!canGoNext}
             onClick={() => setPageIndex(Math.min(pageCount - 1, activePageIndex + 1))}
             className="rounded-full bg-white p-2 shadow-[0_1px_2px_rgba(0,0,0,0.06)] disabled:cursor-not-allowed disabled:opacity-40"
-            aria-label="Next budgets"
+            aria-label={t.activeBudgetsNext}
           >
             <span className="material-symbols-outlined text-[18px]">chevron_right</span>
           </button>
@@ -101,8 +104,10 @@ export default function ActiveBudgetsPanel({ budgets, currency, daysRemaining }:
       <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
         {visibleBudgets.length === 0 ? (
           <p className="text-sm text-[#647e8c]">
-            {budgets.length === 0 ? "No active budget limits set." : `No ${filter} budgets found.`}
-          </p>
+              {budgets.length === 0
+                ? t.activeBudgetsNoLimits
+                : `${t.activeBudgetsNoFiltered} (${filter === "all" ? t.activeBudgetsFilterAll : filter === "healthy" ? t.activeBudgetsFilterHealthy : t.activeBudgetsFilterOverspent})`}
+            </p>
         ) : (
           visibleBudgets.map((budget) => (
             <div
@@ -114,18 +119,18 @@ export default function ActiveBudgetsPanel({ budgets, currency, daysRemaining }:
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <h3 className="font-semibold text-[#1b3641]">{budget.name}</h3>
-                  <p className="text-sm text-[#647e8c]">Ends in {daysRemaining} days</p>
+                  <p className="text-sm text-[#647e8c]">{t.activeBudgetsEndsIn} {daysRemaining} {t.activeBudgetsDays}</p>
                 </div>
                 <span
                   className={`rounded px-3 py-1 text-[11px] font-semibold uppercase ${
                     budget.isOverspent ? "bg-[#a73b21] text-white" : "bg-[#eaffe2] text-[#006f1d]"
                   }`}
                 >
-                  {budget.isOverspent ? "Overspent" : "Healthy"}
+                  {budget.isOverspent ? t.activeBudgetsOverspent : t.activeBudgetsHealthy}
                 </span>
               </div>
               <p className="mt-3 text-sm text-[#49636f]">
-                Spent <span className="font-semibold text-[#1b3641]">{toCurrencyLabel(budget.spent, currency)}</span> | Budget{" "}
+                {t.activeBudgetsSpent} <span className="font-semibold text-[#1b3641]">{toCurrencyLabel(budget.spent, currency)}</span> | {t.activeBudgetsBudget}{" "}
                 <span className="font-semibold text-[#1b3641]">{toCurrencyLabel(budget.budget, currency)}</span>
               </p>
               <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#edf2ef]">
@@ -136,8 +141,8 @@ export default function ActiveBudgetsPanel({ budgets, currency, daysRemaining }:
               </div>
               <p className={`mt-3 text-sm font-semibold ${budget.isOverspent ? "text-[#a73b21]" : "text-[#006f1d]"}`}>
                 {budget.isOverspent
-                  ? `Excess of ${toCurrencyLabel(Math.abs(budget.remaining), currency)} this month.`
-                  : `${toCurrencyLabel(budget.remaining, currency)} remaining of limit.`}
+                  ? `${t.activeBudgetsExcessThisMonth}: ${toCurrencyLabel(Math.abs(budget.remaining), currency)}.`
+                  : `${toCurrencyLabel(budget.remaining, currency)} ${t.activeBudgetsRemainingLimit}.`}
               </p>
             </div>
           ))

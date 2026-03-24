@@ -1,6 +1,7 @@
 import MainWalletCard from "@/app/app/accounts/MainWalletCard";
 import { prisma } from "@/lib/db";
 import { formatCurrency } from "@/lib/format";
+import { getDictionary } from "@/lib/i18n";
 import { requireUser } from "@/lib/user";
 import { ensureDefaultWallet } from "@/lib/wallet";
 
@@ -15,6 +16,8 @@ const walletIcon = (type: string) => {
 
 export default async function WalletsPage() {
   const user = await requireUser();
+  const language = user.settings?.language || "en-US";
+  const t = getDictionary(language);
   const currency = user.settings?.currency || "VND";
 
   await ensureDefaultWallet(user.id);
@@ -53,20 +56,20 @@ export default async function WalletsPage() {
     <div className="space-y-10">
       <section className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
         <div className="space-y-2">
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-[#6f8793]">Financial Portfolio</p>
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-[#6f8793]">{t.accountsPortfolio}</p>
           <h1 className="font-[var(--font-manrope)] text-5xl font-extrabold leading-none tracking-tight text-[#1b3641] sm:text-6xl">
-            Your Atelier <br />
-            <span className="text-[#006f1d]">Wallets.</span>
+            {t.accountsYourAtelier} <br />
+            <span className="text-[#006f1d]">{t.accountsWallets}.</span>
           </h1>
         </div>
 
         <div className="flex flex-wrap gap-3">
           <button className="rounded-xl bg-[#d4ecf9] px-6 py-3 font-semibold text-[#49636f] hover:bg-[#c8e6f5]">
-            Archive Old
+            {t.accountsArchiveOld}
           </button>
           <button className="inline-flex items-center gap-2 rounded-xl bg-[#006f1d] px-6 py-3 font-bold text-[#eaffe2] shadow-lg shadow-[#006f1d]/20 hover:brightness-105">
             <span className="material-symbols-outlined">add_card</span>
-            <span>New Wallet</span>
+            <span>{t.accountsNewWallet}</span>
           </button>
         </div>
       </section>
@@ -81,12 +84,13 @@ export default async function WalletsPage() {
               balance: primary.balance,
             }}
             currency={currency}
+            language={language}
             icon={walletIcon(primary.type)}
           />
         ) : (
           <article className="rounded-[2rem] bg-[#e7f6ff] p-10 md:col-span-7">
-            <h3 className="font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">No wallet yet</h3>
-            <p className="mt-2 text-sm text-[#49636f]">Create your first wallet below to start tracking balances.</p>
+            <h3 className="font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">{t.accountsNoWallet}</h3>
+            <p className="mt-2 text-sm text-[#49636f]">{t.accountsCreateFirstWallet}</p>
           </article>
         )}
 
@@ -118,7 +122,7 @@ export default async function WalletsPage() {
                 <div className="relative h-4 w-8 rounded-full bg-[#cbe7f6] shadow-inner">
                   <div className="absolute left-1 top-1 h-2 w-2 rounded-full bg-[#49636f]/40" />
                 </div>
-                Set as Default
+                {t.accountsSetDefault}
               </button>
               <div className="flex items-center gap-1 rounded-lg bg-[#91f78e]/30 px-3 py-1 text-[#006f1d]">
                 <span className="material-symbols-outlined text-[16px]">trending_up</span>

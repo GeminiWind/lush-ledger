@@ -1,4 +1,5 @@
 import { getLedgerData } from "@/lib/ledger";
+import { getDictionary } from "@/lib/i18n";
 import { requireUser } from "@/lib/user";
 import Link from "next/link";
 
@@ -18,26 +19,27 @@ const asCurrency = (value: number, currency: string) => {
   }).format(value);
 };
 
-const asDayLabel = (value: Date) => {
+const asDayLabel = (value: Date, language: string) => {
+  const t = getDictionary(language);
   const today = new Date();
   const yesterday = new Date();
   yesterday.setDate(today.getDate() - 1);
 
   if (value.toDateString() === today.toDateString()) {
-    return "Today";
+    return t.ledgerToday;
   }
   if (value.toDateString() === yesterday.toDateString()) {
-    return "Yesterday";
+    return t.ledgerYesterday;
   }
 
-  return new Intl.DateTimeFormat("en-US", {
+  return new Intl.DateTimeFormat(language === "vi-VN" ? "vi-VN" : "en-US", {
     month: "long",
     day: "2-digit",
   }).format(value);
 };
 
-const asTime = (value: Date) => {
-  return new Intl.DateTimeFormat("en-US", {
+const asTime = (value: Date, language: string) => {
+  return new Intl.DateTimeFormat(language === "vi-VN" ? "vi-VN" : "en-US", {
     hour: "2-digit",
     minute: "2-digit",
   }).format(value);
@@ -90,6 +92,8 @@ export default async function LedgerPage({
   searchParams: SearchParams;
 }) {
   const user = await requireUser();
+  const language = user.settings?.language || "en-US";
+  const t = getDictionary(language);
   const currency = user.settings?.currency ?? "VND";
   const params = await searchParams;
 
@@ -113,7 +117,7 @@ export default async function LedgerPage({
 
       groups.push({
         key,
-        label: asDayLabel(transaction.date),
+        label: asDayLabel(transaction.date, language),
         items: [transaction],
       });
       return groups;
@@ -126,30 +130,30 @@ export default async function LedgerPage({
   return (
     <div className="space-y-10">
       <section className="flex items-center gap-8 border-b border-[#dce9e2] pb-2">
-        <Link href="/app/ledger" className="border-b-2 border-[#006f1d] pb-2 font-[var(--font-manrope)] text-lg font-semibold text-[#1b3641]">
-          Activity
+          <Link href="/app/ledger" className="border-b-2 border-[#006f1d] pb-2 font-[var(--font-manrope)] text-lg font-semibold text-[#1b3641]">
+          {t.ledgerTabActivity}
         </Link>
         <Link href="/app/ledger/reports" className="pb-2 font-[var(--font-manrope)] text-lg font-semibold text-[#006f1d]/60 hover:text-[#1b3641]">
-          Reports
+          {t.ledgerTabReports}
         </Link>
         <Link href="/app/categories" className="pb-2 font-[var(--font-manrope)] text-lg font-semibold text-[#006f1d]/60 hover:text-[#1b3641]">
-          Budgets
+          {t.ledgerTabBudgets}
         </Link>
       </section>
 
       <section className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <div>
           <h1 className="font-[var(--font-manrope)] text-5xl font-extrabold tracking-[-0.03em] text-[#1b3641]">
-            The Ledger
+            {t.ledgerTitle}
           </h1>
           <p className="mt-2 max-w-xl text-sm font-medium text-[#49636f]">
-            A curated overview of your fiscal flow. Keep every transaction visible and aligned with your monthly goals.
+            {t.ledgerSubtitle}
           </p>
         </div>
 
         <div className="grid w-full gap-4 sm:w-auto sm:grid-cols-1">
           <article className="rounded-2xl border border-slate-100 bg-white px-8 py-5 text-center shadow-[0_6px_24px_-18px_rgba(27,54,65,0.4)]">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7b939f]">MTD Spending</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7b939f]">{t.ledgerMtdSpending}</p>
             <p className="mt-1 font-[var(--font-manrope)] text-2xl font-extrabold tracking-tight text-[#1b3641]">
               {asCurrency(data.summary.monthExpense, currency)}
             </p>
@@ -160,7 +164,7 @@ export default async function LedgerPage({
       <section className="space-y-5">
         <form className="flex flex-wrap items-center gap-3" method="get" role="search">
           <label className="sr-only" htmlFor="query">
-            Search entries
+            {t.ledgerSearchEntries}
           </label>
           <div className="flex items-center gap-2 rounded-xl border border-slate-100 bg-white px-4 py-2 shadow-sm">
             <span className="material-symbols-outlined text-sm text-slate-400">search</span>
@@ -168,7 +172,7 @@ export default async function LedgerPage({
               id="query"
               name="query"
               defaultValue={params.query || ""}
-              placeholder="Search entries..."
+              placeholder={t.ledgerSearchPlaceholder}
               className="w-40 border-none bg-transparent p-0 text-sm text-[#1b3641] placeholder:text-[#8aa2b0] focus:ring-0"
             />
           </div>
@@ -180,7 +184,7 @@ export default async function LedgerPage({
               defaultValue={params.categoryId || ""}
               className="border-none bg-transparent p-0 text-sm font-semibold text-[#1b3641] focus:ring-0"
             >
-              <option value="">Category</option>
+              <option value="">{t.ledgerFilterCategory}</option>
               {data.categories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name}
@@ -196,9 +200,9 @@ export default async function LedgerPage({
               defaultValue={params.type || ""}
               className="border-none bg-transparent p-0 text-sm font-semibold text-[#1b3641] focus:ring-0"
             >
-              <option value="">Amount</option>
-              <option value="income">Income</option>
-              <option value="expense">Expense</option>
+              <option value="">{t.ledgerFilterAmount}</option>
+              <option value="income">{t.ledgerTypeIncome}</option>
+              <option value="expense">{t.ledgerTypeExpense}</option>
             </select>
           </div>
 
@@ -209,7 +213,7 @@ export default async function LedgerPage({
               defaultValue={params.accountId || ""}
               className="border-none bg-transparent p-0 text-sm font-semibold text-[#1b3641] focus:ring-0"
             >
-              <option value="">Wallet</option>
+              <option value="">{t.ledgerFilterWallet}</option>
               {data.accounts.map((account) => (
                 <option key={account.id} value={account.id}>
                   {account.name}
@@ -229,7 +233,7 @@ export default async function LedgerPage({
               type="submit"
               className="rounded-xl bg-[#006f1d] px-4 py-2 text-sm font-bold text-[#eaffe2] shadow-[0_10px_20px_-12px_rgba(0,111,29,0.6)] hover:brightness-105"
             >
-              Apply
+              {t.ledgerApply}
             </button>
           </div>
         </form>
@@ -237,7 +241,7 @@ export default async function LedgerPage({
         <section className="space-y-8">
           {groupedTransactions.length === 0 ? (
             <p className="rounded-2xl border border-dashed border-[#d7e5dc] bg-white px-4 py-8 text-center text-sm text-[#647e8c]">
-              No entries match your filters.
+              {t.ledgerNoEntriesMatch}
             </p>
           ) : (
             groupedTransactions.map((group) => (
@@ -250,7 +254,7 @@ export default async function LedgerPage({
                 <div className="space-y-2">
                   {group.items.map((tx) => {
                     const subject = tx.notes?.trim() || tx.category?.name || tx.account.name;
-                    const detail = `${tx.category?.name || "Uncategorized"} • ${asTime(tx.date)}`;
+                    const detail = `${tx.category?.name || t.ledgerUncategorized} • ${asTime(tx.date, language)}`;
                     const visual = txVisual(tx.type, subject);
 
                     return (
@@ -293,7 +297,7 @@ export default async function LedgerPage({
       </section>
 
       <footer className="flex items-center justify-between border-t border-slate-200/60 pt-8">
-        <p className="text-sm font-medium text-[#6f8793]">Showing {renderedCount} transaction(s)</p>
+        <p className="text-sm font-medium text-[#6f8793]">{t.ledgerShowingTransactions}: {renderedCount}</p>
         <div className="flex items-center gap-2">
           <button type="button" className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100">
             <span className="material-symbols-outlined">chevron_left</span>

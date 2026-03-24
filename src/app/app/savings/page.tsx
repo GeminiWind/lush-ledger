@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { formatCurrency } from "@/lib/format";
+import { getDictionary } from "@/lib/i18n";
 import { materializeRecurringTransactions } from "@/lib/recurring";
 import { requireUser } from "@/lib/user";
 import PrimarySavingsProgressChart from "./PrimarySavingsProgressChart";
@@ -29,6 +30,8 @@ const getPlanIcon = (name: string) => {
 export default async function SavingsPage() {
   const user = await requireUser();
   await materializeRecurringTransactions(user.id);
+  const language = user.settings?.language || "en-US";
+  const t = getDictionary(language);
   const currency = user.settings?.currency ?? "VND";
 
   const [savingsPlans, savingsTransactions] = await Promise.all([
@@ -63,7 +66,7 @@ export default async function SavingsPage() {
       }, 0);
 
     return {
-      label: new Intl.DateTimeFormat("en-US", { month: "short" }).format(monthDate),
+      label: new Intl.DateTimeFormat(language === "vi-VN" ? "vi-VN" : "en-US", { month: "short" }).format(monthDate),
       value: Math.max(0, value),
     };
   });
@@ -99,13 +102,13 @@ export default async function SavingsPage() {
     <div className="space-y-8">
       <section className="flex flex-wrap items-end justify-between gap-4">
         <div className="space-y-1">
-          <p className="text-xs font-medium text-[#49636f]">Fiscal Atelier - Savings Portfolio</p>
+          <p className="text-xs font-medium text-[#49636f]">{t.savingsPortfolio}</p>
           <h1 className="font-[var(--font-manrope)] text-4xl font-extrabold tracking-[-0.03em] text-[#1b3641] lg:text-5xl">
-            Financial <span className="italic text-[#006f1d]">Ambition</span>
+            {t.savingsTitle.split(" ")[0]} <span className="italic text-[#006f1d]">{t.savingsTitle.split(" ").slice(1).join(" ")}</span>
           </h1>
         </div>
         <div className="rounded-[1.25rem] bg-[#e7f6ff] px-6 py-4">
-          <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-[#647e8c]">Total Savings</p>
+          <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-[#647e8c]">{t.savingsTotal}</p>
           <div className="mt-1 flex items-center gap-3">
             <p className="font-[var(--font-manrope)] text-2xl font-extrabold text-[#1b3641]">
               {formatCurrency(totalSaved, currency)}
@@ -125,11 +128,11 @@ export default async function SavingsPage() {
             <div className="flex-1 space-y-5">
               <div className="flex flex-wrap items-center gap-3">
                 <span className="rounded-full bg-[#006f1d] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-[#eaffe2]">
-                  Primary Focus
+                  {t.savingsPrimaryFocus}
                 </span>
                 <span className="inline-flex items-center gap-1 text-xs text-[#49636f]">
                   <span className="material-symbols-outlined text-sm">calendar_today</span>
-                  Targeted {new Intl.DateTimeFormat("en-US", { month: "short", year: "numeric" }).format(primaryPlan.targetDate)}
+                  {t.savingsTargeted} {new Intl.DateTimeFormat(language === "vi-VN" ? "vi-VN" : "en-US", { month: "short", year: "numeric" }).format(primaryPlan.targetDate)}
                 </span>
               </div>
 
@@ -137,24 +140,24 @@ export default async function SavingsPage() {
                 {primaryPlan.name}
               </h2>
               <p className="max-w-2xl text-[#49636f]">
-                A dedicated savings objective tracked from linked transactions and monthly contributions.
+                {t.savingsPrimaryDesc}
               </p>
 
               <div className="grid gap-6 pt-2 sm:grid-cols-3">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#647e8c]">Saved</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#647e8c]">{t.savingsSaved}</p>
                   <p className="mt-1 font-[var(--font-manrope)] text-2xl font-bold text-[#006f1d]">
                     {formatCurrency(primaryPlan.saved, currency)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#647e8c]">Target</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#647e8c]">{t.savingsTarget}</p>
                   <p className="mt-1 font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">
                     {formatCurrency(primaryPlan.target, currency)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#647e8c]">Remaining</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#647e8c]">{t.savingsRemaining}</p>
                   <p className="mt-1 font-[var(--font-manrope)] text-2xl font-bold text-[#49636f]">
                     {formatCurrency(Math.max(0, primaryPlan.target - primaryPlan.saved), currency)}
                   </p>
@@ -167,15 +170,15 @@ export default async function SavingsPage() {
         </section>
       ) : (
         <section className="rounded-[2rem] border-2 border-dashed border-[#c7dce9] bg-white p-12 text-center">
-          <h2 className="font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">No savings plan yet</h2>
-          <p className="mt-2 text-[#647e8c]">Create a savings plan from your ledger workflow to track progress here.</p>
+          <h2 className="font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">{t.savingsNoPlan}</h2>
+          <p className="mt-2 text-[#647e8c]">{t.savingsCreatePlanHint}</p>
         </section>
       )}
 
       <SavingsGrowthChart currency={currency} points={growthPoints} />
 
       <section className="space-y-6">
-        <h3 className="font-[var(--font-manrope)] text-3xl font-extrabold tracking-[-0.02em] text-[#1b3641]">Other Ambitions</h3>
+        <h3 className="font-[var(--font-manrope)] text-3xl font-extrabold tracking-[-0.02em] text-[#1b3641]">{t.savingsOtherAmbitions}</h3>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
           {otherPlans.slice(0, 2).map((plan) => (
             <article
@@ -193,7 +196,7 @@ export default async function SavingsPage() {
 
               <h4 className="font-[var(--font-manrope)] text-xl font-bold text-[#1b3641]">{plan.name}</h4>
               <p className="mt-2 text-sm leading-relaxed text-[#647e8c]">
-                Monthly contribution target: {formatCurrency(plan.monthlyContribution, currency)}.
+                {t.savingsMonthlyContributionTarget}: {formatCurrency(plan.monthlyContribution, currency)}.
               </p>
 
               <div className="mt-6 h-1.5 overflow-hidden rounded-full bg-[#e7f6ff]">
@@ -202,7 +205,7 @@ export default async function SavingsPage() {
 
               <div className="mt-4 flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.14em] text-[#647e8c]">
                 <span>{formatCurrency(plan.saved, currency)}</span>
-                <span>{formatCurrency(plan.target, currency)} target</span>
+                <span>{formatCurrency(plan.target, currency)} {t.savingsTarget.toLowerCase()}</span>
               </div>
             </article>
           ))}
@@ -211,8 +214,8 @@ export default async function SavingsPage() {
             <div className="mb-4 grid h-14 w-14 place-items-center rounded-full border-2 border-dashed border-[#9bb6c4]">
               <span className="material-symbols-outlined text-3xl text-[#647e8c]">add</span>
             </div>
-            <p className="font-[var(--font-manrope)] text-base font-bold text-[#49636f]">Envision New Goal</p>
-            <p className="mt-1 text-xs text-[#647e8c]">Add to your fiscal atelier</p>
+            <p className="font-[var(--font-manrope)] text-base font-bold text-[#49636f]">{t.savingsEnvisionGoal}</p>
+            <p className="mt-1 text-xs text-[#647e8c]">{t.savingsAddToAtelier}</p>
           </article>
         </div>
       </section>

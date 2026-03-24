@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { formatCurrency } from "@/lib/format";
+import { getDictionary } from "@/lib/i18n";
 
 type Props = {
   wallet: {
@@ -12,6 +13,7 @@ type Props = {
     balance: number;
   };
   currency: string;
+  language: string;
   icon: string;
 };
 
@@ -21,8 +23,9 @@ const toPlainNumber = (value: string) => {
   return Number.isFinite(parsed) ? parsed : Number.NaN;
 };
 
-export default function MainWalletCard({ wallet, currency, icon }: Props) {
+export default function MainWalletCard({ wallet, currency, language, icon }: Props) {
   const router = useRouter();
+  const t = getDictionary(language);
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(String(Math.max(0, Math.round(wallet.balance))));
   const [loading, setLoading] = useState(false);
@@ -32,7 +35,7 @@ export default function MainWalletCard({ wallet, currency, icon }: Props) {
     setError(null);
     const balance = toPlainNumber(value);
     if (!Number.isFinite(balance) || balance < 0) {
-      setError("Please enter a valid balance.");
+      setError(t.walletInvalidBalance);
       return;
     }
 
@@ -46,7 +49,7 @@ export default function MainWalletCard({ wallet, currency, icon }: Props) {
 
     if (!response.ok) {
       const data = await response.json();
-      setError(data.error || "Unable to update wallet balance.");
+      setError(data.error || t.walletUpdateFailed);
       return;
     }
 
@@ -69,7 +72,7 @@ export default function MainWalletCard({ wallet, currency, icon }: Props) {
           </div>
           <span className="inline-flex items-center gap-1 rounded-full bg-[#91f78e]/40 px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest text-[#005e17] shadow-sm">
             <span className="material-symbols-outlined text-[14px]">verified</span>
-            Default Wallet
+            {t.walletDefaultBadge}
           </span>
         </div>
 
@@ -80,10 +83,10 @@ export default function MainWalletCard({ wallet, currency, icon }: Props) {
             setEditing((state) => !state);
           }}
           className="inline-flex items-center gap-1 rounded-lg bg-white/70 px-3 py-2 text-[#49636f] transition-colors hover:text-[#1b3641]"
-          aria-label="Edit wallet balance"
+          aria-label={t.walletEditAria}
         >
           <span className="material-symbols-outlined text-[18px]">edit</span>
-          <span className="text-xs font-semibold">Edit</span>
+          <span className="text-xs font-semibold">{t.walletEdit}</span>
         </button>
       </div>
 
@@ -95,7 +98,7 @@ export default function MainWalletCard({ wallet, currency, icon }: Props) {
         {editing ? (
           <div className="max-w-sm rounded-2xl border border-[#c4dce9] bg-white/90 p-4">
             <label className="mb-2 block text-xs font-bold uppercase tracking-[0.12em] text-[#6f8793]">
-              Set Current Balance
+              {t.walletSetCurrentBalance}
             </label>
             <div className="flex gap-2">
               <input
@@ -111,8 +114,8 @@ export default function MainWalletCard({ wallet, currency, icon }: Props) {
                 disabled={loading}
                 className="rounded-xl bg-[#006f1d] px-4 py-2 text-xs font-bold text-[#eaffe2] disabled:opacity-70"
               >
-                {loading ? "Saving" : "Save"}
-              </button>
+                  {loading ? t.walletSaving : t.walletSave}
+                </button>
             </div>
             {error ? <p className="mt-2 text-xs text-[#a73b21]">{error}</p> : null}
           </div>

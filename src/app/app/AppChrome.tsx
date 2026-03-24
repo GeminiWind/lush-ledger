@@ -3,14 +3,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { getDictionary } from "@/lib/i18n";
 
 const navItems = [
-  { href: "/app", label: "Dashboard", icon: "dashboard" },
-  { href: "/app/atelier", label: "Atelier", icon: "auto_awesome" },
-  { href: "/app/ledger", label: "Ledger", icon: "account_balance_wallet" },
-  { href: "/app/savings", label: "Savings", icon: "savings" },
-  { href: "/app/accounts", label: "Wallets", icon: "account_balance_wallet" },
-];
+  { href: "/app", key: "navDashboard", icon: "dashboard" },
+  { href: "/app/atelier", key: "navAtelier", icon: "auto_awesome" },
+  { href: "/app/ledger", key: "navLedger", icon: "account_balance_wallet" },
+  { href: "/app/savings", key: "navSavings", icon: "savings" },
+  { href: "/app/accounts", key: "navWallets", icon: "account_balance_wallet" },
+  { href: "/app/settings", key: "navSettings", icon: "settings" },
+] as const;
 
 const isActive = (href: string, pathname: string) => {
   if (href === "/app") {
@@ -21,11 +23,13 @@ const isActive = (href: string, pathname: string) => {
 
 type Props = {
   userEmail: string;
+  language: string;
   children: React.ReactNode;
 };
 
-export default function AppChrome({ userEmail, children }: Props) {
+export default function AppChrome({ userEmail, language, children }: Props) {
   const pathname = usePathname();
+  const t = getDictionary(language);
 
   return (
     <div className="h-screen overflow-hidden bg-[#edf4ef] text-[#1b3641]">
@@ -46,7 +50,7 @@ export default function AppChrome({ userEmail, children }: Props) {
               const active = isActive(item.href, pathname);
               return (
                 <Link
-                  key={`${item.href}-${item.label}`}
+                  key={`${item.href}-${item.key}`}
                   href={item.href}
                   className={`flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-semibold transition ${
                     active
@@ -55,7 +59,7 @@ export default function AppChrome({ userEmail, children }: Props) {
                   }`}
                 >
                   <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
-                  <span>{item.label}</span>
+                  <span>{t[item.key]}</span>
                 </Link>
               );
             })}
@@ -67,7 +71,7 @@ export default function AppChrome({ userEmail, children }: Props) {
               className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#006f1d] px-4 py-2.5 text-sm font-bold text-[#eaffe2] shadow-[0_14px_30px_-12px_rgba(0,111,29,0.45)] hover:brightness-105"
             >
               <span className="material-symbols-outlined text-[18px]">add</span>
-              <span>New Entry</span>
+              <span>{t.actionNewEntry}</span>
             </Link>
           </div>
         </aside>
@@ -80,13 +84,13 @@ export default function AppChrome({ userEmail, children }: Props) {
                   Lush Ledger
                 </p>
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#6f8793]">
-                  Fiscal Atelier
+                  {t.headerBrandSub}
                 </p>
               </div>
 
               <div className="flex items-center gap-3">
                 <div className="hidden text-right leading-tight sm:block">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#6f8793]">Curator</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#6f8793]">{t.headerUserRole}</p>
                   <p className="max-w-[260px] truncate font-[var(--font-manrope)] text-sm font-bold text-[#1b3641]">{userEmail}</p>
                 </div>
                 <div className="h-11 w-11 overflow-hidden rounded-full border-2 border-[#d7e8f3] bg-[#dfeef8]">
@@ -100,7 +104,7 @@ export default function AppChrome({ userEmail, children }: Props) {
                 </div>
                 <form action="/api/auth/logout" method="post">
                   <button className="rounded-lg border border-[#c8d8ce] bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#49636f] hover:border-[#93b3a0] hover:text-[#1b3641]">
-                    Logout
+                    {t.actionLogout}
                   </button>
                 </form>
               </div>

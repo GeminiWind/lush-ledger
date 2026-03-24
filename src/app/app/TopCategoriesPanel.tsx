@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { getDictionary } from "@/lib/i18n";
 
 type TopCategory = {
   id: string;
@@ -12,6 +13,7 @@ type TopCategory = {
 type Props = {
   categories: TopCategory[];
   currency: string;
+  language: string;
 };
 
 const toCurrencyLabel = (amount: number, currency: string) => {
@@ -47,8 +49,9 @@ const getCategoryIcon = (name: string) => {
 
 const chartColors = ["#006f1d", "#4caf50", "#7bc67e", "#a9ddac", "#cfeccf"];
 
-export default function TopCategoriesPanel({ categories, currency }: Props) {
+export default function TopCategoriesPanel({ categories, currency, language }: Props) {
   const [showChart, setShowChart] = useState(false);
+  const t = getDictionary(language);
 
   const topValue = categories[0]?.spent ?? 0;
   const hasCategories = categories.length > 0;
@@ -72,20 +75,20 @@ export default function TopCategoriesPanel({ categories, currency }: Props) {
   return (
     <article className="rounded-2xl border border-[#f0f4f8] bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
       <div className="flex items-center justify-between">
-        <h2 className="font-[var(--font-manrope)] text-xl font-bold">Top Categories</h2>
+        <h2 className="font-[var(--font-manrope)] text-xl font-bold">{t.topCategoriesTitle}</h2>
         <button
           type="button"
           onClick={() => setShowChart((state) => !state)}
           className="inline-flex items-center gap-1 text-xs font-semibold text-[#006f1d] hover:text-[#04551b]"
         >
           <span className="material-symbols-outlined text-sm">pie_chart</span>
-          {showChart ? "Show List" : "Show Chart"}
+          {showChart ? t.topCategoriesShowList : t.topCategoriesShowChart}
         </button>
       </div>
 
       <div className="mt-5">
         {!hasCategories ? (
-          <p className="text-sm text-[#647e8c]">No category spending yet.</p>
+          <p className="text-sm text-[#647e8c]">{t.topCategoriesNoSpending}</p>
         ) : showChart ? (
           <div className="space-y-4">
             <div className="mx-auto h-44 w-44">
@@ -108,7 +111,7 @@ export default function TopCategoriesPanel({ categories, currency }: Props) {
                 </PieChart>
               </ResponsiveContainer>
               <div className="-mt-24 grid place-items-center text-center">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#647e8c]">Total</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#647e8c]">{t.topCategoriesTotal}</p>
                 <p className="font-[var(--font-manrope)] text-sm font-bold text-[#1b3641]">
                   {toCurrencyLabel(chartData.reduce((sum, item) => sum + item.spent, 0), currency)}
                 </p>

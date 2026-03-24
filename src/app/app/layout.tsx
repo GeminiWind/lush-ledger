@@ -8,5 +8,5 @@ export default async function DashboardLayout({
 }) {
   const user = await requireUser();
 
-  return <AppChrome userEmail={user.email}>{children}</AppChrome>;
+  return <AppChrome userEmail={user.email} language={user.settings?.language || "en-US"}>{children}</AppChrome>;
 }
