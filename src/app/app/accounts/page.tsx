@@ -1,4 +1,5 @@
 import MainWalletCard from "@/app/app/accounts/MainWalletCard";
+import WalletCreateForm from "@/app/app/accounts/WalletCreateForm";
 import { prisma } from "@/lib/db";
 import { formatCurrency } from "@/lib/format";
 import { getDictionary } from "@/lib/i18n";
@@ -25,7 +26,7 @@ export default async function WalletsPage() {
   const [wallets, transactions] = await Promise.all([
     prisma.account.findMany({
       where: { userId: user.id },
-      orderBy: { createdAt: "asc" },
+      orderBy: [{ isDefault: "desc" }, { createdAt: "asc" }],
     }),
     prisma.transaction.findMany({
       where: { userId: user.id },
@@ -44,7 +45,7 @@ export default async function WalletsPage() {
     const balance = toNumber(wallet.openingBalance) + movement;
     return {
       ...wallet,
-      isDefault: index === 0,
+      isDefault: wallet.isDefault || index === 0,
       balance,
     };
   });
@@ -67,10 +68,7 @@ export default async function WalletsPage() {
           <button className="rounded-xl bg-[#d4ecf9] px-6 py-3 font-semibold text-[#49636f] hover:bg-[#c8e6f5]">
             {t.accountsArchiveOld}
           </button>
-          <button className="inline-flex items-center gap-2 rounded-xl bg-[#006f1d] px-6 py-3 font-bold text-[#eaffe2] shadow-lg shadow-[#006f1d]/20 hover:brightness-105">
-            <span className="material-symbols-outlined">add_card</span>
-            <span>{t.accountsNewWallet}</span>
-          </button>
+          <WalletCreateForm language={language} />
         </div>
       </section>
 
@@ -95,41 +93,41 @@ export default async function WalletsPage() {
         )}
 
         <div className="space-y-8 md:col-span-5">
-          <article className="rounded-[2rem] border border-transparent bg-white p-8 shadow-sm transition-all hover:border-[#9bb6c4]/30 hover:shadow-xl hover:shadow-emerald-900/5">
-            <div className="mb-8 flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <span className="rounded-2xl bg-[#cfe6f2] p-3 text-[#40555f]">
-                  <span className="material-symbols-outlined">{walletIcon(secondary?.type || "checking")}</span>
-                </span>
-                <div>
-                  <h3 className="text-lg font-bold text-[#1b3641]">{secondary?.name || "X-Job Wallet"}</h3>
-                  <p className="text-xs text-[#6f8793]">{secondary ? secondary.type : "Freelance & Consulting"}</p>
+          {secondary ? (
+            <article className="rounded-[2rem] border border-transparent bg-white p-8 shadow-sm transition-all hover:border-[#9bb6c4]/30 hover:shadow-xl hover:shadow-emerald-900/5">
+              <div className="mb-8 flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="rounded-2xl bg-[#cfe6f2] p-3 text-[#40555f]">
+                    <span className="material-symbols-outlined">{walletIcon(secondary.type)}</span>
+                  </span>
+                  <div>
+                    <h3 className="text-lg font-bold text-[#1b3641]">{secondary.name}</h3>
+                    <p className="text-xs text-[#6f8793]">{secondary.type}</p>
+                  </div>
                 </div>
               </div>
-              <button className="text-[#49636f]/40 transition-colors hover:text-[#1b3641]">
-                <span className="material-symbols-outlined">open_in_new</span>
-              </button>
-            </div>
 
-            <div className="mb-6">
-              <h2 className="font-[var(--font-manrope)] text-3xl font-bold text-[#1b3641]">
-                {formatCurrency(secondary?.balance || 0, currency)}
-              </h2>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <button className="flex items-center gap-2 rounded-full bg-[#e7f6ff] px-4 py-2 text-xs font-bold text-[#49636f] transition-colors hover:text-[#006f1d]">
-                <div className="relative h-4 w-8 rounded-full bg-[#cbe7f6] shadow-inner">
-                  <div className="absolute left-1 top-1 h-2 w-2 rounded-full bg-[#49636f]/40" />
-                </div>
-                {t.accountsSetDefault}
-              </button>
-              <div className="flex items-center gap-1 rounded-lg bg-[#91f78e]/30 px-3 py-1 text-[#006f1d]">
-                <span className="material-symbols-outlined text-[16px]">trending_up</span>
-                <span className="text-[10px] font-bold">+8.2%</span>
+              <div className="mb-6">
+                <h2 className="font-[var(--font-manrope)] text-3xl font-bold text-[#1b3641]">
+                  {formatCurrency(secondary.balance, currency)}
+                </h2>
               </div>
-            </div>
-          </article>
+
+              <div className="flex items-center justify-between">
+                <button className="flex items-center gap-2 rounded-full bg-[#e7f6ff] px-4 py-2 text-xs font-bold text-[#49636f] transition-colors hover:text-[#006f1d]">
+                  <div className="relative h-4 w-8 rounded-full bg-[#cbe7f6] shadow-inner">
+                    <div className="absolute left-1 top-1 h-2 w-2 rounded-full bg-[#49636f]/40" />
+                  </div>
+                  {t.accountsSetDefault}
+                </button>
+              </div>
+            </article>
+          ) : (
+            <article className="rounded-[2rem] bg-white p-8 shadow-sm">
+              <h3 className="font-[var(--font-manrope)] text-xl font-bold text-[#1b3641]">{t.accountsNoWallet}</h3>
+              <p className="mt-2 text-sm text-[#49636f]">{t.accountsCreateFirstWallet}</p>
+            </article>
+          )}
         </div>
       </section>
 

@@ -152,6 +152,22 @@ type Dictionary = {
   walletSaving: string;
   walletInvalidBalance: string;
   walletUpdateFailed: string;
+  walletNameRequired: string;
+  walletCreateFailed: string;
+  walletCloseDialog: string;
+  walletDialogTag: string;
+  walletDialogTitle: string;
+  walletDialogBody: string;
+  walletDialogNameLabel: string;
+  walletDialogNamePlaceholder: string;
+  walletDialogBalanceLabel: string;
+  walletDialogBalancePlaceholder: string;
+  walletDialogBalanceHint: string;
+  walletDialogDefaultTitle: string;
+  walletDialogDefaultBody: string;
+  walletDialogCreateAction: string;
+  walletDialogCreating: string;
+  walletCurrencyPrefix: string;
   savingsPortfolio: string;
   savingsTitle: string;
   savingsTotal: string;
@@ -321,6 +337,22 @@ const enUS: Dictionary = {
   walletSaving: "Saving",
   walletInvalidBalance: "Please enter a valid balance.",
   walletUpdateFailed: "Unable to update wallet balance.",
+  walletNameRequired: "Wallet name is required.",
+  walletCreateFailed: "Failed to create wallet.",
+  walletCloseDialog: "Close create wallet dialog",
+  walletDialogTag: "New Asset Allocation",
+  walletDialogTitle: "Wallet Details",
+  walletDialogBody: "Define your financial silo. Use wallets to separate freelance income, personal savings, or project-specific funds.",
+  walletDialogNameLabel: "Wallet Name",
+  walletDialogNamePlaceholder: "e.g., Freelance Fund",
+  walletDialogBalanceLabel: "Starting Earning",
+  walletDialogBalancePlaceholder: "10000000",
+  walletDialogBalanceHint: "Values are formatted in Vietnamese Dong (VND).",
+  walletDialogDefaultTitle: "Set as Default Wallet",
+  walletDialogDefaultBody: "All new transactions will default to this wallet",
+  walletDialogCreateAction: "Create Wallet",
+  walletDialogCreating: "Creating Wallet...",
+  walletCurrencyPrefix: "₫",
   savingsPortfolio: "Fiscal Atelier - Savings Portfolio",
   savingsTitle: "Financial Ambition",
   savingsTotal: "Total Savings",
@@ -490,6 +522,22 @@ const viVN: Dictionary = {
   walletSaving: "Đang lưu",
   walletInvalidBalance: "Vui lòng nhập số dư hợp lệ.",
   walletUpdateFailed: "Không thể cập nhật số dư ví.",
+  walletNameRequired: "Vui lòng nhập tên ví.",
+  walletCreateFailed: "Không thể tạo ví.",
+  walletCloseDialog: "Đóng hộp thoại tạo ví",
+  walletDialogTag: "Phân bổ tài sản mới",
+  walletDialogTitle: "Thông tin ví",
+  walletDialogBody: "Tạo ngăn tài chính riêng cho từng mục đích: thu nhập freelance, tiết kiệm cá nhân hoặc quỹ dự án.",
+  walletDialogNameLabel: "Tên ví",
+  walletDialogNamePlaceholder: "Ví dụ: Quỹ Freelance",
+  walletDialogBalanceLabel: "Số dư khởi tạo",
+  walletDialogBalancePlaceholder: "10000000",
+  walletDialogBalanceHint: "Giá trị được định dạng theo Việt Nam Đồng (VND).",
+  walletDialogDefaultTitle: "Đặt làm ví mặc định",
+  walletDialogDefaultBody: "Các giao dịch mới sẽ tự động dùng ví này",
+  walletDialogCreateAction: "Tạo ví",
+  walletDialogCreating: "Đang tạo ví...",
+  walletCurrencyPrefix: "₫",
   savingsPortfolio: "Không gian tiết kiệm tài chính",
   savingsTitle: "Mục tiêu tài chính",
   savingsTotal: "Tổng tiền tiết kiệm",
