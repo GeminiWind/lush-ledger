@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>User Settings - Lush Ledger</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary-dim": "#415660",
+                        "on-secondary-container": "#40555f",
+                        "secondary": "#4d626c",
+                        "on-primary": "#eaffe2",
+                        "outline-variant": "#9bb6c4",
+                        "secondary-container": "#cfe6f2",
+                        "on-error": "#fff7f6",
+                        "surface": "#f4faff",
+                        "inverse-primary": "#91f78e",
+                        "on-surface-variant": "#49636f",
+                        "on-tertiary-fixed-variant": "#6a6d37",
+                        "tertiary": "#60622d",
+                        "on-tertiary-container": "#60622d",
+                        "error-dim": "#791903",
+                        "tertiary-fixed": "#fcfeb9",
+                        "primary-fixed": "#91f78e",
+                        "surface-container": "#dcf1fd",
+                        "on-secondary": "#f2faff",
+                        "surface-bright": "#f4faff",
+                        "primary": "#006f1d",
+                        "on-surface": "#1b3641",
+                        "tertiary-container": "#fcfeb9",
+                        "inverse-surface": "#041015",
+                        "surface-container-high": "#d4ecf9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#e7f6ff",
+                        "on-tertiary": "#fcfdb9",
+                        "error": "#a73b21",
+                        "primary-container": "#91f78e",
+                        "surface-container-highest": "#cbe7f6",
+                        "secondary-fixed-dim": "#c1d8e4",
+                        "on-tertiary-fixed": "#4d501d",
+                        "on-primary-fixed-variant": "#00691a",
+                        "tertiary-fixed-dim": "#edefac",
+                        "on-background": "#1b3641",
+                        "on-primary-fixed": "#00480f",
+                        "inverse-on-surface": "#929fa6",
+                        "on-error-container": "#6e1400",
+                        "on-secondary-fixed-variant": "#495f69",
+                        "on-secondary-fixed": "#2d424c",
+                        "outline": "#647e8c",
+                        "background": "#f4faff",
+                        "error-container": "#fd795a",
+                        "surface-variant": "#cbe7f6",
+                        "tertiary-dim": "#545622",
+                        "surface-tint": "#006f1d",
+                        "primary-dim": "#006118",
+                        "on-primary-container": "#005e17",
+                        "surface-dim": "#c3deed",
+                        "secondary-fixed": "#cfe6f2",
+                        "primary-fixed-dim": "#83e881"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4faff;
+        }
+        h1, h2, h3, .font-headline {
+            font-family: 'Manrope', sans-serif;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="text-on-surface">
+<!-- SideNavBar Integration -->
+<aside class="fixed left-0 top-0 h-full z-40 hidden md:flex flex-col p-4 bg-emerald-50 dark:bg-slate-900 h-screen w-64 border-r-0 font-manrope text-sm font-medium">
+<div class="mb-10 px-4 pt-4">
+<h1 class="text-xl font-bold text-emerald-900 dark:text-emerald-100 tracking-tight">Lush Ledger</h1>
+<p class="text-xs text-emerald-700/60 font-medium">Financial Zen</p>
+</div>
+<nav class="flex flex-col gap-2 flex-grow">
+<a class="flex items-center gap-3 px-4 py-3 text-emerald-700/70 dark:text-emerald-400/60 hover:bg-white/50 dark:hover:bg-emerald-800/20 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-emerald-700/70 dark:text-emerald-400/60 hover:bg-white/50 dark:hover:bg-emerald-800/20 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span>Transactions</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-emerald-700/70 dark:text-emerald-400/60 hover:bg-white/50 dark:hover:bg-emerald-800/20 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span>Budgets</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-white/80 dark:bg-emerald-800/40 text-emerald-900 dark:text-emerald-50 rounded-xl shadow-sm scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="mt-auto p-4 bg-emerald-100/50 dark:bg-emerald-900/20 rounded-xl flex items-center gap-3">
+<img alt="User profile avatar" class="w-10 h-10 rounded-full bg-white shadow-sm" data-alt="Close up of a professional user avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDA_p-btRALP3DswisowREZUUgmRrRdxfuzgKGXdyyO-gqSUyBu84z4d8IyFZRSj0nIFNBGuxBpQLha6xkb8aY2FTn32hosyIog2xrmviBFsjWgK1SyxbinEWu0ViKf5jLm65ON7RNQyKDPCUaO8j4EfS6wucQH03xw5G-u83-HL-Ra1YTgUPwV1efHQYVmtssLP7lzmZT-4RKHx_9nVO9W4N0WyyzftBx8flw9jtbUthKpjnH1WrkwqLecpprnrYZ579VfUyOCUHw"/>
+<div>
+<p class="text-xs font-bold text-emerald-900">Alex Nguyen</p>
+<p class="text-[10px] text-emerald-700/70 uppercase tracking-widest">Premium Plan</p>
+</div>
+</div>
+</aside>
+<!-- TopNavBar Integration -->
+<header class="fixed top-0 right-0 left-0 md:left-64 z-30 flex justify-between items-center px-8 py-4 bg-slate-50/80 dark:bg-slate-950/80 backdrop-blur-xl shadow-sm shadow-emerald-900/5 docked full-width font-manrope text-lg font-semibold">
+<h2 class="text-emerald-900 dark:text-emerald-50 font-extrabold tracking-tight">User Settings</h2>
+<div class="flex items-center gap-6">
+<button class="text-emerald-800 dark:text-emerald-400 hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="Headshot of a smiling user" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJB_3i54mb9PS6yfDwa2tE5ykuhXJ5LElKdsTEBBNz_aA6DCJUcyi7qOxccKBraqBSKxv1QnkHdoUL3GiJRMQXrqThmr-Jgre7UTXW2AmYSOkSRy6C5qrqS04pz1YYmz4f0AriaVWWJqASOYmYYgvF72sukpNhzZinDVJ7VmF1pyWgydG_zUaUr0IIWsTarwp4wQ9egzuBqe5dsiOeA7CD7RHdwXHUpWeSLj2PvaZl86mjf8p6yGwsIxKbi9Z10fZ_WcfRpnRlQJ0"/>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="pt-24 pb-12 ml-0 md:left-64 md:pl-[288px] pr-8 min-h-screen bg-surface">
+<div class="max-w-6xl mx-auto space-y-12">
+<!-- Hero Header Section -->
+<section class="flex flex-col md:flex-row justify-between items-end gap-6">
+<div class="space-y-2">
+<span class="text-primary font-bold tracking-widest text-xs uppercase bg-primary-container px-3 py-1 rounded-full">Configuration</span>
+<h3 class="text-5xl font-black text-on-surface leading-tight">Your Atelier<br/><span class="text-primary-dim">Preferences</span></h3>
+</div>
+<div class="text-right max-w-xs">
+<p class="text-on-surface-variant text-sm leading-relaxed">Customize your digital financial space to match your lifestyle. Every detail matters in the pursuit of fiscal zen.</p>
+</div>
+</section>
+<!-- Settings Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Column: Theme & Appearance -->
+<div class="lg:col-span-8 space-y-8">
+<!-- Theme Selection (Bento Style) -->
+<div class="bg-surface-container-low p-8 rounded-xl space-y-6">
+<div class="flex justify-between items-center">
+<h4 class="text-xl font-bold font-headline">Theme Selection</h4>
+<span class="text-on-surface-variant text-xs font-medium">Visual Identity</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<!-- Light Mode Card -->
+<div class="group cursor-pointer bg-surface-container-lowest border-2 border-primary p-5 rounded-xl shadow-sm hover:translate-y-[-4px] transition-all duration-300">
+<div class="h-24 bg-surface rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+<div class="w-full h-full p-4 flex flex-col gap-2">
+<div class="w-1/2 h-2 bg-on-surface/10 rounded"></div>
+<div class="w-full h-2 bg-on-surface/5 rounded"></div>
+<div class="w-3/4 h-2 bg-on-surface/5 rounded"></div>
+</div>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-bold text-on-surface">Light Mode</span>
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+<!-- Dark Mode Card -->
+<div class="group cursor-pointer bg-inverse-surface p-5 rounded-xl hover:translate-y-[-4px] transition-all duration-300">
+<div class="h-24 bg-slate-900 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+<div class="w-full h-full p-4 flex flex-col gap-2">
+<div class="w-1/2 h-2 bg-white/10 rounded"></div>
+<div class="w-full h-2 bg-white/5 rounded"></div>
+<div class="w-3/4 h-2 bg-white/5 rounded"></div>
+</div>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-bold text-white">Dark Mode</span>
+<span class="material-symbols-outlined text-white/20">circle</span>
+</div>
+</div>
+<!-- System Card -->
+<div class="group cursor-pointer bg-surface-container-lowest p-5 rounded-xl hover:translate-y-[-4px] transition-all duration-300 relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-r from-surface via-transparent to-slate-900 opacity-20"></div>
+<div class="h-24 bg-gradient-to-br from-surface to-slate-200 rounded-lg mb-4 flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant text-3xl">settings_brightness</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-bold text-on-surface">System Default</span>
+<span class="material-symbols-outlined text-on-surface-variant/20">circle</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Notification Control -->
+</div>
+<!-- Right Column: Regional & Language -->
+<div class="lg:col-span-4 space-y-8">
+<!-- Currency Selection -->
+<div class="bg-primary p-8 rounded-xl text-on-primary space-y-6 relative overflow-hidden">
+<div class="absolute -right-8 -bottom-8 opacity-10">
+<span class="material-symbols-outlined text-[160px]" style="font-variation-settings: 'FILL' 1;">payments</span>
+</div>
+<h4 class="text-xl font-bold font-headline relative z-10">Currency Hub</h4>
+<div class="space-y-4 relative z-10">
+<div class="p-4 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="text-2xl font-bold">₫</span>
+<div>
+<p class="font-bold">Vietnamese Dong</p>
+<p class="text-xs text-white/60">Active Currency</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-white">verified</span>
+</div>
+<button class="w-full py-3 bg-white text-primary font-bold rounded-xl text-sm hover:bg-emerald-50 transition-colors">
+                                Change Currency
+                            </button>
+</div>
+</div>
+<!-- Language Selection -->
+<div class="bg-surface-container-low p-8 rounded-xl space-y-6">
+<h4 class="text-xl font-bold font-headline">Language</h4>
+<div class="space-y-2">
+<label class="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Current Display</label>
+<div class="relative">
+<select class="w-full bg-surface-container-lowest border-none rounded-xl py-4 px-4 text-on-surface font-semibold appearance-none focus:ring-2 focus:ring-primary/40">
+<option selected="">English (US)</option>
+<option>Tiếng Việt (VN)</option>
+<option>Français (FR)</option>
+<option>日本語 (JP)</option>
+</select>
+<div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Security Badge -->
+<div class="p-6 border-2 border-dashed border-outline-variant/20 rounded-xl space-y-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">security</span>
+<p class="text-sm font-bold text-on-surface">Data Atelier Privacy</p>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed">Your financial data is encrypted using AES-256 standards. We never sell your personal information to third parties.</p>
+<a class="inline-block text-xs font-bold text-primary underline underline-offset-4" href="#">Read our Manifesto</a>
+</div>
+</div>
+</div>
+<!-- Danger Zone / footer actions -->
+<section class="flex flex-col md:flex-row justify-between items-center pt-12 border-t border-outline-variant/10">
+<p class="text-on-surface-variant text-sm mb-4 md:mb-0">All changes are saved automatically in real-time.</p>
+<div class="flex gap-4">
+<button class="px-8 py-3 bg-surface-container-highest text-on-surface-variant font-bold rounded-xl text-sm hover:bg-surface-container-high transition-all">Reset to Defaults</button>
+<button class="px-8 py-3 bg-gradient-to-br from-primary to-primary-dim text-on-primary font-bold rounded-xl text-sm shadow-xl shadow-primary/20 hover:scale-105 transition-all">Save Atelier State</button>
+</div>
+</section>
+</div>
+</main>
+</body></html>
