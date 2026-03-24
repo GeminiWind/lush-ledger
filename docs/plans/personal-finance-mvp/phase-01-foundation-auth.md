@@ -76,12 +76,12 @@
 - Completed: JWT auth flow (register/login/logout/session cookie) in API and middleware
 - Completed: Protected routes via middleware and request session checks
 - Completed: Currency persisted in `UserSettings` and consumed across UI formatting
-- Gap: dedicated settings API/page from this phase doc (`/api/settings`, `/app/settings`) is not present
+- Completed: settings API and page are present (`/api/settings`, `/app/settings`)
 - Gap: auth endpoint rate limiting is not implemented yet
 
 ## Recommendation
 
-- Keep phase as `in_progress` until settings page/API and auth rate limiting are added.
+- Keep phase as `in_progress` until auth endpoint rate limiting is added.
 
 ## Risk Assessment
 

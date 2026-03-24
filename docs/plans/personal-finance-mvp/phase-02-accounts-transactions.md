@@ -59,12 +59,12 @@
 ## Review summary (2026-03-24)
 
 - Completed: Account create/list APIs and user-scoped account reads (`/api/accounts`, `/api/accounts/[id]`)
+- Completed: Account edit/delete flow is implemented in API and wallet UI (`PATCH`/`DELETE` + modal actions)
 - Completed: Wallet balance recalculation flow based on opening balance + transaction movement
 - Completed: Transaction create/list APIs with user scoping and server-side validation (`/api/ledger`)
 - Completed: Transaction list page supports filter + search (query/type/account/category)
 - Completed: New transaction form UX with recurring support and validation
-- Gap: full Account CRUD is not complete (no explicit delete endpoint/UI, limited update surface)
-- Gap: full Transaction CRUD is not complete (no update/delete endpoints/UI)
+- Gap: Transaction CRUD is not complete (no update/delete endpoints/UI)
 - Gap: phase doc references `transactions` routes, but implementation is consolidated under `ledger`
 
 ## Recommendation

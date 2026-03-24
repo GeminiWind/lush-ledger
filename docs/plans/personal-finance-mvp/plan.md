@@ -17,5 +17,5 @@ Assumption: no `## Naming` convention found; using `docs/plans/personal-finance-
 
 ### Progress
 
-- Overall: 75% (phase 01-05 in progress)
+- Overall: 84% (all phases reviewed; phase 05 advanced with create flow)
 - Gate: user approval required before implementation

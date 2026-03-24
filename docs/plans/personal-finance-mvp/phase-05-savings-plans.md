@@ -53,13 +53,14 @@
 - Completed: `SavingsPlan` model exists in Prisma with `targetAmount`, `monthlyContribution`, and `targetDate`
 - Completed: Savings dashboard/UI is implemented and computes saved/progress/remaining from tagged transactions
 - Completed: Savings trend and progress visualizations are available in the app
-- Gap: Savings plan CRUD is not implemented (no dedicated create/update/delete API routes)
-- Gap: No explicit savings plan creation/edit UI workflow was found in current app routes
+- Completed: Savings plan create API is implemented (`/api/savings/plans`)
+- Completed: Savings plan creation UI is implemented (dialog on savings page with auto-computed arrival date)
+- Gap: Savings plan CRUD is still partial (no update/delete API routes or edit/delete UI)
 - Gap: Progress depends on transaction tagging; there is no guided tagging/assignment flow in this phase scope
 
 ## Recommendation
 
-- Keep phase as `in_progress` until savings plan CRUD + creation/edit UI are added.
+- Keep phase as `in_progress` until savings plan update/delete and guided assignment/tagging flow are added.
 
 ## Risk Assessment
 
