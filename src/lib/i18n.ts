@@ -158,6 +158,8 @@ type Dictionary = {
   walletDialogTag: string;
   walletDialogTitle: string;
   walletDialogBody: string;
+  walletDialogEditTitle: string;
+  walletDialogEditBody: string;
   walletDialogNameLabel: string;
   walletDialogNamePlaceholder: string;
   walletDialogBalanceLabel: string;
@@ -167,6 +169,12 @@ type Dictionary = {
   walletDialogDefaultBody: string;
   walletDialogCreateAction: string;
   walletDialogCreating: string;
+  walletDialogUpdateAction: string;
+  walletDialogUpdating: string;
+  walletDialogDeleteAction: string;
+  walletDialogDeleting: string;
+  walletDeleteFailed: string;
+  walletDeleteBlockedDefault: string;
   walletCurrencyPrefix: string;
   savingsPortfolio: string;
   savingsTitle: string;
@@ -343,6 +351,8 @@ const enUS: Dictionary = {
   walletDialogTag: "New Asset Allocation",
   walletDialogTitle: "Wallet Details",
   walletDialogBody: "Define your financial silo. Use wallets to separate freelance income, personal savings, or project-specific funds.",
+  walletDialogEditTitle: "Edit Wallet",
+  walletDialogEditBody: "Update your wallet details and default preference.",
   walletDialogNameLabel: "Wallet Name",
   walletDialogNamePlaceholder: "e.g., Freelance Fund",
   walletDialogBalanceLabel: "Starting Earning",
@@ -352,6 +362,12 @@ const enUS: Dictionary = {
   walletDialogDefaultBody: "All new transactions will default to this wallet",
   walletDialogCreateAction: "Create Wallet",
   walletDialogCreating: "Creating Wallet...",
+  walletDialogUpdateAction: "Update Wallet",
+  walletDialogUpdating: "Updating Wallet...",
+  walletDialogDeleteAction: "Delete Wallet",
+  walletDialogDeleting: "Deleting Wallet...",
+  walletDeleteFailed: "Unable to delete wallet.",
+  walletDeleteBlockedDefault: "Default wallet cannot be deleted.",
   walletCurrencyPrefix: "₫",
   savingsPortfolio: "Fiscal Atelier - Savings Portfolio",
   savingsTitle: "Financial Ambition",
@@ -528,6 +544,8 @@ const viVN: Dictionary = {
   walletDialogTag: "Phân bổ tài sản mới",
   walletDialogTitle: "Thông tin ví",
   walletDialogBody: "Tạo ngăn tài chính riêng cho từng mục đích: thu nhập freelance, tiết kiệm cá nhân hoặc quỹ dự án.",
+  walletDialogEditTitle: "Chỉnh sửa ví",
+  walletDialogEditBody: "Cập nhật thông tin ví và tùy chọn mặc định.",
   walletDialogNameLabel: "Tên ví",
   walletDialogNamePlaceholder: "Ví dụ: Quỹ Freelance",
   walletDialogBalanceLabel: "Số dư khởi tạo",
@@ -537,6 +555,12 @@ const viVN: Dictionary = {
   walletDialogDefaultBody: "Các giao dịch mới sẽ tự động dùng ví này",
   walletDialogCreateAction: "Tạo ví",
   walletDialogCreating: "Đang tạo ví...",
+  walletDialogUpdateAction: "Cập nhật ví",
+  walletDialogUpdating: "Đang cập nhật ví...",
+  walletDialogDeleteAction: "Xóa ví",
+  walletDialogDeleting: "Đang xóa ví...",
+  walletDeleteFailed: "Không thể xóa ví.",
+  walletDeleteBlockedDefault: "Không thể xóa ví mặc định.",
   walletCurrencyPrefix: "₫",
   savingsPortfolio: "Không gian tiết kiệm tài chính",
   savingsTitle: "Mục tiêu tài chính",

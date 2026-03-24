@@ -136,9 +136,6 @@ export default async function LedgerPage({
         <Link href="/app/ledger/reports" className="pb-2 font-[var(--font-manrope)] text-lg font-semibold text-[#006f1d]/60 hover:text-[#1b3641]">
           {t.ledgerTabReports}
         </Link>
-        <Link href="/app/categories" className="pb-2 font-[var(--font-manrope)] text-lg font-semibold text-[#006f1d]/60 hover:text-[#1b3641]">
-          {t.ledgerTabBudgets}
-        </Link>
       </section>
 
       <section className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">

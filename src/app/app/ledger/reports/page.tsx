@@ -42,6 +42,7 @@ export default async function LedgerReportsPage({
   const user = await requireUser();
   await materializeRecurringTransactions(user.id);
   const language = user.settings?.language || "en-US";
+  const locale = language === "vi-VN" ? "vi-VN" : "en-US";
   const currency = user.settings?.currency ?? "VND";
   const today = new Date();
   const params = await searchParams;
@@ -85,7 +86,7 @@ export default async function LedgerReportsPage({
     return {
       date,
       key: monthKey(date),
-      label: date.toLocaleString("en-US", { month: "short" }).toUpperCase(),
+      label: date.toLocaleString(locale, { month: "short" }).toUpperCase(),
     };
   });
 
@@ -134,7 +135,7 @@ export default async function LedgerReportsPage({
     bucket.entries.push({
       id: tx.id,
       title: tx.notes?.trim() || tx.category?.name || "Transaction",
-      subtitle: `${tx.category?.name || "Uncategorized"} • ${tx.date.toLocaleTimeString("en-US", {
+      subtitle: `${tx.category?.name || "Uncategorized"} • ${tx.date.toLocaleTimeString(locale, {
         hour: "2-digit",
         minute: "2-digit",
       })}`,
@@ -167,7 +168,7 @@ export default async function LedgerReportsPage({
     };
   });
 
-  const monthLabel = selectedDate.toLocaleString("en-US", { month: "long", year: "numeric" });
+  const monthLabel = selectedDate.toLocaleString(locale, { month: "long", year: "numeric" });
   const yearOptions = Array.from({ length: 7 }).map((_, index) => selectedYear - 3 + index);
 
   return (
@@ -178,9 +179,6 @@ export default async function LedgerReportsPage({
         </Link>
         <Link href="/app/ledger/reports" className="border-b-2 border-[#006f1d] pb-2 font-[var(--font-manrope)] text-lg font-semibold text-[#1b3641]">
           {tr(language, "Reports", "Báo cáo")}
-        </Link>
-        <Link href="/app/categories" className="pb-2 font-[var(--font-manrope)] text-lg font-semibold text-[#006f1d]/60 hover:text-[#1b3641]">
-          {tr(language, "Budgets", "Ngân sách")}
         </Link>
       </section>
 

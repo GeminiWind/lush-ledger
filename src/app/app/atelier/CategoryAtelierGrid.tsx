@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import GridLayout, { Layout, useContainerWidth } from "react-grid-layout";
 import { formatCurrency } from "@/lib/format";
+import { tr } from "@/lib/i18n";
 import AddCategoryModal from "@/app/app/atelier/AddCategoryModal";
 
 const categoryTones = [
@@ -32,11 +33,14 @@ type CategoryStat = {
   limit: number;
   spent: number;
   usage: number;
+  warningEnabled: boolean;
+  warnAt: number;
 };
 
 type Props = {
   categories: CategoryStat[];
   currency: string;
+  language: string;
 };
 
 const getColumnCount = (width: number) => {
@@ -85,17 +89,25 @@ function CategoryCard({
   category,
   tone,
   currency,
+  language,
   draggable,
 }: {
   category: CategoryStat;
   tone: (typeof categoryTones)[number];
   currency: string;
+  language: string;
   draggable: boolean;
 }) {
   const usedPercent = Math.round(category.usage * 100);
   const atLimit = category.limit > 0 && category.spent >= category.limit;
-  const usedBadgeClass = atLimit ? "bg-[#ffe9e4] text-[#a73b21]" : "bg-[#eef7ff] text-[#49636f]";
-  const meterClass = atLimit ? "bg-[#a73b21]" : tone.meter;
+  const threshold = Math.min(Math.max(category.warnAt || 80, 1), 100);
+  const inWarnRange = category.warningEnabled && !atLimit && category.limit > 0 && usedPercent >= threshold;
+  const usedBadgeClass = atLimit
+    ? "bg-[#ffe9e4] text-[#a73b21]"
+    : inWarnRange
+      ? "bg-[#fff4dd] text-[#b35a00]"
+      : "bg-[#e7f7ea] text-[#1f6f3a]";
+  const meterClass = atLimit ? "bg-[#a73b21]" : inWarnRange ? "bg-[#f59e0b]" : "bg-[#2e7d32]";
 
   return (
     <article className="flex h-full flex-col justify-between rounded-3xl bg-white p-6 shadow-[0_16px_38px_-14px_rgba(27,54,65,0.16)]">
@@ -107,7 +119,7 @@ function CategoryCard({
             </div>
             <div>
               <h3 className="font-[var(--font-manrope)] text-lg font-bold text-[#1b3641]">{category.name}</h3>
-              <p className="text-xs text-[#6f8793]">Monthly Limit</p>
+              <p className="text-xs text-[#6f8793]">{tr(language, "Monthly Limit", "Hạn mức tháng")}</p>
             </div>
           </div>
 
@@ -115,8 +127,8 @@ function CategoryCard({
             <button
               type="button"
               className="category-drag-handle cursor-grab rounded-lg bg-[#eef7ff] px-2 py-1 text-[#49636f] active:cursor-grabbing"
-              aria-label={`Drag ${category.name}`}
-              title="Drag to reorder"
+              aria-label={tr(language, `Drag ${category.name}`, `Kéo ${category.name}`)}
+              title={tr(language, "Drag to reorder", "Kéo để sắp xếp")}
             >
               <span className="material-symbols-outlined text-base">drag_indicator</span>
             </button>
@@ -128,7 +140,7 @@ function CategoryCard({
             <p className="font-[var(--font-manrope)] text-2xl font-extrabold text-[#1b3641]">
               {formatCurrency(category.limit, currency)}
             </p>
-            <span className={`rounded-md px-2 py-1 text-xs font-bold ${usedBadgeClass}`}>{usedPercent}% Used</span>
+            <span className={`rounded-md px-2 py-1 text-xs font-bold ${usedBadgeClass}`}>{usedPercent}% {tr(language, "Used", "đã dùng")}</span>
           </div>
 
           <div className="h-2 overflow-hidden rounded-full bg-[#e4f1fa]">
@@ -136,9 +148,13 @@ function CategoryCard({
           </div>
 
           <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.16em] text-[#8aa2b0]">
-            <span>Spent: {formatCurrency(category.spent, currency)}</span>
-            <span className={atLimit ? "text-[#a73b21]" : "text-[#49636f]"}>
-              {atLimit ? "Fully Allocated" : "Healthy"}
+            <span>{tr(language, "Spent:", "Đã chi:")} {formatCurrency(category.spent, currency)}</span>
+            <span className={atLimit ? "text-[#a73b21]" : inWarnRange ? "text-[#b35a00]" : "text-[#1f6f3a]"}>
+              {atLimit
+                ? tr(language, "Overspent", "Vượt mức")
+                : inWarnRange
+                  ? tr(language, "Warning", "Cảnh báo")
+                  : tr(language, "Healthy", "Ổn định")}
             </span>
           </div>
         </div>
@@ -147,7 +163,7 @@ function CategoryCard({
   );
 }
 
-export default function CategoryAtelierGrid({ categories, currency }: Props) {
+export default function CategoryAtelierGrid({ categories, currency, language }: Props) {
   const { width, mounted, containerRef } = useContainerWidth({ initialWidth: 1200 });
   const [orderedCategoryIds, setOrderedCategoryIds] = useState<string[]>(
     categories.map((category) => category.id),
@@ -221,11 +237,11 @@ export default function CategoryAtelierGrid({ categories, currency }: Props) {
   return (
     <div ref={containerRef} className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">Category Atelier</h2>
+        <h2 className="font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">{tr(language, "Category Atelier", "Atelier danh mục")}</h2>
       </div>
 
       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#6f8793]">
-        Drag cards by the handle to save your custom order.
+        {tr(language, "Drag cards by the handle to save your custom order.", "Kéo các thẻ bằng tay cầm để lưu thứ tự tùy chỉnh.")}
       </p>
 
       {mounted ? (
@@ -252,7 +268,7 @@ export default function CategoryAtelierGrid({ categories, currency }: Props) {
             if (id === addCategoryLayoutId) {
               return (
                 <div key={addCategoryLayoutId} className="h-full">
-                  <AddCategoryModal currency={currency} />
+                  <AddCategoryModal currency={currency} language={language} />
                 </div>
               );
             }
@@ -266,7 +282,7 @@ export default function CategoryAtelierGrid({ categories, currency }: Props) {
 
             return (
               <div key={category.id} className="h-full">
-                <CategoryCard category={category} tone={tone} currency={currency} draggable />
+                <CategoryCard category={category} tone={tone} currency={currency} language={language} draggable />
               </div>
             );
           })}
@@ -282,11 +298,12 @@ export default function CategoryAtelierGrid({ categories, currency }: Props) {
                 category={category}
                 tone={tone}
                 currency={currency}
+                language={language}
                 draggable={false}
               />
             );
           })}
-          <AddCategoryModal currency={currency} />
+          <AddCategoryModal currency={currency} language={language} />
         </div>
       )}
     </div>

@@ -2,6 +2,7 @@ import Image from "next/image";
 import { prisma } from "@/lib/db";
 import { getMonthRange } from "@/lib/date";
 import { formatCurrency } from "@/lib/format";
+import { ensureMonthlyCapSnapshot } from "@/lib/monthly-cap";
 import { requireUser } from "@/lib/user";
 
 const toNumber = (value: unknown) => Number(value ?? 0);
@@ -28,8 +29,9 @@ export default async function AtelierPage() {
   const user = await requireUser();
   const currency = user.settings?.currency || "VND";
   const { start, end } = getMonthRange(new Date());
+  await ensureMonthlyCapSnapshot(user.id, start);
 
-  const [categories, monthTransactions, savingsPlans] = await Promise.all([
+  const [categories, monthTransactions, savingsPlans, monthLimits] = await Promise.all([
     prisma.category.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: "desc" },
@@ -41,7 +43,12 @@ export default async function AtelierPage() {
       where: { userId: user.id },
       orderBy: { createdAt: "desc" },
     }),
+    prisma.categoryMonthlyLimit.findMany({
+      where: { userId: user.id, monthStart: start },
+      select: { categoryId: true, limit: true },
+    }),
   ]);
+  const monthLimitByCategoryId = new Map(monthLimits.map((item) => [item.categoryId, toNumber(item.limit)]));
 
   const monthIncome = monthTransactions
     .filter((tx) => tx.type === "income")
@@ -56,7 +63,7 @@ export default async function AtelierPage() {
         .filter((tx) => tx.categoryId === category.id && tx.type === "expense")
         .reduce((sum, tx) => sum + toNumber(tx.amount), 0);
 
-      const limit = toNumber(category.monthlyLimit);
+      const limit = monthLimitByCategoryId.get(category.id) ?? 0;
       const usage = limit > 0 ? Math.min(spent / limit, 1) : 0;
 
       return {

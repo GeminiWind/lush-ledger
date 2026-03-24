@@ -2,11 +2,20 @@
 
 import { getDictionary } from "@/lib/i18n";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFormik } from "formik";
+
+type WalletForEdit = {
+  id: string;
+  name: string;
+  openingBalance: number;
+  isDefault: boolean;
+};
 
 type Props = {
   language: string;
+  wallet?: WalletForEdit;
+  trigger?: "primary" | "icon";
 };
 
 const toPlainNumber = (value: string) => {
@@ -16,18 +25,44 @@ const toPlainNumber = (value: string) => {
   return Number.isFinite(parsed) ? parsed : Number.NaN;
 };
 
-export default function WalletCreateForm({ language }: Props) {
+export default function WalletCreateForm({ language, wallet, trigger = "primary" }: Props) {
   const t = getDictionary(language);
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isEdit = Boolean(wallet);
+
+  const closeModal = () => {
+    setOpen(false);
+    setError(null);
+  };
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeModal();
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
 
   const formik = useFormik({
+    enableReinitialize: true,
     initialValues: {
-      name: "",
-      openingBalance: "",
-      setAsDefault: true,
+      name: wallet?.name || "",
+      openingBalance: wallet ? String(Math.max(0, Math.round(wallet.openingBalance))) : "",
+      setAsDefault: wallet?.isDefault ?? true,
     },
     validate: (values) => {
       const errors: { name?: string; openingBalance?: string } = {};
@@ -46,13 +81,13 @@ export default function WalletCreateForm({ language }: Props) {
 
       const payload = {
         name: values.name.trim(),
-        type: "cash",
         openingBalance: toPlainNumber(values.openingBalance),
         setAsDefault: values.setAsDefault,
+        ...(isEdit ? {} : { type: "cash" }),
       };
 
-      const response = await fetch("/api/accounts", {
-        method: "POST",
+      const response = await fetch(isEdit ? `/api/accounts/${wallet!.id}` : "/api/accounts", {
+        method: isEdit ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
@@ -61,39 +96,81 @@ export default function WalletCreateForm({ language }: Props) {
 
       if (!response.ok) {
         const data = await response.json();
-        setError(data.error || t.walletCreateFailed);
+        setError(data.error || (isEdit ? t.walletUpdateFailed : t.walletCreateFailed));
         return;
       }
 
       helpers.resetForm();
-      setOpen(false);
+      closeModal();
       router.refresh();
     },
   });
 
+  const onDelete = async () => {
+    if (!wallet || wallet.isDefault) {
+      return;
+    }
+
+    setError(null);
+    setDeleting(true);
+    const response = await fetch(`/api/accounts/${wallet.id}`, {
+      method: "DELETE",
+    });
+    setDeleting(false);
+
+    if (!response.ok) {
+      const data = await response.json();
+      setError(data.error || t.walletDeleteFailed);
+      return;
+    }
+
+    closeModal();
+    router.refresh();
+  };
+
   return (
     <>
-      <button
-        type="button"
-        onClick={() => {
-          setOpen(true);
-          setError(null);
-        }}
-        className="inline-flex items-center gap-2 rounded-xl bg-[#006f1d] px-6 py-3 font-bold text-[#eaffe2] shadow-lg shadow-[#006f1d]/20 hover:brightness-105"
-      >
-        <span className="material-symbols-outlined">add_card</span>
-        <span>{t.accountsNewWallet}</span>
-      </button>
+      {trigger === "icon" ? (
+        <button
+          type="button"
+          onClick={() => {
+            setOpen(true);
+            setError(null);
+          }}
+          className="inline-flex items-center justify-center rounded-lg bg-white/70 p-2 text-[#49636f] transition-colors hover:text-[#1b3641]"
+          aria-label={t.walletEditAria}
+        >
+          <span className="material-symbols-outlined text-[18px]">edit</span>
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => {
+            setOpen(true);
+            setError(null);
+          }}
+          className="inline-flex items-center gap-2 rounded-xl bg-[#006f1d] px-6 py-3 font-bold text-[#eaffe2] shadow-lg shadow-[#006f1d]/20 hover:brightness-105"
+        >
+          <span className="material-symbols-outlined">add_card</span>
+          <span>{t.accountsNewWallet}</span>
+        </button>
+      )}
 
       {open ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-md">
-          <div className="relative w-full max-w-2xl overflow-hidden rounded-[2.5rem] bg-[#e7f6ff] p-8 shadow-2xl md:p-10">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-md"
+          onMouseDown={closeModal}
+        >
+          <div
+            className="relative w-full max-w-2xl overflow-hidden rounded-[2.5rem] bg-[#e7f6ff] p-8 shadow-2xl md:p-10"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
             <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-[#006f1d]/10 blur-3xl" />
             <div className="pointer-events-none absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-[#60622d]/10 blur-3xl" />
 
             <button
               type="button"
-              onClick={() => setOpen(false)}
+              onClick={closeModal}
               className="absolute right-6 top-6 grid h-10 w-10 place-items-center rounded-full bg-white text-[#49636f] hover:bg-[#dcf1fd]"
               aria-label={t.walletCloseDialog}
             >
@@ -103,8 +180,10 @@ export default function WalletCreateForm({ language }: Props) {
             <div className="relative z-10 space-y-8">
               <div className="space-y-2 pr-12">
                 <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#006f1d]">{t.walletDialogTag}</p>
-                <h2 className="font-[var(--font-manrope)] text-4xl font-extrabold tracking-tight text-[#1b3641]">{t.walletDialogTitle}</h2>
-                <p className="max-w-xl text-sm text-[#49636f]">{t.walletDialogBody}</p>
+                <h2 className="font-[var(--font-manrope)] text-4xl font-extrabold tracking-tight text-[#1b3641]">
+                  {isEdit ? t.walletDialogEditTitle : t.walletDialogTitle}
+                </h2>
+                <p className="max-w-xl text-sm text-[#49636f]">{isEdit ? t.walletDialogEditBody : t.walletDialogBody}</p>
               </div>
 
               <form onSubmit={formik.handleSubmit} className="space-y-6">
@@ -182,9 +261,32 @@ export default function WalletCreateForm({ language }: Props) {
                   disabled={loading}
                   className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#006f1d] to-[#006118] px-6 py-4 text-base font-extrabold text-[#eaffe2] shadow-[0_20px_34px_-18px_rgba(0,111,29,0.6)] hover:brightness-105 disabled:opacity-70"
                 >
-                  <span>{loading ? t.walletDialogCreating : t.walletDialogCreateAction}</span>
+                  <span>
+                    {loading
+                      ? isEdit
+                        ? t.walletDialogUpdating
+                        : t.walletDialogCreating
+                      : isEdit
+                        ? t.walletDialogUpdateAction
+                        : t.walletDialogCreateAction}
+                  </span>
                   <span className="material-symbols-outlined">chevron_right</span>
                 </button>
+
+                {isEdit ? (
+                  wallet?.isDefault ? (
+                    <p className="text-center text-xs font-semibold text-[#6f8793]">{t.walletDeleteBlockedDefault}</p>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={onDelete}
+                      disabled={deleting}
+                      className="w-full rounded-xl border border-[#f8cfc4] bg-[#fff3ef] px-4 py-3 text-sm font-bold text-[#a73b21] hover:bg-[#fde9e2] disabled:opacity-70"
+                    >
+                      {deleting ? t.walletDialogDeleting : t.walletDialogDeleteAction}
+                    </button>
+                  )
+                ) : null}
               </form>
             </div>
           </div>

@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/user";
 import { getMonthRange } from "@/lib/date";
 import { formatCurrency } from "@/lib/format";
+import { ensureMonthlyCapSnapshot } from "@/lib/monthly-cap";
 
 const toNumber = (value: unknown) => Number(value ?? 0);
 
@@ -9,8 +10,9 @@ export default async function OverviewPage() {
   const user = await requireUser();
   const { start, end } = getMonthRange(new Date());
   const currency = user.settings?.currency || "VND";
+  await ensureMonthlyCapSnapshot(user.id, start);
 
-  const [accounts, categories, monthTransactions, savingsPlans] =
+  const [accounts, categories, monthTransactions, savingsPlans, monthLimits] =
     await Promise.all([
       prisma.account.findMany({ where: { userId: user.id } }),
       prisma.category.findMany({ where: { userId: user.id } }),
@@ -18,7 +20,12 @@ export default async function OverviewPage() {
         where: { userId: user.id, date: { gte: start, lte: end } },
       }),
       prisma.savingsPlan.findMany({ where: { userId: user.id } }),
+      prisma.categoryMonthlyLimit.findMany({
+        where: { userId: user.id, monthStart: start },
+        select: { categoryId: true, limit: true },
+      }),
     ]);
+  const monthLimitByCategoryId = new Map(monthLimits.map((item) => [item.categoryId, toNumber(item.limit)]));
 
   const accountBalances = accounts.map((account) => {
     const total = monthTransactions
@@ -38,7 +45,7 @@ export default async function OverviewPage() {
     .reduce((sum, tx) => sum + toNumber(tx.amount), 0);
 
   const categoryWarnings = categories
-    .filter((category) => toNumber(category.monthlyLimit) > 0)
+    .filter((category) => (monthLimitByCategoryId.get(category.id) ?? 0) > 0)
     .map((category) => {
       const spent = monthTransactions
         .filter((tx) => tx.categoryId === category.id && tx.type === "expense")
@@ -47,7 +54,7 @@ export default async function OverviewPage() {
         id: category.id,
         name: category.name,
         spent,
-        limit: toNumber(category.monthlyLimit),
+        limit: monthLimitByCategoryId.get(category.id) ?? 0,
       };
     })
     .filter((item) => item.spent > item.limit);

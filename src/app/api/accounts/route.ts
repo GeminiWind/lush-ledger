@@ -8,11 +8,12 @@ export const GET = async (request: NextRequest) => {
   if (!session?.sub) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  const userId = session.sub;
 
-  await ensureDefaultWallet(session.sub);
+  await ensureDefaultWallet(userId);
 
   const accounts = await prisma.account.findMany({
-    where: { userId: session.sub },
+    where: { userId },
     orderBy: [{ isDefault: "desc" }, { createdAt: "desc" }],
   });
   return NextResponse.json({ accounts });
@@ -23,6 +24,7 @@ export const POST = async (request: NextRequest) => {
   if (!session?.sub) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  const userId = session.sub;
 
   const body = await request.json();
   const name = String(body.name || "").trim();
@@ -46,7 +48,7 @@ export const POST = async (request: NextRequest) => {
 
   const account = await prisma.$transaction(async (tx) => {
     const existingDefault = await tx.account.findFirst({
-      where: { userId: session.sub, isDefault: true },
+      where: { userId, isDefault: true },
       select: { id: true },
     });
 
@@ -54,14 +56,14 @@ export const POST = async (request: NextRequest) => {
 
     if (shouldSetDefault) {
       await tx.account.updateMany({
-        where: { userId: session.sub, isDefault: true },
+        where: { userId, isDefault: true },
         data: { isDefault: false },
       });
     }
 
     return tx.account.create({
       data: {
-        userId: session.sub,
+        userId,
         name,
         type,
         isDefault: shouldSetDefault,

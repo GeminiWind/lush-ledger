@@ -69,7 +69,7 @@ export const getAtelierData = async (userId: string) => {
           .filter((tx) => tx.categoryId === category.id && tx.type === "expense")
           .map((tx) => toNumber(tx.amount))
       );
-      const budget = limitByCategoryId.get(category.id) ?? toNumber(category.monthlyLimit);
+      const budget = limitByCategoryId.get(category.id) ?? 0;
       const utilization = budget > 0 ? (spent / budget) * 100 : 0;
       return {
         id: category.id,

@@ -45,6 +45,7 @@ export default async function WalletsPage() {
     const balance = toNumber(wallet.openingBalance) + movement;
     return {
       ...wallet,
+      openingBalance: toNumber(wallet.openingBalance),
       isDefault: wallet.isDefault || index === 0,
       balance,
     };
@@ -79,6 +80,8 @@ export default async function WalletsPage() {
               id: primary.id,
               name: primary.name,
               type: primary.type,
+              openingBalance: primary.openingBalance,
+              isDefault: primary.isDefault,
               balance: primary.balance,
             }}
             currency={currency}
@@ -105,6 +108,16 @@ export default async function WalletsPage() {
                     <p className="text-xs text-[#6f8793]">{secondary.type}</p>
                   </div>
                 </div>
+                <WalletCreateForm
+                  language={language}
+                  trigger="icon"
+                  wallet={{
+                  id: secondary.id,
+                  name: secondary.name,
+                  openingBalance: secondary.openingBalance,
+                    isDefault: secondary.isDefault,
+                  }}
+                />
               </div>
 
               <div className="mb-6">
@@ -135,9 +148,21 @@ export default async function WalletsPage() {
         <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {walletStats.slice(2).map((wallet) => (
             <article key={wallet.id} className="rounded-2xl bg-white p-5 shadow-sm">
-              <div className="mb-2 flex items-center gap-2">
-                <span className="material-symbols-outlined text-[#006f1d]">{walletIcon(wallet.type)}</span>
-                <h3 className="font-[var(--font-manrope)] text-lg font-bold text-[#1b3641]">{wallet.name}</h3>
+              <div className="mb-2 flex items-start justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[#006f1d]">{walletIcon(wallet.type)}</span>
+                  <h3 className="font-[var(--font-manrope)] text-lg font-bold text-[#1b3641]">{wallet.name}</h3>
+                </div>
+                <WalletCreateForm
+                  language={language}
+                  trigger="icon"
+                  wallet={{
+                    id: wallet.id,
+                    name: wallet.name,
+                    openingBalance: wallet.openingBalance,
+                    isDefault: wallet.isDefault,
+                  }}
+                />
               </div>
               <p className="text-xs uppercase tracking-[0.12em] text-[#6f8793]">{wallet.type}</p>
               <p className="mt-3 text-xl font-bold text-[#1b3641]">{formatCurrency(wallet.balance, currency)}</p>

@@ -35,7 +35,7 @@ export default function MonthlyExpenseBudgetChart({ data, currency }: Props) {
   return (
     <div className="h-80">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ top: 10, right: 8, left: 0, bottom: 8 }}>
+        <BarChart data={data} margin={{ top: 10, right: 8, left: 0, bottom: 8 }} barGap="-100%" barCategoryGap="22%">
           <CartesianGrid stroke="#e7f6ff" vertical={false} />
           <XAxis
             dataKey="label"
@@ -56,9 +56,10 @@ export default function MonthlyExpenseBudgetChart({ data, currency }: Props) {
           <Tooltip
             contentStyle={{ borderRadius: "0.75rem", borderColor: "#d8e8f3", fontSize: "12px" }}
             formatter={(value, name) => [asCurrency(Number(value ?? 0), currency), name === "expense" ? "Actual" : "Budget"]}
+            itemSorter={(item) => (item.dataKey === "expense" ? -1 : 1)}
           />
-          <Bar dataKey="budget" fill="#cfe6f2" radius={[10, 10, 0, 0]} />
-          <Bar dataKey="expense" fill="#006f1d" radius={[10, 10, 0, 0]} />
+          <Bar dataKey="budget" fill="#cfe6f2" radius={[10, 10, 0, 0]} maxBarSize={42} />
+          <Bar dataKey="expense" fill="#006f1d" radius={[10, 10, 0, 0]} maxBarSize={26} />
         </BarChart>
       </ResponsiveContainer>
     </div>

@@ -14,8 +14,10 @@ export const middleware = async (request: NextRequest) => {
 
   if (
     pathname.startsWith("/_next") ||
+    pathname.startsWith("/images") ||
     pathname.startsWith("/favicon") ||
-    pathname.startsWith("/api/auth/logout")
+    pathname.startsWith("/api/auth/logout") ||
+    /\.(?:png|jpg|jpeg|gif|svg|webp|ico|txt|xml|json|map|woff|woff2)$/i.test(pathname)
   ) {
     return NextResponse.next();
   }

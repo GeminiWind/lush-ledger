@@ -5,6 +5,7 @@ import { materializeRecurringTransactions } from "@/lib/recurring";
 import { requireUser } from "@/lib/user";
 import PrimarySavingsProgressChart from "./PrimarySavingsProgressChart";
 import SavingsGrowthChart from "./SavingsGrowthChart";
+import SavingsPlanCreateDialog from "./SavingsPlanCreateDialog";
 
 const toNumber = (value: unknown) => Number(value ?? 0);
 
@@ -107,14 +108,17 @@ export default async function SavingsPage() {
             {t.savingsTitle.split(" ")[0]} <span className="italic text-[#006f1d]">{t.savingsTitle.split(" ").slice(1).join(" ")}</span>
           </h1>
         </div>
-        <div className="rounded-[1.25rem] bg-[#e7f6ff] px-6 py-4">
-          <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-[#647e8c]">{t.savingsTotal}</p>
-          <div className="mt-1 flex items-center gap-3">
-            <p className="font-[var(--font-manrope)] text-2xl font-extrabold text-[#1b3641]">
-              {formatCurrency(totalSaved, currency)}
-            </p>
-            <div className="grid h-10 w-10 place-items-center rounded-full bg-[#91f78e] text-[#005e17]">
-              <span className="material-symbols-outlined text-[20px]">trending_up</span>
+        <div className="space-y-3">
+          <SavingsPlanCreateDialog language={language} currency={currency} />
+          <div className="rounded-[1.25rem] bg-[#e7f6ff] px-6 py-4">
+            <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-[#647e8c]">{t.savingsTotal}</p>
+            <div className="mt-1 flex items-center gap-3">
+              <p className="font-[var(--font-manrope)] text-2xl font-extrabold text-[#1b3641]">
+                {formatCurrency(totalSaved, currency)}
+              </p>
+              <div className="grid h-10 w-10 place-items-center rounded-full bg-[#91f78e] text-[#005e17]">
+                <span className="material-symbols-outlined text-[20px]">trending_up</span>
+              </div>
             </div>
           </div>
         </div>
@@ -172,6 +176,9 @@ export default async function SavingsPage() {
         <section className="rounded-[2rem] border-2 border-dashed border-[#c7dce9] bg-white p-12 text-center">
           <h2 className="font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">{t.savingsNoPlan}</h2>
           <p className="mt-2 text-[#647e8c]">{t.savingsCreatePlanHint}</p>
+          <div className="mt-5 inline-flex">
+            <SavingsPlanCreateDialog language={language} currency={currency} />
+          </div>
         </section>
       )}
 
@@ -210,13 +217,7 @@ export default async function SavingsPage() {
             </article>
           ))}
 
-          <article className="flex min-h-[260px] cursor-pointer flex-col items-center justify-center rounded-[2rem] border-2 border-dashed border-[#c7dce9] bg-white/70 p-8 text-center transition-all hover:bg-[#006f1d]/5">
-            <div className="mb-4 grid h-14 w-14 place-items-center rounded-full border-2 border-dashed border-[#9bb6c4]">
-              <span className="material-symbols-outlined text-3xl text-[#647e8c]">add</span>
-            </div>
-            <p className="font-[var(--font-manrope)] text-base font-bold text-[#49636f]">{t.savingsEnvisionGoal}</p>
-            <p className="mt-1 text-xs text-[#647e8c]">{t.savingsAddToAtelier}</p>
-          </article>
+          <SavingsPlanCreateDialog language={language} currency={currency} variant="card" />
         </div>
       </section>
     </div>

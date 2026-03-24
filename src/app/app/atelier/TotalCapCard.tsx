@@ -3,9 +3,11 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { formatCurrency } from "@/lib/format";
+import { tr } from "@/lib/i18n";
 
 type Props = {
   currency: string;
+  language: string;
   month: string;
   totalCap: number;
   allocated: number;
@@ -22,6 +24,7 @@ const parseCapValue = (value: string) => {
 
 export default function TotalCapCard({
   currency,
+  language,
   month,
   totalCap,
   allocated,
@@ -39,7 +42,7 @@ export default function TotalCapCard({
     setError(null);
     const nextCap = parseCapValue(value);
     if (!Number.isFinite(nextCap) || nextCap < 0) {
-      setError("Please enter a valid cap value.");
+      setError(tr(language, "Please enter a valid cap value.", "Vui lòng nhập hạn mức hợp lệ."));
       return;
     }
 
@@ -53,7 +56,7 @@ export default function TotalCapCard({
 
     if (!response.ok) {
       const data = await response.json();
-      setError(data.error || "Unable to update total monthly cap.");
+      setError(data.error || tr(language, "Unable to update total monthly cap.", "Không thể cập nhật tổng hạn mức tháng."));
       return;
     }
 
@@ -64,7 +67,7 @@ export default function TotalCapCard({
   return (
     <article className="rounded-[2rem] bg-white p-8 shadow-[0_24px_48px_-12px_rgba(27,54,65,0.08)] lg:p-10">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-sm font-semibold text-[#49636f]">Total Monthly Cap</p>
+        <p className="text-sm font-semibold text-[#49636f]">{tr(language, "Total Monthly Cap", "Tổng hạn mức tháng")}</p>
         <button
           type="button"
           onClick={() => {
@@ -72,10 +75,10 @@ export default function TotalCapCard({
             setEditing((state) => !state);
           }}
           className="inline-flex items-center gap-1 rounded-lg bg-[#eef7ff] px-2.5 py-1.5 text-[#49636f] transition hover:text-[#1b3641]"
-          aria-label="Edit total monthly cap"
+          aria-label={tr(language, "Edit total monthly cap", "Chỉnh sửa tổng hạn mức tháng")}
         >
           <span className="material-symbols-outlined text-[16px]">edit</span>
-          <span className="text-xs font-semibold">Edit</span>
+          <span className="text-xs font-semibold">{tr(language, "Edit", "Sửa")}</span>
         </button>
       </div>
 
@@ -95,7 +98,7 @@ export default function TotalCapCard({
               disabled={loading}
               className="rounded-xl bg-[#006f1d] px-4 py-2 text-xs font-bold text-[#eaffe2] disabled:opacity-70"
             >
-              {loading ? "Saving" : "Save"}
+              {loading ? tr(language, "Saving", "Đang lưu") : tr(language, "Save", "Lưu")}
             </button>
             <button
               type="button"
@@ -106,7 +109,7 @@ export default function TotalCapCard({
               }}
               className="rounded-xl bg-[#e7f6ff] px-4 py-2 text-xs font-bold text-[#1b3641]"
             >
-              Cancel
+              {tr(language, "Cancel", "Hủy")}
             </button>
           </>
         ) : (
@@ -127,19 +130,19 @@ export default function TotalCapCard({
 
       <div className="mt-8 grid gap-5 sm:grid-cols-3">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">Allocated</p>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">{tr(language, "Allocated", "Đã phân bổ")}</p>
           <p className="mt-1 font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">
             {formatCurrency(allocated, currency)}
           </p>
         </div>
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">Remaining</p>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">{tr(language, "Remaining", "Còn lại")}</p>
           <p className="mt-1 font-[var(--font-manrope)] text-2xl font-bold text-[#2e7d32]">
             {formatCurrency(remaining, currency)}
           </p>
         </div>
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">This Month Income</p>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">{tr(language, "This Month Income", "Thu nhập tháng này")}</p>
           <p className="mt-1 font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">
             {formatCurrency(monthIncome, currency)}
           </p>

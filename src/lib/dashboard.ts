@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { getMonthRange } from "@/lib/date";
 import { materializeRecurringTransactions } from "@/lib/recurring";
+import { ensureMonthlyCapSnapshot } from "@/lib/monthly-cap";
 
 type TxKind = "expense" | "income";
 
@@ -32,7 +33,9 @@ export const getDashboardData = async (userId: string) => {
   const previousMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const { start: previousStart, end: previousEnd } = getMonthRange(previousMonthDate);
 
-  const [accounts, categories, savingsPlans, allTransactions, monthTransactions, previousTransactions] =
+  await ensureMonthlyCapSnapshot(userId, start);
+
+  const [accounts, categories, savingsPlans, allTransactions, monthTransactions, previousTransactions, monthCategoryLimits] =
     await Promise.all([
       prisma.account.findMany({ where: { userId } }),
       prisma.category.findMany({ where: { userId } }),
@@ -52,7 +55,15 @@ export const getDashboardData = async (userId: string) => {
       prisma.transaction.findMany({
         where: { userId, date: { gte: previousStart, lte: previousEnd } },
       }),
+      prisma.categoryMonthlyLimit.findMany({
+        where: { userId, monthStart: start },
+        select: { categoryId: true, limit: true },
+      }),
     ]);
+
+  const monthLimitByCategoryId = new Map(
+    monthCategoryLimits.map((item) => [item.categoryId, toNumber(item.limit)]),
+  );
 
   const accountBalances = accounts.map((account) => {
     const accountDelta = sum(
@@ -93,7 +104,7 @@ export const getDashboardData = async (userId: string) => {
         ? 100
         : 0;
 
-  const monthlyLimit = sum(categories.map((category) => toNumber(category.monthlyLimit)));
+  const monthlyLimit = sum(monthCategoryLimits.map((item) => toNumber(item.limit)));
   const monthlyUsedPercent = monthlyLimit > 0 ? (monthSpending / monthlyLimit) * 100 : 0;
 
   const categorySpendRows = categories
@@ -108,7 +119,7 @@ export const getDashboardData = async (userId: string) => {
         id: category.id,
         name: category.name,
         spent,
-        budget: toNumber(category.monthlyLimit),
+        budget: monthLimitByCategoryId.get(category.id) ?? 0,
       };
     })
     .filter((row) => row.spent > 0 || row.budget > 0)

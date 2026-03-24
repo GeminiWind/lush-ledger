@@ -2,6 +2,7 @@ import CategoryForm from "@/app/(app)/categories/CategoryForm";
 import { prisma } from "@/lib/db";
 import { getMonthRange } from "@/lib/date";
 import { formatCurrency } from "@/lib/format";
+import { ensureMonthlyCapSnapshot } from "@/lib/monthly-cap";
 import { requireUser } from "@/lib/user";
 
 const toNumber = (value: unknown) => Number(value ?? 0);
@@ -10,8 +11,9 @@ export default async function CategoriesPage() {
   const user = await requireUser();
   const currency = user.settings?.currency || "VND";
   const { start, end } = getMonthRange(new Date());
+  await ensureMonthlyCapSnapshot(user.id, start);
 
-  const [categories, transactions] = await Promise.all([
+  const [categories, transactions, monthLimits] = await Promise.all([
     prisma.category.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: "desc" },
@@ -19,7 +21,12 @@ export default async function CategoriesPage() {
     prisma.transaction.findMany({
       where: { userId: user.id, date: { gte: start, lte: end } },
     }),
+    prisma.categoryMonthlyLimit.findMany({
+      where: { userId: user.id, monthStart: start },
+      select: { categoryId: true, limit: true },
+    }),
   ]);
+  const monthLimitByCategoryId = new Map(monthLimits.map((item) => [item.categoryId, toNumber(item.limit)]));
 
   const rows = categories.map((category) => {
     const spent = transactions
@@ -28,7 +35,7 @@ export default async function CategoriesPage() {
     return {
       ...category,
       spent,
-      limit: toNumber(category.monthlyLimit),
+      limit: monthLimitByCategoryId.get(category.id) ?? 0,
     };
   });
 

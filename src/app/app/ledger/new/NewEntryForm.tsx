@@ -70,7 +70,7 @@ export default function NewEntryForm({ wallets = [], defaultWalletId, categories
   const formik = useFormik<FormValues>({
     initialValues: {
       type: "expense",
-      amountDisplay: "125.000",
+      amountDisplay: "",
       categoryId: categories[0]?.id || "",
       walletId: defaultWalletId || wallets[0]?.id || "",
       date: new Date(),

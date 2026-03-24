@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useFormik } from "formik";
+import { tr } from "@/lib/i18n";
 
 const allIconChoices = [
   "restaurant",
@@ -84,9 +85,10 @@ const parseAmount = (value: string) => {
 
 type Props = {
   currency: string;
+  language: string;
 };
 
-export default function AddCategoryModal({ currency }: Props) {
+export default function AddCategoryModal({ currency, language }: Props) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -98,10 +100,10 @@ export default function AddCategoryModal({ currency }: Props) {
 
   const currencyHint = useMemo(() => {
     if (currency === "VND") {
-      return "Formatted in Vietnamese Dong (VND)";
+      return tr(language, "Formatted in Vietnamese Dong (VND)", "Định dạng theo Việt Nam Đồng (VND)");
     }
-    return `Formatted in ${currency}`;
-  }, [currency]);
+    return tr(language, `Formatted in ${currency}`, `Định dạng theo ${currency}`);
+  }, [currency, language]);
 
   const resetUiState = useCallback(() => {
     setError(null);
@@ -129,10 +131,10 @@ export default function AddCategoryModal({ currency }: Props) {
     validate: (values) => {
       const errors: { name?: string; monthlyLimit?: string } = {};
       if (!values.name.trim()) {
-        errors.name = "Category name is required.";
+        errors.name = tr(language, "Category name is required.", "Tên danh mục là bắt buộc.");
       }
       if (parseAmount(values.monthlyLimit) < 0) {
-        errors.monthlyLimit = "Monthly limit must be zero or greater.";
+        errors.monthlyLimit = tr(language, "Monthly limit must be zero or greater.", "Hạn mức tháng phải lớn hơn hoặc bằng 0.");
       }
       return errors;
     },
@@ -146,6 +148,8 @@ export default function AddCategoryModal({ currency }: Props) {
         body: JSON.stringify({
           name: values.name.trim(),
           monthlyLimit: parseAmount(values.monthlyLimit),
+          warningEnabled,
+          warnAt: Number(warnAt || 80),
         }),
       });
 
@@ -153,7 +157,7 @@ export default function AddCategoryModal({ currency }: Props) {
 
       if (!response.ok) {
         const data = await response.json();
-        setError(data.error || "Failed to create category.");
+        setError(data.error || tr(language, "Failed to create category.", "Không thể tạo danh mục."));
         return;
       }
 
@@ -199,7 +203,7 @@ export default function AddCategoryModal({ currency }: Props) {
           <span className="material-symbols-outlined text-2xl">add</span>
         </div>
         <span className="font-[var(--font-manrope)] text-base font-bold text-[#49636f] group-hover:text-[#2e7d32]">
-          Add New Category
+          {tr(language, "Add New Category", "Thêm danh mục mới")}
         </span>
       </button>
 
@@ -216,22 +220,22 @@ export default function AddCategoryModal({ currency }: Props) {
             <div className="p-8 sm:p-10">
               <div className="mb-8 text-center">
                 <h2 className="font-[var(--font-manrope)] text-3xl font-extrabold tracking-[-0.02em] text-[#1b3641]">
-                  Create New Category
+                  {tr(language, "Create New Category", "Tạo danh mục mới")}
                 </h2>
-                <p className="mt-2 text-[#49636f]">Define a new boutique spending segment</p>
+                <p className="mt-2 text-[#49636f]">{tr(language, "Define a new boutique spending segment", "Tạo một nhóm chi tiêu mới")}</p>
               </div>
 
               <form onSubmit={formik.handleSubmit} className="space-y-6">
                 <div className="space-y-2">
                   <label className="ml-2 block text-xs font-bold uppercase tracking-[0.2em] text-[#6f8793]">
-                    Category Name <span className="text-[#a73b21]">*</span>
+                    {tr(language, "Category Name", "Tên danh mục")} <span className="text-[#a73b21]">*</span>
                   </label>
                     <input
                       name="name"
                       value={formik.values.name}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
-                      placeholder="e.g., Luxury Travel"
+                      placeholder={tr(language, "e.g., Luxury Travel", "ví dụ: Du lịch cao cấp")}
                       className="w-full rounded-2xl border-none bg-[#e7f6ff] px-6 py-4 text-base text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#2e7d32]/40"
                     />
                   {formik.touched.name && formik.errors.name ? (
@@ -241,7 +245,7 @@ export default function AddCategoryModal({ currency }: Props) {
 
                 <div className="space-y-2">
                   <label className="ml-2 block text-xs font-bold uppercase tracking-[0.2em] text-[#6f8793]">
-                    Monthly Spending Limit
+                    {tr(language, "Monthly Spending Limit", "Hạn mức chi tiêu tháng")}
                   </label>
                   <div className="relative">
                     <span className="absolute left-6 top-1/2 -translate-y-1/2 text-xl font-bold text-[#647e8c]">
@@ -266,7 +270,7 @@ export default function AddCategoryModal({ currency }: Props) {
                   <div className="flex flex-wrap items-end justify-between gap-4 rounded-2xl bg-[#e7f6ff] px-4 py-3">
                     <div>
                       <label className="ml-1 block text-xs font-bold uppercase tracking-[0.2em] text-[#6f8793]">
-                        Over-expense Warning
+                        {tr(language, "Over-expense Warning", "Cảnh báo vượt chi")}
                       </label>
                       <div className="mt-2 flex items-center gap-3">
                         <button
@@ -284,14 +288,14 @@ export default function AddCategoryModal({ currency }: Props) {
                           />
                         </button>
                         <span className="text-sm font-semibold text-[#1b3641]">
-                          {warningEnabled ? "Enabled" : "Disabled"}
+                          {warningEnabled ? tr(language, "Enabled", "Bật") : tr(language, "Disabled", "Tắt")}
                         </span>
                       </div>
                     </div>
 
                     <div className="w-24">
                       <label className="ml-1 block text-xs font-bold uppercase tracking-[0.2em] text-[#6f8793]">
-                        Warn At
+                        {tr(language, "Warn At", "Cảnh báo tại")}
                       </label>
                       <input
                         value={`${warnAt}%`}
@@ -305,7 +309,7 @@ export default function AddCategoryModal({ currency }: Props) {
                 <div className="space-y-2">
                   <div className="ml-2 flex items-center justify-between gap-2">
                     <label className="block text-xs font-bold uppercase tracking-[0.2em] text-[#6f8793]">
-                      Iconography
+                      {tr(language, "Iconography", "Biểu tượng")}
                     </label>
                     <span className="inline-flex items-center gap-1 rounded-full bg-[#e7f6ff] px-2.5 py-1 text-xs font-semibold text-[#49636f]">
                       <span className="material-symbols-outlined text-sm">{selectedIcon}</span>
@@ -321,14 +325,14 @@ export default function AddCategoryModal({ currency }: Props) {
                       <input
                         value={iconSearch}
                         onChange={(event) => setIconSearch(event.target.value)}
-                        placeholder="Search icons (flight, home, savings...)"
+                        placeholder={tr(language, "Search icons (flight, home, savings...)", "Tìm biểu tượng (flight, home, savings...)")}
                         className="w-full rounded-xl border border-[#d7e8f3] bg-white py-2 pl-10 pr-3 text-sm text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#2e7d32]/30"
                       />
                     </div>
 
                     <div className="max-h-60 overflow-y-auto rounded-xl border border-white/80 bg-white/80 p-3 pr-2">
                       {filteredIcons.length === 0 ? (
-                        <p className="py-6 text-center text-sm text-[#6f8793]">No icons match your search.</p>
+                        <p className="py-6 text-center text-sm text-[#6f8793]">{tr(language, "No icons match your search.", "Không có biểu tượng phù hợp.")}</p>
                       ) : (
                         <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-8">
                           {filteredIcons.map((icon) => {
@@ -344,7 +348,7 @@ export default function AddCategoryModal({ currency }: Props) {
                                     : "bg-[#f5fbff] text-[#49636f] hover:bg-[#dff2e6] hover:text-[#2e7d32]"
                                 }`}
                                 title={icon}
-                                aria-label={`Select ${icon} icon`}
+                                aria-label={tr(language, `Select ${icon} icon`, `Chọn biểu tượng ${icon}`)}
                               >
                                 <span className="material-symbols-outlined text-[20px]">{icon}</span>
                               </button>
@@ -368,14 +372,14 @@ export default function AddCategoryModal({ currency }: Props) {
                     onClick={closeModal}
                     className="flex-1 rounded-2xl bg-[#d4ecf9] px-6 py-4 font-bold text-[#1b3641] transition hover:bg-[#c7e3f3]"
                   >
-                    Cancel
+                    {tr(language, "Cancel", "Hủy")}
                   </button>
                   <button
                     type="submit"
                     disabled={loading}
                     className="flex-[1.4] rounded-2xl bg-[linear-gradient(145deg,#2e7d32_0%,#006118_100%)] px-6 py-4 font-bold text-[#eaffe2] shadow-[0_16px_28px_-12px_rgba(0,111,29,0.4)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-70"
                   >
-                    {loading ? "Adding Category..." : "Add Category"}
+                    {loading ? tr(language, "Adding Category...", "Đang thêm danh mục...") : tr(language, "Add Category", "Thêm danh mục")}
                   </button>
                 </div>
               </form>
