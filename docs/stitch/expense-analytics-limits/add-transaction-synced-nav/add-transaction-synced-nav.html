@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lush Ledger - Fiscal Atelier</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container": "#dcf1fd",
+              "secondary": "#4d626c",
+              "on-tertiary-container": "#60622d",
+              "on-primary-fixed-variant": "#00691a",
+              "on-primary": "#eaffe2",
+              "surface-container-high": "#d4ecf9",
+              "tertiary": "#60622d",
+              "primary-dim": "#006118",
+              "error-dim": "#791903",
+              "background": "#f4faff",
+              "tertiary-dim": "#545622",
+              "surface-container-lowest": "#ffffff",
+              "error": "#a73b21",
+              "surface": "#f4faff",
+              "outline": "#647e8c",
+              "secondary-dim": "#415660",
+              "primary-fixed": "#91f78e",
+              "primary": "#006f1d",
+              "on-secondary": "#f2faff",
+              "on-surface": "#1b3641",
+              "secondary-container": "#cfe6f2",
+              "on-secondary-fixed-variant": "#495f69",
+              "on-primary-container": "#005e17",
+              "secondary-fixed": "#cfe6f2",
+              "on-surface-variant": "#49636f",
+              "surface-bright": "#f4faff",
+              "inverse-surface": "#041015",
+              "tertiary-fixed": "#fcfeb9",
+              "on-secondary-container": "#40555f",
+              "surface-container-highest": "#cbe7f6",
+              "on-tertiary-fixed-variant": "#6a6d37",
+              "surface-tint": "#006f1d",
+              "secondary-fixed-dim": "#c1d8e4",
+              "on-error-container": "#6e1400",
+              "on-primary-fixed": "#00480f",
+              "tertiary-fixed-dim": "#edefac",
+              "error-container": "#fd795a",
+              "surface-variant": "#cbe7f6",
+              "surface-dim": "#c3deed",
+              "surface-container-low": "#e7f6ff",
+              "on-secondary-fixed": "#2d424c",
+              "inverse-primary": "#91f78e",
+              "on-background": "#1b3641",
+              "on-tertiary-fixed": "#4d501d",
+              "outline-variant": "#9bb6c4",
+              "on-error": "#fff7f6",
+              "tertiary-container": "#fcfeb9",
+              "inverse-on-surface": "#929fa6",
+              "primary-fixed-dim": "#83e881",
+              "on-tertiary": "#fcfdb9",
+              "primary-container": "#91f78e"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4faff;
+            color: #1b3641;
+        }
+        .headline-font {
+            font-family: 'Manrope', sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #9bb6c4;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="antialiased select-none bg-background font-body text-on-background">
+<!-- Updated SideNavBar (Matching SCREEN_129) -->
+<aside class="hidden lg:flex flex-col fixed left-0 top-0 h-full p-4 bg-emerald-50 h-screen w-60 border-r-0 shadow-[20px_0_20px_-10px_rgba(27,54,65,0.04)] z-50">
+<div class="flex items-center gap-2 mb-6 px-2">
+<div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-lg" data-icon="account_balance">account_balance</span>
+</div>
+<div>
+<h1 class="text-xl font-bold tracking-tighter text-emerald-900 font-headline leading-tight">Lush Ledger</h1>
+<p class="text-[8px] uppercase tracking-widest text-on-surface-variant font-bold">The Fiscal Atelier</p>
+</div>
+</div>
+<nav class="space-y-0.5 flex-1">
+<a class="flex items-center gap-3 px-4 py-2 text-emerald-700/70 hover:bg-white/40 transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="dashboard">dashboard</span>
+<span class="font-manrope text-sm font-medium tracking-tight">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-emerald-900 bg-white/80 backdrop-blur-md rounded-lg font-bold transition-all duration-300 scale-[0.98] active:scale-95" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="auto_awesome">auto_awesome</span>
+<span class="font-manrope text-sm font-medium tracking-tight">Atelier</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-emerald-700/70 hover:bg-white/40 transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-manrope text-sm font-medium tracking-tight">Ledger</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-emerald-700/70 hover:bg-white/40 transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="trending_up">trending_up</span>
+<span class="font-manrope text-sm font-medium tracking-tight">Investments</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-emerald-700/70 hover:bg-white/40 transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="settings">settings</span>
+<span class="font-manrope text-sm font-medium tracking-tight">Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-4">
+<button class="w-full bg-primary text-on-primary py-2.5 rounded-lg font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:opacity-90 transition-all active:scale-95">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                New Entry
+            </button>
+</div>
+</aside>
+<!-- Updated TopAppBar (Matching SCREEN_129, simplified) -->
+<header class="flex justify-between items-center w-full px-8 py-3 max-w-screen-2xl mx-auto lg:pl-[280px] bg-white/80 backdrop-blur-xl fixed top-0 left-0 right-0 z-40">
+<div class="flex items-center space-x-4">
+<span class="text-on-surface-variant/40 font-normal font-headline">Journal /</span>
+<span class="text-on-surface font-headline font-bold">New Transaction</span>
+</div>
+<div class="flex items-center">
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container-high border-2 border-emerald-100">
+<img alt="User profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEJB5-Ahf8u0wQoTtNnWsHHwX6i7mIEQWWZdrG3I4jFdWDWW-X5B3wDA1TWfBQtxK_uS9DA-8RS6vwkvr36_FW_qi6Z0EEZkrdePTyzLoJ9MJH20JBLmKa7iXKxmOk5A-udCfOynA4wKbzJcPXFHGZeTMVvnKD0xXnqlBDKv8hLeI1fAdx1M21AIg6SVFtBuzEzv1YvY9Yukr8OVxn6W76G-C0LQ14Jkr7bhDvqNJDYfm0W-rHT6_A7_f95ivTdMAfPzczZR6X600"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="lg:pl-64 p-12 pt-24 min-h-screen flex items-center justify-center">
+<!-- Focused Entry Form -->
+<div class="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- Contextual Editorial Sidebar -->
+<div class="lg:col-span-4 space-y-6">
+<div class="p-8 bg-surface-container-low rounded-[2rem] space-y-4">
+<span class="px-3 py-1 bg-primary-container text-on-primary-container text-[10px] font-bold tracking-widest uppercase rounded-full">Entry Mode</span>
+<h2 class="headline-font text-3xl font-extrabold leading-tight text-on-surface">Documenting Growth.</h2>
+<p class="text-on-surface-variant text-sm leading-relaxed">Every transaction is a stitch in the fabric of your financial atelier. Be precise, be intentional.</p>
+</div>
+<div class="p-6 border border-outline-variant/20 rounded-xl space-y-4">
+<h3 class="headline-font font-bold text-on-surface flex items-center space-x-2">
+<span class="material-symbols-outlined text-primary" data-icon="tips_and_updates">tips_and_updates</span>
+<span>Atelier Tip</span>
+</h3>
+<p class="text-xs text-on-surface-variant">Attaching a note to your 'Coffee' entries helps track lifestyle inflation over time.</p>
+</div>
+</div>
+<!-- Main Form Card -->
+<div class="lg:col-span-8 bg-surface-container-lowest p-10 rounded-[2.5rem] shadow-[0_32px_80px_-20px_rgba(27,54,65,0.08)]">
+<form class="space-y-10">
+<!-- Primary Amount Input (VND Format preserved) -->
+<div class="text-center space-y-2 group">
+<label class="block headline-font text-xs font-bold tracking-widest uppercase text-on-surface-variant/60 group-focus-within:text-primary transition-colors">Transaction Amount</label>
+<div class="relative flex items-center justify-center">
+<span class="headline-font text-4xl font-light text-on-surface-variant mr-2">₫</span>
+<input class="w-full text-center headline-font text-7xl font-extrabold text-on-surface bg-transparent border-none focus:ring-0 p-0 placeholder:text-surface-variant" placeholder="0" type="text" value="125.000"/>
+</div>
+<div class="h-0.5 w-1/3 mx-auto bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-primary w-1/2 rounded-full"></div>
+</div>
+</div>
+<!-- Transaction Details -->
+<div class="space-y-8">
+<!-- Transaction Name -->
+<div class="space-y-3">
+<label class="headline-font text-sm font-bold text-on-surface">Description</label>
+<input class="w-full px-6 py-4 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-on-surface-variant/40 transition-all font-medium" placeholder="e.g. Coffee at The Roasting Atelier" type="text"/>
+</div>
+<!-- Grid: Category & Date -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="space-y-3">
+<label class="headline-font text-sm font-bold text-on-surface">Category</label>
+<div class="relative group">
+<select class="w-full appearance-none px-6 py-4 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20 text-on-surface font-medium cursor-pointer">
+<option>Dining</option>
+<option>Rent</option>
+<option>Groceries</option>
+<option>Entertainment</option>
+<option>Travel</option>
+<option>Maintenance</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+<div class="space-y-3">
+<label class="headline-font text-sm font-bold text-on-surface">Date</label>
+<div class="relative">
+<input class="w-full px-6 py-4 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20 text-on-surface font-medium transition-all" type="date" value="2023-10-24"/>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant" data-icon="calendar_today">calendar_today</span>
+</div>
+</div>
+</div>
+<!-- Category Quick Pick (Icon Grid) -->
+<div class="grid grid-cols-6 gap-3">
+<button class="flex flex-col items-center justify-center p-3 rounded-xl bg-primary-container text-on-primary-container ring-2 ring-primary transition-all" type="button">
+<span class="material-symbols-outlined text-xl mb-1" data-icon="restaurant" style="font-variation-settings: 'FILL' 1;">restaurant</span>
+<span class="text-[10px] font-bold">Dining</span>
+</button>
+<button class="flex flex-col items-center justify-center p-3 rounded-xl bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high transition-all" type="button">
+<span class="material-symbols-outlined text-xl mb-1" data-icon="home">home</span>
+<span class="text-[10px] font-bold">Rent</span>
+</button>
+<button class="flex flex-col items-center justify-center p-3 rounded-xl bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high transition-all" type="button">
+<span class="material-symbols-outlined text-xl mb-1" data-icon="shopping_cart">shopping_cart</span>
+<span class="text-[10px] font-bold">Groceries</span>
+</button>
+<button class="flex flex-col items-center justify-center p-3 rounded-xl bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high transition-all" type="button">
+<span class="material-symbols-outlined text-xl mb-1" data-icon="confirmation_number">confirmation_number</span>
+<span class="text-[10px] font-bold">Ent.</span>
+</button>
+<button class="flex flex-col items-center justify-center p-3 rounded-xl bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high transition-all" type="button">
+<span class="material-symbols-outlined text-xl mb-1" data-icon="flight">flight</span>
+<span class="text-[10px] font-bold">Travel</span>
+</button>
+<button class="flex flex-col items-center justify-center p-3 rounded-xl bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high transition-all" type="button">
+<span class="material-symbols-outlined text-xl mb-1" data-icon="build">build</span>
+<span class="text-[10px] font-bold">Maint.</span>
+</button>
+</div>
+<!-- Notes Field -->
+<div class="space-y-3">
+<div class="flex items-center justify-between">
+<label class="headline-font text-sm font-bold text-on-surface">Notes <span class="text-on-surface-variant font-normal opacity-40 ml-1">(Optional)</span></label>
+</div>
+<textarea class="w-full px-6 py-4 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-on-surface-variant/40 transition-all font-medium resize-none" placeholder="Add additional details about this fiscal event..." rows="3"></textarea>
+</div>
+</div>
+<!-- Action Button -->
+<div class="pt-6">
+<button class="w-full py-6 bg-primary hover:bg-primary-dim text-on-primary headline-font text-lg font-bold rounded-2xl shadow-[0_12px_40px_-10px_rgba(0,111,29,0.3)] transition-all flex items-center justify-center space-x-3 active:scale-[0.98]" type="submit">
+<span class="material-symbols-outlined" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>Add Transaction</span>
+</button>
+<p class="text-center mt-4 text-xs font-medium text-on-surface-variant/50">Press <span class="bg-surface-container-high px-1.5 py-0.5 rounded text-[10px]">CMD</span> + <span class="bg-surface-container-high px-1.5 py-0.5 rounded text-[10px]">Enter</span> to save quickly.</p>
+</div>
+</form>
+</div>
+</div>
+</main>
+<!-- Background Decoration -->
+<div class="fixed top-0 right-0 -z-10 w-1/2 h-screen opacity-50 pointer-events-none overflow-hidden">
+<div class="absolute top-[-20%] right-[-10%] w-[800px] h-[800px] bg-gradient-to-br from-emerald-100/40 to-transparent rounded-full blur-[120px]"></div>
+</div>
+</body></html>
