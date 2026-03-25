@@ -7,7 +7,7 @@
 
 - Date: 2026-03-20
 - Priority: high
-- Status: in_progress (reviewed 2026-03-24)
+- Status: completed (reviewed 2026-03-25)
 
 ## Key Insights
 
@@ -56,7 +56,7 @@
 - User can add/edit/delete transactions
 - Balances calculate correctly
 
-## Review summary (2026-03-24)
+## Review summary (2026-03-25)
 
 - Completed: Account create/list APIs and user-scoped account reads (`/api/accounts`, `/api/accounts/[id]`)
 - Completed: Account edit/delete flow is implemented in API and wallet UI (`PATCH`/`DELETE` + modal actions)
@@ -64,12 +64,12 @@
 - Completed: Transaction create/list APIs with user scoping and server-side validation (`/api/ledger`)
 - Completed: Transaction list page supports filter + search (query/type/account/category)
 - Completed: New transaction form UX with recurring support and validation
-- Gap: Transaction CRUD is not complete (no update/delete endpoints/UI)
-- Gap: phase doc references `transactions` routes, but implementation is consolidated under `ledger`
+- Completed: Transaction update/delete is implemented in API and UI (`PATCH`/`DELETE` on `/api/ledger/[id]`, edit page + delete dialog)
+- Note: Implementation route naming is consolidated under `ledger` while this phase title remains "Accounts + Transactions"
 
 ## Recommendation
 
-- Keep phase as `in_progress` until update/delete flows for accounts and transactions are added.
+- Mark phase as `completed`; move any naming/route taxonomy cleanup to documentation debt.
 
 ## Risk Assessment
 
