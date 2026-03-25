@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
-import { tr } from "@/lib/i18n";
+import { getDictionary } from "@/lib/i18n";
+import toast from "react-hot-toast";
 
 type Props = {
   language: string;
@@ -18,9 +19,9 @@ const toPlainNumber = (value: string) => {
   return Number.isFinite(parsed) ? parsed : Number.NaN;
 };
 
-const monthLabel = (language: string, value: Date) => {
+const monthLabel = (language: string, value: Date, fallback: string) => {
   if (Number.isNaN(value.getTime())) {
-    return tr(language, "Not available", "Chưa có");
+    return fallback;
   }
 
   return new Intl.DateTimeFormat(language === "vi-VN" ? "vi-VN" : "en-US", {
@@ -61,6 +62,7 @@ const getProjectedArrivalDate = (target: number, monthly: number, from = new Dat
 
 export default function SavingsPlanCreateDialog({ language, currency, variant = "button" }: Props) {
   const router = useRouter();
+  const t = getDictionary(language);
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -84,27 +86,27 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
       } = {};
 
       if (!values.name.trim()) {
-        errors.name = tr(language, "Plan name is required.", "Tên kế hoạch là bắt buộc.");
+        errors.name = t.savingsPlanNameRequired;
       }
 
       const targetAmount = toPlainNumber(values.targetAmount);
       if (!Number.isFinite(targetAmount) || targetAmount <= 0) {
-        errors.targetAmount = tr(language, "Savings target must be greater than zero.", "Mục tiêu tiết kiệm phải lớn hơn 0.");
+        errors.targetAmount = t.savingsPlanTargetRequired;
       }
 
       const monthlyContribution = toPlainNumber(values.monthlyContribution);
       if (!Number.isFinite(monthlyContribution) || monthlyContribution <= 0) {
-        errors.monthlyContribution = tr(language, "Monthly contribution must be greater than zero.", "Mức đóng góp hằng tháng phải lớn hơn 0.");
+        errors.monthlyContribution = t.savingsPlanMonthlyRequired;
       }
 
       if (!values.targetDate) {
-        errors.targetDate = tr(language, "Target date is required.", "Ngày mục tiêu là bắt buộc.");
+        errors.targetDate = t.savingsPlanDateRequired;
       } else {
         const date = new Date(values.targetDate);
         if (Number.isNaN(date.getTime())) {
-          errors.targetDate = tr(language, "Target date is invalid.", "Ngày mục tiêu không hợp lệ.");
+          errors.targetDate = t.savingsPlanDateInvalid;
         } else if (date < minDate) {
-          errors.targetDate = tr(language, "Target date must be this month or later.", "Ngày mục tiêu phải từ tháng này trở đi.");
+          errors.targetDate = t.savingsPlanDateMin;
         }
       }
 
@@ -129,7 +131,7 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
 
       if (!response.ok) {
         const data = await response.json();
-        setError(data.error || tr(language, "Unable to create savings plan.", "Không thể tạo kế hoạch tiết kiệm."));
+        setError(data.error || t.savingsPlanCreateFailed);
         return;
       }
 
@@ -142,6 +144,7 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
         },
       });
       setOpen(false);
+      toast.success(t.savingsPlanCreateSuccess);
       router.refresh();
     },
   });
@@ -159,6 +162,22 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
     }
   }, [setFieldValue, values.monthlyContribution, values.targetAmount, values.targetDate]);
 
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+        setError(null);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open]);
+
   const projection = useMemo(() => {
     const target = toPlainNumber(formik.values.targetAmount);
     const monthly = toPlainNumber(formik.values.monthlyContribution);
@@ -169,9 +188,9 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
       months,
       target,
       monthly,
-      arrivalText: arrivalDate ? monthLabel(language, arrivalDate) : tr(language, "Not available", "Chưa có"),
+      arrivalText: arrivalDate ? monthLabel(language, arrivalDate, t.savingsPlanNotAvailable) : t.savingsPlanNotAvailable,
     };
-  }, [formik.values.monthlyContribution, formik.values.targetAmount, language]);
+  }, [formik.values.monthlyContribution, formik.values.targetAmount, language, t.savingsPlanNotAvailable]);
 
   return (
     <>
@@ -185,7 +204,7 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
           className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#006f1d] to-[#006118] px-6 py-3 text-sm font-bold text-[#eaffe2] shadow-[0_20px_30px_-20px_rgba(0,111,29,0.75)] hover:brightness-105"
         >
           <span className="material-symbols-outlined text-lg">add</span>
-          <span>{tr(language, "Create Savings Plan", "Tạo kế hoạch tiết kiệm")}</span>
+          <span>{t.savingsPlanCreateAction}</span>
         </button>
       ) : (
         <button
@@ -199,25 +218,30 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
           <div className="mb-4 grid h-14 w-14 place-items-center rounded-full border-2 border-dashed border-[#9bb6c4]">
             <span className="material-symbols-outlined text-3xl text-[#647e8c]">add</span>
           </div>
-          <p className="font-[var(--font-manrope)] text-base font-bold text-[#49636f]">{tr(language, "Envision New Goal", "Thêm mục tiêu mới")}</p>
-          <p className="mt-1 text-xs text-[#647e8c]">{tr(language, "Add to your fiscal atelier", "Bổ sung vào không gian tài chính")}</p>
+          <p className="font-[var(--font-manrope)] text-base font-bold text-[#49636f]">{t.savingsEnvisionGoal}</p>
+          <p className="mt-1 text-xs text-[#647e8c]">{t.savingsAddToAtelier}</p>
         </button>
       )}
 
       {open ? (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 p-4 backdrop-blur-md">
-          <div className="mx-auto mt-6 w-full max-w-6xl rounded-[2rem] bg-[#f4faff] p-8 shadow-2xl md:p-10">
+        <div
+          className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 p-4 backdrop-blur-md"
+          onMouseDown={() => {
+            setOpen(false);
+            setError(null);
+          }}
+        >
+          <div
+            className="mx-auto mt-6 w-full max-w-6xl rounded-[2rem] bg-[#f4faff] p-8 shadow-2xl md:p-10"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
             <div className="mb-8 flex items-center justify-between gap-4">
               <div>
                 <h2 className="font-[var(--font-manrope)] text-3xl font-extrabold tracking-tight text-[#1b3641]">
-                  {tr(language, "Add New Savings Plan", "Thêm kế hoạch tiết kiệm")}
+                  {t.savingsPlanAddNewTitle}
                 </h2>
                 <p className="mt-1 max-w-2xl text-sm text-[#49636f]">
-                  {tr(
-                    language,
-                    "Design a focused savings vessel for your next milestone.",
-                    "Thiết kế một kế hoạch tiết kiệm tập trung cho cột mốc tiếp theo.",
-                  )}
+                  {t.savingsPlanSubtitle}
                 </p>
               </div>
 
@@ -225,7 +249,7 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
                 type="button"
                 onClick={() => setOpen(false)}
                 className="grid h-10 w-10 place-items-center rounded-full bg-white text-[#49636f] hover:bg-[#dcf1fd]"
-                aria-label={tr(language, "Close", "Đóng")}
+                aria-label={t.savingsPlanCloseAria}
               >
                 <span className="material-symbols-outlined">close</span>
               </button>
@@ -234,19 +258,19 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
             <form onSubmit={formik.handleSubmit} className="grid grid-cols-1 gap-8 lg:grid-cols-12">
               <section className="space-y-6 rounded-3xl bg-white p-8 shadow-sm lg:col-span-7">
                 <h3 className="font-[var(--font-manrope)] text-xl font-bold text-[#1b3641]">
-                  {tr(language, "The Blueprint", "Bản thiết kế")}
+                  {t.savingsPlanBlueprintTitle}
                 </h3>
 
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase tracking-[0.18em] text-[#647e8c]">
-                    {tr(language, "Plan Name", "Tên kế hoạch")} <span className="text-[#a73b21]">*</span>
+                    {t.savingsPlanNameLabel} <span className="text-[#a73b21]">*</span>
                   </label>
                   <input
                     name="name"
                     value={formik.values.name}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    placeholder={tr(language, "e.g., Kyoto Sanctuary Fund", "Ví dụ: Quỹ nhà mơ ước")}
+                    placeholder={t.savingsPlanNamePlaceholder}
                     className="w-full rounded-2xl border-none bg-[#e7f6ff] p-4 text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/25"
                   />
                   {formik.touched.name && formik.errors.name ? <p className="text-xs text-[#a73b21]">{formik.errors.name}</p> : null}
@@ -255,7 +279,7 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div className="space-y-2">
                     <label className="text-xs font-bold uppercase tracking-[0.18em] text-[#647e8c]">
-                      {tr(language, "Savings Target", "Mục tiêu tiết kiệm")} <span className="text-[#a73b21]">*</span>
+                      {t.savingsPlanTargetLabel} <span className="text-[#a73b21]">*</span>
                     </label>
                     <div className="relative">
                       <input
@@ -266,7 +290,7 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
                         }}
                         onBlur={formik.handleBlur}
                         inputMode="numeric"
-                        placeholder={tr(language, "500000000", "500000000")}
+                        placeholder={t.savingsPlanTargetPlaceholder}
                         className="w-full rounded-2xl border-none bg-[#e7f6ff] p-4 pr-16 font-[var(--font-manrope)] font-bold text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/25"
                       />
                       <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 font-bold text-[#006f1d]">
@@ -280,7 +304,7 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
 
                   <div className="space-y-2">
                     <label className="text-xs font-bold uppercase tracking-[0.18em] text-[#647e8c]">
-                      {tr(language, "Monthly Contribution", "Đóng góp hằng tháng")} <span className="text-[#a73b21]">*</span>
+                      {t.savingsPlanMonthlyLabel} <span className="text-[#a73b21]">*</span>
                     </label>
                     <div className="relative">
                       <input
@@ -291,7 +315,7 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
                         }}
                         onBlur={formik.handleBlur}
                         inputMode="numeric"
-                        placeholder={tr(language, "15000000", "15000000")}
+                        placeholder={t.savingsPlanMonthlyPlaceholder}
                         className="w-full rounded-2xl border-none bg-[#e7f6ff] p-4 pr-16 font-[var(--font-manrope)] font-bold text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/25"
                       />
                       <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 font-bold text-[#006f1d]">
@@ -306,7 +330,7 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
 
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase tracking-[0.18em] text-[#647e8c]">
-                    {tr(language, "Arrival Date", "Ngày về đích")}
+                    {t.savingsPlanArrivalDateLabel}
                   </label>
                   <input
                     name="targetDate"
@@ -318,11 +342,7 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
                     className="w-full rounded-2xl border-none bg-[#e7f6ff] p-4 text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/25"
                   />
                   <p className="text-[11px] text-[#647e8c]">
-                    {tr(
-                      language,
-                      "Auto-calculated from savings target and monthly contribution.",
-                      "Tự động tính từ mục tiêu tiết kiệm và mức đóng góp hằng tháng.",
-                    )}
+                    {t.savingsPlanArrivalHint}
                   </p>
                   {formik.touched.targetDate && formik.errors.targetDate ? (
                     <p className="text-xs text-[#a73b21]">{formik.errors.targetDate}</p>
@@ -337,14 +357,14 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
                     onClick={() => setOpen(false)}
                     className="rounded-full px-5 py-2 text-sm font-semibold text-[#006f1d] hover:bg-[#dff3ea]"
                   >
-                    {tr(language, "Discard", "Hủy")}
+                    {t.savingsPlanDiscard}
                   </button>
                   <button
                     type="submit"
                     disabled={submitting}
                     className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#006f1d] to-[#006118] px-6 py-3 text-sm font-bold text-[#eaffe2] shadow-[0_20px_30px_-20px_rgba(0,111,29,0.75)] hover:brightness-105 disabled:opacity-70"
                   >
-                    <span>{submitting ? tr(language, "Creating...", "Đang tạo...") : tr(language, "Create Savings Plan", "Tạo kế hoạch")}</span>
+                    <span>{submitting ? t.savingsPlanCreating : t.savingsPlanCreateAction}</span>
                     <span className="material-symbols-outlined text-lg">chevron_right</span>
                   </button>
                 </div>
@@ -354,7 +374,7 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
                 <article className="relative overflow-hidden rounded-3xl bg-[linear-gradient(135deg,#006f1d_0%,#006118_100%)] p-8 text-[#eaffe2] shadow-xl">
                   <div className="pointer-events-none absolute -right-16 -top-16 h-52 w-52 rounded-full bg-white/10 blur-3xl" />
                   <h3 className="relative z-10 font-[var(--font-manrope)] text-xl font-bold">
-                    {tr(language, "Projection Preview", "Dự báo tiến độ")}
+                    {t.savingsPlanProjectionPreview}
                   </h3>
 
                   <div className="relative z-10 mt-8 space-y-6">
@@ -363,19 +383,19 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
                     </div>
 
                     <div>
-                      <p className="font-[var(--font-manrope)] text-xl font-bold">{tr(language, "Estimated Months", "Số tháng dự kiến")}</p>
+                      <p className="font-[var(--font-manrope)] text-xl font-bold">{t.savingsPlanEstimatedMonths}</p>
                       <p className="text-sm text-[#d8ffe0]">
-                        {tr(language, "To reach your target", "Để đạt mục tiêu của bạn")}: {asCurrency(projection.target, currency)}
+                        {t.savingsPlanToReachTarget}: {asCurrency(projection.target, currency)}
                       </p>
                     </div>
 
                     <div className="space-y-3 border-t border-white/10 pt-5 text-xs font-semibold uppercase tracking-[0.14em]">
                       <div className="flex items-center justify-between">
-                        <span className="text-[#d8ffe0]">{tr(language, "Arrival", "Về đích")}</span>
+                        <span className="text-[#d8ffe0]">{t.savingsPlanArrival}</span>
                         <span>{projection.arrivalText}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-[#d8ffe0]">{tr(language, "Monthly", "Theo tháng")}</span>
+                        <span className="text-[#d8ffe0]">{t.savingsPlanMonthly}</span>
                         <span>{asCurrency(projection.monthly, currency)}</span>
                       </div>
                     </div>
@@ -388,11 +408,7 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
                       <span className="material-symbols-outlined">lightbulb</span>
                     </div>
                     <p className="text-sm leading-relaxed text-[#40555f]">
-                      {tr(
-                        language,
-                        "Tip: increase monthly contribution to shorten your timeline.",
-                        "Gợi ý: tăng đóng góp hằng tháng để rút ngắn thời gian đạt mục tiêu.",
-                      )}
+                      {t.savingsPlanTip}
                     </p>
                   </div>
                 </article>

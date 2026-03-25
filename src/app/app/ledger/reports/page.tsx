@@ -3,7 +3,7 @@ import DailyExpenseCalendar from "@/app/app/ledger/reports/DailyExpenseCalendar"
 import MonthlyExpenseBudgetChart from "@/app/app/ledger/reports/MonthlyExpenseBudgetChart";
 import { prisma } from "@/lib/db";
 import { getMonthRange } from "@/lib/date";
-import { tr } from "@/lib/i18n";
+import { getDictionary } from "@/lib/i18n";
 import { ensureMonthlyCapSnapshot, monthKeyOf } from "@/lib/monthly-cap";
 import { materializeRecurringTransactions } from "@/lib/recurring";
 import { requireUser } from "@/lib/user";
@@ -42,6 +42,7 @@ export default async function LedgerReportsPage({
   const user = await requireUser();
   await materializeRecurringTransactions(user.id);
   const language = user.settings?.language || "en-US";
+  const t = getDictionary(language);
   const locale = language === "vi-VN" ? "vi-VN" : "en-US";
   const currency = user.settings?.currency ?? "VND";
   const today = new Date();
@@ -134,8 +135,8 @@ export default async function LedgerReportsPage({
     bucket.total += amount;
     bucket.entries.push({
       id: tx.id,
-      title: tx.notes?.trim() || tx.category?.name || "Transaction",
-      subtitle: `${tx.category?.name || "Uncategorized"} • ${tx.date.toLocaleTimeString(locale, {
+      title: tx.notes?.trim() || tx.category?.name || t.reportsTransactionFallback,
+      subtitle: `${tx.category?.name || t.ledgerUncategorized} • ${tx.date.toLocaleTimeString(locale, {
         hour: "2-digit",
         minute: "2-digit",
       })}`,
@@ -175,17 +176,17 @@ export default async function LedgerReportsPage({
     <div className="space-y-10">
       <section className="flex items-center gap-8 border-b border-[#dce9e2] pb-2">
         <Link href="/app/ledger" className="pb-2 font-[var(--font-manrope)] text-lg font-semibold text-[#006f1d]/60 hover:text-[#1b3641]">
-          {tr(language, "Activity", "Hoạt động")}
+          {t.ledgerTabActivity}
         </Link>
         <Link href="/app/ledger/reports" className="border-b-2 border-[#006f1d] pb-2 font-[var(--font-manrope)] text-lg font-semibold text-[#1b3641]">
-          {tr(language, "Reports", "Báo cáo")}
+          {t.ledgerTabReports}
         </Link>
       </section>
 
       <section className="grid gap-6 md:grid-cols-3">
         <article className="flex h-48 flex-col justify-between rounded-3xl border border-[#d8e8f3] bg-white p-7 shadow-sm">
           <div className="flex items-start justify-between">
-            <p className="text-sm font-medium uppercase tracking-[0.15em] text-[#6f8793]">{tr(language, "Total Expense", "Tổng chi tiêu")}</p>
+            <p className="text-sm font-medium uppercase tracking-[0.15em] text-[#6f8793]">{t.reportsTotalExpense}</p>
             <span className="material-symbols-outlined text-[#a73b21]">trending_down</span>
           </div>
           <div>
@@ -193,14 +194,14 @@ export default async function LedgerReportsPage({
               {asCurrency(totalExpense, currency)}
             </p>
             <span className="mt-2 inline-flex rounded-full bg-[#eaffe2] px-3 py-1 text-xs font-semibold text-[#0f7a2f]">
-               {tr(language, "Live this month", "Trong tháng này")}
+               {t.reportsLiveThisMonth}
             </span>
           </div>
         </article>
 
         <article className="flex h-48 flex-col justify-between rounded-3xl border border-[#d8e8f3] bg-[#e7f6ff] p-7 shadow-sm">
           <div className="flex items-start justify-between">
-            <p className="text-sm font-medium uppercase tracking-[0.15em] text-[#6f8793]">{tr(language, "Budget Adherence", "Tuân thủ ngân sách")}</p>
+            <p className="text-sm font-medium uppercase tracking-[0.15em] text-[#6f8793]">{t.reportsBudgetAdherence}</p>
             <span className="material-symbols-outlined text-[#1b3641]">verified</span>
           </div>
           <div>
@@ -208,7 +209,7 @@ export default async function LedgerReportsPage({
               {budgetAdherence.toFixed(1)}%
             </p>
             <p className="mt-1 text-sm text-[#49636f]">
-              {budgetAdherence > 100 ? tr(language, "Over target", "Vượt mục tiêu") : tr(language, "On track performance", "Đang đúng kế hoạch")}
+              {budgetAdherence > 100 ? t.reportsOverTarget : t.reportsOnTrackPerformance}
             </p>
           </div>
         </article>
@@ -216,12 +217,12 @@ export default async function LedgerReportsPage({
         <article className="relative flex h-48 flex-col justify-between overflow-hidden rounded-3xl bg-[linear-gradient(135deg,#006f1d_0%,#006118_100%)] p-7 text-[#eaffe2] shadow-sm">
           <div className="pointer-events-none absolute right-[-20px] top-[-24px] h-28 w-28 rounded-full bg-white/10 blur-xl" />
           <div className="relative z-10 flex items-start justify-between">
-            <p className="text-sm font-medium uppercase tracking-[0.15em] text-[#d8ffe0]">{tr(language, "Top Savings", "Tiết kiệm tối đa")}</p>
+            <p className="text-sm font-medium uppercase tracking-[0.15em] text-[#d8ffe0]">{t.reportsTopSavings}</p>
             <span className="material-symbols-outlined">lightbulb</span>
           </div>
           <div className="relative z-10">
             <p className="font-[var(--font-manrope)] text-3xl font-extrabold tracking-tight">{asCurrency(topSavings, currency)}</p>
-            <p className="mt-1 text-xs text-[#d8ffe0]">{tr(language, "Potential optimization this month", "Khoản tối ưu tiềm năng trong tháng")}</p>
+            <p className="mt-1 text-xs text-[#d8ffe0]">{t.reportsPotentialOptimization}</p>
           </div>
         </article>
       </section>
@@ -229,21 +230,21 @@ export default async function LedgerReportsPage({
       <section className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-              <h2 className="font-[var(--font-manrope)] text-3xl font-bold text-[#1b3641]">{tr(language, "Performance Analytics", "Phân tích hiệu suất")}</h2>
-              <p className="text-[#6f8793]">{tr(language, "Visualizing your fiscal flow across time horizons.", "Trực quan hóa dòng tiền theo từng mốc thời gian.")}</p>
+              <h2 className="font-[var(--font-manrope)] text-3xl font-bold text-[#1b3641]">{t.reportsPerformanceAnalytics}</h2>
+              <p className="text-[#6f8793]">{t.reportsFlowHorizons}</p>
             </div>
             <div className="rounded-full bg-[#d8e8f3] p-1">
-              <button className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-[#1b3641] shadow-sm">{tr(language, "Monthly", "Theo tháng")}</button>
+              <button className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-[#1b3641] shadow-sm">{t.reportsMonthly}</button>
             </div>
           </div>
 
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-12">
           <article className="rounded-3xl border border-[#d8e8f3] bg-white p-8 xl:col-span-8">
             <div className="mb-10 flex items-center justify-between">
-              <h3 className="font-[var(--font-manrope)] text-xl font-semibold text-[#1b3641]">{tr(language, "Monthly Expense vs Budget", "Chi tiêu tháng so với ngân sách")}</h3>
+              <h3 className="font-[var(--font-manrope)] text-xl font-semibold text-[#1b3641]">{t.reportsMonthlyExpenseVsBudget}</h3>
               <div className="flex items-center gap-4 text-xs text-[#6f8793]">
-                <span className="inline-flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-[#006f1d]" />{tr(language, "Actual", "Thực tế")}</span>
-                <span className="inline-flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-[#cfe6f2]" />{tr(language, "Budget", "Ngân sách")}</span>
+                <span className="inline-flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-[#006f1d]" />{t.reportsActual}</span>
+                <span className="inline-flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-[#cfe6f2]" />{t.reportsBudget}</span>
               </div>
             </div>
 
@@ -251,11 +252,11 @@ export default async function LedgerReportsPage({
           </article>
 
           <article className="rounded-3xl border border-[#d8e8f3] bg-[#e7f6ff] p-8 xl:col-span-4">
-            <h3 className="font-[var(--font-manrope)] text-xl font-semibold text-[#1b3641]">{tr(language, "Yearly Horizon", "Tầm nhìn năm")}</h3>
+            <h3 className="font-[var(--font-manrope)] text-xl font-semibold text-[#1b3641]">{t.reportsYearlyHorizon}</h3>
             <div className="mt-7 space-y-7">
               <div>
                 <div className="mb-1 flex items-center justify-between text-sm">
-                  <span className="text-[#6f8793]">{tr(language, "Annual Budget", "Ngân sách năm")}</span>
+                  <span className="text-[#6f8793]">{t.reportsAnnualBudget}</span>
                   <span className="font-semibold text-[#1b3641]">{asCurrency(totalBudget * 12, currency)}</span>
                 </div>
                 <div className="h-1.5 rounded-full bg-white">
@@ -264,7 +265,7 @@ export default async function LedgerReportsPage({
               </div>
               <div>
                 <div className="mb-1 flex items-center justify-between text-sm">
-                  <span className="text-[#6f8793]">{tr(language, "Actual Spent (YTD)", "Đã chi (lũy kế năm)")}</span>
+                  <span className="text-[#6f8793]">{t.reportsActualSpentYtd}</span>
                   <span className="font-semibold text-[#1b3641]">{asCurrency(totalExpense * 3, currency)}</span>
                 </div>
                 <div className="h-1.5 rounded-full bg-white">
@@ -274,10 +275,10 @@ export default async function LedgerReportsPage({
             </div>
             <div className="mt-8 border-t border-white/60 pt-7">
               <p className="text-xs leading-relaxed text-[#49636f]">
-                {tr(language, "You are tracking with healthy spending behavior compared to your current budget envelope.", "Bạn đang theo dõi tốt và duy trì mức chi tiêu ổn định so với ngân sách hiện tại.")}
+                {t.reportsHealthyBehaviorHint}
               </p>
               <button className="mt-4 w-full rounded-full bg-white py-3 text-sm font-bold text-[#1b3641] shadow-sm hover:bg-[#f7fcff]">
-                {tr(language, "Export PDF Report", "Xuất báo cáo PDF")}
+                {t.reportsExportPdf}
               </button>
             </div>
           </article>

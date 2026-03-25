@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useFormik } from "formik";
 import { getDictionary } from "@/lib/i18n";
+import toast from "react-hot-toast";
 
 type Props = {
   language: string;
@@ -78,11 +79,12 @@ export default function SettingsForm({ language, initialValues }: Props) {
 
       if (!response.ok) {
         const data = await response.json();
-        setError(data.error || "Could not save settings.");
+        setError(data.error || t.settingsSaveFailed);
         return;
       }
 
       setSaved(true);
+      toast.success(t.settingsSaved);
       router.refresh();
     },
   });

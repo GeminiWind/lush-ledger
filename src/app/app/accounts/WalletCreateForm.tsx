@@ -4,6 +4,7 @@ import { getDictionary } from "@/lib/i18n";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useFormik } from "formik";
+import toast from "react-hot-toast";
 
 type WalletForEdit = {
   id: string;
@@ -102,6 +103,7 @@ export default function WalletCreateForm({ language, wallet, trigger = "primary"
 
       helpers.resetForm();
       closeModal();
+      toast.success(isEdit ? t.walletUpdateSuccess : t.walletCreateSuccess);
       router.refresh();
     },
   });
@@ -125,6 +127,7 @@ export default function WalletCreateForm({ language, wallet, trigger = "primary"
     }
 
     closeModal();
+    toast.success(t.walletDeleteSuccess);
     router.refresh();
   };
 

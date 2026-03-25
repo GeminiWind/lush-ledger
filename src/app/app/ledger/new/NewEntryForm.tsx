@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import DatePicker from "react-datepicker";
 import { useFormik } from "formik";
 import { getDictionary } from "@/lib/i18n";
+import toast from "react-hot-toast";
 
 type Option = {
   id: string;
@@ -145,10 +146,11 @@ export default function NewEntryForm({ wallets = [], defaultWalletId, categories
 
       if (!response.ok) {
         const data = await response.json();
-        setError(data.error || "Could not add transaction.");
+        setError(data.error || t.txCreateFailed);
         return;
       }
 
+      toast.success(t.txCreateSuccess);
       router.push("/app/ledger");
       router.refresh();
     },

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import GridLayout, { Layout, useContainerWidth } from "react-grid-layout";
 import { formatCurrency } from "@/lib/format";
-import { tr } from "@/lib/i18n";
+import { getDictionary } from "@/lib/i18n";
 import AddCategoryModal from "@/app/app/atelier/AddCategoryModal";
 
 const categoryTones = [
@@ -98,6 +98,7 @@ function CategoryCard({
   language: string;
   draggable: boolean;
 }) {
+  const t = getDictionary(language);
   const usedPercent = Math.round(category.usage * 100);
   const atLimit = category.limit > 0 && category.spent >= category.limit;
   const threshold = Math.min(Math.max(category.warnAt || 80, 1), 100);
@@ -119,7 +120,7 @@ function CategoryCard({
             </div>
             <div>
               <h3 className="font-[var(--font-manrope)] text-lg font-bold text-[#1b3641]">{category.name}</h3>
-              <p className="text-xs text-[#6f8793]">{tr(language, "Monthly Limit", "Hạn mức tháng")}</p>
+              <p className="text-xs text-[#6f8793]">{t.atelierMonthlyLimit}</p>
             </div>
           </div>
 
@@ -127,8 +128,8 @@ function CategoryCard({
             <button
               type="button"
               className="category-drag-handle cursor-grab rounded-lg bg-[#eef7ff] px-2 py-1 text-[#49636f] active:cursor-grabbing"
-              aria-label={tr(language, `Drag ${category.name}`, `Kéo ${category.name}`)}
-              title={tr(language, "Drag to reorder", "Kéo để sắp xếp")}
+              aria-label={t.atelierDragItemAria.replace("{name}", category.name)}
+              title={t.atelierDragToReorderTitle}
             >
               <span className="material-symbols-outlined text-base">drag_indicator</span>
             </button>
@@ -140,7 +141,7 @@ function CategoryCard({
             <p className="font-[var(--font-manrope)] text-2xl font-extrabold text-[#1b3641]">
               {formatCurrency(category.limit, currency)}
             </p>
-            <span className={`rounded-md px-2 py-1 text-xs font-bold ${usedBadgeClass}`}>{usedPercent}% {tr(language, "Used", "đã dùng")}</span>
+            <span className={`rounded-md px-2 py-1 text-xs font-bold ${usedBadgeClass}`}>{usedPercent}% {t.atelierUsed}</span>
           </div>
 
           <div className="h-2 overflow-hidden rounded-full bg-[#e4f1fa]">
@@ -148,13 +149,13 @@ function CategoryCard({
           </div>
 
           <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.16em] text-[#8aa2b0]">
-            <span>{tr(language, "Spent:", "Đã chi:")} {formatCurrency(category.spent, currency)}</span>
+            <span>{t.atelierSpent} {formatCurrency(category.spent, currency)}</span>
             <span className={atLimit ? "text-[#a73b21]" : inWarnRange ? "text-[#b35a00]" : "text-[#1f6f3a]"}>
               {atLimit
-                ? tr(language, "Overspent", "Vượt mức")
+                ? t.atelierOverspent
                 : inWarnRange
-                  ? tr(language, "Warning", "Cảnh báo")
-                  : tr(language, "Healthy", "Ổn định")}
+                  ? t.atelierWarning
+                  : t.atelierHealthy}
             </span>
           </div>
         </div>
@@ -164,6 +165,7 @@ function CategoryCard({
 }
 
 export default function CategoryAtelierGrid({ categories, currency, language }: Props) {
+  const t = getDictionary(language);
   const { width, mounted, containerRef } = useContainerWidth({ initialWidth: 1200 });
   const [orderedCategoryIds, setOrderedCategoryIds] = useState<string[]>(
     categories.map((category) => category.id),
@@ -237,11 +239,11 @@ export default function CategoryAtelierGrid({ categories, currency, language }: 
   return (
     <div ref={containerRef} className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">{tr(language, "Category Atelier", "Atelier danh mục")}</h2>
+        <h2 className="font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">{t.atelierCategoryAtelier}</h2>
       </div>
 
       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#6f8793]">
-        {tr(language, "Drag cards by the handle to save your custom order.", "Kéo các thẻ bằng tay cầm để lưu thứ tự tùy chỉnh.")}
+        {t.atelierDragCardsHint}
       </p>
 
       {mounted ? (

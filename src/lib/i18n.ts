@@ -1,6 +1,6 @@
 export type AppLanguage = "en-US" | "vi-VN" | "fr-FR" | "ja-JP";
 
-type Dictionary = {
+type FlatDictionary = {
   navDashboard: string;
   navAtelier: string;
   navLedger: string;
@@ -72,6 +72,29 @@ type Dictionary = {
   txNotesPlaceholder: string;
   txAdd: string;
   txAdding: string;
+  txEditTitle: string;
+  txEditCloseAria: string;
+  txEditAmountLabel: string;
+  txEditCancel: string;
+  txEditSave: string;
+  txEditSaving: string;
+  txCreateFailed: string;
+  txCreateSuccess: string;
+  txUpdateFailed: string;
+  txUpdateSuccess: string;
+  settingsSaveFailed: string;
+  walletCreateSuccess: string;
+  walletUpdateSuccess: string;
+  walletDeleteSuccess: string;
+  ledgerDeleteFailed: string;
+  ledgerDeleteSuccess: string;
+  ledgerDeleteAria: string;
+  ledgerDeleteTitle: string;
+  ledgerDeleteBody: string;
+  ledgerDeleteDeleting: string;
+  ledgerDeleteAction: string;
+  ledgerDeleteKeep: string;
+  ledgerDeletePermanent: string;
   dashBudgetAlert: string;
   dashExceededBy: string;
   dashReallocate: string;
@@ -191,9 +214,146 @@ type Dictionary = {
   savingsMonthlyContributionTarget: string;
   savingsEnvisionGoal: string;
   savingsAddToAtelier: string;
+  savingsPlanNameRequired: string;
+  savingsPlanTargetRequired: string;
+  savingsPlanMonthlyRequired: string;
+  savingsPlanDateRequired: string;
+  savingsPlanDateInvalid: string;
+  savingsPlanDateMin: string;
+  savingsPlanCreateFailed: string;
+  savingsPlanCreateSuccess: string;
+  savingsPlanNotAvailable: string;
+  savingsPlanCreateAction: string;
+  savingsPlanAddNewTitle: string;
+  savingsPlanSubtitle: string;
+  savingsPlanCloseAria: string;
+  savingsPlanBlueprintTitle: string;
+  savingsPlanNameLabel: string;
+  savingsPlanNamePlaceholder: string;
+  savingsPlanTargetLabel: string;
+  savingsPlanTargetPlaceholder: string;
+  savingsPlanMonthlyLabel: string;
+  savingsPlanMonthlyPlaceholder: string;
+  savingsPlanArrivalDateLabel: string;
+  savingsPlanArrivalHint: string;
+  savingsPlanDiscard: string;
+  savingsPlanCreating: string;
+  savingsPlanProjectionPreview: string;
+  savingsPlanEstimatedMonths: string;
+  savingsPlanToReachTarget: string;
+  savingsPlanArrival: string;
+  savingsPlanMonthly: string;
+  savingsPlanTip: string;
+  atelierCapInvalidValue: string;
+  atelierCapUpdateFailed: string;
+  atelierCapUpdateSuccess: string;
+  atelierTotalMonthlyCap: string;
+  atelierEditTotalMonthlyCapAria: string;
+  atelierActionEdit: string;
+  atelierActionSaving: string;
+  atelierActionSave: string;
+  atelierActionCancel: string;
+  atelierAllocated: string;
+  atelierRemaining: string;
+  atelierThisMonthIncome: string;
+  atelierFiscalMasterplan: string;
+  atelierBudgetAllocation: string;
+  atelierPeriod: string;
+  atelierMonthlySavingsPlan: string;
+  atelierAutomaticVaultAllocation: string;
+  atelierOn: string;
+  atelierSavingsTarget: string;
+  atelierNoSavingsPlansYet: string;
+  atelierGoalCoverage: string;
+  atelierCovered: string;
+  atelierSavedThisMonth: string;
+  atelierAddCategoriesHint: string;
+  atelierMonthlyLimit: string;
+  atelierDragItemAria: string;
+  atelierDragToReorderTitle: string;
+  atelierUsed: string;
+  atelierSpent: string;
+  atelierOverspent: string;
+  atelierWarning: string;
+  atelierHealthy: string;
+  atelierCategoryAtelier: string;
+  atelierDragCardsHint: string;
+  atelierCurrencyHintVnd: string;
+  atelierCurrencyHintTemplate: string;
+  atelierCategoryNameRequired: string;
+  atelierMonthlyLimitNonNegative: string;
+  atelierCreateCategoryFailed: string;
+  atelierCreateCategorySuccess: string;
+  atelierAddNewCategory: string;
+  atelierCreateNewCategory: string;
+  atelierCategorySegment: string;
+  atelierCategoryNameLabel: string;
+  atelierCategoryNamePlaceholder: string;
+  atelierMonthlySpendingLimit: string;
+  atelierOverExpenseWarning: string;
+  atelierEnabled: string;
+  atelierDisabled: string;
+  atelierWarnAt: string;
+  atelierIconography: string;
+  atelierSearchIconsPlaceholder: string;
+  atelierNoIconsMatch: string;
+  atelierSelectIconAriaTemplate: string;
+  atelierAddingCategory: string;
+  atelierAddCategory: string;
+  reportsTransactionFallback: string;
+  reportsTotalExpense: string;
+  reportsLiveThisMonth: string;
+  reportsBudgetAdherence: string;
+  reportsOverTarget: string;
+  reportsOnTrackPerformance: string;
+  reportsTopSavings: string;
+  reportsPotentialOptimization: string;
+  reportsPerformanceAnalytics: string;
+  reportsFlowHorizons: string;
+  reportsMonthly: string;
+  reportsMonthlyExpenseVsBudget: string;
+  reportsActual: string;
+  reportsBudget: string;
+  reportsYearlyHorizon: string;
+  reportsAnnualBudget: string;
+  reportsActualSpentYtd: string;
+  reportsHealthyBehaviorHint: string;
+  reportsExportPdf: string;
+  calendarWeekdayMon: string;
+  calendarWeekdayTue: string;
+  calendarWeekdayWed: string;
+  calendarWeekdayThu: string;
+  calendarWeekdayFri: string;
+  calendarWeekdaySat: string;
+  calendarWeekdaySun: string;
+  calendarMonthJanuary: string;
+  calendarMonthFebruary: string;
+  calendarMonthMarch: string;
+  calendarMonthApril: string;
+  calendarMonthMay: string;
+  calendarMonthJune: string;
+  calendarMonthJuly: string;
+  calendarMonthAugust: string;
+  calendarMonthSeptember: string;
+  calendarMonthOctober: string;
+  calendarMonthNovember: string;
+  calendarMonthDecember: string;
+  calendarDailyExpenseTitle: string;
+  calendarDailyDetailsTitle: string;
+  calendarTotalSpent: string;
+  calendarCloseView: string;
+  onboardingSidebar: string;
+  onboardingDashboard: string;
+  onboardingAtelier: string;
+  onboardingLedger: string;
+  onboardingSavings: string;
+  onboardingWallets: string;
+  onboardingNewEntry: string;
+  onboardingSettings: string;
+  onboardingMainContent: string;
 };
 
-const enUS: Dictionary = {
+const enUS: FlatDictionary = {
   navDashboard: "Dashboard",
   navAtelier: "Atelier",
   navLedger: "Ledger",
@@ -265,6 +425,29 @@ const enUS: Dictionary = {
   txNotesPlaceholder: "Add additional details about this fiscal event...",
   txAdd: "Add Transaction",
   txAdding: "Adding Transaction...",
+  txEditTitle: "Edit Transaction",
+  txEditCloseAria: "Close edit transaction dialog",
+  txEditAmountLabel: "Amount (VND)",
+  txEditCancel: "Cancel",
+  txEditSave: "Save Changes",
+  txEditSaving: "Saving...",
+  txCreateFailed: "Could not add transaction.",
+  txCreateSuccess: "Transaction added successfully",
+  txUpdateFailed: "Could not update transaction.",
+  txUpdateSuccess: "Transaction updated successfully",
+  settingsSaveFailed: "Could not save settings.",
+  walletCreateSuccess: "Wallet created successfully",
+  walletUpdateSuccess: "Wallet updated successfully",
+  walletDeleteSuccess: "Wallet deleted successfully",
+  ledgerDeleteFailed: "Unable to delete transaction.",
+  ledgerDeleteSuccess: "Transaction deleted successfully",
+  ledgerDeleteAria: "Delete transaction",
+  ledgerDeleteTitle: "Delete Transaction?",
+  ledgerDeleteBody: "Are you sure you want to remove this entry from your ledger? This action is permanent and will adjust your monthly spending totals.",
+  ledgerDeleteDeleting: "Deleting...",
+  ledgerDeleteAction: "Delete Entry",
+  ledgerDeleteKeep: "Keep Entry",
+  ledgerDeletePermanent: "Permanent ledger modification",
   dashBudgetAlert: "Budget Alert",
   dashExceededBy: "You have exceeded your monthly limit by",
   dashReallocate: "Reallocate Funds",
@@ -384,9 +567,146 @@ const enUS: Dictionary = {
   savingsMonthlyContributionTarget: "Monthly contribution target",
   savingsEnvisionGoal: "Envision New Goal",
   savingsAddToAtelier: "Add to your fiscal atelier",
+  savingsPlanNameRequired: "Plan name is required.",
+  savingsPlanTargetRequired: "Savings target must be greater than zero.",
+  savingsPlanMonthlyRequired: "Monthly contribution must be greater than zero.",
+  savingsPlanDateRequired: "Target date is required.",
+  savingsPlanDateInvalid: "Target date is invalid.",
+  savingsPlanDateMin: "Target date must be this month or later.",
+  savingsPlanCreateFailed: "Unable to create savings plan.",
+  savingsPlanCreateSuccess: "Savings plan created successfully",
+  savingsPlanNotAvailable: "Not available",
+  savingsPlanCreateAction: "Create Savings Plan",
+  savingsPlanAddNewTitle: "Add New Savings Plan",
+  savingsPlanSubtitle: "Design a focused savings vessel for your next milestone.",
+  savingsPlanCloseAria: "Close",
+  savingsPlanBlueprintTitle: "The Blueprint",
+  savingsPlanNameLabel: "Plan Name",
+  savingsPlanNamePlaceholder: "e.g., Kyoto Sanctuary Fund",
+  savingsPlanTargetLabel: "Savings Target",
+  savingsPlanTargetPlaceholder: "500000000",
+  savingsPlanMonthlyLabel: "Monthly Contribution",
+  savingsPlanMonthlyPlaceholder: "15000000",
+  savingsPlanArrivalDateLabel: "Arrival Date",
+  savingsPlanArrivalHint: "Auto-calculated from savings target and monthly contribution.",
+  savingsPlanDiscard: "Discard",
+  savingsPlanCreating: "Creating...",
+  savingsPlanProjectionPreview: "Projection Preview",
+  savingsPlanEstimatedMonths: "Estimated Months",
+  savingsPlanToReachTarget: "To reach your target",
+  savingsPlanArrival: "Arrival",
+  savingsPlanMonthly: "Monthly",
+  savingsPlanTip: "Tip: increase monthly contribution to shorten your timeline.",
+  atelierCapInvalidValue: "Please enter a valid cap value.",
+  atelierCapUpdateFailed: "Unable to update total monthly cap.",
+  atelierCapUpdateSuccess: "Monthly cap updated successfully",
+  atelierTotalMonthlyCap: "Total Monthly Cap",
+  atelierEditTotalMonthlyCapAria: "Edit total monthly cap",
+  atelierActionEdit: "Edit",
+  atelierActionSaving: "Saving",
+  atelierActionSave: "Save",
+  atelierActionCancel: "Cancel",
+  atelierAllocated: "Allocated",
+  atelierRemaining: "Remaining",
+  atelierThisMonthIncome: "This Month Income",
+  atelierFiscalMasterplan: "Fiscal Masterplan",
+  atelierBudgetAllocation: "Budget Allocation",
+  atelierPeriod: "Period",
+  atelierMonthlySavingsPlan: "Monthly Savings Plan",
+  atelierAutomaticVaultAllocation: "Automatic Vault Allocation",
+  atelierOn: "ON",
+  atelierSavingsTarget: "Savings Target",
+  atelierNoSavingsPlansYet: "No savings plans yet.",
+  atelierGoalCoverage: "Goal Coverage",
+  atelierCovered: "Covered",
+  atelierSavedThisMonth: "Saved this month:",
+  atelierAddCategoriesHint: "Add categories with monthly limits to start your atelier view.",
+  atelierMonthlyLimit: "Monthly Limit",
+  atelierDragItemAria: "Drag {name}",
+  atelierDragToReorderTitle: "Drag to reorder",
+  atelierUsed: "Used",
+  atelierSpent: "Spent:",
+  atelierOverspent: "Overspent",
+  atelierWarning: "Warning",
+  atelierHealthy: "Healthy",
+  atelierCategoryAtelier: "Category Atelier",
+  atelierDragCardsHint: "Drag cards by the handle to save your custom order.",
+  atelierCurrencyHintVnd: "Formatted in Vietnamese Dong (VND)",
+  atelierCurrencyHintTemplate: "Formatted in {currency}",
+  atelierCategoryNameRequired: "Category name is required.",
+  atelierMonthlyLimitNonNegative: "Monthly limit must be zero or greater.",
+  atelierCreateCategoryFailed: "Failed to create category.",
+  atelierCreateCategorySuccess: "Category created successfully",
+  atelierAddNewCategory: "Add New Category",
+  atelierCreateNewCategory: "Create New Category",
+  atelierCategorySegment: "Define a new boutique spending segment",
+  atelierCategoryNameLabel: "Category Name",
+  atelierCategoryNamePlaceholder: "e.g., Luxury Travel",
+  atelierMonthlySpendingLimit: "Monthly Spending Limit",
+  atelierOverExpenseWarning: "Over-expense Warning",
+  atelierEnabled: "Enabled",
+  atelierDisabled: "Disabled",
+  atelierWarnAt: "Warn At",
+  atelierIconography: "Iconography",
+  atelierSearchIconsPlaceholder: "Search icons (flight, home, savings...)",
+  atelierNoIconsMatch: "No icons match your search.",
+  atelierSelectIconAriaTemplate: "Select {icon} icon",
+  atelierAddingCategory: "Adding Category...",
+  atelierAddCategory: "Add Category",
+  reportsTransactionFallback: "Transaction",
+  reportsTotalExpense: "Total Expense",
+  reportsLiveThisMonth: "Live this month",
+  reportsBudgetAdherence: "Budget Adherence",
+  reportsOverTarget: "Over target",
+  reportsOnTrackPerformance: "On track performance",
+  reportsTopSavings: "Top Savings",
+  reportsPotentialOptimization: "Potential optimization this month",
+  reportsPerformanceAnalytics: "Performance Analytics",
+  reportsFlowHorizons: "Visualizing your fiscal flow across time horizons.",
+  reportsMonthly: "Monthly",
+  reportsMonthlyExpenseVsBudget: "Monthly Expense vs Budget",
+  reportsActual: "Actual",
+  reportsBudget: "Budget",
+  reportsYearlyHorizon: "Yearly Horizon",
+  reportsAnnualBudget: "Annual Budget",
+  reportsActualSpentYtd: "Actual Spent (YTD)",
+  reportsHealthyBehaviorHint: "You are tracking with healthy spending behavior compared to your current budget envelope.",
+  reportsExportPdf: "Export PDF Report",
+  calendarWeekdayMon: "Mon",
+  calendarWeekdayTue: "Tue",
+  calendarWeekdayWed: "Wed",
+  calendarWeekdayThu: "Thu",
+  calendarWeekdayFri: "Fri",
+  calendarWeekdaySat: "Sat",
+  calendarWeekdaySun: "Sun",
+  calendarMonthJanuary: "January",
+  calendarMonthFebruary: "February",
+  calendarMonthMarch: "March",
+  calendarMonthApril: "April",
+  calendarMonthMay: "May",
+  calendarMonthJune: "June",
+  calendarMonthJuly: "July",
+  calendarMonthAugust: "August",
+  calendarMonthSeptember: "September",
+  calendarMonthOctober: "October",
+  calendarMonthNovember: "November",
+  calendarMonthDecember: "December",
+  calendarDailyExpenseTitle: "Daily Expense Calendar",
+  calendarDailyDetailsTitle: "Daily Details",
+  calendarTotalSpent: "Total Spent",
+  calendarCloseView: "Close View",
+  onboardingSidebar: "Welcome to Lush Ledger. This sidebar is your control center for dashboard, budgets, ledger, savings, wallets, and settings.",
+  onboardingDashboard: "Start here: Dashboard gives a fast health check of net worth, spending, and active budgets.",
+  onboardingAtelier: "Atelier is your monthly budget studio. Set category limits, see healthy/warning/overspent signals, and rebalance faster.",
+  onboardingLedger: "Ledger is your transaction timeline. Search, filter, and audit every income/expense entry in one place.",
+  onboardingSavings: "Savings tracks plan targets and monthly contributions, so you can forecast progress toward each financial goal.",
+  onboardingWallets: "Wallets organize money sources. Keep separate balances (cash, checking, savings) and set a default wallet for new entries.",
+  onboardingNewEntry: "Use New Entry to log income or expense. Keeping entries current makes all analytics accurate.",
+  onboardingSettings: "In Settings, choose language, currency, and theme for your workspace.",
+  onboardingMainContent: "This is your main workspace. Explore cards and reports to track your money flow and goals.",
 };
 
-const viVN: Dictionary = {
+const viVN: FlatDictionary = {
   navDashboard: "Tổng quan",
   navAtelier: "Ngân sách",
   navLedger: "Giao dịch",
@@ -458,6 +778,29 @@ const viVN: Dictionary = {
   txNotesPlaceholder: "Thêm thông tin chi tiết cho giao dịch...",
   txAdd: "Thêm giao dịch",
   txAdding: "Đang thêm giao dịch...",
+  txEditTitle: "Chỉnh sửa giao dịch",
+  txEditCloseAria: "Đóng hộp thoại chỉnh sửa giao dịch",
+  txEditAmountLabel: "Số tiền (VND)",
+  txEditCancel: "Hủy",
+  txEditSave: "Lưu thay đổi",
+  txEditSaving: "Đang lưu...",
+  txCreateFailed: "Không thể thêm giao dịch.",
+  txCreateSuccess: "Đã thêm giao dịch thành công",
+  txUpdateFailed: "Không thể cập nhật giao dịch.",
+  txUpdateSuccess: "Đã cập nhật giao dịch thành công",
+  settingsSaveFailed: "Không thể lưu cài đặt.",
+  walletCreateSuccess: "Đã tạo ví thành công",
+  walletUpdateSuccess: "Đã cập nhật ví thành công",
+  walletDeleteSuccess: "Đã xóa ví thành công",
+  ledgerDeleteFailed: "Không thể xóa giao dịch.",
+  ledgerDeleteSuccess: "Đã xóa giao dịch thành công",
+  ledgerDeleteAria: "Xóa giao dịch",
+  ledgerDeleteTitle: "Xóa giao dịch?",
+  ledgerDeleteBody: "Bạn có chắc chắn muốn xóa giao dịch này khỏi sổ cái? Hành động này là vĩnh viễn và sẽ cập nhật tổng chi tiêu theo tháng.",
+  ledgerDeleteDeleting: "Đang xóa...",
+  ledgerDeleteAction: "Xóa giao dịch",
+  ledgerDeleteKeep: "Giữ lại",
+  ledgerDeletePermanent: "Thay đổi sổ cái vĩnh viễn",
   dashBudgetAlert: "Cảnh báo ngân sách",
   dashExceededBy: "Bạn đã vượt ngân sách tháng",
   dashReallocate: "Phân bổ lại",
@@ -577,6 +920,143 @@ const viVN: Dictionary = {
   savingsMonthlyContributionTarget: "Mức đóng góp hằng tháng",
   savingsEnvisionGoal: "Thêm mục tiêu mới",
   savingsAddToAtelier: "Bổ sung vào không gian tài chính",
+  savingsPlanNameRequired: "Tên kế hoạch là bắt buộc.",
+  savingsPlanTargetRequired: "Mục tiêu tiết kiệm phải lớn hơn 0.",
+  savingsPlanMonthlyRequired: "Mức đóng góp hằng tháng phải lớn hơn 0.",
+  savingsPlanDateRequired: "Ngày mục tiêu là bắt buộc.",
+  savingsPlanDateInvalid: "Ngày mục tiêu không hợp lệ.",
+  savingsPlanDateMin: "Ngày mục tiêu phải từ tháng này trở đi.",
+  savingsPlanCreateFailed: "Không thể tạo kế hoạch tiết kiệm.",
+  savingsPlanCreateSuccess: "Tạo kế hoạch tiết kiệm thành công",
+  savingsPlanNotAvailable: "Chưa có",
+  savingsPlanCreateAction: "Tạo kế hoạch tiết kiệm",
+  savingsPlanAddNewTitle: "Thêm kế hoạch tiết kiệm",
+  savingsPlanSubtitle: "Thiết kế một kế hoạch tiết kiệm tập trung cho cột mốc tiếp theo.",
+  savingsPlanCloseAria: "Đóng",
+  savingsPlanBlueprintTitle: "Bản thiết kế",
+  savingsPlanNameLabel: "Tên kế hoạch",
+  savingsPlanNamePlaceholder: "Ví dụ: Quỹ nhà mơ ước",
+  savingsPlanTargetLabel: "Mục tiêu tiết kiệm",
+  savingsPlanTargetPlaceholder: "500000000",
+  savingsPlanMonthlyLabel: "Đóng góp hằng tháng",
+  savingsPlanMonthlyPlaceholder: "15000000",
+  savingsPlanArrivalDateLabel: "Ngày về đích",
+  savingsPlanArrivalHint: "Tự động tính từ mục tiêu tiết kiệm và mức đóng góp hằng tháng.",
+  savingsPlanDiscard: "Hủy",
+  savingsPlanCreating: "Đang tạo...",
+  savingsPlanProjectionPreview: "Dự báo tiến độ",
+  savingsPlanEstimatedMonths: "Số tháng dự kiến",
+  savingsPlanToReachTarget: "Để đạt mục tiêu của bạn",
+  savingsPlanArrival: "Về đích",
+  savingsPlanMonthly: "Theo tháng",
+  savingsPlanTip: "Gợi ý: tăng đóng góp hằng tháng để rút ngắn thời gian đạt mục tiêu.",
+  atelierCapInvalidValue: "Vui lòng nhập hạn mức hợp lệ.",
+  atelierCapUpdateFailed: "Không thể cập nhật tổng hạn mức tháng.",
+  atelierCapUpdateSuccess: "Cập nhật hạn mức tháng thành công",
+  atelierTotalMonthlyCap: "Tổng hạn mức tháng",
+  atelierEditTotalMonthlyCapAria: "Chỉnh sửa tổng hạn mức tháng",
+  atelierActionEdit: "Sửa",
+  atelierActionSaving: "Đang lưu",
+  atelierActionSave: "Lưu",
+  atelierActionCancel: "Hủy",
+  atelierAllocated: "Đã phân bổ",
+  atelierRemaining: "Còn lại",
+  atelierThisMonthIncome: "Thu nhập tháng này",
+  atelierFiscalMasterplan: "Kế hoạch tài chính",
+  atelierBudgetAllocation: "Phân bổ ngân sách",
+  atelierPeriod: "Kỳ",
+  atelierMonthlySavingsPlan: "Kế hoạch tiết kiệm tháng",
+  atelierAutomaticVaultAllocation: "Phân bổ quỹ tự động",
+  atelierOn: "BẬT",
+  atelierSavingsTarget: "Mục tiêu tiết kiệm",
+  atelierNoSavingsPlansYet: "Chưa có kế hoạch tiết kiệm.",
+  atelierGoalCoverage: "Mức độ hoàn thành",
+  atelierCovered: "đạt",
+  atelierSavedThisMonth: "Đã tiết kiệm tháng này:",
+  atelierAddCategoriesHint: "Thêm danh mục có hạn mức tháng để bắt đầu không gian Atelier.",
+  atelierMonthlyLimit: "Hạn mức tháng",
+  atelierDragItemAria: "Kéo {name}",
+  atelierDragToReorderTitle: "Kéo để sắp xếp",
+  atelierUsed: "đã dùng",
+  atelierSpent: "Đã chi:",
+  atelierOverspent: "Vượt mức",
+  atelierWarning: "Cảnh báo",
+  atelierHealthy: "Ổn định",
+  atelierCategoryAtelier: "Atelier danh mục",
+  atelierDragCardsHint: "Kéo các thẻ bằng tay cầm để lưu thứ tự tùy chỉnh.",
+  atelierCurrencyHintVnd: "Định dạng theo Việt Nam Đồng (VND)",
+  atelierCurrencyHintTemplate: "Định dạng theo {currency}",
+  atelierCategoryNameRequired: "Tên danh mục là bắt buộc.",
+  atelierMonthlyLimitNonNegative: "Hạn mức tháng phải lớn hơn hoặc bằng 0.",
+  atelierCreateCategoryFailed: "Không thể tạo danh mục.",
+  atelierCreateCategorySuccess: "Tạo danh mục thành công",
+  atelierAddNewCategory: "Thêm danh mục mới",
+  atelierCreateNewCategory: "Tạo danh mục mới",
+  atelierCategorySegment: "Tạo một nhóm chi tiêu mới",
+  atelierCategoryNameLabel: "Tên danh mục",
+  atelierCategoryNamePlaceholder: "ví dụ: Du lịch cao cấp",
+  atelierMonthlySpendingLimit: "Hạn mức chi tiêu tháng",
+  atelierOverExpenseWarning: "Cảnh báo vượt chi",
+  atelierEnabled: "Bật",
+  atelierDisabled: "Tắt",
+  atelierWarnAt: "Cảnh báo tại",
+  atelierIconography: "Biểu tượng",
+  atelierSearchIconsPlaceholder: "Tìm biểu tượng (flight, home, savings...)",
+  atelierNoIconsMatch: "Không có biểu tượng phù hợp.",
+  atelierSelectIconAriaTemplate: "Chọn biểu tượng {icon}",
+  atelierAddingCategory: "Đang thêm danh mục...",
+  atelierAddCategory: "Thêm danh mục",
+  reportsTransactionFallback: "Giao dịch",
+  reportsTotalExpense: "Tổng chi tiêu",
+  reportsLiveThisMonth: "Trong tháng này",
+  reportsBudgetAdherence: "Tuân thủ ngân sách",
+  reportsOverTarget: "Vượt mục tiêu",
+  reportsOnTrackPerformance: "Đang đúng kế hoạch",
+  reportsTopSavings: "Tiết kiệm tối đa",
+  reportsPotentialOptimization: "Khoản tối ưu tiềm năng trong tháng",
+  reportsPerformanceAnalytics: "Phân tích hiệu suất",
+  reportsFlowHorizons: "Trực quan hóa dòng tiền theo từng mốc thời gian.",
+  reportsMonthly: "Theo tháng",
+  reportsMonthlyExpenseVsBudget: "Chi tiêu tháng so với ngân sách",
+  reportsActual: "Thực tế",
+  reportsBudget: "Ngân sách",
+  reportsYearlyHorizon: "Tầm nhìn năm",
+  reportsAnnualBudget: "Ngân sách năm",
+  reportsActualSpentYtd: "Đã chi (lũy kế năm)",
+  reportsHealthyBehaviorHint: "Bạn đang theo dõi tốt và duy trì mức chi tiêu ổn định so với ngân sách hiện tại.",
+  reportsExportPdf: "Xuất báo cáo PDF",
+  calendarWeekdayMon: "T2",
+  calendarWeekdayTue: "T3",
+  calendarWeekdayWed: "T4",
+  calendarWeekdayThu: "T5",
+  calendarWeekdayFri: "T6",
+  calendarWeekdaySat: "T7",
+  calendarWeekdaySun: "CN",
+  calendarMonthJanuary: "Tháng 1",
+  calendarMonthFebruary: "Tháng 2",
+  calendarMonthMarch: "Tháng 3",
+  calendarMonthApril: "Tháng 4",
+  calendarMonthMay: "Tháng 5",
+  calendarMonthJune: "Tháng 6",
+  calendarMonthJuly: "Tháng 7",
+  calendarMonthAugust: "Tháng 8",
+  calendarMonthSeptember: "Tháng 9",
+  calendarMonthOctober: "Tháng 10",
+  calendarMonthNovember: "Tháng 11",
+  calendarMonthDecember: "Tháng 12",
+  calendarDailyExpenseTitle: "Lịch chi tiêu theo ngày",
+  calendarDailyDetailsTitle: "Chi tiết trong ngày",
+  calendarTotalSpent: "Tổng đã chi",
+  calendarCloseView: "Đóng",
+  onboardingSidebar: "Chào mừng bạn đến với Lush Ledger. Thanh bên này là trung tâm điều hướng cho tổng quan, ngân sách, giao dịch, tiết kiệm, ví và cài đặt.",
+  onboardingDashboard: "Bắt đầu từ đây: Tổng quan cho bạn bức tranh nhanh về tài sản ròng, chi tiêu và ngân sách đang theo dõi.",
+  onboardingAtelier: "Atelier là nơi quản lý ngân sách theo tháng. Bạn đặt hạn mức danh mục, theo dõi trạng thái ổn định/cảnh báo/vượt mức và cân đối nhanh hơn.",
+  onboardingLedger: "Ledger là dòng thời gian giao dịch của bạn. Tìm kiếm, lọc và đối chiếu mọi khoản thu/chi tại một nơi.",
+  onboardingSavings: "Savings giúp theo dõi mục tiêu tiết kiệm và đóng góp hằng tháng, để dự báo tiến độ cho từng mục tiêu tài chính.",
+  onboardingWallets: "Wallets giúp tách các nguồn tiền. Bạn quản lý số dư riêng (tiền mặt, tài khoản thanh toán, tiết kiệm) và đặt ví mặc định cho giao dịch mới.",
+  onboardingNewEntry: "Dùng Thêm giao dịch để ghi thu nhập hoặc chi tiêu. Ghi nhật ký đầy đủ sẽ giúp báo cáo chính xác.",
+  onboardingSettings: "Tại Cài đặt, bạn có thể chọn ngôn ngữ, tiền tệ và giao diện cho không gian làm việc.",
+  onboardingMainContent: "Đây là khu vực làm việc chính. Khám phá các thẻ và báo cáo để theo dõi dòng tiền và mục tiêu.",
 };
 
 export const normalizeLanguage = (value?: string | null): AppLanguage => {
@@ -586,12 +1066,290 @@ export const normalizeLanguage = (value?: string | null): AppLanguage => {
   return "en-US";
 };
 
-export const getDictionary = (language?: string | null): Dictionary => {
+export const getDictionary = (language?: string | null): FlatDictionary => {
   const normalized = normalizeLanguage(language);
   if (normalized === "vi-VN") {
     return viVN;
   }
   return enUS;
+};
+
+const dictionarySections = {
+  common: [
+    "navDashboard",
+    "navAtelier",
+    "navLedger",
+    "navSavings",
+    "navWallets",
+    "navSettings",
+    "actionNewEntry",
+    "headerBrandSub",
+    "headerUserRole",
+    "actionLogout",
+    "actionReset",
+    "actionSaveSettings",
+  ],
+  settings: [
+    "settingsTag",
+    "settingsTitleLine1",
+    "settingsTitleLine2",
+    "settingsIntro",
+    "settingsThemeTitle",
+    "settingsVisualIdentity",
+    "settingsLightMode",
+    "settingsDarkMode",
+    "settingsSystemDefault",
+    "settingsProfileTitle",
+    "settingsFullName",
+    "settingsEmail",
+    "settingsCurrencyHub",
+    "settingsCurrency",
+    "settingsLanguageTitle",
+    "settingsCurrentDisplay",
+    "settingsPrivacyTitle",
+    "settingsPrivacyBody",
+    "settingsFooterHint",
+    "settingsSaved",
+    "settingsSaveFailed",
+    "errorNameRequired",
+    "errorCurrencyRequired",
+    "errorLanguageRequired",
+    "errorThemeRequired",
+  ],
+  newEntry: [
+    "newEntryBreadcrumb",
+    "newEntryTitle",
+    "newEntryHeroTag",
+    "newEntryHeroHeading",
+    "newEntryHeroBody",
+    "newEntryTipTitle",
+    "newEntryTipBody",
+    "txCreateFailed",
+    "txCreateSuccess",
+  ],
+  transaction: [
+    "txErrorAmountRequired",
+    "txErrorDescriptionRequired",
+    "txErrorDateRequired",
+    "txErrorWalletRequired",
+    "txErrorRecurringDayRange",
+    "txErrorRecurringEndDate",
+    "txTypeExpense",
+    "txTypeIncome",
+    "txRecurring",
+    "txFrequency",
+    "txFrequencyMonthly",
+    "txFrequencyYearly",
+    "txDayOfMonth",
+    "txDayOfMonthHelp",
+    "txEndDate",
+    "txNoEndDate",
+    "txEndDateHelp",
+    "txDescription",
+    "txDescriptionPlaceholder",
+    "txCategory",
+    "txNoCategory",
+    "txWallet",
+    "txDate",
+    "txNotes",
+    "txOptional",
+    "txNotesPlaceholder",
+    "txAdd",
+    "txAdding",
+    "txEditTitle",
+    "txEditCloseAria",
+    "txEditAmountLabel",
+    "txEditCancel",
+    "txEditSave",
+    "txEditSaving",
+    "txUpdateFailed",
+    "txUpdateSuccess",
+  ],
+  dashboard: [
+    "dashBudgetAlert",
+    "dashExceededBy",
+    "dashReallocate",
+    "dashDismissAlert",
+    "dashTotalNetWorth",
+    "dashVsLastMonth",
+    "dashAssets",
+    "dashLiabilities",
+    "dashMonthlySpending",
+    "dashMonthlyLimit",
+    "dashUsed",
+    "dashSavingsGoal",
+    "dashCreateOne",
+    "dashComplete",
+    "dashPrevSavingsGoal",
+    "dashNextSavingsGoal",
+    "dashRecentEntries",
+    "dashFilters",
+    "dashExportCsv",
+    "dashNoRecentEntries",
+    "dashUncategorized",
+    "dashStatusReceived",
+    "dashStatusCompleted",
+  ],
+  atelier: [
+    "topCategoriesTitle",
+    "topCategoriesShowList",
+    "topCategoriesShowChart",
+    "topCategoriesNoSpending",
+    "topCategoriesTotal",
+    "activeBudgetsTitle",
+    "activeBudgetsFilterLabel",
+    "activeBudgetsFilterAll",
+    "activeBudgetsFilterHealthy",
+    "activeBudgetsFilterOverspent",
+    "activeBudgetsPrev",
+    "activeBudgetsNext",
+    "activeBudgetsNoLimits",
+    "activeBudgetsNoFiltered",
+    "activeBudgetsEndsIn",
+    "activeBudgetsDays",
+    "activeBudgetsOverspent",
+    "activeBudgetsHealthy",
+    "activeBudgetsSpent",
+    "activeBudgetsBudget",
+    "activeBudgetsExcessThisMonth",
+    "activeBudgetsRemainingLimit",
+  ],
+  ledger: [
+    "ledgerToday",
+    "ledgerYesterday",
+    "ledgerTabActivity",
+    "ledgerTabReports",
+    "ledgerTabBudgets",
+    "ledgerTitle",
+    "ledgerSubtitle",
+    "ledgerMtdSpending",
+    "ledgerSearchEntries",
+    "ledgerSearchPlaceholder",
+    "ledgerFilterCategory",
+    "ledgerFilterAmount",
+    "ledgerFilterWallet",
+    "ledgerTypeIncome",
+    "ledgerTypeExpense",
+    "ledgerApply",
+    "ledgerNoEntriesMatch",
+    "ledgerUncategorized",
+    "ledgerShowingTransactions",
+    "ledgerDeleteFailed",
+    "ledgerDeleteSuccess",
+    "ledgerDeleteAria",
+    "ledgerDeleteTitle",
+    "ledgerDeleteBody",
+    "ledgerDeleteDeleting",
+    "ledgerDeleteAction",
+    "ledgerDeleteKeep",
+    "ledgerDeletePermanent",
+  ],
+  accounts: [
+    "accountsPortfolio",
+    "accountsYourAtelier",
+    "accountsWallets",
+    "accountsArchiveOld",
+    "accountsNewWallet",
+    "accountsNoWallet",
+    "accountsCreateFirstWallet",
+    "accountsSetDefault",
+  ],
+  wallet: [
+    "walletDefaultBadge",
+    "walletEdit",
+    "walletEditAria",
+    "walletSetCurrentBalance",
+    "walletSave",
+    "walletSaving",
+    "walletInvalidBalance",
+    "walletUpdateFailed",
+    "walletNameRequired",
+    "walletCreateFailed",
+    "walletCloseDialog",
+    "walletDialogTag",
+    "walletDialogTitle",
+    "walletDialogBody",
+    "walletDialogEditTitle",
+    "walletDialogEditBody",
+    "walletDialogNameLabel",
+    "walletDialogNamePlaceholder",
+    "walletDialogBalanceLabel",
+    "walletDialogBalancePlaceholder",
+    "walletDialogBalanceHint",
+    "walletDialogDefaultTitle",
+    "walletDialogDefaultBody",
+    "walletDialogCreateAction",
+    "walletDialogCreating",
+    "walletDialogUpdateAction",
+    "walletDialogUpdating",
+    "walletDialogDeleteAction",
+    "walletDialogDeleting",
+    "walletDeleteFailed",
+    "walletDeleteBlockedDefault",
+    "walletCurrencyPrefix",
+    "walletCreateSuccess",
+    "walletUpdateSuccess",
+    "walletDeleteSuccess",
+  ],
+  savings: [
+    "savingsPortfolio",
+    "savingsTitle",
+    "savingsTotal",
+    "savingsPrimaryFocus",
+    "savingsTargeted",
+    "savingsPrimaryDesc",
+    "savingsSaved",
+    "savingsTarget",
+    "savingsRemaining",
+    "savingsNoPlan",
+    "savingsCreatePlanHint",
+    "savingsOtherAmbitions",
+    "savingsMonthlyContributionTarget",
+    "savingsEnvisionGoal",
+    "savingsAddToAtelier",
+  ],
+  onboarding: [
+    "onboardingSidebar",
+    "onboardingDashboard",
+    "onboardingAtelier",
+    "onboardingLedger",
+    "onboardingSavings",
+    "onboardingWallets",
+    "onboardingNewEntry",
+    "onboardingSettings",
+    "onboardingMainContent",
+  ],
+} as const satisfies Record<string, readonly (keyof FlatDictionary)[]>;
+
+type DictionarySections = typeof dictionarySections;
+
+export type Dictionary = {
+  [K in keyof DictionarySections]: Pick<FlatDictionary, DictionarySections[K][number]>;
+};
+
+const pickSection = <K extends readonly (keyof FlatDictionary)[]>(flat: FlatDictionary, keys: K): Pick<FlatDictionary, K[number]> => {
+  const result = {} as Pick<FlatDictionary, K[number]>;
+  for (const key of keys) {
+    (result as Record<keyof FlatDictionary, string>)[key] = flat[key];
+  }
+  return result;
+};
+
+export const getDictionaryBySection = (language?: string | null): Dictionary => {
+  const flat = getDictionary(language);
+  return {
+    common: pickSection(flat, dictionarySections.common),
+    settings: pickSection(flat, dictionarySections.settings),
+    newEntry: pickSection(flat, dictionarySections.newEntry),
+    transaction: pickSection(flat, dictionarySections.transaction),
+    dashboard: pickSection(flat, dictionarySections.dashboard),
+    atelier: pickSection(flat, dictionarySections.atelier),
+    ledger: pickSection(flat, dictionarySections.ledger),
+    accounts: pickSection(flat, dictionarySections.accounts),
+    wallet: pickSection(flat, dictionarySections.wallet),
+    savings: pickSection(flat, dictionarySections.savings),
+    onboarding: pickSection(flat, dictionarySections.onboarding),
+  };
 };
 
 export const tr = (language: string | null | undefined, enText: string, viText: string) => {

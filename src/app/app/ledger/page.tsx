@@ -2,6 +2,7 @@ import { getLedgerData } from "@/lib/ledger";
 import { getDictionary } from "@/lib/i18n";
 import { requireUser } from "@/lib/user";
 import Link from "next/link";
+import DeleteTransactionDialog from "./DeleteTransactionDialog";
 
 type SearchParams = Promise<{
   query?: string;
@@ -271,7 +272,7 @@ export default async function LedgerPage({
                           </div>
                         </div>
 
-                        <div className="ml-4 flex items-center gap-6">
+                        <div className="ml-4 flex items-center gap-4">
                           <div className="text-right">
                             <p className={`font-[var(--font-manrope)] text-lg font-extrabold ${visual.amountClass}`}>
                               {tx.type === "income" ? "+" : "-"}
@@ -280,6 +281,29 @@ export default async function LedgerPage({
                             <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#7f97a4]">
                               {tx.account.name}
                             </p>
+                          </div>
+                          <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+                            <Link
+                              href={`/app/ledger/${tx.id}/edit`}
+                              aria-label="Edit transaction"
+                              className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-emerald-50 hover:text-[#006f1d]"
+                            >
+                              <span className="material-symbols-outlined text-[18px]">edit</span>
+                            </Link>
+                            <DeleteTransactionDialog
+                              language={language}
+                              currency={currency}
+                              transaction={{
+                                id: tx.id,
+                                type: tx.type,
+                                amount: Number(tx.amount),
+                                notes: tx.notes,
+                                date: tx.date.toISOString(),
+                                accountName: tx.account.name,
+                                categoryName: tx.category?.name || null,
+                                icon: visual.icon,
+                              }}
+                            />
                           </div>
                           <span className="material-symbols-outlined text-slate-300">chevron_right</span>
                         </div>

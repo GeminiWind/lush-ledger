@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import { getMonthRange } from "@/lib/date";
 import { formatCurrency } from "@/lib/format";
-import { tr } from "@/lib/i18n";
+import { getDictionary } from "@/lib/i18n";
 import { materializeRecurringTransactions } from "@/lib/recurring";
 import { requireUser } from "@/lib/user";
 import { ensureMonthlyCapSnapshot, monthKeyOf } from "@/lib/monthly-cap";
@@ -14,6 +14,7 @@ const toNumber = (value: unknown) => Number(value ?? 0);
 export default async function AtelierPage() {
   const user = await requireUser();
   const language = user.settings?.language || "en-US";
+  const t = getDictionary(language);
   await materializeRecurringTransactions(user.id);
   const currency = user.settings?.currency || "VND";
   const { start, end } = getMonthRange(new Date());
@@ -102,13 +103,13 @@ export default async function AtelierPage() {
         <section className="space-y-6">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="text-sm font-medium text-[#49636f]">{tr(language, "Fiscal Masterplan", "Kế hoạch tài chính")}</p>
+              <p className="text-sm font-medium text-[#49636f]">{t.atelierFiscalMasterplan}</p>
               <h1 className="font-[var(--font-manrope)] text-4xl font-extrabold tracking-[-0.02em] text-[#1b3641]">
-                {tr(language, "Budget Allocation", "Phân bổ ngân sách")}
+                {t.atelierBudgetAllocation}
               </h1>
             </div>
             <div className="text-right">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">{tr(language, "Period", "Kỳ")}</p>
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">{t.atelierPeriod}</p>
               <p className="font-[var(--font-manrope)] text-xl font-bold text-[#2e7d32]">{monthLabel}</p>
             </div>
           </div>
@@ -128,17 +129,17 @@ export default async function AtelierPage() {
             <article className="rounded-[2rem] bg-white p-8 shadow-[0_24px_48px_-12px_rgba(27,54,65,0.08)]">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h2 className="font-[var(--font-manrope)] text-xl font-bold">{tr(language, "Monthly Savings Plan", "Kế hoạch tiết kiệm tháng")}</h2>
-                  <p className="text-xs text-[#49636f]">{tr(language, "Automatic Vault Allocation", "Phân bổ quỹ tự động")}</p>
+                  <h2 className="font-[var(--font-manrope)] text-xl font-bold">{t.atelierMonthlySavingsPlan}</h2>
+                  <p className="text-xs text-[#49636f]">{t.atelierAutomaticVaultAllocation}</p>
                 </div>
                 <div className="rounded-xl bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800">
-                  {tr(language, "ON", "BẬT")}
+                  {t.atelierOn}
                 </div>
               </div>
 
               <div className="mt-7 space-y-5">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">{tr(language, "Savings Target", "Mục tiêu tiết kiệm")}</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">{t.atelierSavingsTarget}</p>
                   <p className="mt-1 font-[var(--font-manrope)] text-3xl font-extrabold text-[#1b3641]">
                     {formatCurrency(savingsTarget, currency)}
                   </p>
@@ -146,7 +147,7 @@ export default async function AtelierPage() {
 
                 <div className="space-y-2">
                   {savingsByPlan.length === 0 ? (
-                    <p className="text-sm text-[#6f8793]">{tr(language, "No savings plans yet.", "Chưa có kế hoạch tiết kiệm.")}</p>
+                    <p className="text-sm text-[#6f8793]">{t.atelierNoSavingsPlansYet}</p>
                   ) : (
                     savingsByPlan.slice(0, 3).map((plan) => (
                       <div key={plan.id} className="flex items-center justify-between text-sm">
@@ -161,9 +162,9 @@ export default async function AtelierPage() {
 
                 <div className="space-y-2">
                   <div className="flex items-end justify-between">
-                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">{tr(language, "Goal Coverage", "Mức độ hoàn thành")}</p>
+                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">{t.atelierGoalCoverage}</p>
                     <p className="font-[var(--font-manrope)] text-sm font-bold text-[#2e7d32]">
-                      {Math.round(savingsCoverage)}% {tr(language, "Covered", "đạt")}
+                      {Math.round(savingsCoverage)}% {t.atelierCovered}
                     </p>
                   </div>
                   <div className="h-3 overflow-hidden rounded-full bg-[#e4f1fa]">
@@ -173,7 +174,7 @@ export default async function AtelierPage() {
                     />
                   </div>
                   <p className="text-xs text-[#6f8793]">
-                    {tr(language, "Saved this month:", "Đã tiết kiệm tháng này:")} <span className="font-semibold text-[#1b3641]">{formatCurrency(savingsSaved, currency)}</span>
+                    {t.atelierSavedThisMonth} <span className="font-semibold text-[#1b3641]">{formatCurrency(savingsSaved, currency)}</span>
                   </p>
                 </div>
               </div>
@@ -185,7 +186,7 @@ export default async function AtelierPage() {
           {categoryStats.length === 0 ? (
             <div className="space-y-5">
               <div className="rounded-3xl border-2 border-dashed border-[#c7dce9] bg-white p-12 text-center text-[#6f8793]">
-                {tr(language, "Add categories with monthly limits to start your atelier view.", "Thêm danh mục có hạn mức tháng để bắt đầu không gian Atelier.")}
+                {t.atelierAddCategoriesHint}
               </div>
               <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
                 <AddCategoryModal currency={currency} language={language} />

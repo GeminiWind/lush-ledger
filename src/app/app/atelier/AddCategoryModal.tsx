@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useFormik } from "formik";
-import { tr } from "@/lib/i18n";
+import { getDictionary } from "@/lib/i18n";
+import toast from "react-hot-toast";
 
 const allIconChoices = [
   "restaurant",
@@ -90,6 +91,7 @@ type Props = {
 
 export default function AddCategoryModal({ currency, language }: Props) {
   const router = useRouter();
+  const t = getDictionary(language);
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -100,10 +102,10 @@ export default function AddCategoryModal({ currency, language }: Props) {
 
   const currencyHint = useMemo(() => {
     if (currency === "VND") {
-      return tr(language, "Formatted in Vietnamese Dong (VND)", "Định dạng theo Việt Nam Đồng (VND)");
+      return t.atelierCurrencyHintVnd;
     }
-    return tr(language, `Formatted in ${currency}`, `Định dạng theo ${currency}`);
-  }, [currency, language]);
+    return t.atelierCurrencyHintTemplate.replace("{currency}", currency);
+  }, [currency, t.atelierCurrencyHintTemplate, t.atelierCurrencyHintVnd]);
 
   const resetUiState = useCallback(() => {
     setError(null);
@@ -131,10 +133,10 @@ export default function AddCategoryModal({ currency, language }: Props) {
     validate: (values) => {
       const errors: { name?: string; monthlyLimit?: string } = {};
       if (!values.name.trim()) {
-        errors.name = tr(language, "Category name is required.", "Tên danh mục là bắt buộc.");
+        errors.name = t.atelierCategoryNameRequired;
       }
       if (parseAmount(values.monthlyLimit) < 0) {
-        errors.monthlyLimit = tr(language, "Monthly limit must be zero or greater.", "Hạn mức tháng phải lớn hơn hoặc bằng 0.");
+        errors.monthlyLimit = t.atelierMonthlyLimitNonNegative;
       }
       return errors;
     },
@@ -157,13 +159,14 @@ export default function AddCategoryModal({ currency, language }: Props) {
 
       if (!response.ok) {
         const data = await response.json();
-        setError(data.error || tr(language, "Failed to create category.", "Không thể tạo danh mục."));
+        setError(data.error || t.atelierCreateCategoryFailed);
         return;
       }
 
       setIsOpen(false);
       resetUiState();
       helpers.resetForm();
+      toast.success(t.atelierCreateCategorySuccess);
       router.refresh();
     },
   });
@@ -203,7 +206,7 @@ export default function AddCategoryModal({ currency, language }: Props) {
           <span className="material-symbols-outlined text-2xl">add</span>
         </div>
         <span className="font-[var(--font-manrope)] text-base font-bold text-[#49636f] group-hover:text-[#2e7d32]">
-          {tr(language, "Add New Category", "Thêm danh mục mới")}
+          {t.atelierAddNewCategory}
         </span>
       </button>
 
@@ -220,22 +223,22 @@ export default function AddCategoryModal({ currency, language }: Props) {
             <div className="p-8 sm:p-10">
               <div className="mb-8 text-center">
                 <h2 className="font-[var(--font-manrope)] text-3xl font-extrabold tracking-[-0.02em] text-[#1b3641]">
-                  {tr(language, "Create New Category", "Tạo danh mục mới")}
+                  {t.atelierCreateNewCategory}
                 </h2>
-                <p className="mt-2 text-[#49636f]">{tr(language, "Define a new boutique spending segment", "Tạo một nhóm chi tiêu mới")}</p>
+                <p className="mt-2 text-[#49636f]">{t.atelierCategorySegment}</p>
               </div>
 
               <form onSubmit={formik.handleSubmit} className="space-y-6">
                 <div className="space-y-2">
                   <label className="ml-2 block text-xs font-bold uppercase tracking-[0.2em] text-[#6f8793]">
-                    {tr(language, "Category Name", "Tên danh mục")} <span className="text-[#a73b21]">*</span>
+                    {t.atelierCategoryNameLabel} <span className="text-[#a73b21]">*</span>
                   </label>
                     <input
                       name="name"
                       value={formik.values.name}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
-                      placeholder={tr(language, "e.g., Luxury Travel", "ví dụ: Du lịch cao cấp")}
+                      placeholder={t.atelierCategoryNamePlaceholder}
                       className="w-full rounded-2xl border-none bg-[#e7f6ff] px-6 py-4 text-base text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#2e7d32]/40"
                     />
                   {formik.touched.name && formik.errors.name ? (
@@ -245,7 +248,7 @@ export default function AddCategoryModal({ currency, language }: Props) {
 
                 <div className="space-y-2">
                   <label className="ml-2 block text-xs font-bold uppercase tracking-[0.2em] text-[#6f8793]">
-                    {tr(language, "Monthly Spending Limit", "Hạn mức chi tiêu tháng")}
+                    {t.atelierMonthlySpendingLimit}
                   </label>
                   <div className="relative">
                     <span className="absolute left-6 top-1/2 -translate-y-1/2 text-xl font-bold text-[#647e8c]">
@@ -270,7 +273,7 @@ export default function AddCategoryModal({ currency, language }: Props) {
                   <div className="flex flex-wrap items-end justify-between gap-4 rounded-2xl bg-[#e7f6ff] px-4 py-3">
                     <div>
                       <label className="ml-1 block text-xs font-bold uppercase tracking-[0.2em] text-[#6f8793]">
-                        {tr(language, "Over-expense Warning", "Cảnh báo vượt chi")}
+                        {t.atelierOverExpenseWarning}
                       </label>
                       <div className="mt-2 flex items-center gap-3">
                         <button
@@ -288,14 +291,14 @@ export default function AddCategoryModal({ currency, language }: Props) {
                           />
                         </button>
                         <span className="text-sm font-semibold text-[#1b3641]">
-                          {warningEnabled ? tr(language, "Enabled", "Bật") : tr(language, "Disabled", "Tắt")}
+                          {warningEnabled ? t.atelierEnabled : t.atelierDisabled}
                         </span>
                       </div>
                     </div>
 
                     <div className="w-24">
                       <label className="ml-1 block text-xs font-bold uppercase tracking-[0.2em] text-[#6f8793]">
-                        {tr(language, "Warn At", "Cảnh báo tại")}
+                        {t.atelierWarnAt}
                       </label>
                       <input
                         value={`${warnAt}%`}
@@ -309,8 +312,8 @@ export default function AddCategoryModal({ currency, language }: Props) {
                 <div className="space-y-2">
                   <div className="ml-2 flex items-center justify-between gap-2">
                     <label className="block text-xs font-bold uppercase tracking-[0.2em] text-[#6f8793]">
-                      {tr(language, "Iconography", "Biểu tượng")}
-                    </label>
+                        {t.atelierIconography}
+                      </label>
                     <span className="inline-flex items-center gap-1 rounded-full bg-[#e7f6ff] px-2.5 py-1 text-xs font-semibold text-[#49636f]">
                       <span className="material-symbols-outlined text-sm">{selectedIcon}</span>
                       {selectedIcon}
@@ -325,14 +328,14 @@ export default function AddCategoryModal({ currency, language }: Props) {
                       <input
                         value={iconSearch}
                         onChange={(event) => setIconSearch(event.target.value)}
-                        placeholder={tr(language, "Search icons (flight, home, savings...)", "Tìm biểu tượng (flight, home, savings...)")}
+                        placeholder={t.atelierSearchIconsPlaceholder}
                         className="w-full rounded-xl border border-[#d7e8f3] bg-white py-2 pl-10 pr-3 text-sm text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#2e7d32]/30"
                       />
                     </div>
 
                     <div className="max-h-60 overflow-y-auto rounded-xl border border-white/80 bg-white/80 p-3 pr-2">
                       {filteredIcons.length === 0 ? (
-                        <p className="py-6 text-center text-sm text-[#6f8793]">{tr(language, "No icons match your search.", "Không có biểu tượng phù hợp.")}</p>
+                        <p className="py-6 text-center text-sm text-[#6f8793]">{t.atelierNoIconsMatch}</p>
                       ) : (
                         <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-8">
                           {filteredIcons.map((icon) => {
@@ -348,7 +351,7 @@ export default function AddCategoryModal({ currency, language }: Props) {
                                     : "bg-[#f5fbff] text-[#49636f] hover:bg-[#dff2e6] hover:text-[#2e7d32]"
                                 }`}
                                 title={icon}
-                                aria-label={tr(language, `Select ${icon} icon`, `Chọn biểu tượng ${icon}`)}
+                                aria-label={t.atelierSelectIconAriaTemplate.replace("{icon}", icon)}
                               >
                                 <span className="material-symbols-outlined text-[20px]">{icon}</span>
                               </button>
@@ -372,14 +375,14 @@ export default function AddCategoryModal({ currency, language }: Props) {
                     onClick={closeModal}
                     className="flex-1 rounded-2xl bg-[#d4ecf9] px-6 py-4 font-bold text-[#1b3641] transition hover:bg-[#c7e3f3]"
                   >
-                    {tr(language, "Cancel", "Hủy")}
+                    {t.atelierActionCancel}
                   </button>
                   <button
                     type="submit"
                     disabled={loading}
                     className="flex-[1.4] rounded-2xl bg-[linear-gradient(145deg,#2e7d32_0%,#006118_100%)] px-6 py-4 font-bold text-[#eaffe2] shadow-[0_16px_28px_-12px_rgba(0,111,29,0.4)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-70"
                   >
-                    {loading ? tr(language, "Adding Category...", "Đang thêm danh mục...") : tr(language, "Add Category", "Thêm danh mục")}
+                    {loading ? t.atelierAddingCategory : t.atelierAddCategory}
                   </button>
                 </div>
               </form>

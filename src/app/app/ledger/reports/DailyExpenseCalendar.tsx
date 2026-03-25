@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { useEffect, useMemo, useState } from "react";
-import { tr } from "@/lib/i18n";
+import { getDictionary } from "@/lib/i18n";
 
 type CalendarEntry = {
   id: string;
@@ -48,29 +48,30 @@ export default function DailyExpenseCalendar({
   language,
   days,
 }: Props) {
+  const t = getDictionary(language);
   const weekdayLabels = [
-    tr(language, "Mon", "T2"),
-    tr(language, "Tue", "T3"),
-    tr(language, "Wed", "T4"),
-    tr(language, "Thu", "T5"),
-    tr(language, "Fri", "T6"),
-    tr(language, "Sat", "T7"),
-    tr(language, "Sun", "CN"),
+    t.calendarWeekdayMon,
+    t.calendarWeekdayTue,
+    t.calendarWeekdayWed,
+    t.calendarWeekdayThu,
+    t.calendarWeekdayFri,
+    t.calendarWeekdaySat,
+    t.calendarWeekdaySun,
   ];
 
   const monthOptions = [
-    { value: 1, label: tr(language, "January", "Tháng 1") },
-    { value: 2, label: tr(language, "February", "Tháng 2") },
-    { value: 3, label: tr(language, "March", "Tháng 3") },
-    { value: 4, label: tr(language, "April", "Tháng 4") },
-    { value: 5, label: tr(language, "May", "Tháng 5") },
-    { value: 6, label: tr(language, "June", "Tháng 6") },
-    { value: 7, label: tr(language, "July", "Tháng 7") },
-    { value: 8, label: tr(language, "August", "Tháng 8") },
-    { value: 9, label: tr(language, "September", "Tháng 9") },
-    { value: 10, label: tr(language, "October", "Tháng 10") },
-    { value: 11, label: tr(language, "November", "Tháng 11") },
-    { value: 12, label: tr(language, "December", "Tháng 12") },
+    { value: 1, label: t.calendarMonthJanuary },
+    { value: 2, label: t.calendarMonthFebruary },
+    { value: 3, label: t.calendarMonthMarch },
+    { value: 4, label: t.calendarMonthApril },
+    { value: 5, label: t.calendarMonthMay },
+    { value: 6, label: t.calendarMonthJune },
+    { value: 7, label: t.calendarMonthJuly },
+    { value: 8, label: t.calendarMonthAugust },
+    { value: 9, label: t.calendarMonthSeptember },
+    { value: 10, label: t.calendarMonthOctober },
+    { value: 11, label: t.calendarMonthNovember },
+    { value: 12, label: t.calendarMonthDecember },
   ];
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -104,7 +105,7 @@ export default function DailyExpenseCalendar({
     <>
       <section className="space-y-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h3 className="font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">{tr(language, "Daily Expense Calendar", "Lịch chi tiêu theo ngày")}</h3>
+          <h3 className="font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">{t.calendarDailyExpenseTitle}</h3>
           <form ref={formRef} className="flex items-center gap-2" method="get">
             <div className="rounded-full border border-[#d7e5dc] bg-white px-3 py-2 text-sm font-semibold text-[#1b3641]">
               <select
@@ -187,7 +188,7 @@ export default function DailyExpenseCalendar({
           >
             <div className="space-y-4 p-6">
               <div className="flex items-center justify-between">
-                <h4 className="font-[var(--font-manrope)] text-lg font-bold text-[#1b3641]">{tr(language, "Daily Details", "Chi tiết trong ngày")}</h4>
+                <h4 className="font-[var(--font-manrope)] text-lg font-bold text-[#1b3641]">{t.calendarDailyDetailsTitle}</h4>
                 <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#7f97a4]">{monthLabel}</p>
               </div>
 
@@ -204,7 +205,7 @@ export default function DailyExpenseCalendar({
               </div>
 
               <div className="flex items-center justify-between pt-1">
-                <span className="text-xs font-bold uppercase tracking-[0.15em] text-[#7f97a4]">{tr(language, "Total Spent", "Tổng đã chi")}</span>
+                <span className="text-xs font-bold uppercase tracking-[0.15em] text-[#7f97a4]">{t.calendarTotalSpent}</span>
                 <span className="font-[var(--font-manrope)] text-sm font-extrabold text-[#006f1d]">
                   {asCurrency(selectedDay.total, currency)}
                 </span>
@@ -215,7 +216,7 @@ export default function DailyExpenseCalendar({
                 onClick={() => setSelectedKey(null)}
                 className="w-full rounded-xl bg-[#e7f6ff] py-2.5 text-xs font-bold text-[#1b3641] transition hover:bg-[#d6ecf9]"
               >
-                {tr(language, "Close View", "Đóng")}
+                {t.calendarCloseView}
               </button>
             </div>
           </div>
