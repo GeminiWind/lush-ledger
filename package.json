@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npm run prisma:generate && next dev",
-    "build": "npm run prisma:generate && next build",
+    "dev": "npm run prisma:generate && next dev --webpack",
+    "build": "npm run prisma:generate && next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "prisma:generate": "prisma generate",
