@@ -29,3 +29,27 @@ export const formatCurrencyInput = (value: string, currency: string) => {
     maximumFractionDigits: 0,
   }).format(Number(digits));
 };
+
+const DEFAULT_SUGGESTION_MULTIPLIERS = [1000, 10000, 1000000] as const;
+
+export const getCurrencyInputSuggestions = (
+  displayValue: string,
+  currency: string,
+  multipliers: readonly number[] = DEFAULT_SUGGESTION_MULTIPLIERS,
+) => {
+  const rawDigits = digitsOnly(displayValue);
+  if (!rawDigits || rawDigits.length > 3) {
+    return [];
+  }
+
+  const baseAmount = parseCurrencyInput(displayValue);
+  if (!Number.isFinite(baseAmount) || baseAmount <= 0) {
+    return [];
+  }
+
+  const uniqueValues = Array.from(new Set(multipliers.map((multiplier) => baseAmount * multiplier)));
+  return uniqueValues.map((value) => ({
+    value,
+    label: `${formatCurrencyInput(String(value), currency)}${currency === "VND" ? "đ" : ""}`,
+  }));
+};

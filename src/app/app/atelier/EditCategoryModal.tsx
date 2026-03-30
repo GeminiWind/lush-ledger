@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useFormik } from "formik";
-import { formatCurrencyInput, parseCurrencyInput } from "@/lib/format";
+import { formatCurrencyInput, getCurrencyInputSuggestions, parseCurrencyInput } from "@/lib/format";
 import toast from "react-hot-toast";
 import { getDictionary } from "@/lib/i18n";
 
@@ -185,6 +185,10 @@ export default function EditCategoryModal({ category, currency, language }: Prop
     return allIconChoices.filter((icon) => icon.toLowerCase().includes(query));
   }, [iconSearch]);
 
+  const monthlyLimitSuggestions = useMemo(() => {
+    return getCurrencyInputSuggestions(formik.values.monthlyLimit, currency);
+  }, [currency, formik.values.monthlyLimit]);
+
   useEffect(() => {
     if (!isOpen) {
       return;
@@ -284,6 +288,20 @@ export default function EditCategoryModal({ category, currency, language }: Prop
                       onBlur={formik.handleBlur}
                       className="w-full rounded-2xl border-none bg-[#e7f6ff] px-5 py-4 text-xl font-bold text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#2e7d32]/40"
                     />
+                    {monthlyLimitSuggestions.length ? (
+                      <div className="ml-1 mt-2 flex flex-wrap items-center gap-2">
+                        {monthlyLimitSuggestions.map((suggestion) => (
+                          <button
+                            key={suggestion.value}
+                            type="button"
+                            onClick={() => formik.setFieldValue("monthlyLimit", formatCurrencyInput(String(suggestion.value), currency))}
+                            className="rounded-full border border-[#cce4ef] bg-[#f5fcff] px-3 py-1 text-xs font-bold text-[#1b3641] transition hover:border-[#8dc4da] hover:bg-[#ebf8ff]"
+                          >
+                            {suggestion.label}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
                     {formik.touched.monthlyLimit && formik.errors.monthlyLimit ? (
                       <p className="ml-1 text-xs text-[#a73b21]">{formik.errors.monthlyLimit}</p>
                     ) : null}

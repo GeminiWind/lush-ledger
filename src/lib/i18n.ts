@@ -106,6 +106,9 @@ type FlatDictionary = {
   dashMonthlySpending: string;
   dashMonthlyLimit: string;
   dashUsed: string;
+  dashCapWarning80: string;
+  dashCapWarning100: string;
+  dashCapWarningOver: string;
   dashSavingsGoal: string;
   dashCreateOne: string;
   dashComplete: string;
@@ -485,6 +488,9 @@ const enUS: FlatDictionary = {
   dashMonthlySpending: "Monthly Spending",
   dashMonthlyLimit: "Monthly Limit",
   dashUsed: "Used",
+  dashCapWarning80: "Cap warning at 80%",
+  dashCapWarning100: "Cap reached at 100%",
+  dashCapWarningOver: "Over cap",
   dashSavingsGoal: "Savings Goal",
   dashCreateOne: "Create one",
   dashComplete: "Complete",
@@ -865,6 +871,9 @@ const viVN: FlatDictionary = {
   dashMonthlySpending: "Chi tiêu tháng",
   dashMonthlyLimit: "Hạn mức tháng",
   dashUsed: "Đã dùng",
+  dashCapWarning80: "Cảnh báo đạt 80% hạn mức",
+  dashCapWarning100: "Đã chạm 100% hạn mức",
+  dashCapWarningOver: "Đã vượt hạn mức",
   dashSavingsGoal: "Mục tiêu tiết kiệm",
   dashCreateOne: "Tạo mới",
   dashComplete: "Hoàn thành",
@@ -1257,6 +1266,9 @@ const dictionarySections = {
     "dashMonthlySpending",
     "dashMonthlyLimit",
     "dashUsed",
+    "dashCapWarning80",
+    "dashCapWarning100",
+    "dashCapWarningOver",
     "dashSavingsGoal",
     "dashCreateOne",
     "dashComplete",

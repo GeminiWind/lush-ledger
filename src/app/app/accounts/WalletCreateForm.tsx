@@ -2,9 +2,9 @@
 
 import { getDictionary } from "@/lib/i18n";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useFormik } from "formik";
-import { formatCurrencyInput, parseCurrencyInput } from "@/lib/format";
+import { formatCurrencyInput, getCurrencyInputSuggestions, parseCurrencyInput } from "@/lib/format";
 import toast from "react-hot-toast";
 
 type WalletForEdit = {
@@ -107,6 +107,10 @@ export default function WalletCreateForm({ language, currency, wallet, trigger =
       router.refresh();
     },
   });
+
+  const openingBalanceSuggestions = useMemo(() => {
+    return getCurrencyInputSuggestions(formik.values.openingBalance, currency);
+  }, [currency, formik.values.openingBalance]);
 
   const onDelete = async () => {
     if (!wallet || wallet.isDefault) {
@@ -227,6 +231,20 @@ export default function WalletCreateForm({ language, currency, wallet, trigger =
                     />
                     <span className="pointer-events-none absolute right-5 text-lg font-bold text-[#006f1d]">{currencyAffix}</span>
                   </div>
+                  {openingBalanceSuggestions.length ? (
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      {openingBalanceSuggestions.map((suggestion) => (
+                        <button
+                          key={suggestion.value}
+                          type="button"
+                          onClick={() => formik.setFieldValue("openingBalance", formatCurrencyInput(String(suggestion.value), currency))}
+                          className="rounded-full border border-[#cce4ef] bg-[#f5fcff] px-3 py-1 text-xs font-bold text-[#1b3641] transition hover:border-[#8dc4da] hover:bg-[#ebf8ff]"
+                        >
+                          {suggestion.label}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
                   <p className="text-[11px] font-medium tracking-wide text-[#49636f]/80">{t.walletDialogBalanceHint}</p>
                   {formik.touched.openingBalance && formik.errors.openingBalance ? (
                     <p className="text-xs text-[#a73b21]">{formik.errors.openingBalance}</p>

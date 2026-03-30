@@ -3,8 +3,8 @@
 import { getDictionary } from "@/lib/i18n";
 import { useRouter } from "next/navigation";
 import { useFormik } from "formik";
-import { useCallback, useEffect, useState } from "react";
-import { formatCurrencyInput, parseCurrencyInput } from "@/lib/format";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { formatCurrencyInput, getCurrencyInputSuggestions, parseCurrencyInput } from "@/lib/format";
 import toast from "react-hot-toast";
 
 type Option = {
@@ -117,6 +117,10 @@ export default function EditTransactionForm({
     formik.setFieldValue("amountDisplay", formatCurrencyInput(rawValue, currency));
   };
 
+  const amountSuggestions = useMemo(() => {
+    return getCurrencyInputSuggestions(formik.values.amountDisplay, currency);
+  }, [currency, formik.values.amountDisplay]);
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-emerald-950/30 p-4 backdrop-blur-sm"
@@ -154,6 +158,20 @@ export default function EditTransactionForm({
                 payments
               </span>
             </div>
+            {amountSuggestions.length ? (
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                {amountSuggestions.map((suggestion) => (
+                  <button
+                    key={suggestion.value}
+                    type="button"
+                    onClick={() => formik.setFieldValue("amountDisplay", formatCurrencyInput(String(suggestion.value), currency))}
+                    className="rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-900 transition hover:border-emerald-300 hover:bg-emerald-100"
+                  >
+                    {suggestion.label}
+                  </button>
+                ))}
+              </div>
+            ) : null}
             {formik.touched.amountDisplay && formik.errors.amountDisplay ? (
               <p className="text-xs text-[#a73b21]">{formik.errors.amountDisplay}</p>
             ) : null}

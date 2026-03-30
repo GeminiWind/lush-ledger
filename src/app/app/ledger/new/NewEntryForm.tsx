@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import DatePicker from "react-datepicker";
 import { useFormik } from "formik";
-import { formatCurrencyInput, parseCurrencyInput } from "@/lib/format";
+import { formatCurrencyInput, getCurrencyInputSuggestions, parseCurrencyInput } from "@/lib/format";
 import { getDictionary } from "@/lib/i18n";
 import toast from "react-hot-toast";
 
@@ -155,6 +155,10 @@ export default function NewEntryForm({ wallets = [], defaultWalletId, categories
     formik.setFieldValue("amountDisplay", formatCurrencyInput(rawValue, currency));
   };
 
+  const amountSuggestions = useMemo(() => {
+    return getCurrencyInputSuggestions(formik.values.amountDisplay, currency);
+  }, [currency, formik.values.amountDisplay]);
+
   return (
     <form onSubmit={formik.handleSubmit} className="space-y-10">
       <div className="space-y-2 text-center">
@@ -175,6 +179,20 @@ export default function NewEntryForm({ wallets = [], defaultWalletId, categories
             className="w-full bg-transparent p-0 text-center font-[var(--font-manrope)] text-6xl font-extrabold text-[#1b3641] placeholder:text-[#c2d8e5] outline-none"
           />
         </div>
+        {amountSuggestions.length ? (
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            {amountSuggestions.map((suggestion) => (
+              <button
+                key={suggestion.value}
+                type="button"
+                onClick={() => formik.setFieldValue("amountDisplay", formatCurrencyInput(String(suggestion.value), currency))}
+                className="rounded-full border border-[#cce4ef] bg-[#f5fcff] px-4 py-1.5 text-sm font-bold text-[#1b3641] transition hover:border-[#8dc4da] hover:bg-[#ebf8ff]"
+              >
+                {suggestion.label}
+              </button>
+            ))}
+          </div>
+        ) : null}
         {formik.touched.amountDisplay && formik.errors.amountDisplay ? (
           <p className="text-sm text-[#a73b21]">{formik.errors.amountDisplay}</p>
         ) : null}

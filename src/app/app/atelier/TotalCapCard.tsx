@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { formatCurrency, formatCurrencyInput, parseCurrencyInput } from "@/lib/format";
+import { useMemo, useState } from "react";
+import { formatCurrency, formatCurrencyInput, getCurrencyInputSuggestions, parseCurrencyInput } from "@/lib/format";
 import { getDictionary } from "@/lib/i18n";
 import toast from "react-hot-toast";
 
@@ -34,6 +34,10 @@ export default function TotalCapCard({
   const [keepCapNextMonth, setKeepCapNextMonth] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const capSuggestions = useMemo(() => {
+    return getCurrencyInputSuggestions(value, currency);
+  }, [currency, value]);
 
   const saveCap = async (options?: { overrideCap?: number; keepCapNextMonth?: boolean }) => {
     setError(null);
@@ -94,6 +98,20 @@ export default function TotalCapCard({
               autoFocus
               className="w-[280px] rounded-xl border-none bg-[#f3fbf6] px-4 py-2 font-[var(--font-manrope)] text-4xl font-extrabold tracking-[-0.03em] text-[#2e7d32] outline-none ring-2 ring-[#2e7d32]/25 sm:text-5xl"
             />
+            {capSuggestions.length ? (
+              <div className="flex w-full flex-wrap items-center gap-2">
+                {capSuggestions.map((suggestion) => (
+                  <button
+                    key={suggestion.value}
+                    type="button"
+                    onClick={() => setValue(formatCurrencyInput(String(suggestion.value), currency))}
+                    className="rounded-full border border-[#c8e6cf] bg-[#f3fbf6] px-3 py-1 text-xs font-bold text-[#2e7d32] transition hover:border-[#9ed2ab] hover:bg-[#e8f7ed]"
+                  >
+                    {suggestion.label}
+                  </button>
+                ))}
+              </div>
+            ) : null}
             <button
               type="button"
               onClick={() => {

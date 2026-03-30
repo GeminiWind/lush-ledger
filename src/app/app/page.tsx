@@ -24,6 +24,31 @@ const shortDate = (date: Date, language: string) => {
 
 const budgetWidth = (value: number) => `${Math.min(100, Math.max(0, value))}%`;
 
+const capBadgeMeta = (usedPercent: number) => {
+  if (usedPercent > 100) {
+    return {
+      tone: "bg-[#fff0ec] text-[#a73b21]",
+      icon: "error",
+      label: "over",
+    };
+  }
+  if (usedPercent >= 100) {
+    return {
+      tone: "bg-[#fff6e6] text-[#8a4f00]",
+      icon: "report",
+      label: "full",
+    };
+  }
+  if (usedPercent >= 80) {
+    return {
+      tone: "bg-[#fff9db] text-[#7a5a00]",
+      icon: "warning",
+      label: "warning",
+    };
+  }
+  return null;
+};
+
 const transactionMeta = (type: string, language: string) => {
   const t = getDictionary(language);
   if (type === "income") {
@@ -52,6 +77,7 @@ export default async function DashboardPage() {
   const currency = user.settings?.currency ?? "VND";
   const data = await getDashboardData(user.id);
   const maxTrendValue = Math.max(...data.monthlySpendingTrend.map((item) => item.value), 1);
+  const capBadge = data.monthlyLimit > 0 ? capBadgeMeta(data.monthlyUsedPercent) : null;
 
   return (
     <div className="space-y-6 lg:space-y-7">
@@ -129,6 +155,18 @@ export default async function DashboardPage() {
               </div>
               <p className="text-sm font-semibold text-[#006f1d]">{Math.round(data.monthlyUsedPercent)}% {t.dashUsed}</p>
             </div>
+            {capBadge ? (
+              <div className="mt-3">
+                <span className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[11px] font-semibold ${capBadge.tone}`}>
+                  <span className="material-symbols-outlined text-[14px]">{capBadge.icon}</span>
+                  {capBadge.label === "over"
+                    ? `${t.dashCapWarningOver} (${Math.round(data.monthlyUsedPercent)}%)`
+                    : capBadge.label === "full"
+                      ? `${t.dashCapWarning100} (${Math.round(data.monthlyUsedPercent)}%)`
+                      : `${t.dashCapWarning80} (${Math.round(data.monthlyUsedPercent)}%)`}
+                </span>
+              </div>
+            ) : null}
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#edf2ef]">
               <div
                 className={`h-full rounded-full ${data.monthlyUsedPercent > 100 ? "bg-[#a73b21]" : "bg-[#006f1d]"}`}

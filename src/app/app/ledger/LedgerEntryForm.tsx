@@ -1,9 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useFormik } from "formik";
-import { formatCurrencyInput, parseCurrencyInput } from "@/lib/format";
+import { formatCurrencyInput, getCurrencyInputSuggestions, parseCurrencyInput } from "@/lib/format";
 
 type Option = {
   id: string;
@@ -70,6 +70,10 @@ export default function LedgerEntryForm({ accounts, categories, currency = "VND"
       router.refresh();
     },
   });
+
+  const amountSuggestions = useMemo(() => {
+    return getCurrencyInputSuggestions(formik.values.amount, currency);
+  }, [currency, formik.values.amount]);
 
   return (
     <form onSubmit={formik.handleSubmit} className="space-y-3">
@@ -138,6 +142,20 @@ export default function LedgerEntryForm({ accounts, categories, currency = "VND"
             placeholder="Amount"
             className="w-full rounded-xl border border-[#d7e5dc] bg-white px-3 py-2 text-sm text-[#1b3641]"
           />
+          {amountSuggestions.length ? (
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              {amountSuggestions.map((suggestion) => (
+                <button
+                  key={suggestion.value}
+                  type="button"
+                  onClick={() => formik.setFieldValue("amount", formatCurrencyInput(String(suggestion.value), currency))}
+                  className="rounded-full border border-[#d7e5dc] bg-[#f7fcff] px-2.5 py-1 text-[10px] font-bold text-[#1b3641] transition hover:border-[#9bb6c4] hover:bg-[#eef7ff]"
+                >
+                  {suggestion.label}
+                </button>
+              ))}
+            </div>
+          ) : null}
           {formik.touched.amount && formik.errors.amount ? <p className="text-xs text-[#a73b21]">{formik.errors.amount}</p> : null}
         </div>
         <div className="space-y-1">

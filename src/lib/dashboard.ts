@@ -33,7 +33,7 @@ export const getDashboardData = async (userId: string) => {
   const previousMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const { start: previousStart, end: previousEnd } = getMonthRange(previousMonthDate);
 
-  await ensureMonthlyCapSnapshot(userId, start);
+  const monthlyCap = await ensureMonthlyCapSnapshot(userId, start);
 
   const [accounts, categories, savingsPlans, allTransactions, monthTransactions, previousTransactions, monthCategoryLimits] =
     await Promise.all([
@@ -104,7 +104,7 @@ export const getDashboardData = async (userId: string) => {
         ? 100
         : 0;
 
-  const monthlyLimit = sum(monthCategoryLimits.map((item) => toNumber(item.limit)));
+  const monthlyLimit = toNumber(monthlyCap.totalCap);
   const monthlyUsedPercent = monthlyLimit > 0 ? (monthSpending / monthlyLimit) * 100 : 0;
 
   const categorySpendRows = categories

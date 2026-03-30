@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
-import { formatCurrency, formatCurrencyInput, parseCurrencyInput } from "@/lib/format";
+import { formatCurrency, formatCurrencyInput, getCurrencyInputSuggestions, parseCurrencyInput } from "@/lib/format";
 import { getDictionary } from "@/lib/i18n";
 import toast from "react-hot-toast";
 
@@ -177,6 +177,14 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
     };
   }, [formik.values.monthlyContribution, formik.values.targetAmount, language, t.savingsPlanNotAvailable]);
 
+  const targetAmountSuggestions = useMemo(() => {
+    return getCurrencyInputSuggestions(formik.values.targetAmount, currency);
+  }, [currency, formik.values.targetAmount]);
+
+  const monthlyContributionSuggestions = useMemo(() => {
+    return getCurrencyInputSuggestions(formik.values.monthlyContribution, currency);
+  }, [currency, formik.values.monthlyContribution]);
+
   return (
     <>
       {variant === "button" ? (
@@ -282,6 +290,20 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
                         {currency}
                       </span>
                     </div>
+                    {targetAmountSuggestions.length ? (
+                      <div className="flex flex-wrap items-center gap-2">
+                        {targetAmountSuggestions.map((suggestion) => (
+                          <button
+                            key={suggestion.value}
+                            type="button"
+                            onClick={() => formik.setFieldValue("targetAmount", formatCurrencyInput(String(suggestion.value), currency))}
+                            className="rounded-full border border-[#cce4ef] bg-[#f5fcff] px-3 py-1 text-xs font-bold text-[#1b3641] transition hover:border-[#8dc4da] hover:bg-[#ebf8ff]"
+                          >
+                            {suggestion.label}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
                     {formik.touched.targetAmount && formik.errors.targetAmount ? (
                       <p className="text-xs text-[#a73b21]">{formik.errors.targetAmount}</p>
                     ) : null}
@@ -307,6 +329,20 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
                         {currency}
                       </span>
                     </div>
+                    {monthlyContributionSuggestions.length ? (
+                      <div className="flex flex-wrap items-center gap-2">
+                        {monthlyContributionSuggestions.map((suggestion) => (
+                          <button
+                            key={suggestion.value}
+                            type="button"
+                            onClick={() => formik.setFieldValue("monthlyContribution", formatCurrencyInput(String(suggestion.value), currency))}
+                            className="rounded-full border border-[#cce4ef] bg-[#f5fcff] px-3 py-1 text-xs font-bold text-[#1b3641] transition hover:border-[#8dc4da] hover:bg-[#ebf8ff]"
+                          >
+                            {suggestion.label}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
                     {formik.touched.monthlyContribution && formik.errors.monthlyContribution ? (
                       <p className="text-xs text-[#a73b21]">{formik.errors.monthlyContribution}</p>
                     ) : null}
