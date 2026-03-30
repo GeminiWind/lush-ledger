@@ -336,6 +336,7 @@ type FlatDictionary = {
   reportsPerformanceAnalytics: string;
   reportsFlowHorizons: string;
   reportsMonthly: string;
+  reportsMonthlyCashflow: string;
   reportsMonthlyExpenseVsBudget: string;
   reportsActual: string;
   reportsBudget: string;
@@ -715,6 +716,7 @@ const enUS: FlatDictionary = {
   reportsPerformanceAnalytics: "Performance Analytics",
   reportsFlowHorizons: "Visualizing your fiscal flow across time horizons.",
   reportsMonthly: "Monthly",
+  reportsMonthlyCashflow: "Monthly Cashflow (Income vs Expense)",
   reportsMonthlyExpenseVsBudget: "Monthly Expense vs Budget",
   reportsActual: "Actual",
   reportsBudget: "Budget",
@@ -1094,6 +1096,7 @@ const viVN: FlatDictionary = {
   reportsPerformanceAnalytics: "Phân tích hiệu suất",
   reportsFlowHorizons: "Trực quan hóa dòng tiền theo từng mốc thời gian.",
   reportsMonthly: "Theo tháng",
+  reportsMonthlyCashflow: "Dòng tiền theo tháng (Thu nhập vs Chi tiêu)",
   reportsMonthlyExpenseVsBudget: "Chi tiêu tháng so với ngân sách",
   reportsActual: "Thực tế",
   reportsBudget: "Ngân sách",

@@ -27,7 +27,7 @@ Related plan source:
 - add `/api/savings` CRUD
 
 3) Close reporting and savings UX gaps
-- explicit income-vs-expense time-series
+- explicit income-vs-expense time-series (implemented on `ledger/reports`)
 - category-by-month report view
 - account snapshot report block
 - savings plan create/edit/delete workflows

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import DailyExpenseCalendar from "@/app/app/ledger/reports/DailyExpenseCalendar";
+import MonthlyCashflowChart from "@/app/app/ledger/reports/MonthlyCashflowChart";
 import MonthlyExpenseBudgetChart from "@/app/app/ledger/reports/MonthlyExpenseBudgetChart";
 import { prisma } from "@/lib/db";
 import { getMonthRange } from "@/lib/date";
@@ -96,14 +97,25 @@ export default async function LedgerReportsPage({
     monthCaps.map((cap) => [monthKeyOf(cap.monthStart), toNumber(cap.totalLimit)]),
   );
 
+  const incomeByMonth = new Map<string, number>();
   const expenseByMonth = new Map<string, number>();
   for (const tx of recentTransactions) {
-    if (tx.type !== "expense") {
+    const key = monthKey(tx.date);
+    const amount = toNumber(tx.amount);
+    if (tx.type === "income") {
+      incomeByMonth.set(key, (incomeByMonth.get(key) || 0) + amount);
       continue;
     }
-    const key = monthKey(tx.date);
-    expenseByMonth.set(key, (expenseByMonth.get(key) || 0) + toNumber(tx.amount));
+    if (tx.type === "expense") {
+      expenseByMonth.set(key, (expenseByMonth.get(key) || 0) + amount);
+    }
   }
+
+  const cashflowSeries = monthLabels.map((month) => ({
+    ...month,
+    income: incomeByMonth.get(month.key) || 0,
+    expense: expenseByMonth.get(month.key) || 0,
+  }));
 
   const monthSeries = monthLabels.map((month) => ({
     ...month,
@@ -238,10 +250,28 @@ export default async function LedgerReportsPage({
             </div>
           </div>
 
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-12">
-          <article className="rounded-3xl border border-[#d8e8f3] bg-white p-8 xl:col-span-8">
-            <div className="mb-10 flex items-center justify-between">
-              <h3 className="font-[var(--font-manrope)] text-xl font-semibold text-[#1b3641]">{t.reportsMonthlyExpenseVsBudget}</h3>
+        <div className="space-y-6">
+          <article className="rounded-3xl border border-[#d8e8f3] bg-white p-8">
+            <div className="mb-8 flex items-center justify-between">
+              <h3 className="font-[var(--font-manrope)] text-xl font-semibold text-[#1b3641]">{t.reportsMonthlyCashflow}</h3>
+              <div className="flex items-center gap-4 text-xs text-[#6f8793]">
+                <span className="inline-flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-[#0f7a2f]" />{t.txTypeIncome}</span>
+                <span className="inline-flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-[#a73b21]" />{t.txTypeExpense}</span>
+              </div>
+            </div>
+
+            <MonthlyCashflowChart
+              data={cashflowSeries}
+              currency={currency}
+              incomeLabel={t.txTypeIncome}
+              expenseLabel={t.txTypeExpense}
+            />
+          </article>
+
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-12">
+            <article className="rounded-3xl border border-[#d8e8f3] bg-white p-8 xl:col-span-8">
+              <div className="mb-10 flex items-center justify-between">
+                <h3 className="font-[var(--font-manrope)] text-xl font-semibold text-[#1b3641]">{t.reportsMonthlyExpenseVsBudget}</h3>
               <div className="flex items-center gap-4 text-xs text-[#6f8793]">
                 <span className="inline-flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-[#006f1d]" />{t.reportsActual}</span>
                 <span className="inline-flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-[#cfe6f2]" />{t.reportsBudget}</span>
@@ -249,39 +279,40 @@ export default async function LedgerReportsPage({
             </div>
 
             <MonthlyExpenseBudgetChart data={monthSeries} currency={currency} />
-          </article>
+            </article>
 
-          <article className="rounded-3xl border border-[#d8e8f3] bg-[#e7f6ff] p-8 xl:col-span-4">
-            <h3 className="font-[var(--font-manrope)] text-xl font-semibold text-[#1b3641]">{t.reportsYearlyHorizon}</h3>
-            <div className="mt-7 space-y-7">
-              <div>
-                <div className="mb-1 flex items-center justify-between text-sm">
-                  <span className="text-[#6f8793]">{t.reportsAnnualBudget}</span>
-                  <span className="font-semibold text-[#1b3641]">{asCurrency(totalBudget * 12, currency)}</span>
+            <article className="rounded-3xl border border-[#d8e8f3] bg-[#e7f6ff] p-8 xl:col-span-4">
+              <h3 className="font-[var(--font-manrope)] text-xl font-semibold text-[#1b3641]">{t.reportsYearlyHorizon}</h3>
+              <div className="mt-7 space-y-7">
+                <div>
+                  <div className="mb-1 flex items-center justify-between text-sm">
+                    <span className="text-[#6f8793]">{t.reportsAnnualBudget}</span>
+                    <span className="font-semibold text-[#1b3641]">{asCurrency(totalBudget * 12, currency)}</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-white">
+                    <div className="h-full w-[24%] rounded-full bg-[#4d626c]" />
+                  </div>
                 </div>
-                <div className="h-1.5 rounded-full bg-white">
-                  <div className="h-full w-[24%] rounded-full bg-[#4d626c]" />
+                <div>
+                  <div className="mb-1 flex items-center justify-between text-sm">
+                    <span className="text-[#6f8793]">{t.reportsActualSpentYtd}</span>
+                    <span className="font-semibold text-[#1b3641]">{asCurrency(totalExpense * 3, currency)}</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-white">
+                    <div className="h-full w-[32%] rounded-full bg-[#006f1d]" />
+                  </div>
                 </div>
               </div>
-              <div>
-                <div className="mb-1 flex items-center justify-between text-sm">
-                  <span className="text-[#6f8793]">{t.reportsActualSpentYtd}</span>
-                  <span className="font-semibold text-[#1b3641]">{asCurrency(totalExpense * 3, currency)}</span>
-                </div>
-                <div className="h-1.5 rounded-full bg-white">
-                  <div className="h-full w-[32%] rounded-full bg-[#006f1d]" />
-                </div>
+              <div className="mt-8 border-t border-white/60 pt-7">
+                <p className="text-xs leading-relaxed text-[#49636f]">
+                  {t.reportsHealthyBehaviorHint}
+                </p>
+                <button className="mt-4 w-full rounded-full bg-white py-3 text-sm font-bold text-[#1b3641] shadow-sm hover:bg-[#f7fcff]">
+                  {t.reportsExportPdf}
+                </button>
               </div>
-            </div>
-            <div className="mt-8 border-t border-white/60 pt-7">
-              <p className="text-xs leading-relaxed text-[#49636f]">
-                {t.reportsHealthyBehaviorHint}
-              </p>
-              <button className="mt-4 w-full rounded-full bg-white py-3 text-sm font-bold text-[#1b3641] shadow-sm hover:bg-[#f7fcff]">
-                {t.reportsExportPdf}
-              </button>
-            </div>
-          </article>
+            </article>
+          </div>
         </div>
       </section>
 

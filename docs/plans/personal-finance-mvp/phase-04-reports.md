@@ -50,7 +50,7 @@
 - Completed: Monthly analytics visualized (expense vs budget chart + daily expense calendar)
 - Completed: User-scoped aggregation queries and guarded access via authenticated app flow
 - Completed: Recharts integration for report chart rendering
-- Gap: Requirement "monthly cashflow (income vs expense)" is only partially covered (income shown in KPI, no dedicated income-vs-expense time-series chart)
+- Completed: Requirement "monthly cashflow (income vs expense)" now has a dedicated monthly time-series chart on `ledger/reports`
 - Gap: Requirement "category spend by month" is not explicitly implemented as a category-by-month report view
 - Gap: Requirement "account balances snapshot" is not present on reports page
 - Gap: Export remains placeholder (no functional CSV/PDF export API)

@@ -83,6 +83,7 @@ Core models in `prisma/schema.prisma`:
 
 Charts:
 - Recharts used in reports/savings/top-categories style visualizations
+- `ledger/reports` includes dedicated monthly cashflow trend (income vs expense) and monthly expense vs budget chart
 
 ## Active Tech Debt
 

@@ -3,6 +3,8 @@ import { prisma } from "@/lib/db";
 import { getSessionFromRequest } from "@/lib/auth";
 import { ensureMonthlyCapSnapshot, monthStartOf } from "@/lib/monthly-cap";
 
+const toNumber = (value: unknown) => Number(value ?? 0);
+
 export const GET = async (request: NextRequest) => {
   const session = await getSessionFromRequest(request);
   if (!session?.sub) {
@@ -44,6 +46,48 @@ export const POST = async (request: NextRequest) => {
   const now = new Date();
   const monthStart = monthStartOf(now);
   const nextMonthStart = monthStartOf(new Date(now.getFullYear(), now.getMonth() + 1, 1));
+
+  const [currentCap, nextCap, currentMonthLimits, nextMonthLimits] = await Promise.all([
+    ensureMonthlyCapSnapshot(userId, monthStart),
+    ensureMonthlyCapSnapshot(userId, nextMonthStart),
+    prisma.categoryMonthlyLimit.findMany({
+      where: { userId, monthStart },
+      select: { limit: true },
+    }),
+    prisma.categoryMonthlyLimit.findMany({
+      where: { userId, monthStart: nextMonthStart },
+      select: { limit: true },
+    }),
+  ]);
+
+  const currentAllocated = currentMonthLimits.reduce((sum, row) => sum + toNumber(row.limit), 0);
+  const projectedCurrentAllocated = currentAllocated + safeLimit;
+  const currentCapValue = toNumber(currentCap.totalCap);
+
+  if (projectedCurrentAllocated > currentCapValue) {
+    const overBy = projectedCurrentAllocated - currentCapValue;
+    return NextResponse.json(
+      {
+        error: `Category limits exceed monthly cap by ${overBy}. Increase monthly cap or lower category limit.`,
+      },
+      { status: 400 },
+    );
+  }
+
+  const nextAllocated = nextMonthLimits.reduce((sum, row) => sum + toNumber(row.limit), 0);
+  const nextLimitValue = keepLimitNextMonth ? safeLimit : 0;
+  const projectedNextAllocated = nextAllocated + nextLimitValue;
+  const nextCapValue = toNumber(nextCap.totalCap);
+
+  if (projectedNextAllocated > nextCapValue) {
+    const overBy = projectedNextAllocated - nextCapValue;
+    return NextResponse.json(
+      {
+        error: `Next month category limits exceed monthly cap by ${overBy}. Increase next month cap or disable keep limit next month.`,
+      },
+      { status: 400 },
+    );
+  }
 
   const category = await prisma.$transaction(async (tx) => {
     const created = await tx.category.create({
@@ -91,7 +135,10 @@ export const POST = async (request: NextRequest) => {
     return created;
   });
 
-  await ensureMonthlyCapSnapshot(userId, new Date());
+  await Promise.all([
+    ensureMonthlyCapSnapshot(userId, monthStart),
+    ensureMonthlyCapSnapshot(userId, nextMonthStart),
+  ]);
 
   return NextResponse.json({ category });
 };

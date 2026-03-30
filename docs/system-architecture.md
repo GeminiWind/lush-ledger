@@ -48,6 +48,7 @@ Notes:
 
 ### Savings and Reports
 - UI exists for savings and report views
+- `ledger/reports` includes client-rendered monthly cashflow trend (income vs expense) and expense-vs-budget charting via Recharts
 - Dedicated report/savings APIs are incomplete (see gaps below)
 
 ## Data Architecture

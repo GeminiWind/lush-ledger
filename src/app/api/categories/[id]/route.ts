@@ -3,6 +3,8 @@ import { prisma } from "@/lib/db";
 import { getSessionFromRequest } from "@/lib/auth";
 import { ensureMonthlyCapSnapshot, monthStartOf } from "@/lib/monthly-cap";
 
+const toNumber = (value: unknown) => Number(value ?? 0);
+
 type RouteContext = {
   params: Promise<{ id: string }>;
 };
@@ -39,6 +41,73 @@ export const PATCH = async (request: NextRequest, context: RouteContext) => {
   const now = new Date();
   const currentMonth = monthStartOf(now);
   const nextMonth = monthStartOf(new Date(now.getFullYear(), now.getMonth() + 1, 1));
+
+  const [currentCap, nextCap] = await Promise.all([
+    ensureMonthlyCapSnapshot(userId, currentMonth),
+    ensureMonthlyCapSnapshot(userId, nextMonth),
+  ]);
+
+  const [currentMonthLimits, nextMonthLimits, currentExistingLimit, nextExistingLimit] = await Promise.all([
+    prisma.categoryMonthlyLimit.findMany({
+      where: { userId, monthStart: currentMonth },
+      select: { categoryId: true, limit: true },
+    }),
+    prisma.categoryMonthlyLimit.findMany({
+      where: { userId, monthStart: nextMonth },
+      select: { categoryId: true, limit: true },
+    }),
+    prisma.categoryMonthlyLimit.findUnique({
+      where: {
+        userId_categoryId_monthStart: {
+          userId,
+          categoryId: id,
+          monthStart: currentMonth,
+        },
+      },
+      select: { limit: true },
+    }),
+    prisma.categoryMonthlyLimit.findUnique({
+      where: {
+        userId_categoryId_monthStart: {
+          userId,
+          categoryId: id,
+          monthStart: nextMonth,
+        },
+      },
+      select: { limit: true },
+    }),
+  ]);
+
+  const currentAllocated = currentMonthLimits.reduce((sum, row) => sum + toNumber(row.limit), 0);
+  const currentExisting = toNumber(currentExistingLimit?.limit);
+  const projectedCurrentAllocated = currentAllocated - currentExisting + monthlyLimit;
+  const currentCapValue = toNumber(currentCap.totalCap);
+
+  if (projectedCurrentAllocated > currentCapValue) {
+    const overBy = projectedCurrentAllocated - currentCapValue;
+    return NextResponse.json(
+      {
+        error: `Category limits exceed monthly cap by ${overBy}. Increase monthly cap or lower category limit.`,
+      },
+      { status: 400 },
+    );
+  }
+
+  const nextAllocated = nextMonthLimits.reduce((sum, row) => sum + toNumber(row.limit), 0);
+  const nextExisting = toNumber(nextExistingLimit?.limit);
+  const nextLimitValue = keepLimitNextMonth ? monthlyLimit : 0;
+  const projectedNextAllocated = nextAllocated - nextExisting + nextLimitValue;
+  const nextCapValue = toNumber(nextCap.totalCap);
+
+  if (projectedNextAllocated > nextCapValue) {
+    const overBy = projectedNextAllocated - nextCapValue;
+    return NextResponse.json(
+      {
+        error: `Next month category limits exceed monthly cap by ${overBy}. Increase next month cap or disable keep limit next month.`,
+      },
+      { status: 400 },
+    );
+  }
 
   const category = await prisma.$transaction(async (tx) => {
     const existing = await tx.category.findFirst({
@@ -113,7 +182,10 @@ export const PATCH = async (request: NextRequest, context: RouteContext) => {
     return NextResponse.json({ error: "Category not found." }, { status: 404 });
   }
 
-  await ensureMonthlyCapSnapshot(userId, currentMonth);
+  await Promise.all([
+    ensureMonthlyCapSnapshot(userId, currentMonth),
+    ensureMonthlyCapSnapshot(userId, nextMonth),
+  ]);
 
   return NextResponse.json({ category });
 };
