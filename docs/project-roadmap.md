@@ -1,6 +1,6 @@
 # Project Roadmap
 
-Roadmap status is aligned with the current implementation review: phases 01-02 are `completed`, phases 03-05 remain `in_progress`.
+Roadmap status is aligned with the current implementation review: phases 01-03 are `completed`, phases 04-05 remain `in_progress`.
 
 Related plan source:
 - `docs/plans/personal-finance-mvp/plan.md`
@@ -11,7 +11,7 @@ Related plan source:
 |---|---|---|---|
 | 01 | Foundation + Auth | completed | settings API/page parity and auth rate limiting are implemented |
 | 02 | Accounts + Transactions | completed | account + ledger CRUD (including update/delete) is implemented |
-| 03 | Budgets | in_progress | category CRUD incomplete; warning flow is visual-only, not event-driven |
+| 03 | Budgets | completed | category lifecycle + monthly cap snapshot workflow are implemented; warnings are consistent in current MVP flow |
 | 04 | Reports | in_progress | no `/api/reports`; missing full cashflow/category-by-month/account snapshot outputs |
 | 05 | Savings Plans | in_progress | `SavingsPlan` model exists, but no dedicated savings CRUD API/UI flow |
 
@@ -22,9 +22,8 @@ Related plan source:
 - mark/deprecate overlapping `src/app/(app)/*` paths
 
 2) Complete API CRUD baseline
-- categories: add update/delete
-- add `/api/reports`
-- add `/api/savings` CRUD
+- reports: add `/api/reports`
+- savings: add `/api/savings` CRUD
 
 3) Close reporting and savings UX gaps
 - explicit income-vs-expense time-series (implemented on `ledger/reports`)
@@ -36,7 +35,7 @@ Related plan source:
 
 - Phase 01 done: settings API/page parity and auth hardening baseline complete.
 - Phase 02 done: account/ledger CRUD complete.
-- Phase 03 done when category lifecycle is complete and budget warnings are consistent.
+- Phase 03 done: category lifecycle is complete and budget warnings are consistent.
 - Phase 04 done when reports are API-backed and requirement-complete.
 - Phase 05 done when savings plan CRUD and editing UX are shipped.
 
