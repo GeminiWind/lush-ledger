@@ -7,7 +7,7 @@
 
 - Date: 2026-03-20
 - Priority: medium
-- Status: in_progress (reviewed 2026-03-25)
+- Status: completed (reviewed 2026-03-30)
 
 ## Key Insights
 
@@ -27,8 +27,13 @@
 
 ## Related code files
 
-- `src/app/(app)/budgets/page.tsx`
-- `src/app/api/budgets/*`
+- `src/app/app/atelier/page.tsx`
+- `src/app/app/atelier/CategoryAtelierGrid.tsx`
+- `src/app/app/atelier/AddCategoryModal.tsx`
+- `src/app/app/atelier/EditCategoryModal.tsx`
+- `src/app/app/atelier/DeleteCategoryDialog.tsx`
+- `src/app/api/categories/route.ts`
+- `src/app/api/categories/[id]/route.ts`
 - `prisma/schema.prisma`
 
 ## Implementation Steps
@@ -52,19 +57,19 @@
 - Warnings appear when expenses exceed limits
 - Budget dashboard shows actuals
 
-## Review summary (2026-03-24)
+## Review summary (2026-03-30)
 
-- Completed: Category model includes `monthlyLimit` and is wired through API create flow
-- Completed: Budget vs actual aggregations are implemented in dashboard and atelier views
-- Completed: Over-limit state is surfaced in UI (overspent badges/alerts) for monthly category spend
-- Completed: Monthly snapshot model added (`CategoryMonthlyLimit`, `UserMonthlyCap`) to preserve month-specific budget history
-- Gap: Category CRUD is partial (create only; no update/delete endpoints/UI)
-- Gap: Over-limit warning is computed in dashboard/visuals, but there is no dedicated warning trigger/notification pipeline on transaction create/edit
-- Gap: Phase doc references `/budgets` routes, while current implementation is under `atelier` + dashboard modules
+- Completed: Category create + edit flows are implemented in Atelier UI (`AddCategoryModal`, `EditCategoryModal`).
+- Completed: Category delete flow is implemented in UI + API (`DeleteCategoryDialog`, `DELETE /api/categories/[id]`) with transaction reassignment to uncategorized.
+- Completed: Category update API exists (`PATCH /api/categories/[id]`) and updates name, icon, monthly limit, warning settings, and next-month carry-over behavior.
+- Completed: Category icon is now modeled and persisted (`Category.icon`) and reused across budget and transaction UI.
+- Completed: Budget vs actual aggregation and over-limit/at-risk visual states remain active in dashboard + atelier.
+- Completed: Monthly snapshot model (`CategoryMonthlyLimit`, `UserMonthlyCap`) remains in place and is updated for current/next month.
+- Note: Warning behavior is currently visual/status-based; dedicated notification pipeline can be treated as post-MVP enhancement.
 
 ## Recommendation
 
-- Keep phase as `in_progress` until category update/delete and explicit warning trigger flow are implemented.
+- Mark Phase 03 as complete and continue with reports implementation.
 
 ## Risk Assessment
 
