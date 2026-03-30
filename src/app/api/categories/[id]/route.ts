@@ -1,0 +1,163 @@
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
+import { getSessionFromRequest } from "@/lib/auth";
+import { ensureMonthlyCapSnapshot, monthStartOf } from "@/lib/monthly-cap";
+
+type RouteContext = {
+  params: Promise<{ id: string }>;
+};
+
+export const PATCH = async (request: NextRequest, context: RouteContext) => {
+  const session = await getSessionFromRequest(request);
+  if (!session?.sub) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const userId = session.sub;
+
+  const { id } = await context.params;
+  const body = await request.json();
+
+  const name = String(body.name || "").trim();
+  const icon = String(body.icon || "category").trim() || "category";
+  const monthlyLimit = Number(body.monthlyLimit || 0);
+  const warningEnabled = body.warningEnabled !== false;
+  const warnAt = Number(body.warnAt ?? 80);
+  const keepLimitNextMonth = body.keepLimitNextMonth !== false;
+
+  if (!name) {
+    return NextResponse.json({ error: "Name is required." }, { status: 400 });
+  }
+
+  if (!Number.isFinite(monthlyLimit) || monthlyLimit < 0) {
+    return NextResponse.json({ error: "Monthly limit must be zero or greater." }, { status: 400 });
+  }
+
+  if (!Number.isFinite(warnAt) || warnAt < 1 || warnAt > 100) {
+    return NextResponse.json({ error: "Warn threshold must be between 1 and 100." }, { status: 400 });
+  }
+
+  const now = new Date();
+  const currentMonth = monthStartOf(now);
+  const nextMonth = monthStartOf(new Date(now.getFullYear(), now.getMonth() + 1, 1));
+
+  const category = await prisma.$transaction(async (tx) => {
+    const existing = await tx.category.findFirst({
+      where: { id, userId },
+      select: { id: true },
+    });
+
+    if (!existing) {
+      throw new Error("CATEGORY_NOT_FOUND");
+    }
+
+    const updated = await tx.category.update({
+      where: { id: existing.id },
+      data: { name, icon },
+    });
+
+    await tx.categoryMonthlyLimit.upsert({
+      where: {
+        userId_categoryId_monthStart: {
+          userId,
+          categoryId: existing.id,
+          monthStart: currentMonth,
+        },
+      },
+      create: {
+        userId,
+        categoryId: existing.id,
+        monthStart: currentMonth,
+        limit: monthlyLimit,
+        warningEnabled,
+        warnAt: Math.round(warnAt),
+      },
+      update: {
+        limit: monthlyLimit,
+        warningEnabled,
+        warnAt: Math.round(warnAt),
+      },
+    });
+
+    await tx.categoryMonthlyLimit.upsert({
+      where: {
+        userId_categoryId_monthStart: {
+          userId,
+          categoryId: existing.id,
+          monthStart: nextMonth,
+        },
+      },
+      create: {
+        userId,
+        categoryId: existing.id,
+        monthStart: nextMonth,
+        limit: keepLimitNextMonth ? monthlyLimit : 0,
+        warningEnabled,
+        warnAt: Math.round(warnAt),
+      },
+      update: {
+        limit: keepLimitNextMonth ? monthlyLimit : 0,
+        warningEnabled,
+        warnAt: Math.round(warnAt),
+      },
+    });
+
+    return updated;
+  }).catch((error: unknown) => {
+    if (error instanceof Error && error.message === "CATEGORY_NOT_FOUND") {
+      return null;
+    }
+    throw error;
+  });
+
+  if (!category) {
+    return NextResponse.json({ error: "Category not found." }, { status: 404 });
+  }
+
+  await ensureMonthlyCapSnapshot(userId, currentMonth);
+
+  return NextResponse.json({ category });
+};
+
+export const DELETE = async (request: NextRequest, context: RouteContext) => {
+  const session = await getSessionFromRequest(request);
+  if (!session?.sub) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const userId = session.sub;
+  const { id } = await context.params;
+
+  const deleted = await prisma.$transaction(async (tx) => {
+    const existing = await tx.category.findFirst({
+      where: { id, userId },
+      select: { id: true },
+    });
+
+    if (!existing) {
+      return null;
+    }
+
+    await tx.transaction.updateMany({
+      where: { userId, categoryId: existing.id },
+      data: { categoryId: null },
+    });
+
+    await tx.categoryMonthlyLimit.deleteMany({
+      where: { userId, categoryId: existing.id },
+    });
+
+    await tx.category.delete({
+      where: { id: existing.id },
+    });
+
+    return existing.id;
+  });
+
+  if (!deleted) {
+    return NextResponse.json({ error: "Category not found." }, { status: 404 });
+  }
+
+  await ensureMonthlyCapSnapshot(userId, new Date());
+
+  return NextResponse.json({ ok: true });
+};

@@ -46,9 +46,7 @@ export default function ActiveBudgetsPanel({ budgets, currency, daysRemaining, l
 
   const pageCount = Math.max(1, Math.ceil(filteredBudgets.length / itemsPerPage));
   const activePageIndex = Math.min(pageIndex, pageCount - 1);
-
-  const canGoPrev = activePageIndex > 0;
-  const canGoNext = activePageIndex < pageCount - 1;
+  const hasMultiplePages = pageCount > 1;
 
   const visibleBudgets = useMemo(() => {
     const start = activePageIndex * itemsPerPage;
@@ -60,43 +58,38 @@ export default function ActiveBudgetsPanel({ budgets, currency, daysRemaining, l
       <div className="flex items-center justify-between">
         <h2 className="font-[var(--font-manrope)] text-2xl font-bold">{t.activeBudgetsTitle}</h2>
         <div className="flex items-center gap-2 text-[#49636f]">
-          <span className="mr-1 text-xs font-semibold text-[#647e8c]">
-            {filteredBudgets.length === 0 ? "0/0" : `${activePageIndex + 1}/${pageCount}`}
-          </span>
-          <label className="relative inline-flex items-center">
-            <span className="pointer-events-none material-symbols-outlined absolute left-2 text-[16px] text-[#49636f]">filter_alt</span>
-            <select
-              value={filter}
-              onChange={(event) => {
-                setFilter(event.target.value as "all" | "healthy" | "overspent");
-                setPageIndex(0);
-              }}
-              className="appearance-none rounded-full bg-white py-2 pl-8 pr-7 text-xs font-semibold capitalize text-[#1b3641] shadow-[0_1px_2px_rgba(0,0,0,0.06)] outline-none ring-[#93b3a0] focus:ring-2"
-              aria-label={t.activeBudgetsFilterLabel}
-            >
-              <option value="all">{t.activeBudgetsFilterAll}</option>
-              <option value="healthy">{t.activeBudgetsFilterHealthy}</option>
-              <option value="overspent">{t.activeBudgetsFilterOverspent}</option>
-            </select>
-            <span className="pointer-events-none material-symbols-outlined absolute right-2 text-[14px] text-[#647e8c]">expand_more</span>
-          </label>
           <button
             type="button"
-            disabled={!canGoPrev}
-            onClick={() => setPageIndex(Math.max(0, activePageIndex - 1))}
-            className="rounded-full bg-white p-2 shadow-[0_1px_2px_rgba(0,0,0,0.06)] disabled:cursor-not-allowed disabled:opacity-40"
-            aria-label={t.activeBudgetsPrev}
+            onClick={() => {
+              const next = filter === "all" ? "healthy" : filter === "healthy" ? "overspent" : "all";
+              setFilter(next);
+              setPageIndex(0);
+            }}
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#1b3641] shadow-sm transition-colors hover:text-[#006f1d]"
+            aria-label={t.activeBudgetsFilterLabel}
+            title={`${t.activeBudgetsFilterLabel}: ${
+              filter === "all" ? t.activeBudgetsFilterAll : filter === "healthy" ? t.activeBudgetsFilterHealthy : t.activeBudgetsFilterOverspent
+            }`}
           >
-            <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+            <span className="material-symbols-outlined text-xl">filter_alt</span>
           </button>
           <button
             type="button"
-            disabled={!canGoNext}
-            onClick={() => setPageIndex(Math.min(pageCount - 1, activePageIndex + 1))}
-            className="rounded-full bg-white p-2 shadow-[0_1px_2px_rgba(0,0,0,0.06)] disabled:cursor-not-allowed disabled:opacity-40"
+            disabled={!hasMultiplePages}
+            onClick={() => setPageIndex(activePageIndex === 0 ? pageCount - 1 : activePageIndex - 1)}
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#1b3641] shadow-sm transition-colors hover:text-[#006f1d] disabled:cursor-not-allowed disabled:opacity-40"
+            aria-label={t.activeBudgetsPrev}
+          >
+            <span className="material-symbols-outlined text-xl">chevron_left</span>
+          </button>
+          <button
+            type="button"
+            disabled={!hasMultiplePages}
+            onClick={() => setPageIndex(activePageIndex === pageCount - 1 ? 0 : activePageIndex + 1)}
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#1b3641] shadow-sm transition-colors hover:text-[#006f1d] disabled:cursor-not-allowed disabled:opacity-40"
             aria-label={t.activeBudgetsNext}
           >
-            <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+            <span className="material-symbols-outlined text-xl">chevron_right</span>
           </button>
         </div>
       </div>

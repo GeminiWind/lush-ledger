@@ -52,7 +52,7 @@ export const getLedgerData = async (userId: string, filters: LedgerFilters = {})
       where,
       include: {
         account: { select: { name: true } },
-        category: { select: { name: true } },
+        category: { select: { name: true, icon: true } },
       },
       orderBy: [{ date: "desc" }, { createdAt: "desc" }],
       take: 30,

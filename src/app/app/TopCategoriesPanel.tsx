@@ -7,6 +7,7 @@ import { getDictionary } from "@/lib/i18n";
 type TopCategory = {
   id: string;
   name: string;
+  icon?: string | null;
   spent: number;
 };
 
@@ -138,7 +139,9 @@ export default function TopCategoriesPanel({ categories, currency, language }: P
               return (
                 <div key={category.id} className="flex items-center gap-3">
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#f0f4f8] text-[#49636f]">
-                    <span className="material-symbols-outlined text-base">{getCategoryIcon(category.name)}</span>
+                    <span className="material-symbols-outlined text-base">
+                      {category.icon?.trim() || getCategoryIcon(category.name)}
+                    </span>
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2 text-sm font-semibold text-[#1b3641]">

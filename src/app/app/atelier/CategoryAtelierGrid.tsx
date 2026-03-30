@@ -5,20 +5,19 @@ import GridLayout, { Layout, useContainerWidth } from "react-grid-layout";
 import { formatCurrency } from "@/lib/format";
 import { getDictionary } from "@/lib/i18n";
 import AddCategoryModal from "@/app/app/atelier/AddCategoryModal";
+import EditCategoryModal from "@/app/app/atelier/EditCategoryModal";
+import DeleteCategoryDialog from "@/app/app/atelier/DeleteCategoryDialog";
 
 const categoryTones = [
   {
-    icon: "DI",
     badge: "bg-emerald-50 text-emerald-800",
     meter: "bg-emerald-700",
   },
   {
-    icon: "HO",
     badge: "bg-sky-50 text-sky-800",
     meter: "bg-sky-700",
   },
   {
-    icon: "GR",
     badge: "bg-amber-50 text-amber-800",
     meter: "bg-amber-700",
   },
@@ -30,6 +29,7 @@ const addCategoryLayoutId = "__add_category__";
 type CategoryStat = {
   id: string;
   name: string;
+  icon: string;
   limit: number;
   spent: number;
   usage: number;
@@ -111,12 +111,12 @@ function CategoryCard({
   const meterClass = atLimit ? "bg-[#a73b21]" : inWarnRange ? "bg-[#f59e0b]" : "bg-[#2e7d32]";
 
   return (
-    <article className="flex h-full flex-col justify-between rounded-3xl bg-white p-6 shadow-[0_16px_38px_-14px_rgba(27,54,65,0.16)]">
+    <article className="group flex h-full flex-col justify-between rounded-3xl bg-white p-6 shadow-[0_16px_38px_-14px_rgba(27,54,65,0.16)]">
       <div>
         <div className="mb-5 flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className={`grid h-12 w-12 place-items-center rounded-2xl text-sm font-bold ${tone.badge}`}>
-              {tone.icon}
+              <span className="material-symbols-outlined text-[20px]">{category.icon || "category"}</span>
             </div>
             <div>
               <h3 className="font-[var(--font-manrope)] text-lg font-bold text-[#1b3641]">{category.name}</h3>
@@ -124,16 +124,22 @@ function CategoryCard({
             </div>
           </div>
 
-          {draggable ? (
-            <button
-              type="button"
-              className="category-drag-handle cursor-grab rounded-lg bg-[#eef7ff] px-2 py-1 text-[#49636f] active:cursor-grabbing"
-              aria-label={t.atelierDragItemAria.replace("{name}", category.name)}
-              title={t.atelierDragToReorderTitle}
-            >
-              <span className="material-symbols-outlined text-base">drag_indicator</span>
-            </button>
-          ) : null}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+              <EditCategoryModal category={category} currency={currency} language={language} />
+              <DeleteCategoryDialog category={category} currency={currency} language={language} />
+            </div>
+            {draggable ? (
+              <button
+                type="button"
+                className="category-drag-handle cursor-grab rounded-lg bg-[#eef7ff] px-2 py-1 text-[#49636f] active:cursor-grabbing"
+                aria-label={t.atelierDragItemAria.replace("{name}", category.name)}
+                title={t.atelierDragToReorderTitle}
+              >
+                <span className="material-symbols-outlined text-base">drag_indicator</span>
+              </button>
+            ) : null}
+          </div>
         </div>
 
         <div className="space-y-3">

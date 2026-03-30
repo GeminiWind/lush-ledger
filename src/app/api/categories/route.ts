@@ -26,7 +26,9 @@ export const POST = async (request: NextRequest) => {
 
   const body = await request.json();
   const name = String(body.name || "").trim();
+  const icon = String(body.icon || "category").trim() || "category";
   const monthlyLimit = Number(body.monthlyLimit || 0);
+  const keepLimitNextMonth = body.keepLimitNextMonth !== false;
   const warningEnabled = body.warningEnabled !== false;
   const warnAt = Number(body.warnAt ?? 80);
 
@@ -39,13 +41,16 @@ export const POST = async (request: NextRequest) => {
   }
 
   const safeLimit = isNaN(monthlyLimit) ? 0 : monthlyLimit;
-  const monthStart = monthStartOf(new Date());
+  const now = new Date();
+  const monthStart = monthStartOf(now);
+  const nextMonthStart = monthStartOf(new Date(now.getFullYear(), now.getMonth() + 1, 1));
 
   const category = await prisma.$transaction(async (tx) => {
     const created = await tx.category.create({
       data: {
         userId,
         name,
+        icon,
       },
     });
 
@@ -55,6 +60,29 @@ export const POST = async (request: NextRequest) => {
         categoryId: created.id,
         monthStart,
         limit: safeLimit,
+        warningEnabled,
+        warnAt: Math.round(warnAt),
+      },
+    });
+
+    await tx.categoryMonthlyLimit.upsert({
+      where: {
+        userId_categoryId_monthStart: {
+          userId,
+          categoryId: created.id,
+          monthStart: nextMonthStart,
+        },
+      },
+      create: {
+        userId,
+        categoryId: created.id,
+        monthStart: nextMonthStart,
+        limit: keepLimitNextMonth ? safeLimit : 0,
+        warningEnabled,
+        warnAt: Math.round(warnAt),
+      },
+      update: {
+        limit: keepLimitNextMonth ? safeLimit : 0,
         warningEnabled,
         warnAt: Math.round(warnAt),
       },

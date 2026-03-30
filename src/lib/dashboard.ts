@@ -44,7 +44,7 @@ export const getDashboardData = async (userId: string) => {
         where: { userId, date: { lte: end } },
         include: {
           account: { select: { name: true } },
-          category: { select: { name: true } },
+          category: { select: { name: true, icon: true } },
         },
         orderBy: [{ date: "desc" }, { createdAt: "desc" }],
       }),
@@ -118,6 +118,7 @@ export const getDashboardData = async (userId: string) => {
       return {
         id: category.id,
         name: category.name,
+        icon: category.icon,
         spent,
         budget: monthLimitByCategoryId.get(category.id) ?? 0,
       };

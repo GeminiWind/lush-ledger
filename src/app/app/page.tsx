@@ -221,7 +221,9 @@ export default async function DashboardPage() {
                   <div className="flex items-center gap-4">
                     <p className="w-14 text-xs font-semibold uppercase tracking-[0.06em] text-[#647e8c]">{shortDate(entry.date, language)}</p>
                     <div className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm ${meta.iconBg}`}>
-                      <span className="material-symbols-outlined text-[18px]">{meta.icon}</span>
+                      <span className="material-symbols-outlined text-[18px]">
+                        {entry.category?.icon?.trim() || meta.icon}
+                      </span>
                     </div>
                     <div>
                       <p className="font-semibold text-[#1b3641]">{entry.notes?.trim() || entry.account.name}</p>

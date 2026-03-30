@@ -95,10 +95,10 @@ export default function AddCategoryModal({ currency, language }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [keepNextMonth, setKeepNextMonth] = useState(true);
   const [warningEnabled, setWarningEnabled] = useState(true);
   const [warnAt, setWarnAt] = useState("80");
   const [selectedIcon, setSelectedIcon] = useState(allIconChoices[0]);
-  const [iconSearch, setIconSearch] = useState("");
 
   const currencyHint = useMemo(() => {
     if (currency === "VND") {
@@ -110,20 +110,11 @@ export default function AddCategoryModal({ currency, language }: Props) {
   const resetUiState = useCallback(() => {
     setError(null);
     setLoading(false);
+    setKeepNextMonth(true);
     setWarningEnabled(true);
     setWarnAt("80");
     setSelectedIcon(allIconChoices[0]);
-    setIconSearch("");
   }, []);
-
-  const filteredIcons = useMemo(() => {
-    const query = iconSearch.trim().toLowerCase();
-    if (!query) {
-      return allIconChoices;
-    }
-
-    return allIconChoices.filter((icon) => icon.toLowerCase().includes(query));
-  }, [iconSearch]);
 
   const formik = useFormik({
     initialValues: {
@@ -149,7 +140,9 @@ export default function AddCategoryModal({ currency, language }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: values.name.trim(),
+          icon: selectedIcon,
           monthlyLimit: parseAmount(values.monthlyLimit),
+          keepLimitNextMonth: keepNextMonth,
           warningEnabled,
           warnAt: Number(warnAt || 80),
         }),
@@ -233,17 +226,51 @@ export default function AddCategoryModal({ currency, language }: Props) {
                   <label className="ml-2 block text-xs font-bold uppercase tracking-[0.2em] text-[#6f8793]">
                     {t.atelierCategoryNameLabel} <span className="text-[#a73b21]">*</span>
                   </label>
+                  <div className="relative">
                     <input
                       name="name"
                       value={formik.values.name}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
                       placeholder={t.atelierCategoryNamePlaceholder}
-                      className="w-full rounded-2xl border-none bg-[#e7f6ff] px-6 py-4 text-base text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#2e7d32]/40"
+                      className="w-full rounded-2xl border-none bg-[#e7f6ff] px-6 py-4 pr-16 text-base text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#2e7d32]/40"
                     />
+                    <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#2e7d32]/55">
+                      <span className="material-symbols-outlined text-[20px]">{selectedIcon}</span>
+                    </div>
+                  </div>
                   {formik.touched.name && formik.errors.name ? (
                     <p className="ml-2 text-xs text-[#a73b21]">{formik.errors.name}</p>
                   ) : null}
+                </div>
+
+                <div className="space-y-3 pt-1">
+                  <label className="ml-2 block text-xs font-bold uppercase tracking-[0.2em] text-[#6f8793]">
+                    {t.atelierIconography}
+                  </label>
+                  <div className="max-h-56 overflow-y-auto rounded-2xl bg-[#e7f6ff]/60 p-4 pr-3">
+                    <div className="grid grid-cols-5 gap-3 sm:grid-cols-7">
+                      {allIconChoices.map((icon) => {
+                        const selected = selectedIcon === icon;
+                        return (
+                          <button
+                            key={icon}
+                            type="button"
+                            onClick={() => setSelectedIcon(icon)}
+                            className={`aspect-square rounded-xl transition-all hover:scale-105 active:scale-95 ${
+                              selected
+                                ? "bg-[#2e7d32] text-[#eaffe2] shadow-[0_4px_12px_rgba(0,111,29,0.2)]"
+                                : "bg-white/70 text-[#49636f] hover:bg-white"
+                            }`}
+                            title={icon}
+                            aria-label={t.atelierSelectIconAriaTemplate.replace("{icon}", icon)}
+                          >
+                            <span className="material-symbols-outlined text-2xl">{icon}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -267,6 +294,27 @@ export default function AddCategoryModal({ currency, language }: Props) {
                     <p className="ml-2 text-xs text-[#a73b21]">{formik.errors.monthlyLimit}</p>
                   ) : null}
                   <p className="ml-2 text-[11px] italic text-[#6f8793]">{currencyHint}</p>
+                </div>
+
+                <div className="space-y-3 rounded-2xl border border-[#d7e8f3] bg-[#f7fcff] p-4">
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-sm font-bold text-[#1b3641]">{t.atelierKeepLimitNextMonth}</span>
+                    <button
+                      type="button"
+                      onClick={() => setKeepNextMonth((value) => !value)}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
+                        keepNextMonth ? "bg-[#2e7d32]" : "bg-[#9bb6c4]"
+                      }`}
+                      aria-pressed={keepNextMonth}
+                    >
+                      <span
+                        className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${
+                          keepNextMonth ? "translate-x-5" : "translate-x-0.5"
+                        }`}
+                      />
+                    </button>
+                  </div>
+                  <p className="text-[11px] leading-relaxed text-[#6f8793]">{t.atelierKeepLimitNextMonthHint}</p>
                 </div>
 
                 <div className="space-y-3">
@@ -305,60 +353,6 @@ export default function AddCategoryModal({ currency, language }: Props) {
                         onChange={(event) => setWarnAt(event.target.value.replace(/[^0-9]/g, "").slice(0, 3))}
                         className="mt-2 w-full rounded-xl border-none bg-white px-3 py-2 text-center font-bold text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#2e7d32]/40"
                       />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="ml-2 flex items-center justify-between gap-2">
-                    <label className="block text-xs font-bold uppercase tracking-[0.2em] text-[#6f8793]">
-                        {t.atelierIconography}
-                      </label>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-[#e7f6ff] px-2.5 py-1 text-xs font-semibold text-[#49636f]">
-                      <span className="material-symbols-outlined text-sm">{selectedIcon}</span>
-                      {selectedIcon}
-                    </span>
-                  </div>
-
-                  <div className="space-y-3 rounded-2xl bg-[#e7f6ff] p-3">
-                    <div className="relative">
-                      <span className="pointer-events-none material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-base text-[#647e8c]">
-                        search
-                      </span>
-                      <input
-                        value={iconSearch}
-                        onChange={(event) => setIconSearch(event.target.value)}
-                        placeholder={t.atelierSearchIconsPlaceholder}
-                        className="w-full rounded-xl border border-[#d7e8f3] bg-white py-2 pl-10 pr-3 text-sm text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#2e7d32]/30"
-                      />
-                    </div>
-
-                    <div className="max-h-60 overflow-y-auto rounded-xl border border-white/80 bg-white/80 p-3 pr-2">
-                      {filteredIcons.length === 0 ? (
-                        <p className="py-6 text-center text-sm text-[#6f8793]">{t.atelierNoIconsMatch}</p>
-                      ) : (
-                        <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-8">
-                          {filteredIcons.map((icon) => {
-                            const selected = selectedIcon === icon;
-                            return (
-                              <button
-                                key={icon}
-                                type="button"
-                                onClick={() => setSelectedIcon(icon)}
-                                className={`flex h-11 w-11 items-center justify-center rounded-lg transition ${
-                                  selected
-                                    ? "bg-[#2e7d32] text-[#eaffe2]"
-                                    : "bg-[#f5fbff] text-[#49636f] hover:bg-[#dff2e6] hover:text-[#2e7d32]"
-                                }`}
-                                title={icon}
-                                aria-label={t.atelierSelectIconAriaTemplate.replace("{icon}", icon)}
-                              >
-                                <span className="material-symbols-outlined text-[20px]">{icon}</span>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>

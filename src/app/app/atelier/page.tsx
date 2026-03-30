@@ -57,6 +57,7 @@ export default async function AtelierPage() {
       return {
         id: category.id,
         name: category.name,
+        icon: category.icon,
         limit,
         spent,
         usage,

@@ -300,6 +300,29 @@ type FlatDictionary = {
   atelierSelectIconAriaTemplate: string;
   atelierAddingCategory: string;
   atelierAddCategory: string;
+  atelierEditCategoryTitleTemplate: string;
+  atelierEditCategorySubtitle: string;
+  atelierEditCategoryFailed: string;
+  atelierEditCategorySuccess: string;
+  atelierEditIconAria: string;
+  atelierSaveChanges: string;
+  atelierDiscard: string;
+  atelierChooseIcon: string;
+  atelierCloseIconPickerAria: string;
+  atelierKeepLimitNextMonth: string;
+  atelierKeepLimitNextMonthHint: string;
+  atelierWarningHint: string;
+  atelierDeleteAriaTemplate: string;
+  atelierDeleteFailed: string;
+  atelierDeleteSuccess: string;
+  atelierDeleteTitleTemplate: string;
+  atelierDeleteBodyLine1: string;
+  atelierDeleteBodyLine2: string;
+  atelierAccumulatedValue: string;
+  atelierDeleteCategoryAction: string;
+  atelierDeleteCategoryDeleting: string;
+  atelierKeepCategory: string;
+  atelierSecurityProtocol: string;
   reportsTransactionFallback: string;
   reportsTotalExpense: string;
   reportsLiveThisMonth: string;
@@ -653,6 +676,30 @@ const enUS: FlatDictionary = {
   atelierSelectIconAriaTemplate: "Select {icon} icon",
   atelierAddingCategory: "Adding Category...",
   atelierAddCategory: "Add Category",
+  atelierEditCategoryTitleTemplate: "Edit Category: {name}",
+  atelierEditCategorySubtitle: "Adjust your spending parameters for the current fiscal cycle.",
+  atelierEditCategoryFailed: "Failed to update category.",
+  atelierEditCategorySuccess: "Category updated successfully",
+  atelierEditIconAria: "Edit icon",
+  atelierSaveChanges: "Save Changes",
+  atelierDiscard: "Discard",
+  atelierChooseIcon: "Choose icon",
+  atelierCloseIconPickerAria: "Close icon picker",
+  atelierKeepLimitNextMonth: "Keep current limit for next month",
+  atelierKeepLimitNextMonthHint: "If not enabled, the limit will be reset to unlimited for the next month.",
+  atelierWarningHint: "Get notified before you exceed your limit.",
+  atelierDeleteAriaTemplate: "Delete {name}",
+  atelierDeleteFailed: "Failed to delete category.",
+  atelierDeleteSuccess: "Category deleted",
+  atelierDeleteTitleTemplate: "Delete Category: {name}?",
+  atelierDeleteBodyLine1: "This action will unassign transactions from this category.",
+  atelierDeleteBodyLine2:
+    "You will need to re-categorize them to keep your fiscal record consistent. Unassigned data may not be fully reflected in category reports.",
+  atelierAccumulatedValue: "Accumulated Value",
+  atelierDeleteCategoryAction: "Delete Category",
+  atelierDeleteCategoryDeleting: "Deleting...",
+  atelierKeepCategory: "Keep Category",
+  atelierSecurityProtocol: "Fiscal Atelier Security Protocol",
   reportsTransactionFallback: "Transaction",
   reportsTotalExpense: "Total Expense",
   reportsLiveThisMonth: "Live this month",
@@ -1006,6 +1053,30 @@ const viVN: FlatDictionary = {
   atelierSelectIconAriaTemplate: "Chọn biểu tượng {icon}",
   atelierAddingCategory: "Đang thêm danh mục...",
   atelierAddCategory: "Thêm danh mục",
+  atelierEditCategoryTitleTemplate: "Sửa danh mục: {name}",
+  atelierEditCategorySubtitle: "Điều chỉnh giới hạn chi tiêu cho chu kỳ hiện tại.",
+  atelierEditCategoryFailed: "Không thể cập nhật danh mục.",
+  atelierEditCategorySuccess: "Cập nhật danh mục thành công",
+  atelierEditIconAria: "Sửa biểu tượng",
+  atelierSaveChanges: "Lưu thay đổi",
+  atelierDiscard: "Bỏ qua",
+  atelierChooseIcon: "Chọn biểu tượng",
+  atelierCloseIconPickerAria: "Đóng trình chọn biểu tượng",
+  atelierKeepLimitNextMonth: "Giữ hạn mức hiện tại cho tháng sau",
+  atelierKeepLimitNextMonthHint: "Nếu tắt, hạn mức tháng sau sẽ được đặt về không giới hạn.",
+  atelierWarningHint: "Nhận cảnh báo trước khi vượt hạn mức.",
+  atelierDeleteAriaTemplate: "Xóa {name}",
+  atelierDeleteFailed: "Không thể xóa danh mục.",
+  atelierDeleteSuccess: "Đã xóa danh mục",
+  atelierDeleteTitleTemplate: "Xóa danh mục: {name}?",
+  atelierDeleteBodyLine1: "Hành động này sẽ bỏ gán các giao dịch khỏi danh mục này.",
+  atelierDeleteBodyLine2:
+    "Bạn cần phân loại lại để giữ dữ liệu tài chính nhất quán. Dữ liệu chưa phân loại có thể không được phản ánh đầy đủ trong báo cáo danh mục.",
+  atelierAccumulatedValue: "Giá trị tích lũy",
+  atelierDeleteCategoryAction: "Xóa danh mục",
+  atelierDeleteCategoryDeleting: "Đang xóa...",
+  atelierKeepCategory: "Giữ lại danh mục",
+  atelierSecurityProtocol: "Giao thức bảo mật Fiscal Atelier",
   reportsTransactionFallback: "Giao dịch",
   reportsTotalExpense: "Tổng chi tiêu",
   reportsLiveThisMonth: "Trong tháng này",

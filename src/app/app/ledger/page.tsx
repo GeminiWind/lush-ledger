@@ -46,7 +46,7 @@ const asTime = (value: Date, language: string) => {
   }).format(value);
 };
 
-const txVisual = (type: string, name: string) => {
+const txVisual = (type: string, name: string, categoryIcon?: string | null) => {
   if (type === "income") {
     return {
       icon: "trending_up",
@@ -57,34 +57,38 @@ const txVisual = (type: string, name: string) => {
 
   const label = name.toLowerCase();
   if (label.includes("coffee") || label.includes("dining") || label.includes("food")) {
-    return {
+    const matched = {
       icon: "coffee",
       badge: "bg-emerald-100 text-emerald-800",
       amountClass: "text-[#1b3641]",
     };
+    return { ...matched, icon: categoryIcon?.trim() || matched.icon };
   }
 
   if (label.includes("rent") || label.includes("home") || label.includes("utility")) {
-    return {
+    const matched = {
       icon: "apartment",
       badge: "bg-orange-100 text-orange-700",
       amountClass: "text-[#1b3641]",
     };
+    return { ...matched, icon: categoryIcon?.trim() || matched.icon };
   }
 
   if (label.includes("travel") || label.includes("flight")) {
-    return {
+    const matched = {
       icon: "flight",
       badge: "bg-violet-100 text-violet-800",
       amountClass: "text-[#1b3641]",
     };
+    return { ...matched, icon: categoryIcon?.trim() || matched.icon };
   }
 
-  return {
+  const fallback = {
     icon: "inventory_2",
     badge: "bg-sky-100 text-sky-800",
     amountClass: "text-[#1b3641]",
   };
+  return { ...fallback, icon: categoryIcon?.trim() || fallback.icon };
 };
 
 export default async function LedgerPage({
@@ -253,7 +257,7 @@ export default async function LedgerPage({
                   {group.items.map((tx) => {
                     const subject = tx.notes?.trim() || tx.category?.name || tx.account.name;
                     const detail = `${tx.category?.name || t.ledgerUncategorized} • ${asTime(tx.date, language)}`;
-                    const visual = txVisual(tx.type, subject);
+                    const visual = txVisual(tx.type, subject, tx.category?.icon);
 
                     return (
                       <article
