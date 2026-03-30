@@ -323,6 +323,8 @@ type FlatDictionary = {
   atelierDeleteCategoryDeleting: string;
   atelierKeepCategory: string;
   atelierSecurityProtocol: string;
+  atelierKeepCapNextMonth: string;
+  atelierKeepCapNextMonthHint: string;
   reportsTransactionFallback: string;
   reportsTotalExpense: string;
   reportsLiveThisMonth: string;
@@ -700,6 +702,8 @@ const enUS: FlatDictionary = {
   atelierDeleteCategoryDeleting: "Deleting...",
   atelierKeepCategory: "Keep Category",
   atelierSecurityProtocol: "Fiscal Atelier Security Protocol",
+  atelierKeepCapNextMonth: "Keep current cap for next month",
+  atelierKeepCapNextMonthHint: "If not enabled, the total cap will be reset to unlimited for the next fiscal cycle.",
   reportsTransactionFallback: "Transaction",
   reportsTotalExpense: "Total Expense",
   reportsLiveThisMonth: "Live this month",
@@ -1077,6 +1081,8 @@ const viVN: FlatDictionary = {
   atelierDeleteCategoryDeleting: "Đang xóa...",
   atelierKeepCategory: "Giữ lại danh mục",
   atelierSecurityProtocol: "Giao thức bảo mật Fiscal Atelier",
+  atelierKeepCapNextMonth: "Giữ tổng hạn mức hiện tại cho tháng sau",
+  atelierKeepCapNextMonthHint: "Nếu tắt, tổng hạn mức sẽ được đặt về không giới hạn cho chu kỳ tài chính kế tiếp.",
   reportsTransactionFallback: "Giao dịch",
   reportsTotalExpense: "Tổng chi tiêu",
   reportsLiveThisMonth: "Trong tháng này",

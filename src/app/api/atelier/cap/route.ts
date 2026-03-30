@@ -27,6 +27,7 @@ export const PATCH = async (request: NextRequest) => {
 
   const body = await request.json();
   const targetCap = Number(body.totalCap);
+  const keepCapNextMonth = body.keepCapNextMonth !== false;
   const monthStart = normalizeMonthStart(
     typeof body.month === "string" ? body.month.trim() : undefined,
   );
@@ -64,10 +65,39 @@ export const PATCH = async (request: NextRequest) => {
     },
   });
 
+  const nextMonthStart = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 1);
+  const nextSnapshot = await ensureMonthlyCapSnapshot(session.sub, nextMonthStart);
+  const nextLimitTotal = toNumber(nextSnapshot.totalLimit);
+  const rawNextCap = keepCapNextMonth ? targetCap : 0;
+  const nextTotalCap = Math.max(rawNextCap, nextLimitTotal);
+  const nextUnallocatedBackup = Math.max(nextTotalCap - nextLimitTotal, 0);
+
+  await prisma.userMonthlyCap.upsert({
+    where: {
+      userId_monthStart: {
+        userId: session.sub,
+        monthStart: nextMonthStart,
+      },
+    },
+    create: {
+      userId: session.sub,
+      monthStart: nextMonthStart,
+      totalLimit: nextLimitTotal,
+      totalCap: nextTotalCap,
+      unallocatedBackup: nextUnallocatedBackup,
+    },
+    update: {
+      totalLimit: nextLimitTotal,
+      totalCap: nextTotalCap,
+      unallocatedBackup: nextUnallocatedBackup,
+    },
+  });
+
   return NextResponse.json({
     ok: true,
     month: `${monthStart.getFullYear()}-${String(monthStart.getMonth() + 1).padStart(2, "0")}`,
     totalCap: targetCap,
     unallocatedBackup,
+    keepCapNextMonth,
   });
 };

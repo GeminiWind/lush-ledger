@@ -86,3 +86,16 @@ body {
 .ledger-datepicker .react-datepicker__day:hover {
   background-color: #dff0fa;
 }
+
+select {
+  color: #1b3641;
+}
+
+select option {
+  background-color: #ffffff;
+  color: #1b3641;
+}
+
+select option:disabled {
+  color: #8aa2b0;
+}
