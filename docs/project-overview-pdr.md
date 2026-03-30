@@ -2,7 +2,7 @@
 
 ## Product
 
-Smart Form is a personal finance MVP for individual users to track money movement, monitor budgets, and review progress toward savings goals.
+Lush Ledger is a personal finance MVP for individual users to track money movement, monitor budgets, and review progress toward savings goals.
 
 Primary user outcomes:
 - know current wallet/account position

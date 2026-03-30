@@ -1,16 +1,16 @@
-# Smart Form (Personal Finance MVP)
+# Lush Ledger (Personal Finance MVP)
 
-Smart Form is a personal finance web app focused on practical day-to-day money tracking:
+Lush Ledger is a personal finance web app focused on day-to-day money tracking:
 - account balances
 - ledger transactions (with recurring support)
 - monthly budgeting in Atelier
-- report views and savings insights
+- reports and savings insights
 
 This repository uses Next.js App Router, Prisma, SQLite, and cookie-based JWT sessions.
 
 ## Current Product Status
 
-The app is usable for core MVP flows, but several APIs and CRUD surfaces are still incomplete.
+The app is usable for core MVP flows, with a few API/CRUD surfaces still incomplete.
 
 Implemented APIs:
 - `POST /api/auth/login`
@@ -29,11 +29,11 @@ Known API gaps:
 - missing `/api/settings`
 - missing update/delete for accounts, categories, and ledger transactions
 
-See `docs/codebase-summary.md` and `docs/project-roadmap.md` for details.
+For current implementation details, see `docs/codebase-summary.md` and `docs/project-roadmap.md`.
 
 ## App Routes
 
-Canonical authenticated surface is under `src/app/app/*`:
+Canonical authenticated routes are under `src/app/app/*`:
 - `/app` (dashboard)
 - `/app/ledger`
 - `/app/ledger/new`
@@ -61,33 +61,45 @@ Legacy route group note:
 
 ## Quick Start
 
-1) Install dependencies:
+1) Install dependencies
 
 ```bash
 npm install
 ```
 
-2) Create env file:
+2) Create env file
 
 ```bash
 cp .env.example .env
 ```
 
-3) Run the app:
+3) Apply Prisma migrations
+
+```bash
+npx prisma migrate deploy
+```
+
+4) Run the app
 
 ```bash
 npm run dev
 ```
 
-4) Open:
-
-`http://localhost:3000`
+5) Open `http://localhost:3000`
 
 ## Environment Variables
 
 Required values (see `.env.example`):
 - `DATABASE_URL` (default local SQLite: `file:./dev.db`)
 - `JWT_SECRET` (set a strong random value outside local development)
+
+## Development Commands
+
+- `npm run dev` - generate Prisma client and start dev server
+- `npm run lint` - run ESLint
+- `npm run build` - generate Prisma client and build for production
+- `npm run start` - start production server
+- `npm run prisma:generate` - regenerate Prisma client
 
 ## Documentation Map
 

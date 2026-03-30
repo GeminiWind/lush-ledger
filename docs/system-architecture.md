@@ -2,7 +2,7 @@
 
 ## High-Level View
 
-Smart Form is a server-rendered Next.js App Router application with route handlers for APIs, Prisma for data access, and SQLite as the default persistence layer.
+Lush Ledger is a server-rendered Next.js App Router application with route handlers for APIs, Prisma for data access, and SQLite as the default persistence layer.
 
 Main layers:
 - UI routes (`src/app/app/*`, `src/app/(auth)/*`)
