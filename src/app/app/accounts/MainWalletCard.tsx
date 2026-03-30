@@ -42,6 +42,7 @@ export default function MainWalletCard({ wallet, currency, language, icon }: Pro
 
         <WalletCreateForm
           language={language}
+          currency={currency}
           trigger="icon"
           wallet={{
             id: wallet.id,

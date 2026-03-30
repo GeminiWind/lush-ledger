@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useFormik } from "formik";
+import { formatCurrencyInput, parseCurrencyInput } from "@/lib/format";
 
 type Option = {
   id: string;
@@ -12,11 +13,12 @@ type Option = {
 type Props = {
   accounts: Option[];
   categories: Option[];
+  currency?: string;
 };
 
 const today = new Date().toISOString().slice(0, 10);
 
-export default function LedgerEntryForm({ accounts, categories }: Props) {
+export default function LedgerEntryForm({ accounts, categories, currency = "VND" }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,9 +37,9 @@ export default function LedgerEntryForm({ accounts, categories }: Props) {
       if (!values.accountId) {
         errors.accountId = "Wallet is required.";
       }
-      if (!values.amount || Number(values.amount) <= 0) {
-        errors.amount = "Amount is required.";
-      }
+       if (parseCurrencyInput(values.amount) <= 0) {
+         errors.amount = "Amount is required.";
+       }
       if (!values.date) {
         errors.date = "Date is required.";
       }
@@ -50,7 +52,10 @@ export default function LedgerEntryForm({ accounts, categories }: Props) {
       const response = await fetch("/api/ledger", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
+        body: JSON.stringify({
+          ...values,
+          amount: parseCurrencyInput(values.amount),
+        }),
       });
 
       setLoading(false);
@@ -123,12 +128,13 @@ export default function LedgerEntryForm({ accounts, categories }: Props) {
           </label>
           <input
             name="amount"
-            type="number"
-            step="0.01"
-            min="0"
+            type="text"
             value={formik.values.amount}
-            onChange={formik.handleChange}
+            onChange={(event) => {
+              formik.setFieldValue("amount", formatCurrencyInput(event.target.value, currency));
+            }}
             onBlur={formik.handleBlur}
+            inputMode="numeric"
             placeholder="Amount"
             className="w-full rounded-xl border border-[#d7e5dc] bg-white px-3 py-2 text-sm text-[#1b3641]"
           />

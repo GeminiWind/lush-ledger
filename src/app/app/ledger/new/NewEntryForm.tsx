@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import DatePicker from "react-datepicker";
 import { useFormik } from "formik";
+import { formatCurrencyInput, parseCurrencyInput } from "@/lib/format";
 import { getDictionary } from "@/lib/i18n";
 import toast from "react-hot-toast";
 
@@ -47,12 +48,6 @@ const iconForCategory = (name: string) => {
   return "payments";
 };
 
-const parseAmount = (value: string) => {
-  const cleaned = value.replaceAll(",", "").replaceAll(".", "").trim();
-  const asNumber = Number(cleaned);
-  return Number.isFinite(asNumber) ? asNumber : 0;
-};
-
 const formatDateForApi = (date: Date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -84,7 +79,7 @@ export default function NewEntryForm({ wallets = [], defaultWalletId, categories
     },
     validate: (values) => {
       const errors: FormErrors = {};
-      const amount = parseAmount(values.amountDisplay);
+      const amount = parseCurrencyInput(values.amountDisplay);
       const recurringDay = Number(values.recurringDayOfMonth || "1");
 
       if (amount <= 0) {
@@ -118,7 +113,7 @@ export default function NewEntryForm({ wallets = [], defaultWalletId, categories
       setLoading(true);
 
       const date = values.date ? formatDateForApi(values.date) : "";
-      const amount = parseAmount(values.amountDisplay);
+      const amount = parseCurrencyInput(values.amountDisplay);
       const description = values.description.trim();
       const note = values.note.trim();
       const notes = [description, note].filter(Boolean).join(" - ");
@@ -157,16 +152,7 @@ export default function NewEntryForm({ wallets = [], defaultWalletId, categories
   });
 
   const onAmountChange = (rawValue: string) => {
-    const digits = rawValue.replace(/\D/g, "");
-    if (!digits) {
-      formik.setFieldValue("amountDisplay", "");
-      return;
-    }
-    const locale = currency === "VND" ? "vi-VN" : "en-US";
-    const formatted = new Intl.NumberFormat(locale, {
-      maximumFractionDigits: 0,
-    }).format(Number(digits));
-    formik.setFieldValue("amountDisplay", formatted);
+    formik.setFieldValue("amountDisplay", formatCurrencyInput(rawValue, currency));
   };
 
   return (

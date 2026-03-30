@@ -4,6 +4,7 @@ import { getDictionary } from "@/lib/i18n";
 import { useRouter } from "next/navigation";
 import { useFormik } from "formik";
 import { useCallback, useEffect, useState } from "react";
+import { formatCurrencyInput, parseCurrencyInput } from "@/lib/format";
 import toast from "react-hot-toast";
 
 type Option = {
@@ -31,12 +32,6 @@ type Values = {
   note: string;
 };
 
-const parseAmount = (value: string) => {
-  const cleaned = value.replace(/\D/g, "");
-  const asNumber = Number(cleaned);
-  return Number.isFinite(asNumber) ? asNumber : 0;
-};
-
 export default function EditTransactionForm({
   transactionId,
   language,
@@ -53,7 +48,6 @@ export default function EditTransactionForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const locale = currency === "VND" ? "vi-VN" : "en-US";
   const closeDialog = useCallback(() => {
     router.push("/app/ledger");
   }, [router]);
@@ -69,9 +63,7 @@ export default function EditTransactionForm({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [closeDialog]);
 
-  const initialAmountDisplay = new Intl.NumberFormat(locale, {
-    maximumFractionDigits: 0,
-  }).format(initialAmount);
+  const initialAmountDisplay = formatCurrencyInput(String(initialAmount), currency);
 
   const formik = useFormik<Values>({
     initialValues: {
@@ -83,7 +75,7 @@ export default function EditTransactionForm({
     },
     validate: (values) => {
       const errors: Partial<Record<keyof Values, string>> = {};
-      if (parseAmount(values.amountDisplay) <= 0) {
+      if (parseCurrencyInput(values.amountDisplay) <= 0) {
         errors.amountDisplay = t.txErrorAmountRequired;
       }
       if (!values.date) {
@@ -100,7 +92,7 @@ export default function EditTransactionForm({
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          amount: parseAmount(values.amountDisplay),
+          amount: parseCurrencyInput(values.amountDisplay),
           categoryId: values.categoryId,
           date: values.date,
           notes,
@@ -122,16 +114,7 @@ export default function EditTransactionForm({
   });
 
   const onAmountChange = (rawValue: string) => {
-    const digits = rawValue.replace(/\D/g, "");
-    if (!digits) {
-      formik.setFieldValue("amountDisplay", "");
-      return;
-    }
-
-    const formatted = new Intl.NumberFormat(locale, {
-      maximumFractionDigits: 0,
-    }).format(Number(digits));
-    formik.setFieldValue("amountDisplay", formatted);
+    formik.setFieldValue("amountDisplay", formatCurrencyInput(rawValue, currency));
   };
 
   return (

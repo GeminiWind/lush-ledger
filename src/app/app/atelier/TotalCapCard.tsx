@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { formatCurrency } from "@/lib/format";
+import { formatCurrency, formatCurrencyInput, parseCurrencyInput } from "@/lib/format";
 import { getDictionary } from "@/lib/i18n";
 import toast from "react-hot-toast";
 
@@ -15,12 +15,6 @@ type Props = {
   remaining: number;
   monthIncome: number;
   capProgress: number;
-};
-
-const parseCapValue = (value: string) => {
-  const normalized = value.replaceAll(",", "").replaceAll(".", "").trim();
-  const parsed = Number(normalized);
-  return Number.isFinite(parsed) ? parsed : Number.NaN;
 };
 
 export default function TotalCapCard({
@@ -36,14 +30,14 @@ export default function TotalCapCard({
   const router = useRouter();
   const t = getDictionary(language);
   const [editing, setEditing] = useState(false);
-  const [value, setValue] = useState(String(Math.max(0, Math.round(totalCap))));
+  const [value, setValue] = useState(formatCurrencyInput(String(Math.max(0, Math.round(totalCap))), currency));
   const [keepCapNextMonth, setKeepCapNextMonth] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const saveCap = async (options?: { overrideCap?: number; keepCapNextMonth?: boolean }) => {
     setError(null);
-    const nextCap = options?.overrideCap ?? parseCapValue(value);
+    const nextCap = options?.overrideCap ?? parseCurrencyInput(value);
     const nextKeep = options?.keepCapNextMonth ?? keepCapNextMonth;
 
     if (!Number.isFinite(nextCap) || nextCap < 0) {
@@ -95,7 +89,7 @@ export default function TotalCapCard({
           <>
             <input
               value={value}
-              onChange={(event) => setValue(event.target.value)}
+              onChange={(event) => setValue(formatCurrencyInput(event.target.value, currency))}
               inputMode="numeric"
               autoFocus
               className="w-[280px] rounded-xl border-none bg-[#f3fbf6] px-4 py-2 font-[var(--font-manrope)] text-4xl font-extrabold tracking-[-0.03em] text-[#2e7d32] outline-none ring-2 ring-[#2e7d32]/25 sm:text-5xl"
@@ -115,7 +109,7 @@ export default function TotalCapCard({
               onClick={() => {
                 setEditing(false);
                 setError(null);
-                setValue(String(Math.max(0, Math.round(totalCap))));
+                setValue(formatCurrencyInput(String(Math.max(0, Math.round(totalCap))), currency));
               }}
               className="rounded-xl bg-[#e7f6ff] px-4 py-2 text-xs font-bold text-[#1b3641]"
             >
@@ -170,7 +164,7 @@ export default function TotalCapCard({
             const prevValue = keepCapNextMonth;
             const nextValue = !keepCapNextMonth;
             setKeepCapNextMonth(nextValue);
-            const currentCap = parseCapValue(value);
+            const currentCap = parseCurrencyInput(value);
             const ok = await saveCap({
               overrideCap: Number.isFinite(currentCap) ? currentCap : Math.max(0, Math.round(totalCap)),
               keepCapNextMonth: nextValue,

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useFormik } from "formik";
+import { formatCurrencyInput, parseCurrencyInput } from "@/lib/format";
 import { getDictionary } from "@/lib/i18n";
 import toast from "react-hot-toast";
 
@@ -78,12 +79,6 @@ const allIconChoices = [
   "category",
 ];
 
-const parseAmount = (value: string) => {
-  const normalized = value.replaceAll(",", "").trim();
-  const asNumber = Number(normalized);
-  return Number.isFinite(asNumber) ? asNumber : 0;
-};
-
 type Props = {
   currency: string;
   language: string;
@@ -126,7 +121,7 @@ export default function AddCategoryModal({ currency, language }: Props) {
       if (!values.name.trim()) {
         errors.name = t.atelierCategoryNameRequired;
       }
-      if (parseAmount(values.monthlyLimit) < 0) {
+      if (parseCurrencyInput(values.monthlyLimit) < 0) {
         errors.monthlyLimit = t.atelierMonthlyLimitNonNegative;
       }
       return errors;
@@ -141,7 +136,7 @@ export default function AddCategoryModal({ currency, language }: Props) {
         body: JSON.stringify({
           name: values.name.trim(),
           icon: selectedIcon,
-          monthlyLimit: parseAmount(values.monthlyLimit),
+          monthlyLimit: parseCurrencyInput(values.monthlyLimit),
           keepLimitNextMonth: keepNextMonth,
           warningEnabled,
           warnAt: Number(warnAt || 80),
@@ -285,7 +280,9 @@ export default function AddCategoryModal({ currency, language }: Props) {
                       name="monthlyLimit"
                       type="text"
                       value={formik.values.monthlyLimit}
-                      onChange={formik.handleChange}
+                      onChange={(event) => {
+                        formik.setFieldValue("monthlyLimit", formatCurrencyInput(event.target.value, currency));
+                      }}
                       onBlur={formik.handleBlur}
                       className="w-full rounded-2xl border-none bg-[#e7f6ff] py-4 pl-20 pr-6 text-base font-bold text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#2e7d32]/40"
                     />

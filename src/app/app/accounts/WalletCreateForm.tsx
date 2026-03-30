@@ -4,6 +4,7 @@ import { getDictionary } from "@/lib/i18n";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useFormik } from "formik";
+import { formatCurrencyInput, parseCurrencyInput } from "@/lib/format";
 import toast from "react-hot-toast";
 
 type WalletForEdit = {
@@ -15,18 +16,12 @@ type WalletForEdit = {
 
 type Props = {
   language: string;
+  currency: string;
   wallet?: WalletForEdit;
   trigger?: "primary" | "icon";
 };
 
-const toPlainNumber = (value: string) => {
-  const normalized = value.replace(/[^\d]/g, "");
-  if (!normalized) return 0;
-  const parsed = Number(normalized);
-  return Number.isFinite(parsed) ? parsed : Number.NaN;
-};
-
-export default function WalletCreateForm({ language, wallet, trigger = "primary" }: Props) {
+export default function WalletCreateForm({ language, currency, wallet, trigger = "primary" }: Props) {
   const t = getDictionary(language);
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -34,6 +29,11 @@ export default function WalletCreateForm({ language, wallet, trigger = "primary"
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isEdit = Boolean(wallet);
+  const currencyAffix = currency === "VND" ? "đ" : currency;
+
+  const openingBalanceDisplay = wallet
+    ? formatCurrencyInput(String(Math.max(0, Math.round(wallet.openingBalance))), currency)
+    : "";
 
   const closeModal = () => {
     setOpen(false);
@@ -62,7 +62,7 @@ export default function WalletCreateForm({ language, wallet, trigger = "primary"
     enableReinitialize: true,
     initialValues: {
       name: wallet?.name || "",
-      openingBalance: wallet ? String(Math.max(0, Math.round(wallet.openingBalance))) : "",
+      openingBalance: openingBalanceDisplay,
       setAsDefault: wallet?.isDefault ?? true,
     },
     validate: (values) => {
@@ -70,7 +70,7 @@ export default function WalletCreateForm({ language, wallet, trigger = "primary"
       if (!values.name.trim()) {
         errors.name = t.walletNameRequired;
       }
-      const balance = toPlainNumber(values.openingBalance);
+      const balance = parseCurrencyInput(values.openingBalance);
       if (!Number.isFinite(balance) || balance < 0) {
         errors.openingBalance = t.walletInvalidBalance;
       }
@@ -82,7 +82,7 @@ export default function WalletCreateForm({ language, wallet, trigger = "primary"
 
       const payload = {
         name: values.name.trim(),
-        openingBalance: toPlainNumber(values.openingBalance),
+        openingBalance: parseCurrencyInput(values.openingBalance),
         setAsDefault: values.setAsDefault,
         ...(isEdit ? {} : { type: "cash" }),
       };
@@ -131,15 +131,24 @@ export default function WalletCreateForm({ language, wallet, trigger = "primary"
     router.refresh();
   };
 
+  const openModal = () => {
+    setError(null);
+    formik.resetForm({
+      values: {
+        name: wallet?.name || "",
+        openingBalance: openingBalanceDisplay,
+        setAsDefault: wallet?.isDefault ?? true,
+      },
+    });
+    setOpen(true);
+  };
+
   return (
     <>
       {trigger === "icon" ? (
         <button
           type="button"
-          onClick={() => {
-            setOpen(true);
-            setError(null);
-          }}
+          onClick={openModal}
           className="inline-flex items-center justify-center rounded-lg bg-white/70 p-2 text-[#49636f] transition-colors hover:text-[#1b3641]"
           aria-label={t.walletEditAria}
         >
@@ -148,10 +157,7 @@ export default function WalletCreateForm({ language, wallet, trigger = "primary"
       ) : (
         <button
           type="button"
-          onClick={() => {
-            setOpen(true);
-            setError(null);
-          }}
+          onClick={openModal}
           className="inline-flex items-center gap-2 rounded-xl bg-[#006f1d] px-6 py-3 font-bold text-[#eaffe2] shadow-lg shadow-[#006f1d]/20 hover:brightness-105"
         >
           <span className="material-symbols-outlined">add_card</span>
@@ -208,19 +214,18 @@ export default function WalletCreateForm({ language, wallet, trigger = "primary"
                 <div className="space-y-2">
                   <label className="block text-sm font-bold text-[#1b3641]">{t.walletDialogBalanceLabel}</label>
                   <div className="relative flex items-center">
-                    <span className="pointer-events-none absolute left-5 text-2xl font-bold text-[#006f1d]">{t.walletCurrencyPrefix}</span>
                     <input
                       name="openingBalance"
                       value={formik.values.openingBalance}
                       onChange={(event) => {
-                        const digits = event.target.value.replace(/[^\d]/g, "");
-                        formik.setFieldValue("openingBalance", digits);
+                        formik.setFieldValue("openingBalance", formatCurrencyInput(event.target.value, currency));
                       }}
                       onBlur={formik.handleBlur}
                       inputMode="numeric"
                       placeholder={t.walletDialogBalancePlaceholder}
-                      className="w-full rounded-2xl border-none bg-white py-4 pl-12 pr-5 font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/25"
+                      className="w-full rounded-2xl border-none bg-white py-4 pl-5 pr-16 font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/25"
                     />
+                    <span className="pointer-events-none absolute right-5 text-lg font-bold text-[#006f1d]">{currencyAffix}</span>
                   </div>
                   <p className="text-[11px] font-medium tracking-wide text-[#49636f]/80">{t.walletDialogBalanceHint}</p>
                   {formik.touched.openingBalance && formik.errors.openingBalance ? (

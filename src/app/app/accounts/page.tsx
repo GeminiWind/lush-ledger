@@ -69,7 +69,7 @@ export default async function WalletsPage() {
           <button className="rounded-xl bg-[#d4ecf9] px-6 py-3 font-semibold text-[#49636f] hover:bg-[#c8e6f5]">
             {t.accountsArchiveOld}
           </button>
-          <WalletCreateForm language={language} />
+          <WalletCreateForm language={language} currency={currency} />
         </div>
       </section>
 
@@ -110,6 +110,7 @@ export default async function WalletsPage() {
                 </div>
                 <WalletCreateForm
                   language={language}
+                  currency={currency}
                   trigger="icon"
                   wallet={{
                   id: secondary.id,
@@ -155,6 +156,7 @@ export default async function WalletsPage() {
                 </div>
                 <WalletCreateForm
                   language={language}
+                  currency={currency}
                   trigger="icon"
                   wallet={{
                     id: wallet.id,

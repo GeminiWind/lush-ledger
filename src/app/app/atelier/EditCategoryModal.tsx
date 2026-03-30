@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useFormik } from "formik";
+import { formatCurrencyInput, parseCurrencyInput } from "@/lib/format";
 import toast from "react-hot-toast";
 import { getDictionary } from "@/lib/i18n";
 
@@ -78,12 +79,6 @@ const allIconChoices = [
   "category",
 ];
 
-const parseAmount = (value: string) => {
-  const normalized = value.replaceAll(",", "").trim();
-  const parsed = Number(normalized);
-  return Number.isFinite(parsed) ? parsed : 0;
-};
-
 type Props = {
   category: {
     id: string;
@@ -120,7 +115,7 @@ export default function EditCategoryModal({ category, currency, language }: Prop
   const formik = useFormik({
     initialValues: {
       name: category.name,
-      monthlyLimit: String(category.limit),
+      monthlyLimit: formatCurrencyInput(String(category.limit), currency),
     },
     enableReinitialize: true,
     validate: (values) => {
@@ -128,7 +123,7 @@ export default function EditCategoryModal({ category, currency, language }: Prop
       if (!values.name.trim()) {
         errors.name = t.atelierCategoryNameRequired;
       }
-      if (parseAmount(values.monthlyLimit) < 0) {
+      if (parseCurrencyInput(values.monthlyLimit) < 0) {
         errors.monthlyLimit = t.atelierMonthlyLimitNonNegative;
       }
       return errors;
@@ -143,7 +138,7 @@ export default function EditCategoryModal({ category, currency, language }: Prop
         body: JSON.stringify({
           name: values.name.trim(),
           icon: selectedIcon,
-          monthlyLimit: parseAmount(values.monthlyLimit),
+          monthlyLimit: parseCurrencyInput(values.monthlyLimit),
           warningEnabled,
           warnAt: Number(warnAt || 80),
           keepLimitNextMonth: keepNextMonth,
@@ -172,9 +167,9 @@ export default function EditCategoryModal({ category, currency, language }: Prop
     setSelectedIcon(category.icon || "category");
     setIconSearch("");
     setIconDialogOpen(false);
-    formik.setValues({ name: category.name, monthlyLimit: String(category.limit) });
+    formik.setValues({ name: category.name, monthlyLimit: formatCurrencyInput(String(category.limit), currency) });
     setIsOpen(true);
-  }, [category.icon, category.limit, category.name, category.warnAt, category.warningEnabled, formik]);
+  }, [category.icon, category.limit, category.name, category.warnAt, category.warningEnabled, currency, formik]);
 
   const closeModal = useCallback(() => {
     setIsOpen(false);
@@ -283,7 +278,9 @@ export default function EditCategoryModal({ category, currency, language }: Prop
                     <input
                       name="monthlyLimit"
                       value={formik.values.monthlyLimit}
-                      onChange={formik.handleChange}
+                      onChange={(event) => {
+                        formik.setFieldValue("monthlyLimit", formatCurrencyInput(event.target.value, currency));
+                      }}
                       onBlur={formik.handleBlur}
                       className="w-full rounded-2xl border-none bg-[#e7f6ff] px-5 py-4 text-xl font-bold text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#2e7d32]/40"
                     />

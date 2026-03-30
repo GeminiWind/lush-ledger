@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
+import { formatCurrency, formatCurrencyInput, parseCurrencyInput } from "@/lib/format";
 import { getDictionary } from "@/lib/i18n";
 import toast from "react-hot-toast";
 
@@ -10,13 +11,6 @@ type Props = {
   language: string;
   currency: string;
   variant?: "button" | "card";
-};
-
-const toPlainNumber = (value: string) => {
-  const normalized = value.replace(/[^\d]/g, "");
-  if (!normalized) return 0;
-  const parsed = Number(normalized);
-  return Number.isFinite(parsed) ? parsed : Number.NaN;
 };
 
 const monthLabel = (language: string, value: Date, fallback: string) => {
@@ -35,15 +29,6 @@ const toDateInputValue = (value: Date) => {
   const month = String(value.getMonth() + 1).padStart(2, "0");
   const day = String(value.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
-};
-
-const asCurrency = (value: number, currency: string) => {
-  const locale = currency === "VND" ? "vi-VN" : "en-US";
-  return new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency,
-    maximumFractionDigits: currency === "VND" ? 0 : 2,
-  }).format(value);
 };
 
 const getProjectedArrivalDate = (target: number, monthly: number, from = new Date()) => {
@@ -89,12 +74,12 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
         errors.name = t.savingsPlanNameRequired;
       }
 
-      const targetAmount = toPlainNumber(values.targetAmount);
+      const targetAmount = parseCurrencyInput(values.targetAmount);
       if (!Number.isFinite(targetAmount) || targetAmount <= 0) {
         errors.targetAmount = t.savingsPlanTargetRequired;
       }
 
-      const monthlyContribution = toPlainNumber(values.monthlyContribution);
+      const monthlyContribution = parseCurrencyInput(values.monthlyContribution);
       if (!Number.isFinite(monthlyContribution) || monthlyContribution <= 0) {
         errors.monthlyContribution = t.savingsPlanMonthlyRequired;
       }
@@ -121,8 +106,8 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: values.name.trim(),
-          targetAmount: toPlainNumber(values.targetAmount),
-          monthlyContribution: toPlainNumber(values.monthlyContribution),
+          targetAmount: parseCurrencyInput(values.targetAmount),
+          monthlyContribution: parseCurrencyInput(values.monthlyContribution),
           targetDate: values.targetDate,
         }),
       });
@@ -152,8 +137,8 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
   const { values, setFieldValue } = formik;
 
   useEffect(() => {
-    const target = toPlainNumber(values.targetAmount);
-    const monthly = toPlainNumber(values.monthlyContribution);
+    const target = parseCurrencyInput(values.targetAmount);
+    const monthly = parseCurrencyInput(values.monthlyContribution);
     const arrival = getProjectedArrivalDate(target, monthly);
     const nextValue = arrival ? toDateInputValue(arrival) : "";
 
@@ -179,8 +164,8 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
   }, [open]);
 
   const projection = useMemo(() => {
-    const target = toPlainNumber(formik.values.targetAmount);
-    const monthly = toPlainNumber(formik.values.monthlyContribution);
+    const target = parseCurrencyInput(formik.values.targetAmount);
+    const monthly = parseCurrencyInput(formik.values.monthlyContribution);
     const arrivalDate = getProjectedArrivalDate(target, monthly);
     const months = arrivalDate ? Math.ceil(target / monthly) : 0;
 
@@ -286,7 +271,7 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
                         name="targetAmount"
                         value={formik.values.targetAmount}
                         onChange={(event) => {
-                          formik.setFieldValue("targetAmount", event.target.value.replace(/[^\d]/g, ""));
+                          formik.setFieldValue("targetAmount", formatCurrencyInput(event.target.value, currency));
                         }}
                         onBlur={formik.handleBlur}
                         inputMode="numeric"
@@ -311,7 +296,7 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
                         name="monthlyContribution"
                         value={formik.values.monthlyContribution}
                         onChange={(event) => {
-                          formik.setFieldValue("monthlyContribution", event.target.value.replace(/[^\d]/g, ""));
+                          formik.setFieldValue("monthlyContribution", formatCurrencyInput(event.target.value, currency));
                         }}
                         onBlur={formik.handleBlur}
                         inputMode="numeric"
@@ -385,7 +370,7 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
                     <div>
                       <p className="font-[var(--font-manrope)] text-xl font-bold">{t.savingsPlanEstimatedMonths}</p>
                       <p className="text-sm text-[#d8ffe0]">
-                        {t.savingsPlanToReachTarget}: {asCurrency(projection.target, currency)}
+                        {t.savingsPlanToReachTarget}: {formatCurrency(projection.target, currency)}
                       </p>
                     </div>
 
@@ -396,7 +381,7 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-[#d8ffe0]">{t.savingsPlanMonthly}</span>
-                        <span>{asCurrency(projection.monthly, currency)}</span>
+                        <span>{formatCurrency(projection.monthly, currency)}</span>
                       </div>
                     </div>
                   </div>
