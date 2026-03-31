@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { formatCurrencyInput, parseCurrencyInput } from "@/lib/format";
 import { getDictionary } from "@/lib/i18n";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 type PlanOption = {
   id: string;
@@ -38,7 +39,7 @@ export default function AddContributionDialog({ language, currency, plans, walle
   const t = getDictionary(language);
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
+  const queryClient = useQueryClient();
 
   const initialPlanId = defaultPlanId || plans[0]?.id || "";
   const initialWalletId = wallets[0]?.id || "";
@@ -58,6 +59,42 @@ export default function AddContributionDialog({ language, currency, plans, walle
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
+
+  const addContributionMutation = useMutation({
+    mutationFn: async (values: { savingsPlanId: string; walletId: string; amountDisplay: string; date: string }) => {
+      const selectedPlan = plans.find((plan) => plan.id === values.savingsPlanId);
+      const contributionLabel = selectedPlan
+        ? t.savingsContributionNoteTemplate.replace("{plan}", selectedPlan.name)
+        : t.savingsContributionNoteFallback;
+
+      const response = await fetch("/api/ledger", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          accountId: values.walletId,
+          type: "transfer_to_saving_plan",
+          amount: parseCurrencyInput(values.amountDisplay),
+          date: values.date,
+          savingsPlanId: values.savingsPlanId,
+          notes: contributionLabel,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || t.savingsContributionFailed);
+      }
+    },
+    onSuccess: async () => {
+      toast.success(t.savingsContributionSuccess);
+      setOpen(false);
+      await queryClient.invalidateQueries({ queryKey: ["savings"] });
+      router.refresh();
+    },
+    onError: (mutationError: unknown) => {
+      setError(mutationError instanceof Error ? mutationError.message : t.savingsContributionFailed);
+    },
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -91,39 +128,12 @@ export default function AddContributionDialog({ language, currency, plans, walle
       return errors;
     },
     onSubmit: async (values) => {
-      setSubmitting(true);
       setError(null);
-
-      const selectedPlan = plans.find((plan) => plan.id === values.savingsPlanId);
-      const contributionLabel = selectedPlan
-        ? t.savingsContributionNoteTemplate.replace("{plan}", selectedPlan.name)
-        : t.savingsContributionNoteFallback;
-
-      const response = await fetch("/api/ledger", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          accountId: values.walletId,
-          type: "transfer_to_saving_plan",
-          amount: parseCurrencyInput(values.amountDisplay),
-          date: values.date,
-          savingsPlanId: values.savingsPlanId,
-          notes: contributionLabel,
-        }),
+      addContributionMutation.mutate(values, {
+        onSuccess: () => {
+          formik.resetForm();
+        },
       });
-
-      setSubmitting(false);
-
-      if (!response.ok) {
-        const data = await response.json();
-        setError(data.error || t.savingsContributionFailed);
-        return;
-      }
-
-      toast.success(t.savingsContributionSuccess);
-      setOpen(false);
-      formik.resetForm();
-      router.refresh();
     },
   });
 
@@ -271,10 +281,10 @@ export default function AddContributionDialog({ language, currency, plans, walle
               <div className="flex items-center gap-4 pt-1">
                 <button
                   type="submit"
-                  disabled={submitting}
+                  disabled={addContributionMutation.isPending}
                   className="flex-1 rounded-xl bg-gradient-to-br from-[#006f1d] to-[#006118] py-4 font-[var(--font-manrope)] text-lg font-bold text-[#eaffe2] shadow-[0_14px_30px_-18px_rgba(0,111,29,0.8)] hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {submitting ? t.savingsContributionSubmitting : t.savingsContributionConfirm}
+                  {addContributionMutation.isPending ? t.savingsContributionSubmitting : t.savingsContributionConfirm}
                 </button>
                 <button
                   type="button"

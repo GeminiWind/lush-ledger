@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { formatCurrency, formatCurrencyInput, getCurrencyInputSuggestions, parseCurrencyInput } from "@/lib/format";
 import { getDictionary } from "@/lib/i18n";
 import toast from "react-hot-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 type Props = {
   language: string;
@@ -51,13 +52,43 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
   const router = useRouter();
   const t = getDictionary(language);
   const [open, setOpen] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedIcon, setSelectedIcon] = useState<(typeof savingsPlanIconChoices)[number]>("home");
   const [isPrimary, setIsPrimary] = useState(true);
+  const queryClient = useQueryClient();
 
   const now = new Date();
   const minDate = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const createPlanMutation = useMutation({
+    mutationFn: async (values: { name: string; targetAmount: string; monthlyContribution: string; targetDate: string }) => {
+      const response = await fetch("/api/savings/plans", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: values.name.trim(),
+          targetAmount: parseCurrencyInput(values.targetAmount),
+          monthlyContribution: parseCurrencyInput(values.monthlyContribution),
+          targetDate: values.targetDate,
+          isPrimary,
+          icon: selectedIcon,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || t.savingsPlanCreateFailed);
+      }
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["savings"] });
+      router.refresh();
+      toast.success(t.savingsPlanCreateSuccess);
+    },
+    onError: (mutationError: unknown) => {
+      setError(mutationError instanceof Error ? mutationError.message : t.savingsPlanCreateFailed);
+    },
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -102,43 +133,22 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
       return errors;
     },
     onSubmit: async (values, helpers) => {
-      setSubmitting(true);
       setError(null);
-
-      const response = await fetch("/api/savings/plans", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: values.name.trim(),
-          targetAmount: parseCurrencyInput(values.targetAmount),
-          monthlyContribution: parseCurrencyInput(values.monthlyContribution),
-          targetDate: values.targetDate,
-          isPrimary,
-          icon: selectedIcon,
-        }),
-      });
-
-      setSubmitting(false);
-
-      if (!response.ok) {
-        const data = await response.json();
-        setError(data.error || t.savingsPlanCreateFailed);
-        return;
-      }
-
-      helpers.resetForm({
-        values: {
-          name: "",
-          targetAmount: "",
-          monthlyContribution: "",
-          targetDate: "",
+      createPlanMutation.mutate(values, {
+        onSuccess: () => {
+          helpers.resetForm({
+            values: {
+              name: "",
+              targetAmount: "",
+              monthlyContribution: "",
+              targetDate: "",
+            },
+          });
+          setSelectedIcon("home");
+          setIsPrimary(true);
+          setOpen(false);
         },
       });
-      setSelectedIcon("home");
-      setIsPrimary(true);
-      setOpen(false);
-      toast.success(t.savingsPlanCreateSuccess);
-      router.refresh();
     },
   });
 
@@ -488,10 +498,10 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
                 </button>
                 <button
                   type="submit"
-                  disabled={submitting}
+                  disabled={createPlanMutation.isPending}
                   className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#006f1d] to-[#006118] px-8 py-3 text-sm font-bold text-[#eaffe2] shadow-[0_20px_30px_-20px_rgba(0,111,29,0.75)] transition hover:brightness-105 disabled:opacity-70"
                 >
-                  <span>{submitting ? t.savingsPlanCreating : t.savingsPlanCreateAction}</span>
+                  <span>{createPlanMutation.isPending ? t.savingsPlanCreating : t.savingsPlanCreateAction}</span>
                 </button>
               </div>
             </form>
