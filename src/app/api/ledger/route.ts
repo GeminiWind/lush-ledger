@@ -35,7 +35,13 @@ export const POST = async (request: NextRequest) => {
   const body = await request.json();
   const requestedAccountId = String(body.accountId || "").trim();
   const categoryId = String(body.categoryId || "").trim();
-  const type = body.type === "income" ? "income" : "expense";
+  const savingsPlanId = String(body.savingsPlanId || "").trim();
+  const type =
+    body.type === "income"
+      ? "income"
+      : body.type === "transfer_to_saving_plan"
+        ? "transfer_to_saving_plan"
+        : "expense";
   const amount = Number(body.amount);
   const notes = String(body.notes || "").trim();
   const date = new Date(String(body.date || ""));
@@ -84,6 +90,27 @@ export const POST = async (request: NextRequest) => {
     }
   }
 
+  if (type === "transfer_to_saving_plan" && !savingsPlanId) {
+    return NextResponse.json({ error: "Savings plan is required for transfer contributions." }, { status: 400 });
+  }
+
+  if (savingsPlanId && type !== "transfer_to_saving_plan") {
+    return NextResponse.json(
+      { error: "Savings plan contributions must use type transfer_to_saving_plan." },
+      { status: 400 },
+    );
+  }
+
+  if (savingsPlanId) {
+    const savingsPlan = await prisma.savingsPlan.findFirst({
+      where: { id: savingsPlanId, userId: session.sub, status: "active" },
+      select: { id: true },
+    });
+    if (!savingsPlan) {
+      return NextResponse.json({ error: "Invalid active savings plan." }, { status: 400 });
+    }
+  }
+
   if (requestedAccountId && !account) {
     return NextResponse.json({ error: "Invalid wallet." }, { status: 400 });
   }
@@ -97,6 +124,7 @@ export const POST = async (request: NextRequest) => {
       amount,
       date,
       notes: notes || null,
+      savingsPlanId: savingsPlanId || null,
       isRecurringTemplate: recurringEnabled,
       recurringInterval: recurringEnabled ? recurringInterval : null,
       recurringDayOfMonth: recurringEnabled ? recurringDayOfMonth : null,

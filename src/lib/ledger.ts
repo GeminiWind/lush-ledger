@@ -9,6 +9,8 @@ type LedgerFilters = {
   categoryId?: string;
 };
 
+type LedgerTxType = "income" | "expense" | "transfer_to_saving_plan";
+
 const toNumber = (value: unknown) => Number(value ?? 0);
 
 const sum = (values: number[]) => values.reduce((total, value) => total + value, 0);
@@ -20,13 +22,13 @@ export const getLedgerData = async (userId: string, filters: LedgerFilters = {})
 
   const where: {
     userId: string;
-    type?: "income" | "expense";
+    type?: LedgerTxType;
     accountId?: string;
     categoryId?: string;
     notes?: { contains: string };
   } = { userId };
 
-  if (filters.type === "income" || filters.type === "expense") {
+  if (filters.type === "income" || filters.type === "expense" || filters.type === "transfer_to_saving_plan") {
     where.type = filters.type;
   }
   if (filters.accountId) {
@@ -50,10 +52,11 @@ export const getLedgerData = async (userId: string, filters: LedgerFilters = {})
     }),
     prisma.transaction.findMany({
       where,
-      include: {
-        account: { select: { name: true } },
-        category: { select: { name: true, icon: true } },
-      },
+        include: {
+          account: { select: { name: true } },
+          category: { select: { name: true, icon: true } },
+          savingsPlan: { select: { name: true } },
+        },
       orderBy: [{ date: "desc" }, { createdAt: "desc" }],
       take: 30,
     }),

@@ -55,6 +55,14 @@ const txVisual = (type: string, name: string, categoryIcon?: string | null) => {
     };
   }
 
+  if (type === "transfer_to_saving_plan") {
+    return {
+      icon: "savings",
+      badge: "bg-[#eaffe2] text-[#006f1d]",
+      amountClass: "text-[#1b3641]",
+    };
+  }
+
   const label = name.toLowerCase();
   if (label.includes("coffee") || label.includes("dining") || label.includes("food")) {
     const matched = {
@@ -205,6 +213,7 @@ export default async function LedgerPage({
               <option value="">{t.ledgerFilterAmount}</option>
               <option value="income">{t.ledgerTypeIncome}</option>
               <option value="expense">{t.ledgerTypeExpense}</option>
+              <option value="transfer_to_saving_plan">{t.ledgerTypeTransferToSaving}</option>
             </select>
           </div>
 
@@ -256,7 +265,11 @@ export default async function LedgerPage({
                 <div className="space-y-2">
                   {group.items.map((tx) => {
                     const subject = tx.notes?.trim() || tx.category?.name || tx.account.name;
-                    const detail = `${tx.category?.name || t.ledgerUncategorized} • ${asTime(tx.date, language)}`;
+                    const detailLabel =
+                      tx.type === "transfer_to_saving_plan"
+                        ? `${t.ledgerTransferToSaving} • ${tx.savingsPlan?.name || t.ledgerUncategorized}`
+                        : tx.category?.name || t.ledgerUncategorized;
+                    const detail = `${detailLabel} • ${asTime(tx.date, language)}`;
                     const visual = txVisual(tx.type, subject, tx.category?.icon);
 
                     return (

@@ -135,6 +135,8 @@ model SavingsPlan {
   id                 String        @id @default(cuid())
   userId             String
   name               String
+  status             String        @default("active")
+  isPrimary          Boolean       @default(false)
   targetAmount       Decimal
   monthlyContribution Decimal
   targetDate         DateTime
@@ -143,4 +145,6 @@ model SavingsPlan {
   transactions       Transaction[]
 
   @@index([userId])
+  @@index([userId, status])
+  @@index([userId, isPrimary])
 }

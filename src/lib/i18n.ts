@@ -158,6 +158,8 @@ type FlatDictionary = {
   ledgerFilterWallet: string;
   ledgerTypeIncome: string;
   ledgerTypeExpense: string;
+  ledgerTypeTransferToSaving: string;
+  ledgerTransferToSaving: string;
   ledgerApply: string;
   ledgerNoEntriesMatch: string;
   ledgerUncategorized: string;
@@ -217,6 +219,30 @@ type FlatDictionary = {
   savingsMonthlyContributionTarget: string;
   savingsEnvisionGoal: string;
   savingsAddToAtelier: string;
+  savingsActivePlanLabel: string;
+  savingsAddContribution: string;
+  savingsNoActivePlan: string;
+  savingsNoActivePlanHint: string;
+  savingsArchivedCount: string;
+  savingsContributionTitle: string;
+  savingsContributionSubtitle: string;
+  savingsContributionTargetLabel: string;
+  savingsContributionAmountLabel: string;
+  savingsContributionDateLabel: string;
+  savingsContributionWalletLabel: string;
+  savingsContributionConfirm: string;
+  savingsContributionSubmitting: string;
+  savingsContributionSuccess: string;
+  savingsContributionFailed: string;
+  savingsContributionPlanRequired: string;
+  savingsContributionWalletRequired: string;
+  savingsContributionAmountRequired: string;
+  savingsContributionDateRequired: string;
+  savingsContributionNoteTemplate: string;
+  savingsContributionNoteFallback: string;
+  savingsContributionSecurity: string;
+  savingsContributionSecurityNote: string;
+  savingsCompleteBadge: string;
   savingsPlanNameRequired: string;
   savingsPlanTargetRequired: string;
   savingsPlanMonthlyRequired: string;
@@ -540,6 +566,8 @@ const enUS: FlatDictionary = {
   ledgerFilterWallet: "Wallet",
   ledgerTypeIncome: "Income",
   ledgerTypeExpense: "Expense",
+  ledgerTypeTransferToSaving: "Transfer to saving",
+  ledgerTransferToSaving: "Transfer to saving",
   ledgerApply: "Apply",
   ledgerNoEntriesMatch: "No entries match your filters.",
   ledgerUncategorized: "Uncategorized",
@@ -599,6 +627,30 @@ const enUS: FlatDictionary = {
   savingsMonthlyContributionTarget: "Monthly contribution target",
   savingsEnvisionGoal: "Envision New Goal",
   savingsAddToAtelier: "Add to your fiscal atelier",
+  savingsActivePlanLabel: "Active Plan",
+  savingsAddContribution: "Add Contribution",
+  savingsNoActivePlan: "No active savings plan",
+  savingsNoActivePlanHint: "Activate a savings plan or create a new one to track progress here.",
+  savingsArchivedCount: "{count} archived plans",
+  savingsContributionTitle: "Add Contribution",
+  savingsContributionSubtitle: "Fuel your future. Allocate funds to your active savings plans and watch your wealth grow.",
+  savingsContributionTargetLabel: "Target Savings Plan",
+  savingsContributionAmountLabel: "Contribution Amount",
+  savingsContributionDateLabel: "Date",
+  savingsContributionWalletLabel: "Source Wallet",
+  savingsContributionConfirm: "Confirm Contribution",
+  savingsContributionSubmitting: "Submitting...",
+  savingsContributionSuccess: "Contribution recorded successfully",
+  savingsContributionFailed: "Unable to record contribution.",
+  savingsContributionPlanRequired: "Please select a savings plan.",
+  savingsContributionWalletRequired: "Please select a source wallet.",
+  savingsContributionAmountRequired: "Contribution amount must be greater than zero.",
+  savingsContributionDateRequired: "Please select a valid date.",
+  savingsContributionNoteTemplate: "Contribution to {plan}",
+  savingsContributionNoteFallback: "Savings plan contribution",
+  savingsContributionSecurity: "Encrypted Transaction",
+  savingsContributionSecurityNote: "Verified by Lush Ledger Security",
+  savingsCompleteBadge: "Complete",
   savingsPlanNameRequired: "Plan name is required.",
   savingsPlanTargetRequired: "Savings target must be greater than zero.",
   savingsPlanMonthlyRequired: "Monthly contribution must be greater than zero.",
@@ -923,6 +975,8 @@ const viVN: FlatDictionary = {
   ledgerFilterWallet: "Ví",
   ledgerTypeIncome: "Thu nhập",
   ledgerTypeExpense: "Chi tiêu",
+  ledgerTypeTransferToSaving: "Chuyển sang tiết kiệm",
+  ledgerTransferToSaving: "Chuyển sang tiết kiệm",
   ledgerApply: "Áp dụng",
   ledgerNoEntriesMatch: "Không có giao dịch phù hợp bộ lọc.",
   ledgerUncategorized: "Chưa phân loại",
@@ -982,6 +1036,30 @@ const viVN: FlatDictionary = {
   savingsMonthlyContributionTarget: "Mức đóng góp hằng tháng",
   savingsEnvisionGoal: "Thêm mục tiêu mới",
   savingsAddToAtelier: "Bổ sung vào không gian tài chính",
+  savingsActivePlanLabel: "Kế hoạch đang chạy",
+  savingsAddContribution: "Thêm đóng góp",
+  savingsNoActivePlan: "Chưa có kế hoạch tiết kiệm đang hoạt động",
+  savingsNoActivePlanHint: "Hãy kích hoạt một kế hoạch hoặc tạo kế hoạch mới để theo dõi tiến độ tại đây.",
+  savingsArchivedCount: "{count} kế hoạch đã lưu trữ",
+  savingsContributionTitle: "Thêm đóng góp",
+  savingsContributionSubtitle: "Tiếp sức cho mục tiêu của bạn. Phân bổ tiền vào kế hoạch tiết kiệm đang hoạt động và theo dõi đà tăng trưởng.",
+  savingsContributionTargetLabel: "Kế hoạch tiết kiệm",
+  savingsContributionAmountLabel: "Số tiền đóng góp",
+  savingsContributionDateLabel: "Ngày",
+  savingsContributionWalletLabel: "Ví nguồn",
+  savingsContributionConfirm: "Xác nhận đóng góp",
+  savingsContributionSubmitting: "Đang gửi...",
+  savingsContributionSuccess: "Ghi nhận đóng góp thành công",
+  savingsContributionFailed: "Không thể ghi nhận đóng góp.",
+  savingsContributionPlanRequired: "Vui lòng chọn kế hoạch tiết kiệm.",
+  savingsContributionWalletRequired: "Vui lòng chọn ví nguồn.",
+  savingsContributionAmountRequired: "Số tiền đóng góp phải lớn hơn 0.",
+  savingsContributionDateRequired: "Vui lòng chọn ngày hợp lệ.",
+  savingsContributionNoteTemplate: "Đóng góp vào {plan}",
+  savingsContributionNoteFallback: "Đóng góp kế hoạch tiết kiệm",
+  savingsContributionSecurity: "Giao dịch được mã hóa",
+  savingsContributionSecurityNote: "Đã xác minh bởi bảo mật Lush Ledger",
+  savingsCompleteBadge: "hoàn thành",
   savingsPlanNameRequired: "Tên kế hoạch là bắt buộc.",
   savingsPlanTargetRequired: "Mục tiêu tiết kiệm phải lớn hơn 0.",
   savingsPlanMonthlyRequired: "Mức đóng góp hằng tháng phải lớn hơn 0.",
@@ -1322,6 +1400,8 @@ const dictionarySections = {
     "ledgerFilterWallet",
     "ledgerTypeIncome",
     "ledgerTypeExpense",
+    "ledgerTypeTransferToSaving",
+    "ledgerTransferToSaving",
     "ledgerApply",
     "ledgerNoEntriesMatch",
     "ledgerUncategorized",
@@ -1399,6 +1479,30 @@ const dictionarySections = {
     "savingsMonthlyContributionTarget",
     "savingsEnvisionGoal",
     "savingsAddToAtelier",
+    "savingsActivePlanLabel",
+    "savingsAddContribution",
+    "savingsNoActivePlan",
+    "savingsNoActivePlanHint",
+    "savingsArchivedCount",
+    "savingsContributionTitle",
+    "savingsContributionSubtitle",
+    "savingsContributionTargetLabel",
+    "savingsContributionAmountLabel",
+    "savingsContributionDateLabel",
+    "savingsContributionWalletLabel",
+    "savingsContributionConfirm",
+    "savingsContributionSubmitting",
+    "savingsContributionSuccess",
+    "savingsContributionFailed",
+    "savingsContributionPlanRequired",
+    "savingsContributionWalletRequired",
+    "savingsContributionAmountRequired",
+    "savingsContributionDateRequired",
+    "savingsContributionNoteTemplate",
+    "savingsContributionNoteFallback",
+    "savingsContributionSecurity",
+    "savingsContributionSecurityNote",
+    "savingsCompleteBadge",
   ],
   onboarding: [
     "onboardingSidebar",

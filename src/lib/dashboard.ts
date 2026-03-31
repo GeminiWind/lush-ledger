@@ -4,6 +4,8 @@ import { materializeRecurringTransactions } from "@/lib/recurring";
 import { ensureMonthlyCapSnapshot } from "@/lib/monthly-cap";
 
 type TxKind = "expense" | "income";
+const isOutflowType = (type: string) => type === "expense" || type === "transfer_to_saving_plan";
+const isSavingsContributionType = (type: string) => type === "transfer_to_saving_plan" || type === "income";
 
 const toNumber = (value: unknown) => Number(value ?? 0);
 
@@ -71,7 +73,7 @@ export const getDashboardData = async (userId: string) => {
         .filter((tx) => tx.accountId === account.id)
         .map((tx) => {
           const amount = toNumber(tx.amount);
-          return tx.type === "expense" ? -amount : amount;
+          return isOutflowType(tx.type) ? -amount : amount;
         })
     );
 
@@ -83,7 +85,7 @@ export const getDashboardData = async (userId: string) => {
     };
   });
 
-  const assetsTotal = sum(
+  const liquidAssetsTotal = sum(
     accountBalances
       .filter((account) => account.type !== "credit")
       .map((account) => Math.max(0, account.balance))
@@ -93,6 +95,13 @@ export const getDashboardData = async (userId: string) => {
       .filter((account) => account.type === "credit")
       .map((account) => Math.abs(Math.min(0, account.balance)) + Math.max(0, account.balance))
   );
+  const savingsAllocated = sum(
+    allTransactions
+      .filter((tx) => tx.savingsPlanId && isSavingsContributionType(tx.type))
+      .map((tx) => toNumber(tx.amount))
+  );
+
+  const assetsTotal = liquidAssetsTotal + savingsAllocated;
   const netWorth = assetsTotal - liabilitiesTotal;
 
   const monthSpending = sumByType(monthTransactions, "expense");
@@ -147,7 +156,7 @@ export const getDashboardData = async (userId: string) => {
     .map((plan) => {
       const saved = sum(
         allTransactions
-          .filter((tx) => tx.savingsPlanId === plan.id && tx.type === "income")
+          .filter((tx) => tx.savingsPlanId === plan.id && (tx.type === "income" || tx.type === "transfer_to_saving_plan"))
           .map((tx) => toNumber(tx.amount))
       );
       const target = toNumber(plan.targetAmount);

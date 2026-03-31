@@ -100,10 +100,10 @@ export const getAtelierData = async (userId: string) => {
   );
 
   const savingsMilestones = savingsPlans.slice(0, 3).map((plan) => {
-    const allocated = sum(
-      monthTransactions
-        .filter((tx) => tx.savingsPlanId === plan.id && tx.type === "income")
-        .map((tx) => toNumber(tx.amount))
+      const allocated = sum(
+        monthTransactions
+          .filter((tx) => tx.savingsPlanId === plan.id && (tx.type === "income" || tx.type === "transfer_to_saving_plan"))
+          .map((tx) => toNumber(tx.amount))
     );
     const target = toNumber(plan.targetAmount);
     const progress = target > 0 ? (allocated / target) * 100 : 0;

@@ -43,10 +43,21 @@ export const POST = async (request: NextRequest) => {
     return NextResponse.json({ error: "Target date must be this month or later." }, { status: 400 });
   }
 
+  const existingPrimary = await prisma.savingsPlan.findFirst({
+    where: {
+      userId: session.sub,
+      status: "active",
+      isPrimary: true,
+    },
+    select: { id: true },
+  });
+
   const plan = await prisma.savingsPlan.create({
     data: {
       userId: session.sub,
       name,
+      status: "active",
+      isPrimary: !existingPrimary,
       targetAmount,
       monthlyContribution,
       targetDate,

@@ -3,11 +3,14 @@ import { formatCurrency } from "@/lib/format";
 import { getDictionary } from "@/lib/i18n";
 import { materializeRecurringTransactions } from "@/lib/recurring";
 import { requireUser } from "@/lib/user";
+import Link from "next/link";
+import AddContributionDialog from "./AddContributionDialog";
 import PrimarySavingsProgressChart from "./PrimarySavingsProgressChart";
 import SavingsGrowthChart from "./SavingsGrowthChart";
 import SavingsPlanCreateDialog from "./SavingsPlanCreateDialog";
 
 const toNumber = (value: unknown) => Number(value ?? 0);
+type SearchParams = Promise<{ plan?: string | string[] | undefined }>;
 
 const getPlanIcon = (name: string) => {
   const normalized = name.toLowerCase();
@@ -28,17 +31,19 @@ const getPlanIcon = (name: string) => {
   return "savings";
 };
 
-export default async function SavingsPage() {
+export default async function SavingsPage({ searchParams }: { searchParams: SearchParams }) {
   const user = await requireUser();
   await materializeRecurringTransactions(user.id);
   const language = user.settings?.language || "en-US";
   const t = getDictionary(language);
   const currency = user.settings?.currency ?? "VND";
+  const params = await searchParams;
+  const requestedPlanId = Array.isArray(params.plan) ? params.plan[0] : params.plan;
 
-  const [savingsPlans, savingsTransactions] = await Promise.all([
+  const [savingsPlans, savingsTransactions, wallets] = await Promise.all([
     prisma.savingsPlan.findMany({
       where: { userId: user.id },
-      orderBy: [{ targetAmount: "desc" }, { targetDate: "asc" }],
+      orderBy: [{ isPrimary: "desc" }, { targetAmount: "desc" }, { targetDate: "asc" }],
     }),
     prisma.transaction.findMany({
       where: { userId: user.id, savingsPlanId: { not: null } },
@@ -49,6 +54,11 @@ export default async function SavingsPage() {
         savingsPlanId: true,
       },
       orderBy: { date: "asc" },
+    }),
+    prisma.account.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "asc" },
+      select: { id: true, name: true },
     }),
   ]);
 
@@ -85,6 +95,8 @@ export default async function SavingsPage() {
     return {
       id: plan.id,
       name: plan.name,
+      status: plan.status,
+      isPrimary: plan.isPrimary,
       target,
       saved: Math.max(0, saved),
       progress: Math.max(0, Math.min(progress, 100)),
@@ -93,10 +105,17 @@ export default async function SavingsPage() {
     };
   });
 
-  const totalSaved = plans.reduce((sum, plan) => sum + plan.saved, 0);
-  const primaryPlan = plans[0] ?? null;
-  const otherPlans = plans.slice(1);
+  const activePlans = plans.filter((plan) => plan.status === "active");
+  const archivedPlans = plans.filter((plan) => plan.status === "archive");
 
+  const primaryPlan =
+    activePlans.find((plan) => plan.id === requestedPlanId) ||
+    activePlans.find((plan) => plan.isPrimary) ||
+    activePlans[0] ||
+    null;
+
+  const otherPlans = activePlans.filter((plan) => plan.id !== primaryPlan?.id);
+  const totalSaved = plans.reduce((sum, plan) => sum + plan.saved, 0);
   const progressRatio = primaryPlan ? Math.max(0, Math.min(primaryPlan.progress, 100)) : 0;
 
   return (
@@ -104,9 +123,32 @@ export default async function SavingsPage() {
       <section className="flex flex-wrap items-end justify-between gap-4">
         <div className="space-y-1">
           <p className="text-xs font-medium text-[#49636f]">{t.savingsPortfolio}</p>
-          <h1 className="font-[var(--font-manrope)] text-4xl font-extrabold tracking-[-0.03em] text-[#1b3641] lg:text-5xl">
-            {t.savingsTitle.split(" ")[0]} <span className="italic text-[#006f1d]">{t.savingsTitle.split(" ").slice(1).join(" ")}</span>
-          </h1>
+          <div className="flex flex-wrap items-center gap-4">
+            <h1 className="font-[var(--font-manrope)] text-4xl font-extrabold tracking-[-0.03em] text-[#1b3641] lg:text-5xl">
+              {t.savingsTitle.split(" ")[0]} <span className="italic text-[#006f1d]">{t.savingsTitle.split(" ").slice(1).join(" ")}</span>
+            </h1>
+            {activePlans.length ? (
+              <details className="group relative">
+                <summary className="flex cursor-pointer list-none items-center gap-2 rounded-full border border-[#9bb6c4]/30 bg-[#e7f6ff] px-4 py-2">
+                  <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#49636f]">{t.savingsActivePlanLabel}</span>
+                  <span className="font-[var(--font-manrope)] text-sm font-bold text-[#1b3641]">{primaryPlan?.name}</span>
+                  <span className="material-symbols-outlined text-[18px] text-[#49636f]">expand_more</span>
+                </summary>
+                <div className="absolute left-0 top-full z-20 mt-2 w-72 rounded-xl border border-[#9bb6c4]/20 bg-white p-2 shadow-2xl">
+                  {activePlans.map((plan) => (
+                    <Link
+                      key={plan.id}
+                      href={`/app/savings?plan=${plan.id}`}
+                      className="flex items-center justify-between rounded-lg px-3 py-2 text-sm hover:bg-[#e7f6ff]"
+                    >
+                      <span className={plan.id === primaryPlan?.id ? "font-bold text-[#1b3641]" : "text-[#49636f]"}>{plan.name}</span>
+                      {plan.id === primaryPlan?.id ? <span className="material-symbols-outlined text-[16px] text-[#006f1d]">check_circle</span> : null}
+                    </Link>
+                  ))}
+                </div>
+              </details>
+            ) : null}
+          </div>
         </div>
         <div className="space-y-3">
           <SavingsPlanCreateDialog language={language} currency={currency} />
@@ -139,6 +181,14 @@ export default async function SavingsPage() {
                   {t.savingsTargeted} {new Intl.DateTimeFormat(language === "vi-VN" ? "vi-VN" : "en-US", { month: "short", year: "numeric" }).format(primaryPlan.targetDate)}
                 </span>
               </div>
+
+              <AddContributionDialog
+                language={language}
+                currency={currency}
+                plans={activePlans.map((plan) => ({ id: plan.id, name: plan.name, progress: plan.progress }))}
+                wallets={wallets}
+                defaultPlanId={primaryPlan.id}
+              />
 
               <h2 className="font-[var(--font-manrope)] text-3xl font-extrabold tracking-[-0.02em] text-[#1b3641] lg:text-4xl">
                 {primaryPlan.name}
@@ -174,8 +224,8 @@ export default async function SavingsPage() {
         </section>
       ) : (
         <section className="rounded-[2rem] border-2 border-dashed border-[#c7dce9] bg-white p-12 text-center">
-          <h2 className="font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">{t.savingsNoPlan}</h2>
-          <p className="mt-2 text-[#647e8c]">{t.savingsCreatePlanHint}</p>
+          <h2 className="font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">{t.savingsNoActivePlan}</h2>
+          <p className="mt-2 text-[#647e8c]">{t.savingsNoActivePlanHint}</p>
           <div className="mt-5 inline-flex">
             <SavingsPlanCreateDialog language={language} currency={currency} />
           </div>
@@ -185,7 +235,12 @@ export default async function SavingsPage() {
       <SavingsGrowthChart currency={currency} points={growthPoints} />
 
       <section className="space-y-6">
-        <h3 className="font-[var(--font-manrope)] text-3xl font-extrabold tracking-[-0.02em] text-[#1b3641]">{t.savingsOtherAmbitions}</h3>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h3 className="font-[var(--font-manrope)] text-3xl font-extrabold tracking-[-0.02em] text-[#1b3641]">{t.savingsOtherAmbitions}</h3>
+          {archivedPlans.length ? (
+            <p className="rounded-full bg-[#d4ecf9] px-3 py-1 text-[11px] font-bold text-[#40555f]">{t.savingsArchivedCount.replace("{count}", String(archivedPlans.length))}</p>
+          ) : null}
+        </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
           {otherPlans.slice(0, 2).map((plan) => (
             <article
