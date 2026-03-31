@@ -45,6 +45,8 @@ Current naming convention examples:
 - Use TanStack Query (`@tanstack/react-query`) for client-side API mutations/queries.
 - Register providers once at app root (`src/app/QueryProvider.tsx` + `src/app/layout.tsx`).
 - Prefer `useMutation`/`useQuery` over ad-hoc `fetch` state for client components.
+- Define mutation callbacks (`onSuccess`, `onError`, `onSettled`) on the `useMutation` declaration by default.
+- Avoid per-invocation callback overrides in `mutate(..., { onSuccess })` unless there is a hard one-off need.
 - Invalidate relevant keys after successful mutations (for example `queryClient.invalidateQueries({ queryKey: ["savings"] })`).
 - Keep server route handlers as source of truth for validation and user scoping.
 

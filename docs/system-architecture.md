@@ -19,6 +19,10 @@ Main layers:
 4. Route handler or page module executes domain logic.
 5. Prisma reads/writes SQLite and returns user-scoped data.
 
+Client mutation flow:
+- UI forms/dialogs call route handlers via TanStack Query `useMutation`
+- on success: invalidate relevant query keys and run `router.refresh()`
+
 ## Authentication Architecture
 
 - Password hashing: `bcryptjs`

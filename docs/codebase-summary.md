@@ -77,6 +77,10 @@ Core models in `prisma/schema.prisma`:
 - Domain calculations: `src/lib/dashboard.ts`, `src/lib/ledger.ts`, `src/lib/atelier.ts`, `src/lib/wallet.ts`
 - Client query/mutation cache: `src/app/QueryProvider.tsx` (`@tanstack/react-query`)
 
+Client API handling convention:
+- interactive client forms/dialogs use TanStack Query mutations (`useMutation`) for `/api/*` writes
+- post-mutation flow uses query invalidation + `router.refresh()` for server-rendered data sync
+
 ## UI Domains
 
 - Dashboard
