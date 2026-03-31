@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { clearSessionCookie } from "@/lib/auth";
 
-export const POST = async () => {
+export const POST = async (request: NextRequest) => {
   await clearSessionCookie();
-  return NextResponse.json({ ok: true });
+  return NextResponse.redirect(new URL("/login", request.url), { status: 303 });
 };
