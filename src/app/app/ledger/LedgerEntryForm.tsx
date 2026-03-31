@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useFormik } from "formik";
 import { formatCurrencyInput, getCurrencyInputSuggestions, parseCurrencyInput } from "@/lib/format";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 type Option = {
   id: string;
@@ -20,8 +21,41 @@ const today = new Date().toISOString().slice(0, 10);
 
 export default function LedgerEntryForm({ accounts, categories, currency = "VND" }: Props) {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+  const createLedgerEntryMutation = useMutation({
+    mutationFn: async (values: {
+      accountId: string;
+      categoryId: string;
+      type: string;
+      amount: string;
+      date: string;
+      notes: string;
+    }) => {
+      const response = await fetch("/api/ledger", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...values,
+          amount: parseCurrencyInput(values.amount),
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Could not create transaction.");
+      }
+    },
+    onSuccess: async () => {
+      formik.resetForm({ values: { ...formik.initialValues, date: today, type: "expense" } });
+      await queryClient.invalidateQueries({ queryKey: ["ledger"] });
+      router.refresh();
+    },
+    onError: (mutationError: unknown) => {
+      setError(mutationError instanceof Error ? mutationError.message : "Could not create transaction.");
+    },
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -45,29 +79,9 @@ export default function LedgerEntryForm({ accounts, categories, currency = "VND"
       }
       return errors;
     },
-    onSubmit: async (values, helpers) => {
+    onSubmit: async (values) => {
       setError(null);
-      setLoading(true);
-
-      const response = await fetch("/api/ledger", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...values,
-          amount: parseCurrencyInput(values.amount),
-        }),
-      });
-
-      setLoading(false);
-
-      if (!response.ok) {
-        const data = await response.json();
-        setError(data.error || "Could not create transaction.");
-        return;
-      }
-
-      helpers.resetForm({ values: { ...formik.initialValues, date: today, type: "expense" } });
-      router.refresh();
+      createLedgerEntryMutation.mutate(values);
     },
   });
 
@@ -190,10 +204,10 @@ export default function LedgerEntryForm({ accounts, categories, currency = "VND"
 
       <button
         type="submit"
-        disabled={loading}
+        disabled={createLedgerEntryMutation.isPending}
         className="rounded-xl bg-[#046c1f] px-4 py-2 text-sm font-semibold text-white hover:bg-[#035519] disabled:opacity-60"
       >
-        {loading ? "Saving..." : "Add entry"}
+        {createLedgerEntryMutation.isPending ? "Saving..." : "Add entry"}
       </button>
     </form>
   );

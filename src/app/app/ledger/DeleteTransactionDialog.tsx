@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { getDictionary } from "@/lib/i18n";
 import toast from "react-hot-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 type DeleteTransactionDialogProps = {
   language: string;
@@ -36,10 +37,32 @@ export default function DeleteTransactionDialog({
 }: DeleteTransactionDialogProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const t = getDictionary(language);
   const locale = language === "vi-VN" ? "vi-VN" : "en-US";
+  const queryClient = useQueryClient();
+
+  const deleteTransactionMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/ledger/${transaction.id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || t.ledgerDeleteFailed);
+      }
+    },
+    onSuccess: async () => {
+      toast.success(t.ledgerDeleteSuccess);
+      close();
+      await queryClient.invalidateQueries({ queryKey: ["ledger"] });
+      router.refresh();
+    },
+    onError: (mutationError: unknown) => {
+      setError(mutationError instanceof Error ? mutationError.message : t.ledgerDeleteFailed);
+    },
+  });
 
   const subject = useMemo(() => {
     return transaction.notes?.trim() || transaction.categoryName || transaction.accountName;
@@ -74,24 +97,8 @@ export default function DeleteTransactionDialog({
   };
 
   const onDelete = async () => {
-    setDeleting(true);
     setError(null);
-
-    const response = await fetch(`/api/ledger/${transaction.id}`, {
-      method: "DELETE",
-    });
-
-    setDeleting(false);
-
-    if (!response.ok) {
-      const data = await response.json();
-      setError(data.error || t.ledgerDeleteFailed);
-      return;
-    }
-
-    toast.success(t.ledgerDeleteSuccess);
-    close();
-    router.refresh();
+    deleteTransactionMutation.mutate();
   };
 
   return (
@@ -156,10 +163,10 @@ export default function DeleteTransactionDialog({
                 <button
                   type="button"
                   onClick={onDelete}
-                  disabled={deleting}
+                  disabled={deleteTransactionMutation.isPending}
                   className="w-full rounded-2xl bg-[#fcedea] py-4 text-sm font-bold tracking-tight text-[#7d2212] transition-colors hover:bg-[#f9dad4] disabled:opacity-70"
                 >
-                  {deleting
+                  {deleteTransactionMutation.isPending
                     ? t.ledgerDeleteDeleting
                     : t.ledgerDeleteAction}
                 </button>

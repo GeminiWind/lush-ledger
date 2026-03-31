@@ -7,6 +7,7 @@ import { useFormik } from "formik";
 import { formatCurrencyInput, getCurrencyInputSuggestions, parseCurrencyInput } from "@/lib/format";
 import toast from "react-hot-toast";
 import { getDictionary } from "@/lib/i18n";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const allIconChoices = [
   "restaurant",
@@ -97,13 +98,13 @@ export default function EditCategoryModal({ category, currency, language }: Prop
   const t = getDictionary(language);
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const [keepNextMonth, setKeepNextMonth] = useState(true);
   const [warningEnabled, setWarningEnabled] = useState(category.warningEnabled);
   const [warnAt, setWarnAt] = useState(String(category.warnAt || 80));
   const [selectedIcon, setSelectedIcon] = useState(category.icon || "category");
   const [iconDialogOpen, setIconDialogOpen] = useState(false);
   const [iconSearch, setIconSearch] = useState("");
+  const queryClient = useQueryClient();
 
   const currencyHint = useMemo(() => {
     if (currency === "VND") {
@@ -111,6 +112,37 @@ export default function EditCategoryModal({ category, currency, language }: Prop
     }
     return t.atelierCurrencyHintTemplate.replace("{currency}", currency);
   }, [currency, t.atelierCurrencyHintTemplate, t.atelierCurrencyHintVnd]);
+
+  const updateCategoryMutation = useMutation({
+    mutationFn: async (values: { name: string; monthlyLimit: string }) => {
+      const response = await fetch(`/api/categories/${category.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: values.name.trim(),
+          icon: selectedIcon,
+          monthlyLimit: parseCurrencyInput(values.monthlyLimit),
+          warningEnabled,
+          warnAt: Number(warnAt || 80),
+          keepLimitNextMonth: keepNextMonth,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || t.atelierEditCategoryFailed);
+      }
+    },
+    onSuccess: async () => {
+      setIsOpen(false);
+      toast.success(t.atelierEditCategorySuccess);
+      await queryClient.invalidateQueries({ queryKey: ["atelier"] });
+      router.refresh();
+    },
+    onError: (mutationError: unknown) => {
+      setError(mutationError instanceof Error ? mutationError.message : t.atelierEditCategoryFailed);
+    },
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -130,32 +162,7 @@ export default function EditCategoryModal({ category, currency, language }: Prop
     },
     onSubmit: async (values) => {
       setError(null);
-      setLoading(true);
-
-      const response = await fetch(`/api/categories/${category.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: values.name.trim(),
-          icon: selectedIcon,
-          monthlyLimit: parseCurrencyInput(values.monthlyLimit),
-          warningEnabled,
-          warnAt: Number(warnAt || 80),
-          keepLimitNextMonth: keepNextMonth,
-        }),
-      });
-
-      setLoading(false);
-
-      if (!response.ok) {
-        const data = await response.json();
-        setError(data.error || t.atelierEditCategoryFailed);
-        return;
-      }
-
-      setIsOpen(false);
-      toast.success(t.atelierEditCategorySuccess);
-      router.refresh();
+      updateCategoryMutation.mutate(values);
     },
   });
 
@@ -380,11 +387,11 @@ export default function EditCategoryModal({ category, currency, language }: Prop
                   <div className="flex flex-wrap items-center gap-4 pt-1">
                     <button
                       type="submit"
-                      disabled={loading}
+                      disabled={updateCategoryMutation.isPending}
                       className="flex h-14 min-w-[220px] flex-1 items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(145deg,#2e7d32_0%,#006118_100%)] px-6 text-sm font-bold text-[#eaffe2] shadow-[0_12px_28px_-12px_rgba(0,111,29,0.45)] transition hover:brightness-105 disabled:opacity-70"
                     >
                       <span className="material-symbols-outlined text-lg">done_all</span>
-                      {loading ? t.atelierActionSaving : t.atelierSaveChanges}
+                      {updateCategoryMutation.isPending ? t.atelierActionSaving : t.atelierSaveChanges}
                     </button>
                     <button
                       type="button"

@@ -7,6 +7,7 @@ import { useFormik } from "formik";
 import { formatCurrencyInput, getCurrencyInputSuggestions, parseCurrencyInput } from "@/lib/format";
 import { getDictionary } from "@/lib/i18n";
 import toast from "react-hot-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const allIconChoices = [
   "restaurant",
@@ -89,11 +90,11 @@ export default function AddCategoryModal({ currency, language }: Props) {
   const t = getDictionary(language);
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const [keepNextMonth, setKeepNextMonth] = useState(true);
   const [warningEnabled, setWarningEnabled] = useState(true);
   const [warnAt, setWarnAt] = useState("80");
   const [selectedIcon, setSelectedIcon] = useState(allIconChoices[0]);
+  const queryClient = useQueryClient();
 
   const currencyHint = useMemo(() => {
     if (currency === "VND") {
@@ -104,12 +105,44 @@ export default function AddCategoryModal({ currency, language }: Props) {
 
   const resetUiState = useCallback(() => {
     setError(null);
-    setLoading(false);
     setKeepNextMonth(true);
     setWarningEnabled(true);
     setWarnAt("80");
     setSelectedIcon(allIconChoices[0]);
   }, []);
+
+  const createCategoryMutation = useMutation({
+    mutationFn: async (values: { name: string; monthlyLimit: string }) => {
+      const response = await fetch("/api/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: values.name.trim(),
+          icon: selectedIcon,
+          monthlyLimit: parseCurrencyInput(values.monthlyLimit),
+          keepLimitNextMonth: keepNextMonth,
+          warningEnabled,
+          warnAt: Number(warnAt || 80),
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || t.atelierCreateCategoryFailed);
+      }
+    },
+    onSuccess: async () => {
+      resetUiState();
+      formik.resetForm();
+      setIsOpen(false);
+      toast.success(t.atelierCreateCategorySuccess);
+      await queryClient.invalidateQueries({ queryKey: ["atelier"] });
+      router.refresh();
+    },
+    onError: (mutationError: unknown) => {
+      setError(mutationError instanceof Error ? mutationError.message : t.atelierCreateCategoryFailed);
+    },
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -126,36 +159,9 @@ export default function AddCategoryModal({ currency, language }: Props) {
       }
       return errors;
     },
-    onSubmit: async (values, helpers) => {
+    onSubmit: async (values) => {
       setError(null);
-      setLoading(true);
-
-      const response = await fetch("/api/categories", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: values.name.trim(),
-          icon: selectedIcon,
-          monthlyLimit: parseCurrencyInput(values.monthlyLimit),
-          keepLimitNextMonth: keepNextMonth,
-          warningEnabled,
-          warnAt: Number(warnAt || 80),
-        }),
-      });
-
-      setLoading(false);
-
-      if (!response.ok) {
-        const data = await response.json();
-        setError(data.error || t.atelierCreateCategoryFailed);
-        return;
-      }
-
-      setIsOpen(false);
-      resetUiState();
-      helpers.resetForm();
-      toast.success(t.atelierCreateCategorySuccess);
-      router.refresh();
+      createCategoryMutation.mutate(values);
     },
   });
 
@@ -388,10 +394,10 @@ export default function AddCategoryModal({ currency, language }: Props) {
                   </button>
                   <button
                     type="submit"
-                    disabled={loading}
+                    disabled={createCategoryMutation.isPending}
                     className="flex-[1.4] rounded-2xl bg-[linear-gradient(145deg,#2e7d32_0%,#006118_100%)] px-6 py-4 font-bold text-[#eaffe2] shadow-[0_16px_28px_-12px_rgba(0,111,29,0.4)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-70"
                   >
-                    {loading ? t.atelierAddingCategory : t.atelierAddCategory}
+                    {createCategoryMutation.isPending ? t.atelierAddingCategory : t.atelierAddCategory}
                   </button>
                 </div>
               </form>

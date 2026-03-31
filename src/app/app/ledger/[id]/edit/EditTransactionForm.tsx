@@ -6,6 +6,7 @@ import { useFormik } from "formik";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatCurrencyInput, getCurrencyInputSuggestions, parseCurrencyInput } from "@/lib/format";
 import toast from "react-hot-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 type Option = {
   id: string;
@@ -45,8 +46,8 @@ export default function EditTransactionForm({
 }: Props) {
   const router = useRouter();
   const t = getDictionary(language);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   const closeDialog = useCallback(() => {
     router.push("/app/ledger");
@@ -64,6 +65,36 @@ export default function EditTransactionForm({
   }, [closeDialog]);
 
   const initialAmountDisplay = formatCurrencyInput(String(initialAmount), currency);
+
+  const updateTransactionMutation = useMutation({
+    mutationFn: async (values: Values) => {
+      const notes = [values.description.trim(), values.note.trim()].filter(Boolean).join(" - ");
+      const response = await fetch(`/api/ledger/${transactionId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: parseCurrencyInput(values.amountDisplay),
+          categoryId: values.categoryId,
+          date: values.date,
+          notes,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || t.txUpdateFailed);
+      }
+    },
+    onSuccess: async () => {
+      toast.success(t.txUpdateSuccess);
+      await queryClient.invalidateQueries({ queryKey: ["ledger"] });
+      router.push("/app/ledger");
+      router.refresh();
+    },
+    onError: (mutationError: unknown) => {
+      setError(mutationError instanceof Error ? mutationError.message : t.txUpdateFailed);
+    },
+  });
 
   const formik = useFormik<Values>({
     initialValues: {
@@ -85,31 +116,7 @@ export default function EditTransactionForm({
     },
     onSubmit: async (values) => {
       setError(null);
-      setLoading(true);
-
-      const notes = [values.description.trim(), values.note.trim()].filter(Boolean).join(" - ");
-      const response = await fetch(`/api/ledger/${transactionId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount: parseCurrencyInput(values.amountDisplay),
-          categoryId: values.categoryId,
-          date: values.date,
-          notes,
-        }),
-      });
-
-      setLoading(false);
-
-      if (!response.ok) {
-        const data = await response.json();
-        setError(data.error || t.txUpdateFailed);
-        return;
-      }
-
-      toast.success(t.txUpdateSuccess);
-      router.push("/app/ledger");
-      router.refresh();
+      updateTransactionMutation.mutate(values);
     },
   });
 
@@ -255,11 +262,11 @@ export default function EditTransactionForm({
             </button>
             <button
               type="submit"
-              disabled={loading}
+              disabled={updateTransactionMutation.isPending}
               className="flex flex-[2] items-center justify-center gap-2 rounded-2xl bg-[#2e7d32] py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-900/10 transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
             >
               <span className="material-symbols-outlined text-sm">check_circle</span>
-              {loading ? t.txEditSaving : t.txEditSave}
+              {updateTransactionMutation.isPending ? t.txEditSaving : t.txEditSave}
             </button>
           </div>
         </form>

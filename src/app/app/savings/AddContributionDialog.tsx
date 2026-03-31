@@ -86,6 +86,7 @@ export default function AddContributionDialog({ language, currency, plans, walle
       }
     },
     onSuccess: async () => {
+      formik.resetForm();
       toast.success(t.savingsContributionSuccess);
       setOpen(false);
       await queryClient.invalidateQueries({ queryKey: ["savings"] });
@@ -129,11 +130,7 @@ export default function AddContributionDialog({ language, currency, plans, walle
     },
     onSubmit: async (values) => {
       setError(null);
-      addContributionMutation.mutate(values, {
-        onSuccess: () => {
-          formik.resetForm();
-        },
-      });
+      addContributionMutation.mutate(values);
     },
   });
 

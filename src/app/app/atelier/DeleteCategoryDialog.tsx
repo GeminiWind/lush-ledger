@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { formatCurrency } from "@/lib/format";
 import { getDictionary } from "@/lib/i18n";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 type Props = {
   category: {
@@ -22,8 +23,30 @@ export default function DeleteCategoryDialog({ category, currency, language }: P
   const router = useRouter();
   const t = getDictionary(language);
   const [open, setOpen] = useState(false);
-  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+  const deleteCategoryMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/categories/${category.id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || t.atelierDeleteFailed);
+      }
+    },
+    onSuccess: async () => {
+      toast.success(t.atelierDeleteSuccess);
+      close();
+      await queryClient.invalidateQueries({ queryKey: ["atelier"] });
+      router.refresh();
+    },
+    onError: (mutationError: unknown) => {
+      setError(mutationError instanceof Error ? mutationError.message : t.atelierDeleteFailed);
+    },
+  });
 
   useEffect(() => {
     if (!open) {
@@ -47,24 +70,8 @@ export default function DeleteCategoryDialog({ category, currency, language }: P
   };
 
   const onDelete = async () => {
-    setDeleting(true);
     setError(null);
-
-    const response = await fetch(`/api/categories/${category.id}`, {
-      method: "DELETE",
-    });
-
-    setDeleting(false);
-
-    if (!response.ok) {
-      const data = await response.json();
-      setError(data.error || t.atelierDeleteFailed);
-      return;
-    }
-
-    toast.success(t.atelierDeleteSuccess);
-    close();
-    router.refresh();
+    deleteCategoryMutation.mutate();
   };
 
   return (
@@ -131,10 +138,10 @@ export default function DeleteCategoryDialog({ category, currency, language }: P
                 <button
                   type="button"
                   onClick={onDelete}
-                  disabled={deleting}
+                  disabled={deleteCategoryMutation.isPending}
                   className="w-full rounded-xl bg-[#a73b21] py-4 text-lg font-extrabold text-[#fff7f6] shadow-[0_4px_12px_rgba(167,59,33,0.3)] transition hover:brightness-110 disabled:opacity-70"
                 >
-                  {deleting ? t.atelierDeleteCategoryDeleting : t.atelierDeleteCategoryAction}
+                  {deleteCategoryMutation.isPending ? t.atelierDeleteCategoryDeleting : t.atelierDeleteCategoryAction}
                 </button>
                 <button
                   type="button"

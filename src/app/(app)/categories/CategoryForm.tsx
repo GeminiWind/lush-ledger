@@ -3,11 +3,38 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useFormik } from "formik";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export default function CategoryForm() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
+
+  const createCategoryMutation = useMutation({
+    mutationFn: async (values: { name: string; monthlyLimit: string }) => {
+      const response = await fetch("/api/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: values.name,
+          monthlyLimit: values.monthlyLimit,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to create category.");
+      }
+    },
+    onSuccess: async () => {
+      formik.resetForm();
+      await queryClient.invalidateQueries({ queryKey: ["categories"] });
+      router.refresh();
+    },
+    onError: (mutationError: unknown) => {
+      setError(mutationError instanceof Error ? mutationError.message : "Failed to create category.");
+    },
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -21,29 +48,9 @@ export default function CategoryForm() {
       }
       return errors;
     },
-    onSubmit: async (values, helpers) => {
+    onSubmit: async (values) => {
       setError(null);
-      setLoading(true);
-
-      const response = await fetch("/api/categories", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: values.name,
-          monthlyLimit: values.monthlyLimit,
-        }),
-      });
-
-      setLoading(false);
-
-      if (!response.ok) {
-        const data = await response.json();
-        setError(data.error || "Failed to create category.");
-        return;
-      }
-
-      helpers.resetForm();
-      router.refresh();
+      createCategoryMutation.mutate(values);
     },
   });
 
@@ -83,10 +90,10 @@ export default function CategoryForm() {
         </div>
       ) : null}
       <button
-        disabled={loading}
+        disabled={createCategoryMutation.isPending}
         className="rounded-xl bg-amber-400 px-5 py-2 text-sm font-semibold text-slate-900 hover:bg-amber-300 disabled:opacity-60"
       >
-        {loading ? "Saving..." : "Add category"}
+        {createCategoryMutation.isPending ? "Saving..." : "Add category"}
       </button>
     </form>
   );

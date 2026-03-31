@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { formatCurrency, formatCurrencyInput, getCurrencyInputSuggestions, parseCurrencyInput } from "@/lib/format";
 import { getDictionary } from "@/lib/i18n";
 import toast from "react-hot-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 type Props = {
   currency: string;
@@ -32,8 +33,23 @@ export default function TotalCapCard({
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(formatCurrencyInput(String(Math.max(0, Math.round(totalCap))), currency));
   const [keepCapNextMonth, setKeepCapNextMonth] = useState(true);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+  const updateCapMutation = useMutation({
+    mutationFn: async ({ nextCap, nextKeep }: { nextCap: number; nextKeep: boolean }) => {
+      const response = await fetch("/api/atelier/cap", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ totalCap: nextCap, month, keepCapNextMonth: nextKeep }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || t.atelierCapUpdateFailed);
+      }
+    },
+  });
 
   const capSuggestions = useMemo(() => {
     return getCurrencyInputSuggestions(value, currency);
@@ -49,22 +65,16 @@ export default function TotalCapCard({
       return false;
     }
 
-    setLoading(true);
-    const response = await fetch("/api/atelier/cap", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ totalCap: nextCap, month, keepCapNextMonth: nextKeep }),
-    });
-    setLoading(false);
-
-    if (!response.ok) {
-      const data = await response.json();
-      setError(data.error || t.atelierCapUpdateFailed);
+    try {
+      await updateCapMutation.mutateAsync({ nextCap, nextKeep });
+    } catch (mutationError) {
+      setError(mutationError instanceof Error ? mutationError.message : t.atelierCapUpdateFailed);
       return false;
     }
 
     setEditing(false);
     toast.success(t.atelierCapUpdateSuccess);
+    await queryClient.invalidateQueries({ queryKey: ["atelier"] });
     router.refresh();
     return true;
   };
@@ -81,7 +91,7 @@ export default function TotalCapCard({
           }}
             className="inline-flex items-center gap-1 rounded-lg bg-[#eef7ff] px-2.5 py-1.5 text-[#49636f] transition hover:text-[#1b3641] disabled:opacity-70"
             aria-label={t.atelierEditTotalMonthlyCapAria}
-            disabled={loading}
+            disabled={updateCapMutation.isPending}
           >
             <span className="material-symbols-outlined text-[16px]">edit</span>
             <span className="text-xs font-semibold">{t.atelierActionEdit}</span>
@@ -117,10 +127,10 @@ export default function TotalCapCard({
               onClick={() => {
                 void saveCap();
               }}
-              disabled={loading}
+              disabled={updateCapMutation.isPending}
               className="rounded-xl bg-[#006f1d] px-4 py-2 text-xs font-bold text-[#eaffe2] disabled:opacity-70"
             >
-              {loading ? t.atelierActionSaving : t.atelierActionSave}
+              {updateCapMutation.isPending ? t.atelierActionSaving : t.atelierActionSave}
             </button>
             <button
               type="button"
@@ -191,7 +201,7 @@ export default function TotalCapCard({
               setKeepCapNextMonth(prevValue);
             }
           }}
-          disabled={loading}
+          disabled={updateCapMutation.isPending}
           className={`relative mt-0.5 inline-flex h-6 w-11 items-center rounded-full transition ${
             keepCapNextMonth ? "bg-[#2e7d32]" : "bg-[#9bb6c4]"
           } disabled:opacity-70`}

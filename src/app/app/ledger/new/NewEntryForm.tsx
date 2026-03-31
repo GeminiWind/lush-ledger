@@ -7,6 +7,7 @@ import { useFormik } from "formik";
 import { formatCurrencyInput, getCurrencyInputSuggestions, parseCurrencyInput } from "@/lib/format";
 import { getDictionary } from "@/lib/i18n";
 import toast from "react-hot-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 type Option = {
   id: string;
@@ -58,10 +59,53 @@ const formatDateForApi = (date: Date) => {
 export default function NewEntryForm({ wallets = [], defaultWalletId, categories, currency, language }: Props) {
   const router = useRouter();
   const t = getDictionary(language);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   const categoryOptions = useMemo(() => categories.slice(0, 6), [categories]);
+
+  const createTransactionMutation = useMutation({
+    mutationFn: async (values: FormValues) => {
+      const date = values.date ? formatDateForApi(values.date) : "";
+      const amount = parseCurrencyInput(values.amountDisplay);
+      const description = values.description.trim();
+      const note = values.note.trim();
+      const notes = [description, note].filter(Boolean).join(" - ");
+
+      const response = await fetch("/api/ledger", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          accountId: values.walletId,
+          categoryId: values.type === "expense" ? values.categoryId : "",
+          type: values.type,
+          amount,
+          date,
+          notes,
+          recurring: {
+            enabled: values.isRecurring,
+            interval: values.recurringInterval,
+            dayOfMonth: Number(values.recurringDayOfMonth || "1"),
+            endDate: values.recurringEndDate ? formatDateForApi(values.recurringEndDate) : null,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || t.txCreateFailed);
+      }
+    },
+    onSuccess: async () => {
+      toast.success(t.txCreateSuccess);
+      await queryClient.invalidateQueries({ queryKey: ["ledger"] });
+      router.push("/app/ledger");
+      router.refresh();
+    },
+    onError: (mutationError: unknown) => {
+      setError(mutationError instanceof Error ? mutationError.message : t.txCreateFailed);
+    },
+  });
 
   const formik = useFormik<FormValues>({
     initialValues: {
@@ -110,44 +154,7 @@ export default function NewEntryForm({ wallets = [], defaultWalletId, categories
     },
     onSubmit: async (values) => {
       setError(null);
-      setLoading(true);
-
-      const date = values.date ? formatDateForApi(values.date) : "";
-      const amount = parseCurrencyInput(values.amountDisplay);
-      const description = values.description.trim();
-      const note = values.note.trim();
-      const notes = [description, note].filter(Boolean).join(" - ");
-
-      const response = await fetch("/api/ledger", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          accountId: values.walletId,
-          categoryId: values.type === "expense" ? values.categoryId : "",
-          type: values.type,
-          amount,
-          date,
-          notes,
-          recurring: {
-            enabled: values.isRecurring,
-            interval: values.recurringInterval,
-            dayOfMonth: Number(values.recurringDayOfMonth || "1"),
-            endDate: values.recurringEndDate ? formatDateForApi(values.recurringEndDate) : null,
-          },
-        }),
-      });
-
-      setLoading(false);
-
-      if (!response.ok) {
-        const data = await response.json();
-        setError(data.error || t.txCreateFailed);
-        return;
-      }
-
-      toast.success(t.txCreateSuccess);
-      router.push("/app/ledger");
-      router.refresh();
+      createTransactionMutation.mutate(values);
     },
   });
 
@@ -444,11 +451,11 @@ export default function NewEntryForm({ wallets = [], defaultWalletId, categories
       <div className="pt-2">
         <button
           type="submit"
-          disabled={loading}
+          disabled={createTransactionMutation.isPending}
           className="flex w-full items-center justify-center gap-3 rounded-2xl bg-[#006f1d] py-6 font-[var(--font-manrope)] text-lg font-bold text-[#eaffe2] shadow-[0_12px_40px_-10px_rgba(0,111,29,0.3)] transition hover:bg-[#006118] disabled:cursor-not-allowed disabled:opacity-70"
         >
           <span className="material-symbols-outlined">check_circle</span>
-          <span>{loading ? t.txAdding : t.txAdd}</span>
+          <span>{createTransactionMutation.isPending ? t.txAdding : t.txAdd}</span>
         </button>
         <p className="mt-4 text-center text-xs font-medium text-[#7f97a4]">
           Press <span className="rounded bg-[#d4ecf9] px-1.5 py-0.5 text-[10px]">CMD</span> +{" "}

@@ -81,6 +81,17 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
       }
     },
     onSuccess: async () => {
+      formik.resetForm({
+        values: {
+          name: "",
+          targetAmount: "",
+          monthlyContribution: "",
+          targetDate: "",
+        },
+      });
+      setSelectedIcon("home");
+      setIsPrimary(true);
+      setOpen(false);
       await queryClient.invalidateQueries({ queryKey: ["savings"] });
       router.refresh();
       toast.success(t.savingsPlanCreateSuccess);
@@ -132,23 +143,9 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
 
       return errors;
     },
-    onSubmit: async (values, helpers) => {
+    onSubmit: async (values) => {
       setError(null);
-      createPlanMutation.mutate(values, {
-        onSuccess: () => {
-          helpers.resetForm({
-            values: {
-              name: "",
-              targetAmount: "",
-              monthlyContribution: "",
-              targetDate: "",
-            },
-          });
-          setSelectedIcon("home");
-          setIsPrimary(true);
-          setOpen(false);
-        },
-      });
+      createPlanMutation.mutate(values);
     },
   });
 

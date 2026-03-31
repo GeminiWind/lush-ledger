@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useFormik } from "formik";
+import { useMutation } from "@tanstack/react-query";
 
 const visualTextureImage = "/images/auth/register-visual-texture.png";
 
@@ -29,9 +30,41 @@ function EyeIcon({ hidden }: { hidden: boolean }) {
 export default function RegisterPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const registerMutation = useMutation({
+    mutationFn: async (values: {
+      fullName: string;
+      email: string;
+      password: string;
+      confirmPassword: string;
+      acceptedTerms: boolean;
+    }) => {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: values.fullName.trim(),
+          email: values.email.trim(),
+          password: values.password,
+          acceptedTerms: values.acceptedTerms,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Registration failed.");
+      }
+    },
+    onSuccess: () => {
+      router.push("/app");
+      router.refresh();
+    },
+    onError: (mutationError: unknown) => {
+      setError(mutationError instanceof Error ? mutationError.message : "Registration failed.");
+    },
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -72,29 +105,7 @@ export default function RegisterPage() {
     },
     onSubmit: async (values) => {
       setError(null);
-      setLoading(true);
-
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fullName: values.fullName.trim(),
-          email: values.email.trim(),
-          password: values.password,
-          acceptedTerms: values.acceptedTerms,
-        }),
-      });
-
-      setLoading(false);
-
-      if (!response.ok) {
-        const data = await response.json();
-        setError(data.error || "Registration failed.");
-        return;
-      }
-
-      router.push("/app");
-      router.refresh();
+      registerMutation.mutate(values);
     },
   });
 
@@ -264,10 +275,10 @@ export default function RegisterPage() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={registerMutation.isPending}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2e7d32] px-6 py-4 font-[var(--font-manrope)] text-lg font-bold text-[#eaffe2] shadow-[0_10px_28px_-8px_rgba(46,125,50,0.48)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {loading ? "Creating Account..." : "Join the Atelier"}
+              {registerMutation.isPending ? "Creating Account..." : "Join the Atelier"}
               <span aria-hidden="true">→</span>
             </button>
           </form>

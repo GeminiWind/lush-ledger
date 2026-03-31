@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useFormik } from "formik";
 import { formatCurrencyInput, getCurrencyInputSuggestions, parseCurrencyInput } from "@/lib/format";
 import toast from "react-hot-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 type WalletForEdit = {
   id: string;
@@ -25,11 +26,10 @@ export default function WalletCreateForm({ language, currency, wallet, trigger =
   const t = getDictionary(language);
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isEdit = Boolean(wallet);
   const currencyAffix = currency === "VND" ? "đ" : currency;
+  const queryClient = useQueryClient();
 
   const openingBalanceDisplay = wallet
     ? formatCurrencyInput(String(Math.max(0, Math.round(wallet.openingBalance))), currency)
@@ -39,6 +39,64 @@ export default function WalletCreateForm({ language, currency, wallet, trigger =
     setOpen(false);
     setError(null);
   };
+
+  const saveWalletMutation = useMutation({
+    mutationFn: async (values: { name: string; openingBalance: string; setAsDefault: boolean }) => {
+      const payload = {
+        name: values.name.trim(),
+        openingBalance: parseCurrencyInput(values.openingBalance),
+        setAsDefault: values.setAsDefault,
+        ...(isEdit ? {} : { type: "cash" }),
+      };
+
+      const response = await fetch(isEdit ? `/api/accounts/${wallet!.id}` : "/api/accounts", {
+        method: isEdit ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || (isEdit ? t.walletUpdateFailed : t.walletCreateFailed));
+      }
+    },
+    onSuccess: async () => {
+      formik.resetForm();
+      closeModal();
+      toast.success(isEdit ? t.walletUpdateSuccess : t.walletCreateSuccess);
+      await queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      router.refresh();
+    },
+    onError: (mutationError: unknown) => {
+      setError(mutationError instanceof Error ? mutationError.message : (isEdit ? t.walletUpdateFailed : t.walletCreateFailed));
+    },
+  });
+
+  const deleteWalletMutation = useMutation({
+    mutationFn: async () => {
+      if (!wallet) {
+        return;
+      }
+
+      const response = await fetch(`/api/accounts/${wallet.id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || t.walletDeleteFailed);
+      }
+    },
+    onSuccess: async () => {
+      closeModal();
+      toast.success(t.walletDeleteSuccess);
+      await queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      router.refresh();
+    },
+    onError: (mutationError: unknown) => {
+      setError(mutationError instanceof Error ? mutationError.message : t.walletDeleteFailed);
+    },
+  });
 
   useEffect(() => {
     if (!open) {
@@ -76,35 +134,9 @@ export default function WalletCreateForm({ language, currency, wallet, trigger =
       }
       return errors;
     },
-    onSubmit: async (values, helpers) => {
+    onSubmit: async (values) => {
       setError(null);
-      setLoading(true);
-
-      const payload = {
-        name: values.name.trim(),
-        openingBalance: parseCurrencyInput(values.openingBalance),
-        setAsDefault: values.setAsDefault,
-        ...(isEdit ? {} : { type: "cash" }),
-      };
-
-      const response = await fetch(isEdit ? `/api/accounts/${wallet!.id}` : "/api/accounts", {
-        method: isEdit ? "PATCH" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      setLoading(false);
-
-      if (!response.ok) {
-        const data = await response.json();
-        setError(data.error || (isEdit ? t.walletUpdateFailed : t.walletCreateFailed));
-        return;
-      }
-
-      helpers.resetForm();
-      closeModal();
-      toast.success(isEdit ? t.walletUpdateSuccess : t.walletCreateSuccess);
-      router.refresh();
+      saveWalletMutation.mutate(values);
     },
   });
 
@@ -118,21 +150,7 @@ export default function WalletCreateForm({ language, currency, wallet, trigger =
     }
 
     setError(null);
-    setDeleting(true);
-    const response = await fetch(`/api/accounts/${wallet.id}`, {
-      method: "DELETE",
-    });
-    setDeleting(false);
-
-    if (!response.ok) {
-      const data = await response.json();
-      setError(data.error || t.walletDeleteFailed);
-      return;
-    }
-
-    closeModal();
-    toast.success(t.walletDeleteSuccess);
-    router.refresh();
+    deleteWalletMutation.mutate();
   };
 
   const openModal = () => {
@@ -284,11 +302,11 @@ export default function WalletCreateForm({ language, currency, wallet, trigger =
 
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={saveWalletMutation.isPending}
                   className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#006f1d] to-[#006118] px-6 py-4 text-base font-extrabold text-[#eaffe2] shadow-[0_20px_34px_-18px_rgba(0,111,29,0.6)] hover:brightness-105 disabled:opacity-70"
                 >
                   <span>
-                    {loading
+                    {saveWalletMutation.isPending
                       ? isEdit
                         ? t.walletDialogUpdating
                         : t.walletDialogCreating
@@ -306,10 +324,10 @@ export default function WalletCreateForm({ language, currency, wallet, trigger =
                     <button
                       type="button"
                       onClick={onDelete}
-                      disabled={deleting}
+                      disabled={deleteWalletMutation.isPending}
                       className="w-full rounded-xl border border-[#f8cfc4] bg-[#fff3ef] px-4 py-3 text-sm font-bold text-[#a73b21] hover:bg-[#fde9e2] disabled:opacity-70"
                     >
-                      {deleting ? t.walletDialogDeleting : t.walletDialogDeleteAction}
+                      {deleteWalletMutation.isPending ? t.walletDialogDeleting : t.walletDialogDeleteAction}
                     </button>
                   )
                 ) : null}

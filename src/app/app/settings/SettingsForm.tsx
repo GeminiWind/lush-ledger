@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useFormik } from "formik";
 import { getDictionary } from "@/lib/i18n";
 import toast from "react-hot-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 type Props = {
   language: string;
@@ -43,6 +44,31 @@ export default function SettingsForm({ language, initialValues }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const t = getDictionary(language);
+  const queryClient = useQueryClient();
+
+  const updateSettingsMutation = useMutation({
+    mutationFn: async (values: Props["initialValues"]) => {
+      const response = await fetch("/api/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || t.settingsSaveFailed);
+      }
+    },
+    onSuccess: async () => {
+      setSaved(true);
+      toast.success(t.settingsSaved);
+      await queryClient.invalidateQueries({ queryKey: ["settings"] });
+      router.refresh();
+    },
+    onError: (mutationError: unknown) => {
+      setError(mutationError instanceof Error ? mutationError.message : t.settingsSaveFailed);
+    },
+  });
 
   const formik = useFormik({
     initialValues,
@@ -70,22 +96,7 @@ export default function SettingsForm({ language, initialValues }: Props) {
     onSubmit: async (values) => {
       setError(null);
       setSaved(false);
-
-      const response = await fetch("/api/settings", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        setError(data.error || t.settingsSaveFailed);
-        return;
-      }
-
-      setSaved(true);
-      toast.success(t.settingsSaved);
-      router.refresh();
+      updateSettingsMutation.mutate(values);
     },
   });
 
@@ -237,7 +248,7 @@ export default function SettingsForm({ language, initialValues }: Props) {
           </button>
           <button
             type="submit"
-            disabled={formik.isSubmitting}
+            disabled={updateSettingsMutation.isPending}
             className="rounded-xl bg-[linear-gradient(145deg,#2e7d32_0%,#006118_100%)] px-6 py-3 text-sm font-bold text-[#eaffe2] shadow-[0_12px_28px_-14px_rgba(0,111,29,0.45)] hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-70"
           >
             {t.actionSaveSettings}

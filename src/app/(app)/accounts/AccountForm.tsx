@@ -3,11 +3,35 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useFormik } from "formik";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export default function AccountForm() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
+
+  const createAccountMutation = useMutation({
+    mutationFn: async (values: { name: string; type: string; openingBalance: string }) => {
+      const response = await fetch("/api/accounts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to create account.");
+      }
+    },
+    onSuccess: async () => {
+      formik.resetForm();
+      await queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      router.refresh();
+    },
+    onError: (mutationError: unknown) => {
+      setError(mutationError instanceof Error ? mutationError.message : "Failed to create account.");
+    },
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -22,26 +46,9 @@ export default function AccountForm() {
       }
       return errors;
     },
-    onSubmit: async (values, helpers) => {
+    onSubmit: async (values) => {
       setError(null);
-      setLoading(true);
-
-      const response = await fetch("/api/accounts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      });
-
-      setLoading(false);
-
-      if (!response.ok) {
-        const data = await response.json();
-        setError(data.error || "Failed to create account.");
-        return;
-      }
-
-      helpers.resetForm();
-      router.refresh();
+      createAccountMutation.mutate(values);
     },
   });
 
@@ -95,10 +102,10 @@ export default function AccountForm() {
         </div>
       ) : null}
       <button
-        disabled={loading}
+        disabled={createAccountMutation.isPending}
         className="rounded-xl bg-amber-400 px-5 py-2 text-sm font-semibold text-slate-900 hover:bg-amber-300 disabled:opacity-60"
       >
-        {loading ? "Saving..." : "Add account"}
+        {createAccountMutation.isPending ? "Saving..." : "Add account"}
       </button>
     </form>
   );
