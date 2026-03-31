@@ -249,24 +249,36 @@ type FlatDictionary = {
   savingsPlanDateRequired: string;
   savingsPlanDateInvalid: string;
   savingsPlanDateMin: string;
+  savingsPlanTargetMinSaved: string;
   savingsPlanCreateFailed: string;
   savingsPlanCreateSuccess: string;
+  savingsPlanEditSuccess: string;
   savingsPlanNotAvailable: string;
   savingsPlanCreateAction: string;
+  savingsPlanEditAction: string;
   savingsPlanAddNewTitle: string;
+  savingsPlanEditTitle: string;
   savingsPlanSubtitle: string;
+  savingsPlanEditSubtitle: string;
   savingsPlanCloseAria: string;
   savingsPlanBlueprintTitle: string;
   savingsPlanNameLabel: string;
   savingsPlanNamePlaceholder: string;
   savingsPlanTargetLabel: string;
+  savingsPlanCurrentSavedHint: string;
   savingsPlanTargetPlaceholder: string;
   savingsPlanMonthlyLabel: string;
   savingsPlanMonthlyPlaceholder: string;
   savingsPlanArrivalDateLabel: string;
   savingsPlanArrivalHint: string;
+  savingsPlanIsPrimaryLabel: string;
+  savingsPlanIsPrimaryHint: string;
+  savingsPlanIdentityLabel: string;
+  savingsPlanIdentitySelectTemplate: string;
   savingsPlanDiscard: string;
+  savingsPlanCancel: string;
   savingsPlanCreating: string;
+  savingsPlanSaveChanges: string;
   savingsPlanProjectionPreview: string;
   savingsPlanEstimatedMonths: string;
   savingsPlanToReachTarget: string;
@@ -657,24 +669,36 @@ const enUS: FlatDictionary = {
   savingsPlanDateRequired: "Target date is required.",
   savingsPlanDateInvalid: "Target date is invalid.",
   savingsPlanDateMin: "Target date must be this month or later.",
+  savingsPlanTargetMinSaved: "Savings target must be at least {amount}.",
   savingsPlanCreateFailed: "Unable to create savings plan.",
   savingsPlanCreateSuccess: "Savings plan created successfully",
+  savingsPlanEditSuccess: "Savings plan updated successfully",
   savingsPlanNotAvailable: "Not available",
   savingsPlanCreateAction: "Create Savings Plan",
+  savingsPlanEditAction: "Edit Plan",
   savingsPlanAddNewTitle: "Add New Savings Plan",
+  savingsPlanEditTitle: "Edit Savings Plan",
   savingsPlanSubtitle: "Design a focused savings vessel for your next milestone.",
+  savingsPlanEditSubtitle: "Adjust your financial goals for better precision.",
   savingsPlanCloseAria: "Close",
   savingsPlanBlueprintTitle: "The Blueprint",
   savingsPlanNameLabel: "Plan Name",
   savingsPlanNamePlaceholder: "e.g., Kyoto Sanctuary Fund",
   savingsPlanTargetLabel: "Savings Target",
+  savingsPlanCurrentSavedHint: "Current saved amount: {amount}",
   savingsPlanTargetPlaceholder: "500000000",
   savingsPlanMonthlyLabel: "Monthly Contribution",
   savingsPlanMonthlyPlaceholder: "15000000",
   savingsPlanArrivalDateLabel: "Arrival Date",
   savingsPlanArrivalHint: "Auto-calculated from savings target and monthly contribution.",
+  savingsPlanIsPrimaryLabel: "Is Primary Plan",
+  savingsPlanIsPrimaryHint: "Prioritizes funding focus across your savings dashboard.",
+  savingsPlanIdentityLabel: "Plan Identity (Icon)",
+  savingsPlanIdentitySelectTemplate: "Select {icon} icon",
   savingsPlanDiscard: "Discard",
+  savingsPlanCancel: "Cancel",
   savingsPlanCreating: "Creating...",
+  savingsPlanSaveChanges: "Save Changes",
   savingsPlanProjectionPreview: "Projection Preview",
   savingsPlanEstimatedMonths: "Estimated Months",
   savingsPlanToReachTarget: "To reach your target",
@@ -1066,24 +1090,36 @@ const viVN: FlatDictionary = {
   savingsPlanDateRequired: "Ngày mục tiêu là bắt buộc.",
   savingsPlanDateInvalid: "Ngày mục tiêu không hợp lệ.",
   savingsPlanDateMin: "Ngày mục tiêu phải từ tháng này trở đi.",
+  savingsPlanTargetMinSaved: "Mục tiêu tiết kiệm phải ít nhất bằng {amount}.",
   savingsPlanCreateFailed: "Không thể tạo kế hoạch tiết kiệm.",
   savingsPlanCreateSuccess: "Tạo kế hoạch tiết kiệm thành công",
+  savingsPlanEditSuccess: "Cập nhật kế hoạch tiết kiệm thành công",
   savingsPlanNotAvailable: "Chưa có",
   savingsPlanCreateAction: "Tạo kế hoạch tiết kiệm",
+  savingsPlanEditAction: "Sửa kế hoạch",
   savingsPlanAddNewTitle: "Thêm kế hoạch tiết kiệm",
+  savingsPlanEditTitle: "Sửa kế hoạch tiết kiệm",
   savingsPlanSubtitle: "Thiết kế một kế hoạch tiết kiệm tập trung cho cột mốc tiếp theo.",
+  savingsPlanEditSubtitle: "Điều chỉnh mục tiêu tài chính để bám sát thực tế hơn.",
   savingsPlanCloseAria: "Đóng",
   savingsPlanBlueprintTitle: "Bản thiết kế",
   savingsPlanNameLabel: "Tên kế hoạch",
   savingsPlanNamePlaceholder: "Ví dụ: Quỹ nhà mơ ước",
   savingsPlanTargetLabel: "Mục tiêu tiết kiệm",
+  savingsPlanCurrentSavedHint: "Số tiền đã tiết kiệm hiện tại: {amount}",
   savingsPlanTargetPlaceholder: "500000000",
   savingsPlanMonthlyLabel: "Đóng góp hằng tháng",
   savingsPlanMonthlyPlaceholder: "15000000",
   savingsPlanArrivalDateLabel: "Ngày về đích",
   savingsPlanArrivalHint: "Tự động tính từ mục tiêu tiết kiệm và mức đóng góp hằng tháng.",
+  savingsPlanIsPrimaryLabel: "Kế hoạch chính",
+  savingsPlanIsPrimaryHint: "Ưu tiên kế hoạch này làm trọng tâm trên bảng điều khiển tiết kiệm.",
+  savingsPlanIdentityLabel: "Nhận diện kế hoạch (biểu tượng)",
+  savingsPlanIdentitySelectTemplate: "Chọn biểu tượng {icon}",
   savingsPlanDiscard: "Hủy",
+  savingsPlanCancel: "Hủy",
   savingsPlanCreating: "Đang tạo...",
+  savingsPlanSaveChanges: "Lưu thay đổi",
   savingsPlanProjectionPreview: "Dự báo tiến độ",
   savingsPlanEstimatedMonths: "Số tháng dự kiến",
   savingsPlanToReachTarget: "Để đạt mục tiêu của bạn",

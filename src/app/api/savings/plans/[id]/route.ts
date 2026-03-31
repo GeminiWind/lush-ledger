@@ -7,11 +7,22 @@ const toNumber = (value: unknown) => {
   return Number.isFinite(parsed) ? parsed : Number.NaN;
 };
 
-export const POST = async (request: NextRequest) => {
+export const PATCH = async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   const session = await getSessionFromRequest(request);
   const userId = session?.sub;
+
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id } = await params;
+  const plan = await prisma.savingsPlan.findFirst({
+    where: { id, userId },
+    select: { id: true },
+  });
+
+  if (!plan) {
+    return NextResponse.json({ error: "Savings plan not found." }, { status: 404 });
   }
 
   const body = await request.json();
@@ -19,7 +30,7 @@ export const POST = async (request: NextRequest) => {
   const targetAmount = toNumber(body.targetAmount);
   const monthlyContribution = toNumber(body.monthlyContribution);
   const targetDate = new Date(String(body.targetDate || ""));
-  const requestedPrimary = Boolean(body.isPrimary);
+  const isPrimary = Boolean(body.isPrimary);
   const icon = String(body.icon || "savings").trim() || "savings";
 
   if (!name) {
@@ -46,38 +57,43 @@ export const POST = async (request: NextRequest) => {
     return NextResponse.json({ error: "Target date must be this month or later." }, { status: 400 });
   }
 
-  const existingPrimary = await prisma.savingsPlan.findFirst({
-    where: {
-      userId,
-      status: "active",
-      isPrimary: true,
-    },
-    select: { id: true },
+  const planTransactions = await prisma.transaction.findMany({
+    where: { userId, savingsPlanId: id },
+    select: { amount: true, type: true },
   });
 
-  const nextIsPrimary = requestedPrimary || !existingPrimary;
+  const currentSaved = Math.max(
+    0,
+    planTransactions.reduce((sum, tx) => {
+      const amount = Number(tx.amount ?? 0);
+      return sum + (tx.type === "expense" ? -amount : amount);
+    }, 0)
+  );
 
-  const plan = await prisma.$transaction(async (tx) => {
-    if (nextIsPrimary) {
+  if (targetAmount < currentSaved) {
+    return NextResponse.json({ error: "Savings target must be greater than or equal to current saved amount." }, { status: 400 });
+  }
+
+  const updatedPlan = await prisma.$transaction(async (tx) => {
+    if (isPrimary) {
       await tx.savingsPlan.updateMany({
-        where: { userId, status: "active", isPrimary: true },
+        where: { userId, status: "active", isPrimary: true, id: { not: id } },
         data: { isPrimary: false },
       });
     }
 
-    return tx.savingsPlan.create({
+    return tx.savingsPlan.update({
+      where: { id },
       data: {
-        userId,
         name,
         icon,
-        status: "active",
-        isPrimary: nextIsPrimary,
         targetAmount,
         monthlyContribution,
         targetDate,
+        isPrimary,
       },
     });
   });
 
-  return NextResponse.json({ plan }, { status: 201 });
+  return NextResponse.json({ plan: updatedPlan, currentSaved }, { status: 200 });
 };

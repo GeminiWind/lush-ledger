@@ -1,19 +1,38 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { type MouseEvent, useEffect, useMemo, useState } from "react";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import { formatCurrency, formatCurrencyInput, getCurrencyInputSuggestions, parseCurrencyInput } from "@/lib/format";
 import { getDictionary } from "@/lib/i18n";
 import toast from "react-hot-toast";
 
+type SavingsPlanEditable = {
+  id: string;
+  name: string;
+  icon?: string;
+  target: number;
+  saved: number;
+  monthlyContribution: number;
+  targetDate: Date | string;
+  isPrimary: boolean;
+};
+
 type Props = {
   language: string;
   currency: string;
-  variant?: "button" | "card";
+  plan: SavingsPlanEditable;
+  trigger?: "primary" | "card";
 };
 
 const savingsPlanIconChoices = ["home", "directions_car", "flight", "shield", "savings"] as const;
+
+const toDateInputValue = (value: Date) => {
+  const year = value.getFullYear();
+  const month = String(value.getMonth() + 1).padStart(2, "0");
+  const day = String(value.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
 const monthLabel = (language: string, value: Date, fallback: string) => {
   if (Number.isNaN(value.getTime())) {
@@ -24,13 +43,6 @@ const monthLabel = (language: string, value: Date, fallback: string) => {
     month: "long",
     year: "numeric",
   }).format(value);
-};
-
-const toDateInputValue = (value: Date) => {
-  const year = value.getFullYear();
-  const month = String(value.getMonth() + 1).padStart(2, "0");
-  const day = String(value.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
 };
 
 const getProjectedArrivalDate = (target: number, monthly: number, from = new Date()) => {
@@ -47,24 +59,25 @@ const getProjectedArrivalDate = (target: number, monthly: number, from = new Dat
   return Number.isNaN(projected.getTime()) ? null : projected;
 };
 
-export default function SavingsPlanCreateDialog({ language, currency, variant = "button" }: Props) {
-  const router = useRouter();
+export default function EditSavingsPlanDialog({ language, currency, plan, trigger = "card" }: Props) {
   const t = getDictionary(language);
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedIcon, setSelectedIcon] = useState<(typeof savingsPlanIconChoices)[number]>("home");
-  const [isPrimary, setIsPrimary] = useState(true);
+  const [selectedIcon, setSelectedIcon] = useState<(typeof savingsPlanIconChoices)[number]>((plan.icon as (typeof savingsPlanIconChoices)[number]) || "savings");
+  const [isPrimary, setIsPrimary] = useState(plan.isPrimary);
 
   const now = new Date();
   const minDate = new Date(now.getFullYear(), now.getMonth(), 1);
 
   const formik = useFormik({
+    enableReinitialize: true,
     initialValues: {
-      name: "",
-      targetAmount: "",
-      monthlyContribution: "",
-      targetDate: "",
+      name: plan.name,
+      targetAmount: formatCurrencyInput(String(plan.target), currency),
+      monthlyContribution: formatCurrencyInput(String(plan.monthlyContribution), currency),
+      targetDate: toDateInputValue(new Date(plan.targetDate)),
     },
     validate: (values) => {
       const errors: {
@@ -81,6 +94,8 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
       const targetAmount = parseCurrencyInput(values.targetAmount);
       if (!Number.isFinite(targetAmount) || targetAmount <= 0) {
         errors.targetAmount = t.savingsPlanTargetRequired;
+      } else if (targetAmount < plan.saved) {
+        errors.targetAmount = t.savingsPlanTargetMinSaved.replace("{amount}", formatCurrency(plan.saved, currency));
       }
 
       const monthlyContribution = parseCurrencyInput(values.monthlyContribution);
@@ -101,12 +116,12 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
 
       return errors;
     },
-    onSubmit: async (values, helpers) => {
+    onSubmit: async (values) => {
       setSubmitting(true);
       setError(null);
 
-      const response = await fetch("/api/savings/plans", {
-        method: "POST",
+      const response = await fetch(`/api/savings/plans/${plan.id}`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: values.name.trim(),
@@ -126,34 +141,42 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
         return;
       }
 
-      helpers.resetForm({
-        values: {
-          name: "",
-          targetAmount: "",
-          monthlyContribution: "",
-          targetDate: "",
-        },
-      });
-      setSelectedIcon("home");
-      setIsPrimary(true);
+      toast.success(t.savingsPlanEditSuccess);
       setOpen(false);
-      toast.success(t.savingsPlanCreateSuccess);
       router.refresh();
     },
   });
 
-  const { values, setFieldValue } = formik;
+  const targetAmountSuggestions = useMemo(() => {
+    return getCurrencyInputSuggestions(formik.values.targetAmount, currency);
+  }, [currency, formik.values.targetAmount]);
 
-  useEffect(() => {
-    const target = parseCurrencyInput(values.targetAmount);
-    const monthly = parseCurrencyInput(values.monthlyContribution);
-    const arrival = getProjectedArrivalDate(target, monthly);
-    const nextValue = arrival ? toDateInputValue(arrival) : "";
+  const monthlyContributionSuggestions = useMemo(() => {
+    return getCurrencyInputSuggestions(formik.values.monthlyContribution, currency);
+  }, [currency, formik.values.monthlyContribution]);
 
-    if (values.targetDate !== nextValue) {
-      setFieldValue("targetDate", nextValue, false);
-    }
-  }, [setFieldValue, values.monthlyContribution, values.targetAmount, values.targetDate]);
+  const projection = useMemo(() => {
+    const target = parseCurrencyInput(formik.values.targetAmount);
+    const monthly = parseCurrencyInput(formik.values.monthlyContribution);
+    const arrivalDate = getProjectedArrivalDate(target, monthly);
+    const months = arrivalDate ? Math.ceil(target / monthly) : 0;
+
+    return {
+      months,
+      target,
+      monthly,
+      arrivalText: arrivalDate ? monthLabel(language, arrivalDate, t.savingsPlanNotAvailable) : t.savingsPlanNotAvailable,
+    };
+  }, [formik.values.monthlyContribution, formik.values.targetAmount, language, t.savingsPlanNotAvailable]);
+
+  const openDialog = (event?: MouseEvent<HTMLButtonElement>) => {
+    event?.preventDefault();
+    event?.stopPropagation();
+    setError(null);
+    setSelectedIcon((plan.icon as (typeof savingsPlanIconChoices)[number]) || "savings");
+    setIsPrimary(plan.isPrimary);
+    setOpen(true);
+  };
 
   useEffect(() => {
     if (!open) {
@@ -171,60 +194,26 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
 
-  const projection = useMemo(() => {
-    const target = parseCurrencyInput(formik.values.targetAmount);
-    const monthly = parseCurrencyInput(formik.values.monthlyContribution);
-    const arrivalDate = getProjectedArrivalDate(target, monthly);
-    const months = arrivalDate ? Math.ceil(target / monthly) : 0;
-
-    return {
-      months,
-      target,
-      monthly,
-      arrivalText: arrivalDate ? monthLabel(language, arrivalDate, t.savingsPlanNotAvailable) : t.savingsPlanNotAvailable,
-    };
-  }, [formik.values.monthlyContribution, formik.values.targetAmount, language, t.savingsPlanNotAvailable]);
-
-  const targetAmountSuggestions = useMemo(() => {
-    return getCurrencyInputSuggestions(formik.values.targetAmount, currency);
-  }, [currency, formik.values.targetAmount]);
-
-  const monthlyContributionSuggestions = useMemo(() => {
-    return getCurrencyInputSuggestions(formik.values.monthlyContribution, currency);
-  }, [currency, formik.values.monthlyContribution]);
-
   return (
     <>
-      {variant === "button" ? (
+      {trigger === "primary" ? (
         <button
           type="button"
-          onClick={() => {
-            setOpen(true);
-            setError(null);
-            setSelectedIcon("home");
-            setIsPrimary(true);
-          }}
-          className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#006f1d] to-[#006118] px-6 py-3 text-sm font-bold text-[#eaffe2] shadow-[0_20px_30px_-20px_rgba(0,111,29,0.75)] hover:brightness-105"
+          onClick={openDialog}
+          className="grid h-10 w-10 place-items-center rounded-full border border-[#006f1d]/10 bg-white/60 text-[#006f1d] shadow-sm transition hover:bg-white"
+          title={t.savingsPlanEditAction}
+          aria-label={t.savingsPlanEditAction}
         >
-          <span className="material-symbols-outlined text-lg">add</span>
-          <span>{t.savingsPlanCreateAction}</span>
+          <span className="material-symbols-outlined text-xl">edit</span>
         </button>
       ) : (
         <button
           type="button"
-          onClick={() => {
-            setOpen(true);
-            setError(null);
-            setSelectedIcon("home");
-            setIsPrimary(true);
-          }}
-          className="flex min-h-[260px] w-full cursor-pointer flex-col items-center justify-center rounded-[2rem] border-2 border-dashed border-[#c7dce9] bg-white/70 p-8 text-center transition-all hover:bg-[#006f1d]/5"
+          onClick={openDialog}
+          className="inline-flex items-center gap-1 rounded-full border border-[#cbe7f6] bg-[#f5fcff] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#49636f] transition hover:bg-[#e7f6ff]"
         >
-          <div className="mb-4 grid h-14 w-14 place-items-center rounded-full border-2 border-dashed border-[#9bb6c4]">
-            <span className="material-symbols-outlined text-3xl text-[#647e8c]">add</span>
-          </div>
-          <p className="font-[var(--font-manrope)] text-base font-bold text-[#49636f]">{t.savingsEnvisionGoal}</p>
-          <p className="mt-1 text-xs text-[#647e8c]">{t.savingsAddToAtelier}</p>
+          <span className="material-symbols-outlined text-[14px]">edit</span>
+          <span>{t.savingsPlanEditAction}</span>
         </button>
       )}
 
@@ -243,10 +232,10 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
             <div className="flex items-center justify-between gap-4 border-b border-[#d4ecf9] bg-white/70 px-8 py-6 backdrop-blur-sm md:px-10 md:py-8">
               <div>
                 <h2 className="font-[var(--font-manrope)] text-2xl font-extrabold tracking-tight text-[#1b3641] md:text-3xl">
-                  {t.savingsPlanAddNewTitle}
+                  {t.savingsPlanEditTitle}
                 </h2>
                 <p className="mt-1 max-w-2xl text-sm font-medium text-[#49636f]">
-                  {t.savingsPlanSubtitle}
+                  {t.savingsPlanEditSubtitle}
                 </p>
               </div>
 
@@ -268,7 +257,7 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
                 <section className="space-y-6 lg:col-span-7">
                   <h3 className="flex items-center gap-2 font-[var(--font-manrope)] text-lg font-bold text-[#1b3641]">
                     <span className="h-6 w-1.5 rounded-full bg-[#006f1d]" />
-                  {t.savingsPlanBlueprintTitle}
+                    {t.savingsPlanBlueprintTitle}
                   </h3>
 
                   <div className="space-y-2">
@@ -307,6 +296,9 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
                           {currency}
                         </span>
                       </div>
+                      <p className="text-[11px] text-[#647e8c]">
+                        {t.savingsPlanCurrentSavedHint.replace("{amount}", formatCurrency(plan.saved, currency))}
+                      </p>
                       {targetAmountSuggestions.length ? (
                         <div className="flex flex-wrap items-center gap-2">
                           {targetAmountSuggestions.map((suggestion) => (
@@ -375,13 +367,10 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
                       type="date"
                       min={toDateInputValue(minDate)}
                       value={formik.values.targetDate}
-                      readOnly
+                      onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
                       className="w-full rounded-2xl border-none bg-[#e7f6ff] p-4 text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/25"
                     />
-                    <p className="text-[11px] text-[#647e8c]">
-                      {t.savingsPlanArrivalHint}
-                    </p>
                     {formik.touched.targetDate && formik.errors.targetDate ? (
                       <p className="text-xs text-[#a73b21]">{formik.errors.targetDate}</p>
                     ) : null}
@@ -484,14 +473,14 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
                   }}
                   className="rounded-full px-6 py-3 text-sm font-bold text-[#49636f] transition hover:bg-[#d4ecf9]"
                 >
-                  {t.savingsPlanDiscard}
+                  {t.savingsPlanCancel}
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
                   className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#006f1d] to-[#006118] px-8 py-3 text-sm font-bold text-[#eaffe2] shadow-[0_20px_30px_-20px_rgba(0,111,29,0.75)] transition hover:brightness-105 disabled:opacity-70"
                 >
-                  <span>{submitting ? t.savingsPlanCreating : t.savingsPlanCreateAction}</span>
+                  <span>{submitting ? t.savingsPlanCreating : t.savingsPlanSaveChanges}</span>
                 </button>
               </div>
             </form>

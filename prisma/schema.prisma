@@ -135,6 +135,7 @@ model SavingsPlan {
   id                 String        @id @default(cuid())
   userId             String
   name               String
+  icon               String        @default("savings")
   status             String        @default("active")
   isPrimary          Boolean       @default(false)
   targetAmount       Decimal

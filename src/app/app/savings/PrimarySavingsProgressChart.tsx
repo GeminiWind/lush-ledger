@@ -1,6 +1,6 @@
 "use client";
 
-import { RadialBar, RadialBarChart, ResponsiveContainer } from "recharts";
+import { PolarAngleAxis, RadialBar, RadialBarChart, ResponsiveContainer } from "recharts";
 
 type Props = {
   progress: number;
@@ -21,6 +21,7 @@ export default function PrimarySavingsProgressChart({ progress }: Props) {
           endAngle={-270}
           barSize={16}
         >
+          <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
           <RadialBar dataKey="value" cornerRadius={16} fill="#006f1d" background={{ fill: "#d4ecf9" }} />
         </RadialBarChart>
       </ResponsiveContainer>

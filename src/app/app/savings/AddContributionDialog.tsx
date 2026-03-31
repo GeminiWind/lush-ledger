@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -42,6 +42,22 @@ export default function AddContributionDialog({ language, currency, plans, walle
 
   const initialPlanId = defaultPlanId || plans[0]?.id || "";
   const initialWalletId = wallets[0]?.id || "";
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+        setError(null);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open]);
 
   const formik = useFormik({
     initialValues: {
@@ -157,7 +173,7 @@ export default function AddContributionDialog({ language, currency, plans, walle
             <form onSubmit={formik.handleSubmit} className="space-y-8 px-10 pb-10">
               <div className="space-y-3">
                 <label className="block px-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#49636f]">
-                  {t.savingsContributionTargetLabel}
+                  {t.savingsContributionTargetLabel} <span className="text-[#a73b21]">*</span>
                 </label>
                 <div className="relative">
                   <select
@@ -184,7 +200,7 @@ export default function AddContributionDialog({ language, currency, plans, walle
 
               <div className="space-y-3">
                 <label className="block px-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#49636f]">
-                  {t.savingsContributionAmountLabel}
+                  {t.savingsContributionAmountLabel} <span className="text-[#a73b21]">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -211,7 +227,7 @@ export default function AddContributionDialog({ language, currency, plans, walle
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div className="space-y-3">
                   <label className="block px-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#49636f]">
-                    {t.savingsContributionDateLabel}
+                    {t.savingsContributionDateLabel} <span className="text-[#a73b21]">*</span>
                   </label>
                   <input
                     type="date"
@@ -226,7 +242,7 @@ export default function AddContributionDialog({ language, currency, plans, walle
 
                 <div className="space-y-3">
                   <label className="block px-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#49636f]">
-                    {t.savingsContributionWalletLabel}
+                    {t.savingsContributionWalletLabel} <span className="text-[#a73b21]">*</span>
                   </label>
                   <div className="relative">
                     <select
