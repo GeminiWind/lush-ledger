@@ -13,7 +13,7 @@ Related plan source:
 | 02 | Accounts + Transactions | completed | account + ledger CRUD (including update/delete) is implemented |
 | 03 | Budgets | completed | category lifecycle + monthly cap snapshot workflow are implemented; warnings are consistent in current MVP flow |
 | 04 | Reports | in_progress | no `/api/reports`; missing full cashflow/category-by-month/account snapshot outputs |
-| 05 | Savings Plans | in_progress | `SavingsPlan` model exists, but no dedicated savings CRUD API/UI flow |
+| 05 | Savings Plans | in_progress | savings create + active plan selection + add-contribution flow exist, but full savings CRUD/edit/archive management is still incomplete |
 
 ## Current Milestones
 
@@ -30,6 +30,7 @@ Related plan source:
 - category-by-month report view
 - account snapshot report block
 - savings plan create/edit/delete workflows
+- active/archived plan lifecycle management and primary-plan switching UX
 
 ## Exit Criteria to Move Phases to Done
 
@@ -37,7 +38,7 @@ Related plan source:
 - Phase 02 done: account/ledger CRUD complete.
 - Phase 03 done: category lifecycle is complete and budget warnings are consistent.
 - Phase 04 done when reports are API-backed and requirement-complete.
-- Phase 05 done when savings plan CRUD and editing UX are shipped.
+- Phase 05 done when savings plan CRUD, archive lifecycle, and primary-plan management UX are shipped.
 
 ## Documentation Maintenance Rule
 

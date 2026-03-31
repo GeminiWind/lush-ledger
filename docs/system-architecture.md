@@ -36,6 +36,7 @@ Notes:
 - API: `/api/accounts`, `/api/accounts/[id]`, `/api/ledger`
 - Supports list/create plus partial balance update for accounts
 - Ledger supports list/create and recurring metadata capture
+- Savings contributions are stored as ledger transactions with `type = transfer_to_saving_plan` and linked via `savingsPlanId`
 
 ### Budgets (Atelier)
 - API: `/api/atelier`, `/api/atelier/cap`, `/api/categories`
@@ -48,6 +49,8 @@ Notes:
 
 ### Savings and Reports
 - UI exists for savings and report views
+- Savings screen now supports active-plan selection driven by `SavingsPlan.status` (`active`/`archive`) and `isPrimary`
+- Savings screen supports in-place "Add Contribution" dialog that writes income transactions linked by `Transaction.savingsPlanId`
 - `ledger/reports` includes client-rendered monthly cashflow trend (income vs expense) and expense-vs-budget charting via Recharts
 - Dedicated report/savings APIs are incomplete (see gaps below)
 
@@ -56,7 +59,7 @@ Notes:
 Primary entities:
 - `User`, `UserSettings`
 - `Account`, `Category`, `Transaction`
-- `SavingsPlan`
+- `SavingsPlan` (`status`, `isPrimary`, target + contribution + due date)
 - `UserMonthlyCap`, `CategoryMonthlyLimit`
 
 Design patterns:
