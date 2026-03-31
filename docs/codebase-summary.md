@@ -45,10 +45,12 @@ Implemented:
 - `POST /api/ledger`
 - `GET /api/atelier`
 - `PATCH /api/atelier/cap`
+- `POST /api/savings/plans`
+- `PATCH /api/savings/plans/[id]`
 
 Missing or partial:
 - missing `/api/reports`
-- missing `/api/savings` CRUD
+- savings plan delete/archive endpoints are still partial
 - missing `/api/settings`
 - accounts missing full update/delete
 - categories missing update/delete
@@ -62,7 +64,7 @@ Core models in `prisma/schema.prisma`:
 - `Account`
 - `Category` (`monthlyLimit`)
 - `Transaction` (includes recurring fields and template metadata)
-- `SavingsPlan` (`status`, `isPrimary`, `targetAmount`, `monthlyContribution`, `targetDate`)
+- `SavingsPlan` (`icon`, `status`, `isPrimary`, `targetAmount`, `monthlyContribution`, `targetDate`)
 - `UserMonthlyCap` (monthly cap snapshot)
 - `CategoryMonthlyLimit` (monthly category snapshot)
 
@@ -80,6 +82,10 @@ Core models in `prisma/schema.prisma`:
 - Atelier (budgets)
 - Accounts
 - Savings
+
+Dialog behavior baseline:
+- all dialogs should close on backdrop (outside) click
+- all dialogs should close on `Esc`
 
 Savings UX notes:
 - active plan can be selected on `/app/savings` via query (`?plan=<id>`) with `isPrimary` fallback

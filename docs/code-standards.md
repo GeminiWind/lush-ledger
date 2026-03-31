@@ -40,6 +40,17 @@ Current naming convention examples:
 - Avoid duplicate page ownership across canonical and legacy route trees.
 - When migrating legacy pages, update links and docs in the same change.
 
+## Dialog and Modal UX
+
+- All dialogs/modals must support dismiss via outside click (backdrop click).
+- All dialogs/modals must support dismiss via `Esc` key.
+- Keep a visible close affordance (`X` button) with an accessible label.
+
+## Form Field Conventions
+
+- Every required input field label must include a red `(*)` indicator.
+- Apply this consistently across page forms and dialog/modal forms.
+
 ## i18n and Localization
 
 - Use `src/lib/i18n.ts` as the single source of truth for translated UI copy.

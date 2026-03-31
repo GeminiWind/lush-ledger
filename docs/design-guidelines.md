@@ -58,6 +58,9 @@ Recommended chart intents:
 - avoid ambiguous verbs for money movement
 - error text should tell users how to recover (for example, missing required fields)
 
+Form labeling convention:
+- required field labels must show a red `(*)` marker for quick visual recognition
+
 ## States and Feedback
 
 - loading: preserve layout skeleton to reduce jump
