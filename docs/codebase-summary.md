@@ -7,6 +7,7 @@
 - API routes: `src/app/api/*`
 - Domain/business utilities: `src/lib/*`
 - Data schema: `prisma/schema.prisma`
+- Client API state: TanStack Query provider at `src/app/QueryProvider.tsx`
 
 ## Route Structure
 
@@ -74,6 +75,7 @@ Core models in `prisma/schema.prisma`:
 - Monthly snapshot strategy: `src/lib/monthly-cap.ts`
 - Recurring generation: `src/lib/recurring.ts`
 - Domain calculations: `src/lib/dashboard.ts`, `src/lib/ledger.ts`, `src/lib/atelier.ts`, `src/lib/wallet.ts`
+- Client query/mutation cache: `src/app/QueryProvider.tsx` (`@tanstack/react-query`)
 
 ## UI Domains
 

@@ -40,6 +40,14 @@ Current naming convention examples:
 - Avoid duplicate page ownership across canonical and legacy route trees.
 - When migrating legacy pages, update links and docs in the same change.
 
+## Client API State
+
+- Use TanStack Query (`@tanstack/react-query`) for client-side API mutations/queries.
+- Register providers once at app root (`src/app/QueryProvider.tsx` + `src/app/layout.tsx`).
+- Prefer `useMutation`/`useQuery` over ad-hoc `fetch` state for client components.
+- Invalidate relevant keys after successful mutations (for example `queryClient.invalidateQueries({ queryKey: ["savings"] })`).
+- Keep server route handlers as source of truth for validation and user scoping.
+
 ## Dialog and Modal UX
 
 - All dialogs/modals must support dismiss via outside click (backdrop click).

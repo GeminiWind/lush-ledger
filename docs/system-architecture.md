@@ -6,6 +6,7 @@ Lush Ledger is a server-rendered Next.js App Router application with route handl
 
 Main layers:
 - UI routes (`src/app/app/*`, `src/app/(auth)/*`)
+- client API state/caching (TanStack Query via `src/app/QueryProvider.tsx`)
 - API routes (`src/app/api/*`)
 - domain services/utilities (`src/lib/*`)
 - data models (`prisma/schema.prisma`)
