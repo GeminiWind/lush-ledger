@@ -60,16 +60,16 @@
 - Completed: Cancel flow now supports structured cancel reason/note capture before state transition
 - Completed: Cancelled plans now have dedicated list and detail routes (`/app/savings/cancelled`, `/app/savings/cancelled/:id`)
 - Completed: Savings filter dropdown now supports active/completed/archived/cancelled with deterministic close-and-select UX
-- Gap: Savings plan CRUD is still partial (no delete API route and no dedicated archive lifecycle controls)
-- Gap: Progress depends on transaction tagging; there is no guided tagging/assignment flow in this phase scope
+- Decision: No public hard-delete API for savings plans in this phase; use archive lifecycle to preserve history and transaction integrity
+- Decision: Savings progress is intentionally driven by `Add Contribution` flow only; generic `New Transaction` does not handle savings assignment in this phase
 
 ## Recommendation
 
-- Keep phase as `in_progress` until lifecycle API strategy is finalized (delete/archive controls) and guided assignment/tagging is implemented.
+- Keep phase as `in_progress` until archive lifecycle controls are finalized (archive/unarchive policy, status guards, and UI affordances).
 
 ## Risk Assessment
 
-- Progress can be unclear without clear transaction tagging
+- If users bypass `Add Contribution` and use generic ledger entry patterns, savings progress can appear inconsistent
 
 ## Security Considerations
 
@@ -78,3 +78,4 @@
 ## Next steps
 
 - Optional visualizations and reminders
+- Add explicit archive lifecycle controls and guardrails (instead of delete)
