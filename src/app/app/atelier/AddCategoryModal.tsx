@@ -1,13 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { startTransition, useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useFormik } from "formik";
 import { formatCurrencyInput, getCurrencyInputSuggestions, parseCurrencyInput } from "@/lib/format";
 import { getDictionary } from "@/lib/i18n";
 import toast from "react-hot-toast";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 
 const allIconChoices = [
   "restaurant",
@@ -94,7 +94,6 @@ export default function AddCategoryModal({ currency, language }: Props) {
   const [warningEnabled, setWarningEnabled] = useState(true);
   const [warnAt, setWarnAt] = useState("80");
   const [selectedIcon, setSelectedIcon] = useState(allIconChoices[0]);
-  const queryClient = useQueryClient();
 
   const currencyHint = useMemo(() => {
     if (currency === "VND") {
@@ -131,13 +130,14 @@ export default function AddCategoryModal({ currency, language }: Props) {
         throw new Error(data.error || t.atelierCreateCategoryFailed);
       }
     },
-    onSuccess: async () => {
+    onSuccess: () => {
       resetUiState();
       formik.resetForm();
       setIsOpen(false);
       toast.success(t.atelierCreateCategorySuccess);
-      await queryClient.invalidateQueries({ queryKey: ["atelier"] });
-      router.refresh();
+      startTransition(() => {
+        router.refresh();
+      });
     },
     onError: (mutationError: unknown) => {
       setError(mutationError instanceof Error ? mutationError.message : t.atelierCreateCategoryFailed);
