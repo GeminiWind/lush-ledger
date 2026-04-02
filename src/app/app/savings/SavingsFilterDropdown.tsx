@@ -79,7 +79,6 @@ export default function SavingsFilterDropdown({ language, currentFilter, request
         onClick={() => setOpen((prev) => !prev)}
         className="flex items-center gap-2 rounded-full border border-[#9bb6c4]/20 bg-[#e7f6ff] px-4 py-2 shadow-sm"
       >
-        <span className="text-[10px] font-black uppercase tracking-[0.15em] text-[#49636f]">{t.savingsActivePlanLabel}</span>
         <span className="font-[var(--font-manrope)] text-sm font-bold text-[#1b3641]">{selectedLabel}</span>
         <span className="material-symbols-outlined text-[18px] text-[#49636f]">expand_more</span>
       </button>
