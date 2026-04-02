@@ -52,6 +52,17 @@ const iconForCategory = (name: string) => {
 
 const formatDateForApi = (date: Date) => toISODate(date);
 
+const buildDateTimeWithCurrentTime = (value: Date) => {
+  const selectedDate = new Date(value);
+  if (Number.isNaN(selectedDate.getTime())) {
+    return "";
+  }
+
+  const now = nowDate();
+  selectedDate.setHours(now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds());
+  return selectedDate.toISOString();
+};
+
 export default function NewEntryForm({ wallets = [], defaultWalletId, categories, currency, language }: Props) {
   const router = useRouter();
   const t = getDictionary(language);
@@ -62,7 +73,7 @@ export default function NewEntryForm({ wallets = [], defaultWalletId, categories
 
   const createTransactionMutation = useMutation({
     mutationFn: async (values: FormValues) => {
-      const date = values.date ? formatDateForApi(values.date) : "";
+      const date = values.date ? buildDateTimeWithCurrentTime(values.date) : "";
       const amount = parseCurrencyInput(values.amountDisplay);
       const description = values.description.trim();
       const note = values.note.trim();

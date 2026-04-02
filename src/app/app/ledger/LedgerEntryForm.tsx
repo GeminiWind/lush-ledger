@@ -20,6 +20,17 @@ type Props = {
 
 const today = toISODate(nowDate());
 
+const buildDateTimeWithCurrentTime = (dateValue: string) => {
+  const selectedDate = new Date(`${dateValue}T00:00:00`);
+  if (Number.isNaN(selectedDate.getTime())) {
+    return dateValue;
+  }
+
+  const now = nowDate();
+  selectedDate.setHours(now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds());
+  return selectedDate.toISOString();
+};
+
 export default function LedgerEntryForm({ accounts, categories, currency = "VND" }: Props) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
@@ -40,6 +51,7 @@ export default function LedgerEntryForm({ accounts, categories, currency = "VND"
         body: JSON.stringify({
           ...values,
           amount: parseCurrencyInput(values.amount),
+          date: buildDateTimeWithCurrentTime(values.date),
         }),
       });
 
