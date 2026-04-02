@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useFormik } from "formik";
-import { useMutation } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/useAuth";
 
 const heroImage =
   "https://www.figma.com/api/mcp/asset/11fd5c6c-d5a1-45e3-b3c9-c49f24eda584";
@@ -43,28 +43,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-
-  const loginMutation = useMutation({
-    mutationFn: async (values: { email: string; password: string; remember: boolean }) => {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Login failed.");
-      }
-    },
-    onSuccess: () => {
-      router.push("/app");
-      router.refresh();
-    },
-    onError: (mutationError: unknown) => {
-      setError(mutationError instanceof Error ? mutationError.message : "Login failed.");
-    },
-  });
+  const { login, isLoggingIn } = useAuth();
 
   const formik = useFormik({
     initialValues: {
@@ -84,7 +63,13 @@ export default function LoginPage() {
     },
     onSubmit: async (values) => {
       setError(null);
-      loginMutation.mutate(values);
+      try {
+        await login(values);
+        router.push("/app");
+        router.refresh();
+      } catch (mutationError) {
+        setError(mutationError instanceof Error ? mutationError.message : "Login failed.");
+      }
     },
   });
 
@@ -225,14 +210,14 @@ export default function LoginPage() {
                 </div>
               ) : null}
 
-              <button
-                type="submit"
-                disabled={loginMutation.isPending}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[linear-gradient(170deg,#006f1d_0%,#006118_100%)] px-6 py-5 font-[var(--font-manrope)] text-xl font-bold text-[#eaffe2] shadow-[0_32px_64px_-12px_rgba(27,54,65,0.15)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-70"
-              >
-                {loginMutation.isPending ? "Signing In..." : "Sign In"}
-                <span aria-hidden="true">→</span>
-              </button>
+                <button
+                  type="submit"
+                  disabled={isLoggingIn}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-[linear-gradient(170deg,#006f1d_0%,#006118_100%)] px-6 py-5 font-[var(--font-manrope)] text-xl font-bold text-[#eaffe2] shadow-[0_32px_64px_-12px_rgba(27,54,65,0.15)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {isLoggingIn ? "Signing In..." : "Sign In"}
+                  <span aria-hidden="true">→</span>
+                </button>
             </form>
 
             <p className="pb-10 pt-8 text-center text-xl text-[#49636f]">

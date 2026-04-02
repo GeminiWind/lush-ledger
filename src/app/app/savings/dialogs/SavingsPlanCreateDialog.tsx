@@ -6,12 +6,11 @@ import { useRouter } from "next/navigation";
 import { addMonthsDate, fromISODate, isValidISODate, localeDateLabel, nowDate, startOfMonthDate, toISODate } from "@/lib/date";
 import { formatCurrency, formatCurrencyInput, getCurrencyInputSuggestions, parseCurrencyInput } from "@/lib/format";
 import { getDictionary } from "@/lib/i18n";
+import { useUserSetting } from "@/hooks/useUserSetting";
 import toast from "react-hot-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 type Props = {
-  language: string;
-  currency: string;
   variant?: "button" | "card";
 };
 
@@ -43,8 +42,9 @@ const getProjectedArrivalDate = (target: number, monthly: number, from = nowDate
   return startOfMonthDate(addMonthsDate(from, months));
 };
 
-export default function SavingsPlanCreateDialog({ language, currency, variant = "button" }: Props) {
+export default function SavingsPlanCreateDialog({ variant = "button" }: Props) {
   const router = useRouter();
+  const { language, currency } = useUserSetting();
   const t = getDictionary(language);
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);

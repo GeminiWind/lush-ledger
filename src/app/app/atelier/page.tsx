@@ -5,7 +5,7 @@ import { getDictionary } from "@/lib/i18n";
 import { materializeRecurringTransactions } from "@/lib/recurring";
 import { requireUser } from "@/lib/user";
 import { ensureMonthlyCapSnapshot, monthKeyOf } from "@/lib/monthly-cap";
-import AddCategoryModal from "@/app/app/atelier/AddCategoryModal";
+import AddCategoryModal from "@/app/app/atelier/dialogs/AddCategoryModal";
 import TotalCapCard from "@/app/app/atelier/TotalCapCard";
 import CategoryAtelierGrid from "@/app/app/atelier/CategoryAtelierGrid";
 

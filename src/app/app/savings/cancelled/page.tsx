@@ -84,7 +84,7 @@ export default async function CancelledSavingsPlansPage() {
           <h1 className="font-[var(--font-manrope)] text-4xl font-extrabold tracking-[-0.03em] text-[#1b3641] lg:text-6xl">
             {t.savingsTitle.split(" ")[0]} <span className="italic text-[#006f1d]">{t.savingsTitle.split(" ").slice(1).join(" ")}</span>
           </h1>
-          <SavingsFilterDropdown language={language} currentFilter={activeFilter} />
+          <SavingsFilterDropdown currentFilter={activeFilter} />
         </div>
         <p className="max-w-3xl text-base text-[#49636f]">{t.savingsCancelledListSubtitle}</p>
       </header>

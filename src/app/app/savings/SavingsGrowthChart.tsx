@@ -10,6 +10,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useUserSetting } from "@/hooks/useUserSetting";
 
 type GrowthPoint = {
   label: string;
@@ -17,7 +18,6 @@ type GrowthPoint = {
 };
 
 type Props = {
-  currency: string;
   points: GrowthPoint[];
 };
 
@@ -30,7 +30,8 @@ const toCurrencyLabel = (amount: number, currency: string) => {
   }).format(amount);
 };
 
-export default function SavingsGrowthChart({ currency, points }: Props) {
+export default function SavingsGrowthChart({ points }: Props) {
+  const { currency } = useUserSetting();
   const [range, setRange] = useState<"6m" | "yearly">("yearly");
 
   const displayedPoints = useMemo(() => {

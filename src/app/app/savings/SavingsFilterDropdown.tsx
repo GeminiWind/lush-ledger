@@ -3,16 +3,17 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getDictionary } from "@/lib/i18n";
+import { useUserSetting } from "@/hooks/useUserSetting";
 
 type SavingsFilter = "active" | "completed" | "archived" | "cancelled";
 
 type Props = {
-  language: string;
   currentFilter: SavingsFilter;
   requestedPlanId?: string;
 };
 
-export default function SavingsFilterDropdown({ language, currentFilter, requestedPlanId }: Props) {
+export default function SavingsFilterDropdown({ currentFilter, requestedPlanId }: Props) {
+  const { language } = useUserSetting();
   const t = getDictionary(language);
   const router = useRouter();
   const [open, setOpen] = useState(false);

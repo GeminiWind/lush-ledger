@@ -6,7 +6,6 @@ import { ensureDefaultWallet } from "@/lib/wallet";
 
 export default async function NewLedgerEntryPage() {
   const user = await requireUser();
-  const currency = user.settings?.currency ?? "VND";
   const language = user.settings?.language || "en-US";
   const t = getDictionary(language);
 
@@ -66,8 +65,6 @@ export default async function NewLedgerEntryPage() {
             categories={categories}
             wallets={wallets}
             defaultWalletId={defaultWalletId}
-            currency={currency}
-            language={language}
           />
         </section>
       </div>

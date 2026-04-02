@@ -3,7 +3,7 @@ import { addDaysDate, localeDateLabel, localeTimeLabel, nowDate, sameDay, toISOD
 import { getDictionary } from "@/lib/i18n";
 import { requireUser } from "@/lib/user";
 import Link from "next/link";
-import DeleteTransactionDialog from "./DeleteTransactionDialog";
+import DeleteTransactionDialog from "./dialogs/DeleteTransactionDialog";
 
 type SearchParams = Promise<{
   query?: string;

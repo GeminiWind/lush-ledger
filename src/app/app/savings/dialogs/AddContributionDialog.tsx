@@ -7,6 +7,7 @@ import { isValidISODate, nowDate, toISODate } from "@/lib/date";
 import toast from "react-hot-toast";
 import { formatCurrencyInput, parseCurrencyInput } from "@/lib/format";
 import { getDictionary } from "@/lib/i18n";
+import { useUserSetting } from "@/hooks/useUserSetting";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 type PlanOption = {
@@ -21,8 +22,6 @@ type WalletOption = {
 };
 
 type Props = {
-  language: string;
-  currency: string;
   plans: PlanOption[];
   wallets: WalletOption[];
   defaultPlanId?: string;
@@ -41,8 +40,9 @@ const buildDateTimeWithCurrentTime = (dateValue: string) => {
   return selectedDate.toISOString();
 };
 
-export default function AddContributionDialog({ language, currency, plans, wallets, defaultPlanId }: Props) {
+export default function AddContributionDialog({ plans, wallets, defaultPlanId }: Props) {
   const router = useRouter();
+  const { language, currency } = useUserSetting();
   const t = getDictionary(language);
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);

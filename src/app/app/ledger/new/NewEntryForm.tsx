@@ -7,6 +7,7 @@ import { useFormik } from "formik";
 import { dayOfMonth, nowDate, toISODate } from "@/lib/date";
 import { formatCurrencyInput, getCurrencyInputSuggestions, parseCurrencyInput } from "@/lib/format";
 import { getDictionary } from "@/lib/i18n";
+import { useUserSetting } from "@/hooks/useUserSetting";
 import toast from "react-hot-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -19,8 +20,6 @@ type Props = {
   wallets: Option[];
   defaultWalletId: string;
   categories: Option[];
-  currency: string;
-  language: string;
 };
 
 type FormValues = {
@@ -63,8 +62,9 @@ const buildDateTimeWithCurrentTime = (value: Date) => {
   return selectedDate.toISOString();
 };
 
-export default function NewEntryForm({ wallets = [], defaultWalletId, categories, currency, language }: Props) {
+export default function NewEntryForm({ wallets = [], defaultWalletId, categories }: Props) {
   const router = useRouter();
+  const { currency, language } = useUserSetting();
   const t = getDictionary(language);
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();

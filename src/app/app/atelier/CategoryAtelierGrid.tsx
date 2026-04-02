@@ -4,9 +4,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import GridLayout, { Layout, useContainerWidth } from "react-grid-layout";
 import { formatCurrency } from "@/lib/format";
 import { getDictionary } from "@/lib/i18n";
-import AddCategoryModal from "@/app/app/atelier/AddCategoryModal";
-import EditCategoryModal from "@/app/app/atelier/EditCategoryModal";
-import DeleteCategoryDialog from "@/app/app/atelier/DeleteCategoryDialog";
+import AddCategoryModal from "@/app/app/atelier/dialogs/AddCategoryModal";
+import EditCategoryModal from "@/app/app/atelier/dialogs/EditCategoryModal";
+import DeleteCategoryDialog from "@/app/app/atelier/dialogs/DeleteCategoryDialog";
 
 const categoryTones = [
   {

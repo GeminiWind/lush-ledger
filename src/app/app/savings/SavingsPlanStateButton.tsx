@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { getDictionary } from "@/lib/i18n";
+import { useUserSetting } from "@/hooks/useUserSetting";
 
 type Props = {
-  language: string;
   planId: string;
   planName: string;
   status: string;
@@ -21,7 +21,8 @@ const reasonOptionKeys = [
   "savingsPlanCancelReasonOther",
 ] as const;
 
-export default function SavingsPlanStateButton({ language, planId, planName, status, compact = false }: Props) {
+export default function SavingsPlanStateButton({ planId, planName, status, compact = false }: Props) {
+  const { language } = useUserSetting();
   const t = getDictionary(language);
   const router = useRouter();
   const queryClient = useQueryClient();

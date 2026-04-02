@@ -5,12 +5,12 @@ import { getDictionary } from "@/lib/i18n";
 import { materializeRecurringTransactions } from "@/lib/recurring";
 import { requireUser } from "@/lib/user";
 import Link from "next/link";
-import AddContributionDialog from "./AddContributionDialog";
-import EditSavingsPlanDialog from "./EditSavingsPlanDialog";
+import AddContributionDialog from "./dialogs/AddContributionDialog";
+import EditSavingsPlanDialog from "./dialogs/EditSavingsPlanDialog";
 import PrimarySavingsProgressChart from "./PrimarySavingsProgressChart";
 import SavingsPlanStateButton from "./SavingsPlanStateButton";
 import SavingsGrowthChart from "./SavingsGrowthChart";
-import SavingsPlanCreateDialog from "./SavingsPlanCreateDialog";
+import SavingsPlanCreateDialog from "./dialogs/SavingsPlanCreateDialog";
 import SavingsFilterDropdown from "./SavingsFilterDropdown";
 
 const toNumber = (value: unknown) => Number(value ?? 0);
@@ -198,7 +198,6 @@ export default async function SavingsPage({ searchParams }: { searchParams: Sear
             </h1>
             {plans.length ? (
               <SavingsFilterDropdown
-                language={language}
                 currentFilter={activeFilter}
                 requestedPlanId={requestedPlanId}
               />
@@ -206,7 +205,7 @@ export default async function SavingsPage({ searchParams }: { searchParams: Sear
           </div>
         </div>
         <div className="space-y-3">
-          <SavingsPlanCreateDialog language={language} currency={currency} />
+          <SavingsPlanCreateDialog />
           <div className="rounded-[1.25rem] bg-[#e7f6ff] px-6 py-4">
             <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-[#647e8c]">{t.savingsTotal}</p>
             <div className="mt-1 flex items-center gap-3">
@@ -246,7 +245,6 @@ export default async function SavingsPage({ searchParams }: { searchParams: Sear
                 <div className="flex items-center gap-2">
                   {primaryPlan.effectiveStatus === "active" || primaryPlan.effectiveStatus === "funded" ? (
                     <SavingsPlanStateButton
-                      language={language}
                       planId={primaryPlan.id}
                       planName={primaryPlan.name}
                       status={primaryPlan.effectiveStatus}
@@ -254,8 +252,6 @@ export default async function SavingsPage({ searchParams }: { searchParams: Sear
                   ) : null}
                   {primaryPlan.effectiveStatus === "active" || primaryPlan.effectiveStatus === "funded" ? (
                     <AddContributionDialog
-                      language={language}
-                      currency={currency}
                       plans={activeFundedPlans.map((plan) => ({ id: plan.id, name: plan.name, progress: plan.progress }))}
                       wallets={wallets}
                       defaultPlanId={primaryPlan.id}
@@ -270,14 +266,11 @@ export default async function SavingsPage({ searchParams }: { searchParams: Sear
                 </h2>
                 {primaryPlan.effectiveStatus === "active" || primaryPlan.effectiveStatus === "funded" ? (
                   <EditSavingsPlanDialog
-                    language={language}
-                    currency={currency}
                     plan={primaryPlan}
                     trigger="primary"
                   />
                 ) : primaryPlan.effectiveStatus === "completed" ? (
                   <SavingsPlanStateButton
-                    language={language}
                     planId={primaryPlan.id}
                     planName={primaryPlan.name}
                     status={primaryPlan.effectiveStatus}
@@ -323,12 +316,12 @@ export default async function SavingsPage({ searchParams }: { searchParams: Sear
           <h2 className="font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">{t.savingsNoActivePlan}</h2>
           <p className="mt-2 text-[#647e8c]">{t.savingsNoActivePlanHint}</p>
           <div className="mt-5 inline-flex">
-            <SavingsPlanCreateDialog language={language} currency={currency} />
+            <SavingsPlanCreateDialog />
           </div>
         </section>
       )}
 
-      {!isCompletedOrArchivedEmpty ? <SavingsGrowthChart currency={currency} points={growthPoints} /> : null}
+      {!isCompletedOrArchivedEmpty ? <SavingsGrowthChart points={growthPoints} /> : null}
 
       {!isCompletedOrArchivedEmpty ? (
       <section className="space-y-6">
@@ -385,7 +378,7 @@ export default async function SavingsPage({ searchParams }: { searchParams: Sear
           ))}
 
           {activeFilter !== "archived" ? (
-            <SavingsPlanCreateDialog language={language} currency={currency} variant="card" />
+            <SavingsPlanCreateDialog variant="card" />
           ) : null}
         </div>
       </section>

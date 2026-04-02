@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import OnboardingTourProvider from "@/app/app/OnboardingTourProvider";
 import { getDictionary } from "@/lib/i18n";
 
@@ -39,7 +40,39 @@ type Props = {
 
 export default function AppChrome({ userEmail, language, children }: Props) {
   const pathname = usePathname();
+  const router = useRouter();
   const t = getDictionary(language);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const modifierPressed = event.metaKey || event.ctrlKey;
+      const plusPressed = event.key === "+" || event.code === "Equal" || event.code === "NumpadAdd";
+      if (!modifierPressed || !plusPressed) {
+        return;
+      }
+
+      const shiftPressed = event.shiftKey || event.code === "NumpadAdd";
+      if (!shiftPressed) {
+        return;
+      }
+
+      const target = event.target as HTMLElement | null;
+      if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement ||
+        target?.isContentEditable
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      router.push("/app/ledger/new");
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [router]);
 
   return (
     <OnboardingTourProvider language={language}>
