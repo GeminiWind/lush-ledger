@@ -3,6 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { asCurrency, ExpenseEntry, formatMonthLabel, parseMonthKey } from "./report-utils";
 
+const selectClassName =
+  "appearance-none rounded-full border border-[#c3d8e5] bg-white py-2.5 pl-4 pr-10 text-sm font-semibold text-[#1b3641]";
+
 type Props = {
   language: string;
   currency: string;
@@ -106,18 +109,23 @@ export default function DailyCalendar({ language, currency, monthOptions, expens
         <h2 className="font-[var(--font-manrope)] text-2xl font-extrabold tracking-tight text-[#1b3641]">{labels.title}</h2>
         <div>
           <label className="sr-only" htmlFor="calendar-month-select">{labels.title}</label>
-          <select
-            id="calendar-month-select"
-            value={calendarMonth}
-            onChange={(event) => setCalendarMonth(event.target.value)}
-            className="rounded-full border border-[#c3d8e5] bg-white px-4 py-2 text-sm font-semibold text-[#1b3641]"
-          >
-            {[...monthOptions].reverse().map((monthKeyValue) => (
-              <option key={`calendar-${monthKeyValue}`} value={monthKeyValue}>
-                {formatMonthLabel(monthKeyValue, language, "long")}
-              </option>
-            ))}
-          </select>
+          <div className="relative">
+            <select
+              id="calendar-month-select"
+              value={calendarMonth}
+              onChange={(event) => setCalendarMonth(event.target.value)}
+              className={selectClassName}
+            >
+              {[...monthOptions].reverse().map((monthKeyValue) => (
+                <option key={`calendar-${monthKeyValue}`} value={monthKeyValue}>
+                  {formatMonthLabel(monthKeyValue, language, "long")}
+                </option>
+              ))}
+            </select>
+            <span className="pointer-events-none material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[18px] text-[#6f8793]">
+              expand_more
+            </span>
+          </div>
         </div>
       </div>
 

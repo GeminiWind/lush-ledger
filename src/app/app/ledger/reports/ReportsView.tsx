@@ -17,6 +17,8 @@ type Props = {
 type ViewMode = "monthly" | "yearly";
 
 const chartColors = ["#0f7a2f", "#2e9f50", "#56ba73", "#86d19e", "#b8e9c3"];
+const selectClassName =
+  "appearance-none rounded-full border border-[#c3d8e5] bg-white py-2.5 pl-4 pr-10 text-sm font-semibold text-[#1b3641]";
 
 export default function ReportsView({ language, currency, data }: Props) {
   const t = getDictionary(language);
@@ -163,15 +165,20 @@ export default function ReportsView({ language, currency, data }: Props) {
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="flex items-center gap-2">
-              <select
-                id="reports-view-mode"
-                className="rounded-full border border-[#c3d8e5] bg-white px-3 py-2 text-sm font-semibold text-[#1b3641]"
-                value={viewMode}
-                onChange={(event) => setViewMode(event.target.value as ViewMode)}
-              >
-                <option value="monthly">{t.reportsMonthly}</option>
-                <option value="yearly">{t.reportsYearlyHorizon}</option>
-              </select>
+              <div className="relative">
+                <select
+                  id="reports-view-mode"
+                  className={selectClassName}
+                  value={viewMode}
+                  onChange={(event) => setViewMode(event.target.value as ViewMode)}
+                >
+                  <option value="monthly">{t.reportsMonthly}</option>
+                  <option value="yearly">{t.reportsYearlyHorizon}</option>
+                </select>
+                <span className="pointer-events-none material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[18px] text-[#6f8793]">
+                  expand_more
+                </span>
+              </div>
             </div>
 
             {viewMode === "monthly" ? (
@@ -179,68 +186,88 @@ export default function ReportsView({ language, currency, data }: Props) {
                 <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#647e8c]" htmlFor="reports-month-from">
                   {t.reportsRangeFrom}
                 </label>
-                <select
-                  id="reports-month-from"
-                  className="rounded-full border border-[#c3d8e5] bg-white px-3 py-2 text-sm font-semibold text-[#1b3641]"
-                  value={monthlyFrom}
-                  onChange={(event) => setMonthlyFrom(event.target.value)}
-                >
-                  {monthOptions.map((key) => (
-                    <option key={`from-${key}`} value={key}>
-                      {formatMonthLabel(key, language, "long")}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    id="reports-month-from"
+                    className={selectClassName}
+                    value={monthlyFrom}
+                    onChange={(event) => setMonthlyFrom(event.target.value)}
+                  >
+                    {monthOptions.map((key) => (
+                      <option key={`from-${key}`} value={key}>
+                        {formatMonthLabel(key, language, "long")}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="pointer-events-none material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[18px] text-[#6f8793]">
+                    expand_more
+                  </span>
+                </div>
 
                 <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#647e8c]" htmlFor="reports-month-to">
                   {t.reportsRangeTo}
                 </label>
-                <select
-                  id="reports-month-to"
-                  className="rounded-full border border-[#c3d8e5] bg-white px-3 py-2 text-sm font-semibold text-[#1b3641]"
-                  value={monthlyTo}
-                  onChange={(event) => setMonthlyTo(event.target.value)}
-                >
-                  {monthOptions.map((key) => (
-                    <option key={`to-${key}`} value={key}>
-                      {formatMonthLabel(key, language, "long")}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    id="reports-month-to"
+                    className={selectClassName}
+                    value={monthlyTo}
+                    onChange={(event) => setMonthlyTo(event.target.value)}
+                  >
+                    {monthOptions.map((key) => (
+                      <option key={`to-${key}`} value={key}>
+                        {formatMonthLabel(key, language, "long")}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="pointer-events-none material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[18px] text-[#6f8793]">
+                    expand_more
+                  </span>
+                </div>
               </div>
             ) : (
               <div className="flex items-center gap-2">
                 <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#647e8c]" htmlFor="reports-year-from">
                   {t.reportsRangeFrom}
                 </label>
-                <select
-                  id="reports-year-from"
-                  className="rounded-full border border-[#c3d8e5] bg-white px-3 py-2 text-sm font-semibold text-[#1b3641]"
-                  value={yearlyFrom}
-                  onChange={(event) => setYearlyFrom(Number(event.target.value))}
-                >
-                  {yearlyOptions.map((year) => (
-                    <option key={`year-from-${year}`} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    id="reports-year-from"
+                    className={selectClassName}
+                    value={yearlyFrom}
+                    onChange={(event) => setYearlyFrom(Number(event.target.value))}
+                  >
+                    {yearlyOptions.map((year) => (
+                      <option key={`year-from-${year}`} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="pointer-events-none material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[18px] text-[#6f8793]">
+                    expand_more
+                  </span>
+                </div>
 
                 <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#647e8c]" htmlFor="reports-year-to">
                   {t.reportsRangeTo}
                 </label>
-                <select
-                  id="reports-year-to"
-                  className="rounded-full border border-[#c3d8e5] bg-white px-3 py-2 text-sm font-semibold text-[#1b3641]"
-                  value={yearlyTo}
-                  onChange={(event) => setYearlyTo(Number(event.target.value))}
-                >
-                  {yearlyOptions.map((year) => (
-                    <option key={`year-to-${year}`} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    id="reports-year-to"
+                    className={selectClassName}
+                    value={yearlyTo}
+                    onChange={(event) => setYearlyTo(Number(event.target.value))}
+                  >
+                    {yearlyOptions.map((year) => (
+                      <option key={`year-to-${year}`} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="pointer-events-none material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[18px] text-[#6f8793]">
+                    expand_more
+                  </span>
+                </div>
               </div>
             )}
           </div>
