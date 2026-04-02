@@ -1,11 +1,11 @@
 import { prisma } from "@/lib/db";
-import { getMonthRange } from "@/lib/date";
+import { DateTime } from "luxon";
+import { addMonthsDate, endOfMonthDate, getMonthRange, nowDate, startOfMonthDate } from "@/lib/date";
 import { materializeRecurringTransactions } from "@/lib/recurring";
 import { ensureMonthlyCapSnapshot } from "@/lib/monthly-cap";
 
 type TxKind = "expense" | "income";
 const isOutflowType = (type: string) => type === "expense" || type === "transfer_to_saving_plan";
-const isSavingsContributionType = (type: string) => type === "transfer_to_saving_plan" || type === "income";
 
 const toNumber = (value: unknown) => Number(value ?? 0);
 
@@ -23,16 +23,15 @@ const sumByType = (
 };
 
 const daysRemainingInMonth = (today: Date) => {
-  const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-  return Math.max(0, Math.ceil((lastDay.getTime() - today.getTime()) / 86400000));
+  return Math.max(0, DateTime.fromJSDate(endOfMonthDate(today)).diff(DateTime.fromJSDate(today), "days").days);
 };
 
 export const getDashboardData = async (userId: string) => {
   await materializeRecurringTransactions(userId);
 
-  const now = new Date();
+  const now = nowDate();
   const { start, end } = getMonthRange(now);
-  const previousMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const previousMonthDate = startOfMonthDate(addMonthsDate(now, -1));
   const { start: previousStart, end: previousEnd } = getMonthRange(previousMonthDate);
 
   const monthlyCap = await ensureMonthlyCapSnapshot(userId, start);
@@ -97,8 +96,11 @@ export const getDashboardData = async (userId: string) => {
   );
   const savingsAllocated = sum(
     allTransactions
-      .filter((tx) => tx.savingsPlanId && isSavingsContributionType(tx.type))
-      .map((tx) => toNumber(tx.amount))
+      .filter((tx) => tx.savingsPlanId)
+      .map((tx) => {
+        const amount = toNumber(tx.amount);
+        return tx.type === "refund" || tx.type === "expense" ? -amount : amount;
+      })
   );
 
   const assetsTotal = liquidAssetsTotal + savingsAllocated;
@@ -156,8 +158,11 @@ export const getDashboardData = async (userId: string) => {
     .map((plan) => {
       const saved = sum(
         allTransactions
-          .filter((tx) => tx.savingsPlanId === plan.id && (tx.type === "income" || tx.type === "transfer_to_saving_plan"))
-          .map((tx) => toNumber(tx.amount))
+          .filter((tx) => tx.savingsPlanId === plan.id)
+          .map((tx) => {
+            const amount = toNumber(tx.amount);
+            return tx.type === "refund" || tx.type === "expense" ? -amount : amount;
+          })
       );
       const target = toNumber(plan.targetAmount);
 
@@ -173,9 +178,9 @@ export const getDashboardData = async (userId: string) => {
 
   const monthlySpendingTrend = Array.from({ length: 6 }, (_, index) => {
     const offset = 5 - index;
-    const monthDate = new Date(now.getFullYear(), now.getMonth() - offset, 1);
-    const monthStart = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
-    const monthEnd = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0, 23, 59, 59, 999);
+    const monthDate = startOfMonthDate(addMonthsDate(now, -offset));
+    const monthStart = startOfMonthDate(monthDate);
+    const monthEnd = endOfMonthDate(monthDate);
     const value = sum(
       allTransactions
         .filter((tx) => tx.type === "expense" && tx.date >= monthStart && tx.date <= monthEnd)
@@ -183,7 +188,7 @@ export const getDashboardData = async (userId: string) => {
     );
 
     return {
-      label: new Intl.DateTimeFormat("en-US", { month: "short" }).format(monthDate),
+      label: DateTime.fromJSDate(monthDate).setLocale("en-US").toLocaleString({ month: "short" }),
       value,
     };
   });
@@ -202,6 +207,6 @@ export const getDashboardData = async (userId: string) => {
     savingsProgress,
     recentEntries,
     monthlySpendingTrend,
-    daysRemaining: daysRemainingInMonth(now),
+    daysRemaining: Math.max(0, Math.ceil(daysRemainingInMonth(now))),
   };
 };

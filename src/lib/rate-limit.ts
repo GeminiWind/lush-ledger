@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { DateTime } from "luxon";
 
 type BackoffEntry = {
   failures: number;
@@ -12,7 +13,7 @@ const BASE_DELAY_MS = 1000;
 const MAX_DELAY_MS = 5 * 60 * 1000;
 const ENTRY_TTL_MS = 30 * 60 * 1000;
 
-const nowMs = () => Date.now();
+const nowMs = () => DateTime.now().toMillis();
 
 const normalizedIp = (request: NextRequest) => {
   const forwarded = request.headers.get("x-forwarded-for");

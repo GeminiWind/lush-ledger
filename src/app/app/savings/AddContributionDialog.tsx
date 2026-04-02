@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
+import { isValidISODate, nowDate, toISODate } from "@/lib/date";
 import toast from "react-hot-toast";
 import { formatCurrencyInput, parseCurrencyInput } from "@/lib/format";
 import { getDictionary } from "@/lib/i18n";
@@ -27,12 +28,7 @@ type Props = {
   defaultPlanId?: string;
 };
 
-const toDateInputValue = (value: Date) => {
-  const year = value.getFullYear();
-  const month = String(value.getMonth() + 1).padStart(2, "0");
-  const day = String(value.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-};
+const toDateInputValue = (value: Date) => toISODate(value);
 
 export default function AddContributionDialog({ language, currency, plans, wallets, defaultPlanId }: Props) {
   const router = useRouter();
@@ -102,7 +98,7 @@ export default function AddContributionDialog({ language, currency, plans, walle
       savingsPlanId: initialPlanId,
       walletId: initialWalletId,
       amountDisplay: "",
-      date: toDateInputValue(new Date()),
+      date: toDateInputValue(nowDate()),
     },
     validate: (values) => {
       const errors: {
@@ -122,7 +118,7 @@ export default function AddContributionDialog({ language, currency, plans, walle
       if (!Number.isFinite(amount) || amount <= 0) {
         errors.amountDisplay = t.savingsContributionAmountRequired;
       }
-      if (!values.date || Number.isNaN(new Date(values.date).getTime())) {
+      if (!values.date || !isValidISODate(values.date)) {
         errors.date = t.savingsContributionDateRequired;
       }
 

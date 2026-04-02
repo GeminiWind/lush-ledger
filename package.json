@@ -17,6 +17,7 @@
     "bcryptjs": "^3.0.3",
     "formik": "^2.4.9",
     "jose": "^6.2.2",
+    "luxon": "^3.7.2",
     "next": "16.2.1",
     "prisma": "^5.22.0",
     "react": "19.2.4",
@@ -28,6 +29,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/luxon": "^3.7.1",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionFromRequest } from "@/lib/auth";
+import { addMonthsDate, nowDate } from "@/lib/date";
 import { ensureMonthlyCapSnapshot, monthStartOf } from "@/lib/monthly-cap";
 
 const toNumber = (value: unknown) => Number(value ?? 0);
@@ -38,9 +39,9 @@ export const PATCH = async (request: NextRequest, context: RouteContext) => {
     return NextResponse.json({ error: "Warn threshold must be between 1 and 100." }, { status: 400 });
   }
 
-  const now = new Date();
+  const now = nowDate();
   const currentMonth = monthStartOf(now);
-  const nextMonth = monthStartOf(new Date(now.getFullYear(), now.getMonth() + 1, 1));
+  const nextMonth = monthStartOf(addMonthsDate(now, 1));
 
   const [currentCap, nextCap] = await Promise.all([
     ensureMonthlyCapSnapshot(userId, currentMonth),
@@ -229,7 +230,7 @@ export const DELETE = async (request: NextRequest, context: RouteContext) => {
     return NextResponse.json({ error: "Category not found." }, { status: 404 });
   }
 
-  await ensureMonthlyCapSnapshot(userId, new Date());
+  await ensureMonthlyCapSnapshot(userId, nowDate());
 
   return NextResponse.json({ ok: true });
 };

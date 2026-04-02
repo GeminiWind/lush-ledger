@@ -7,7 +7,7 @@
 
 - Date: 2026-03-20
 - Priority: medium
-- Status: in_progress (reviewed 2026-03-25)
+- Status: in_progress (reviewed 2026-04-02)
 
 ## Key Insights
 
@@ -54,13 +54,18 @@
 - Completed: Savings dashboard/UI is implemented and computes saved/progress/remaining from tagged transactions
 - Completed: Savings trend and progress visualizations are available in the app
 - Completed: Savings plan create API is implemented (`/api/savings/plans`)
+- Completed: Savings plan update API is implemented (`PATCH /api/savings/plans/[id]`)
 - Completed: Savings plan creation UI is implemented (dialog on savings page with auto-computed arrival date)
-- Gap: Savings plan CRUD is still partial (no update/delete API routes or edit/delete UI)
+- Completed: Savings tracker supports plan state controls (cancel/activate) for active plan management
+- Completed: Cancel flow now supports structured cancel reason/note capture before state transition
+- Completed: Cancelled plans now have dedicated list and detail routes (`/app/savings/cancelled`, `/app/savings/cancelled/:id`)
+- Completed: Savings filter dropdown now supports active/completed/archived/cancelled with deterministic close-and-select UX
+- Gap: Savings plan CRUD is still partial (no delete API route and no dedicated archive lifecycle controls)
 - Gap: Progress depends on transaction tagging; there is no guided tagging/assignment flow in this phase scope
 
 ## Recommendation
 
-- Keep phase as `in_progress` until savings plan update/delete and guided assignment/tagging flow are added.
+- Keep phase as `in_progress` until lifecycle API strategy is finalized (delete/archive controls) and guided assignment/tagging is implemented.
 
 ## Risk Assessment
 

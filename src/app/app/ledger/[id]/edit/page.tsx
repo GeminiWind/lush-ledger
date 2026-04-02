@@ -1,4 +1,5 @@
 import EditTransactionForm from "@/app/app/ledger/[id]/edit/EditTransactionForm";
+import { toISODate } from "@/lib/date";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/user";
 import { notFound } from "next/navigation";
@@ -64,7 +65,7 @@ export default async function EditLedgerTransactionPage({ params }: Params) {
         categories={categories}
         initialAmount={Number(transaction.amount)}
         initialCategoryId={transaction.categoryId || ""}
-        initialDate={transaction.date.toISOString().slice(0, 10)}
+        initialDate={toISODate(transaction.date)}
         initialDescription={description}
         initialNote={note}
       />

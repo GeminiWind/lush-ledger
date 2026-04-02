@@ -1,12 +1,12 @@
 import { prisma } from "@/lib/db";
+import { monthKey, startOfMonthDate } from "@/lib/date";
 
 const toNumber = (value: unknown) => Number(value ?? 0);
 
-export const monthStartOf = (value: Date) => new Date(value.getFullYear(), value.getMonth(), 1);
+export const monthStartOf = (value: Date) => startOfMonthDate(value);
 
 export const monthKeyOf = (value: Date) => {
-  const monthStart = monthStartOf(value);
-  return `${monthStart.getFullYear()}-${String(monthStart.getMonth() + 1).padStart(2, "0")}`;
+  return monthKey(monthStartOf(value));
 };
 
 export const ensureMonthlyCapSnapshot = async (userId: string, rawDate: Date, fallbackBackup = 0) => {
@@ -70,8 +70,7 @@ export const ensureMonthlyCapSnapshot = async (userId: string, rawDate: Date, fa
       : existingLimits;
 
   const totalLimit = allLimits.reduce((sum, item) => sum + toNumber(item.limit), 0);
-  const baseCap = existingCap ? toNumber(existingCap.totalCap) : totalLimit + Math.max(toNumber(fallbackBackup), 0);
-  const totalCap = Math.max(baseCap, totalLimit);
+  const totalCap = existingCap ? toNumber(existingCap.totalCap) : totalLimit + Math.max(toNumber(fallbackBackup), 0);
   const unallocatedBackup = Math.max(totalCap - totalLimit, 0);
 
   const monthlyCap = await prisma.userMonthlyCap.upsert({

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useFormik } from "formik";
+import { nowDate, toISODate } from "@/lib/date";
 import { formatCurrencyInput, getCurrencyInputSuggestions, parseCurrencyInput } from "@/lib/format";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -17,7 +18,7 @@ type Props = {
   currency?: string;
 };
 
-const today = new Date().toISOString().slice(0, 10);
+const today = toISODate(nowDate());
 
 export default function LedgerEntryForm({ accounts, categories, currency = "VND" }: Props) {
   const router = useRouter();

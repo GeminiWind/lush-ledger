@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Green Future Fund | Lush Ledger</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-surface": "#1b3641",
+              "surface-container-low": "#e7f6ff",
+              "on-primary": "#eaffe2",
+              "secondary-fixed-dim": "#c1d8e4",
+              "primary-fixed": "#91f78e",
+              "tertiary-fixed": "#fcfeb9",
+              "on-background": "#1b3641",
+              "on-tertiary": "#fcfdb9",
+              "tertiary": "#60622d",
+              "on-tertiary-fixed": "#4d501d",
+              "surface": "#f4faff",
+              "error-dim": "#791903",
+              "primary-dim": "#006118",
+              "on-secondary": "#f2faff",
+              "on-primary-fixed": "#00480f",
+              "tertiary-dim": "#545622",
+              "inverse-primary": "#91f78e",
+              "error": "#a73b21",
+              "on-secondary-container": "#40555f",
+              "on-surface-variant": "#49636f",
+              "outline-variant": "#9bb6c4",
+              "secondary-dim": "#415660",
+              "secondary-container": "#cfe6f2",
+              "tertiary-container": "#fcfeb9",
+              "surface-tint": "#006f1d",
+              "background": "#f4faff",
+              "surface-bright": "#f4faff",
+              "secondary": "#4d626c",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary-container": "#60622d",
+              "on-secondary-fixed-variant": "#495f69",
+              "on-tertiary-fixed-variant": "#6a6d37",
+              "on-primary-fixed-variant": "#00691a",
+              "surface-container": "#dcf1fd",
+              "tertiary-fixed-dim": "#edefac",
+              "surface-container-highest": "#cbe7f6",
+              "error-container": "#fd795a",
+              "primary-fixed-dim": "#83e881",
+              "on-primary-container": "#005e17",
+              "surface-variant": "#cbe7f6",
+              "primary": "#006f1d",
+              "surface-dim": "#c3deed",
+              "on-secondary-fixed": "#2d424c",
+              "inverse-surface": "#041015",
+              "surface-container-high": "#d4ecf9",
+              "on-error": "#fff7f6",
+              "outline": "#647e8c",
+              "inverse-on-surface": "#929fa6",
+              "on-error-container": "#6e1400",
+              "secondary-fixed": "#cfe6f2",
+              "primary-container": "#91f78e"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f4faff;
+      }
+      h1, h2, h3, h4 {
+        font-family: 'Manrope', sans-serif;
+      }
+    </style>
+</head>
+<body class="text-on-surface">
+<!-- SideNavBar (Synchronized with SCREEN_214) -->
+<aside class="hidden lg:flex flex-col fixed left-0 top-0 h-full p-4 bg-emerald-50 dark:bg-emerald-950 h-screen w-60 border-r-0 shadow-[20px_0_20px_-10px_rgba(27,54,65,0.04)] z-50">
+<div class="flex items-center gap-2 mb-6 px-2">
+<div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-lg" data-icon="account_balance">account_balance</span>
+</div>
+<div>
+<h1 class="text-xl font-bold tracking-tighter text-emerald-900 dark:text-emerald-50 font-headline leading-tight">Lush Ledger</h1>
+<p class="text-[8px] uppercase tracking-widest text-on-surface-variant font-bold">The Fiscal Atelier</p>
+</div>
+</div>
+<nav class="space-y-0.5 flex-1">
+<a class="flex items-center gap-3 px-4 py-2 text-emerald-700/70 dark:text-emerald-400/70 hover:bg-white/40 dark:hover:bg-emerald-800/30 transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="dashboard">dashboard</span>
+<span class="font-manrope text-sm font-medium tracking-tight">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-emerald-700/70 dark:text-emerald-400/70 hover:bg-white/40 dark:hover:bg-emerald-800/30 transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="auto_awesome">auto_awesome</span>
+<span class="font-manrope text-sm font-medium tracking-tight">Atelier</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-emerald-900 dark:text-emerald-50 bg-white/80 dark:bg-emerald-800/50 backdrop-blur-md rounded-lg font-bold transition-all duration-300 scale-[0.98] active:scale-95" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-manrope text-sm font-medium tracking-tight">Ledger</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-emerald-700/70 dark:text-emerald-400/70 hover:bg-white/40 dark:hover:bg-emerald-800/30 transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="trending_up">trending_up</span>
+<span class="font-manrope text-sm font-medium tracking-tight">Savings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-emerald-700/70 dark:text-emerald-400/70 hover:bg-white/40 dark:hover:bg-emerald-800/30 transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="settings">settings</span>
+<span class="font-manrope text-sm font-medium tracking-tight">Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-4">
+<button class="w-full bg-primary text-on-primary py-2.5 rounded-lg font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:opacity-90 transition-all active:scale-95">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                New Entry
+            </button>
+</div>
+</aside>
+<!-- Main Content Shell -->
+<main class="lg:ml-60 min-h-screen">
+<!-- TopNavBar (Synchronized with SCREEN_214: Avatar only on right) -->
+<header class="flex justify-end items-center w-full px-8 py-3 max-w-screen-2xl mx-auto bg-white/80 dark:bg-emerald-950/80 backdrop-blur-xl sticky top-0 z-40">
+<div class="flex items-center gap-6">
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container-high border-2 border-surface-container-high">
+<img alt="User profile avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7R8e6Egz9F4CQYVo8mSxcLt-2JQMo49INwaNdGQwnJsffyj5lHdK8LHjuQAUgd7sJxHm7uo3WOnBJURhg1e6dEnz0-VJSEgRuMzH_WwiIBqtbZ5iAwx_hkrd1HkfafqVkQ6gW8782YrhIyqqQu855CV2oMeN89bwrcQf10U8WnkeYOvzGupChkFvqIQbw3PgcAonHzkJ_SgSpZuEHiHetrIM6Wgqk9HAnevL1YUqPpyAT8vv7k3T36FS2RnbESUDRYmdLFlzfDqc"/>
+</div>
+</div>
+</header>
+<!-- Page Content Canvas -->
+<div class="max-w-5xl mx-auto px-8 py-12">
+<!-- Breadcrumb / Back Link -->
+<div class="mb-8">
+<a class="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined text-sm transition-transform group-hover:-translate-x-1" data-icon="arrow_back">arrow_back</span>
+<span class="font-label text-sm">Return to Archive Ledger</span>
+</a>
+</div>
+<!-- Status Banner -->
+<div class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<div class="inline-flex items-center gap-2 px-3 py-1 bg-error-container text-on-error-container rounded-full text-xs font-bold tracking-wider mb-4">
+<span class="material-symbols-outlined text-sm" data-icon="cancel">cancel</span>
+                        CANCELED
+                    </div>
+<h1 class="text-5xl font-extrabold font-headline text-on-surface tracking-tight mb-2">Green Future Fund</h1>
+<p class="text-on-surface-variant font-body">Account closure finalized on <span class="font-bold">Oct 14, 2024</span></p>
+</div>
+</div>
+<!-- Bento Layout Content -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+<!-- Final Progress Snapshot -->
+<div class="md:col-span-7 bg-surface-container-lowest p-8 rounded-xl shadow-sm">
+<h3 class="text-sm font-bold text-on-surface-variant uppercase tracking-widest mb-6">Final Progress Snapshot</h3>
+<div class="flex items-center justify-between mb-8">
+<div>
+<p class="text-4xl font-headline font-extrabold text-on-surface">1.500.000 ₫</p>
+<p class="text-sm text-on-surface-variant mt-1">Final saved amount</p>
+</div>
+<div class="text-right">
+<p class="text-2xl font-headline font-bold text-outline">10.000.000 ₫</p>
+<p class="text-sm text-on-surface-variant mt-1">Target objective</p>
+</div>
+</div>
+<!-- Visual Progress Bar -->
+<div class="relative w-full h-4 bg-surface-container rounded-full overflow-hidden mb-4">
+<div class="absolute left-0 top-0 h-full bg-outline rounded-full" style="width: 15%"></div>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-sm font-bold text-on-surface-variant">15% Completion</span>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm" data-icon="history">history</span>
+<span class="text-xs">Archive lock enabled</span>
+</div>
+</div>
+</div>
+<!-- Closure Statistics -->
+<div class="md:col-span-5 bg-surface-container-low p-8 rounded-xl flex flex-col justify-between">
+<div>
+<h3 class="text-sm font-bold text-on-surface-variant uppercase tracking-widest mb-6">Impact Analysis</h3>
+<div class="space-y-6">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container-highest rounded-xl flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+</div>
+<div>
+<p class="text-xl font-headline font-bold">184 Days</p>
+<p class="text-xs text-on-surface-variant">Total Duration Active</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container-highest rounded-xl flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="move_to_inbox">move_to_inbox</span>
+</div>
+<div>
+<p class="text-xl font-headline font-bold">Primary Wallet</p>
+<p class="text-xs text-on-surface-variant">Liquidity Reallocation Destination</p>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-outline-variant/15">
+<p class="text-sm italic text-on-surface-variant leading-relaxed">
+                            "Funds returned to primary wallet to maintain immediate access for upcoming commitments."
+                        </p>
+</div>
+</div>
+<!-- Reason for Closure -->
+<div class="md:col-span-8 bg-surface-container-low p-10 rounded-xl relative overflow-hidden">
+<span class="material-symbols-outlined absolute -right-4 -top-4 text-9xl text-outline-variant/20 rotate-12" data-icon="format_quote">format_quote</span>
+<h3 class="text-sm font-bold text-on-surface-variant uppercase tracking-widest mb-4">Reason for Closure</h3>
+<p class="text-3xl font-headline font-medium text-on-surface leading-tight relative z-10">
+                        "Changed financial priorities toward <span class="text-primary font-bold">emergency liquidity</span>."
+                    </p>
+</div>
+<!-- Image / Visual Anchor -->
+<div class="md:col-span-4 rounded-xl overflow-hidden min-h-[200px]">
+<img alt="Abstract financial growth" class="w-full h-full object-cover grayscale opacity-80 hover:grayscale-0 transition-all duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlHNCWKoO7d3ynu17zmIDpHqxEturMVSU666Af9vFZPVbgU_zOcvPj8B7YQHZ9IUl5VQYqH0tu5s-viyodE8Isi3f4crh7b7ZiWPsyvEICnqvKn9n0jj9ImqwiWZp98tfu5U7M26bJPTE9NIhU_thcdGGdFNYA6QX1--enJhGwgXSC_m8A8wepUNajvAjgP_Jf1r6vVrzBbww258NP1hqZnN5DFVIDGp4OEugNdisl93Vza16hu61XjGoEJwKm3GjLDCrsv1gqRFQ"/>
+</div>
+<!-- Plan History -->
+<div class="md:col-span-12 mt-4">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-2xl font-headline font-bold">Plan History</h3>
+<button class="text-primary font-bold text-sm flex items-center gap-1 hover:underline">
+                            View Archive Ledger
+                            <span class="material-symbols-outlined text-sm" data-icon="open_in_new">open_in_new</span>
+</button>
+</div>
+<div class="space-y-4">
+<!-- History Item 1 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl flex flex-wrap md:flex-nowrap items-center justify-between gap-4 transition-all hover:bg-surface-container-low group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-error-container/20 text-error rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="event_busy">event_busy</span>
+</div>
+<div>
+<p class="font-bold">Manual Termination</p>
+<p class="text-sm text-on-surface-variant">Termination requested by user</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline font-bold">Oct 14, 2024</p>
+<p class="text-xs text-on-surface-variant">14:22 GMT+7</p>
+</div>
+</div>
+<!-- History Item 2 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl flex flex-wrap md:flex-nowrap items-center justify-between gap-4 transition-all hover:bg-surface-container-low">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-primary-container/20 text-primary rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+</div>
+<div>
+<p class="font-bold">Final Deposit Allocation</p>
+<p class="text-sm text-on-surface-variant">Last automated transfer before closure</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline font-bold text-primary">+250.000 ₫</p>
+<p class="text-xs text-on-surface-variant">Sep 28, 2024</p>
+</div>
+</div>
+<!-- History Item 3 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl flex flex-wrap md:flex-nowrap items-center justify-between gap-4 transition-all hover:bg-surface-container-low">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-surface-container-highest text-on-surface-variant rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="flag">flag</span>
+</div>
+<div>
+<p class="font-bold">Plan Inception</p>
+<p class="text-sm text-on-surface-variant">Strategic goal defined: Sustainable Future</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline font-bold">Apr 13, 2024</p>
+<p class="text-xs text-on-surface-variant">09:15 GMT+7</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

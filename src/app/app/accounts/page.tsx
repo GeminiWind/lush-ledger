@@ -36,7 +36,7 @@ export default async function WalletsPage() {
 
   const movementByWallet = new Map<string, number>();
   for (const tx of transactions) {
-    const delta = tx.type === "income" ? toNumber(tx.amount) : -toNumber(tx.amount);
+    const delta = tx.type === "income" || tx.type === "refund" ? toNumber(tx.amount) : -toNumber(tx.amount);
     movementByWallet.set(tx.accountId, (movementByWallet.get(tx.accountId) || 0) + delta);
   }
 

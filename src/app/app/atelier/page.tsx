@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { getMonthRange } from "@/lib/date";
+import { getMonthRange, localeDateLabel, nowDate } from "@/lib/date";
 import { formatCurrency } from "@/lib/format";
 import { getDictionary } from "@/lib/i18n";
 import { materializeRecurringTransactions } from "@/lib/recurring";
@@ -17,7 +17,8 @@ export default async function AtelierPage() {
   const t = getDictionary(language);
   await materializeRecurringTransactions(user.id);
   const currency = user.settings?.currency || "VND";
-  const { start, end } = getMonthRange(new Date());
+  const now = nowDate();
+  const { start, end } = getMonthRange(now);
 
   const [categories, monthTransactions, savingsPlans, monthlyCap] = await Promise.all([
     prisma.category.findMany({
@@ -94,10 +95,7 @@ export default async function AtelierPage() {
   const savingsCoverage =
     savingsTarget > 0 ? Math.min((savingsSaved / savingsTarget) * 100, 100) : 0;
 
-  const monthLabel = new Intl.DateTimeFormat(language, {
-    month: "long",
-    year: "numeric",
-  }).format(new Date());
+  const monthLabel = localeDateLabel(now, language, { month: "long", year: "numeric" });
 
   return (
     <div className="flex w-full flex-col gap-10">

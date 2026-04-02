@@ -1,6 +1,6 @@
 # Project Roadmap
 
-Roadmap status is aligned with the current implementation review: phases 01-03 are `completed`, phases 04-05 remain `in_progress`.
+Roadmap status is aligned with the current implementation review: phases 01-03 are `completed`, phases 04-05 remain `in_progress` and are near completion.
 
 Related plan source:
 - `docs/plans/personal-finance-mvp/plan.md`
@@ -12,10 +12,12 @@ Related plan source:
 | 01 | Foundation + Auth | completed | settings API/page parity and auth rate limiting are implemented |
 | 02 | Accounts + Transactions | completed | account + ledger CRUD (including update/delete) is implemented |
 | 03 | Budgets | completed | category lifecycle + monthly cap snapshot workflow are implemented; warnings are consistent in current MVP flow |
-| 04 | Reports | in_progress | no `/api/reports`; missing full cashflow/category-by-month/account snapshot outputs |
-| 05 | Savings Plans | in_progress | savings create + active plan selection + add-contribution flow exist, but full savings CRUD/edit/archive management is still incomplete |
+| 04 | Reports | in_progress | report UI is mature (`/app/ledger/reports`) but no dedicated `/api/reports` contract and export flow is still partial |
+| 05 | Savings Plans | in_progress | create/edit/contribution/cancel/refund flow is implemented with cancelled list+detail pages; remaining work is full lifecycle API hardening (delete/archive endpoint strategy) |
 
 ## Current Milestones
+
+Overall completion estimate: **92%**.
 
 1) Stabilize canonical route surface
 - keep `src/app/app/*` as active surface

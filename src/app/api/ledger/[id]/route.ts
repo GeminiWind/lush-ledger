@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionFromRequest } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { fromISODate } from "@/lib/date";
 
 export const PATCH = async (
   request: NextRequest,
@@ -16,9 +17,9 @@ export const PATCH = async (
   const amount = Number(body.amount);
   const categoryId = String(body.categoryId || "").trim();
   const notes = String(body.notes || "").trim();
-  const date = new Date(String(body.date || ""));
+  const date = fromISODate(String(body.date || ""));
 
-  if (!Number.isFinite(amount) || amount <= 0 || Number.isNaN(date.getTime())) {
+  if (!Number.isFinite(amount) || amount <= 0 || !date) {
     return NextResponse.json({ error: "Amount and valid date are required." }, { status: 400 });
   }
 

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { addMonthsDate, endOfMonthDate, localeDateLabel, nowDate, startOfMonthDate } from "@/lib/date";
 import { formatCurrency } from "@/lib/format";
 import { getDictionary } from "@/lib/i18n";
 import { materializeRecurringTransactions } from "@/lib/recurring";
@@ -7,11 +8,13 @@ import Link from "next/link";
 import AddContributionDialog from "./AddContributionDialog";
 import EditSavingsPlanDialog from "./EditSavingsPlanDialog";
 import PrimarySavingsProgressChart from "./PrimarySavingsProgressChart";
+import SavingsPlanStateButton from "./SavingsPlanStateButton";
 import SavingsGrowthChart from "./SavingsGrowthChart";
 import SavingsPlanCreateDialog from "./SavingsPlanCreateDialog";
+import SavingsFilterDropdown from "./SavingsFilterDropdown";
 
 const toNumber = (value: unknown) => Number(value ?? 0);
-type SearchParams = Promise<{ plan?: string | string[] | undefined }>;
+type SearchParams = Promise<{ plan?: string | string[] | undefined; filter?: string | string[] | undefined }>;
 
 const getPlanIcon = (name: string) => {
   const normalized = name.toLowerCase();
@@ -32,6 +35,38 @@ const getPlanIcon = (name: string) => {
   return "savings";
 };
 
+const getPlanStatusLabel = (status: string, t: ReturnType<typeof getDictionary>) => {
+  if (status === "completed") {
+    return t.savingsPlanStatusCompleted;
+  }
+  if (status === "funded") {
+    return t.savingsPlanStatusFunded;
+  }
+  if (status === "cancelled") {
+    return t.savingsPlanStatusCancelled;
+  }
+  if (status === "archive") {
+    return t.savingsPlanStatusArchived;
+  }
+  return t.savingsPlanStatusActive;
+};
+
+const getPlanStatusClass = (status: string) => {
+  if (status === "completed") {
+    return "bg-[#eaffe2] text-[#006f1d] border border-[#c9f8c8]";
+  }
+  if (status === "funded") {
+    return "bg-[#e7f6ff] text-[#1b3641] border border-[#cbe7f6]";
+  }
+  if (status === "cancelled") {
+    return "bg-[#fff3ef] text-[#a73b21] border border-[#f8cfc4]";
+  }
+  if (status === "archive") {
+    return "bg-[#d4ecf9] text-[#49636f] border border-[#c7dce9]";
+  }
+  return "bg-[#e7f6ff] text-[#49636f] border border-[#cbe7f6]";
+};
+
 export default async function SavingsPage({ searchParams }: { searchParams: SearchParams }) {
   const user = await requireUser();
   await materializeRecurringTransactions(user.id);
@@ -40,6 +75,8 @@ export default async function SavingsPage({ searchParams }: { searchParams: Sear
   const currency = user.settings?.currency ?? "VND";
   const params = await searchParams;
   const requestedPlanId = Array.isArray(params.plan) ? params.plan[0] : params.plan;
+  const requestedFilter = Array.isArray(params.filter) ? params.filter[0] : params.filter;
+  const activeFilter = requestedFilter === "archived" || requestedFilter === "completed" || requestedFilter === "cancelled" ? requestedFilter : "active";
 
   const [savingsPlans, savingsTransactions, wallets] = await Promise.all([
     prisma.savingsPlan.findMany({
@@ -68,7 +105,7 @@ export default async function SavingsPage({ searchParams }: { searchParams: Sear
       .filter((tx) => tx.savingsPlanId === plan.id)
       .reduce((sum, tx) => {
         const amount = toNumber(tx.amount);
-        return sum + (tx.type === "expense" ? -amount : amount);
+        return sum + (tx.type === "expense" || tx.type === "refund" ? -amount : amount);
       }, 0);
     const target = toNumber(plan.targetAmount);
     const progress = target > 0 ? (saved / target) * 100 : 0;
@@ -76,8 +113,16 @@ export default async function SavingsPage({ searchParams }: { searchParams: Sear
     return {
       id: plan.id,
       name: plan.name,
-      icon: plan.icon,
+      icon: "icon" in plan ? (plan as { icon?: string }).icon : undefined,
       status: plan.status,
+      effectiveStatus:
+        plan.status === "active"
+          ? Math.max(0, saved) >= target
+            ? "completed"
+            : Math.max(0, saved) > 0
+              ? "funded"
+              : "active"
+          : plan.status,
       isPrimary: plan.isPrimary,
       target,
       saved: Math.max(0, saved),
@@ -88,6 +133,7 @@ export default async function SavingsPage({ searchParams }: { searchParams: Sear
   });
 
   const activePlans = plans.filter((plan) => plan.status === "active");
+  const completedPlans = activePlans.filter((plan) => plan.effectiveStatus === "completed");
   const archivedPlans = plans.filter((plan) => plan.status === "archive");
 
   const primaryPlan =
@@ -100,27 +146,28 @@ export default async function SavingsPage({ searchParams }: { searchParams: Sear
     ? savingsTransactions.filter((tx) => tx.savingsPlanId === primaryPlan.id)
     : [];
 
-  const now = new Date();
+  const now = nowDate();
   const growthPoints = Array.from({ length: 12 }, (_, index) => {
     const offset = 11 - index;
-    const monthDate = new Date(now.getFullYear(), now.getMonth() - offset, 1);
-    const monthStart = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
-    const monthEnd = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0, 23, 59, 59, 999);
+    const monthDate = startOfMonthDate(addMonthsDate(now, -offset));
+    const monthStart = startOfMonthDate(monthDate);
+    const monthEnd = endOfMonthDate(monthDate);
 
     const value = chartTransactions
       .filter((tx) => tx.date >= monthStart && tx.date <= monthEnd)
       .reduce((sum, tx) => {
         const amount = toNumber(tx.amount);
-        return sum + (tx.type === "expense" ? -amount : amount);
+        return sum + (tx.type === "expense" || tx.type === "refund" ? -amount : amount);
       }, 0);
 
     return {
-      label: new Intl.DateTimeFormat(language === "vi-VN" ? "vi-VN" : "en-US", { month: "short" }).format(monthDate),
+      label: localeDateLabel(monthDate, language === "vi-VN" ? "vi-VN" : "en-US", { month: "short" }),
       value: Math.max(0, value),
     };
   });
 
-  const otherPlans = activePlans.filter((plan) => plan.id !== primaryPlan?.id);
+  const otherActivePlans = activePlans.filter((plan) => plan.id !== primaryPlan?.id && plan.effectiveStatus !== "completed");
+  const otherCompletedPlans = completedPlans.filter((plan) => plan.id !== primaryPlan?.id);
   const totalSaved = plans.reduce((sum, plan) => sum + plan.saved, 0);
   const progressRatio = primaryPlan ? Math.max(0, Math.min(primaryPlan.progress, 100)) : 0;
 
@@ -133,26 +180,12 @@ export default async function SavingsPage({ searchParams }: { searchParams: Sear
             <h1 className="font-[var(--font-manrope)] text-4xl font-extrabold tracking-[-0.03em] text-[#1b3641] lg:text-5xl">
               {t.savingsTitle.split(" ")[0]} <span className="italic text-[#006f1d]">{t.savingsTitle.split(" ").slice(1).join(" ")}</span>
             </h1>
-            {activePlans.length ? (
-              <details className="group relative">
-                <summary className="flex cursor-pointer list-none items-center gap-2 rounded-full border border-[#9bb6c4]/30 bg-[#e7f6ff] px-4 py-2">
-                  <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#49636f]">{t.savingsActivePlanLabel}</span>
-                  <span className="font-[var(--font-manrope)] text-sm font-bold text-[#1b3641]">{primaryPlan?.name}</span>
-                  <span className="material-symbols-outlined text-[18px] text-[#49636f]">expand_more</span>
-                </summary>
-                <div className="absolute left-0 top-full z-20 mt-2 w-72 rounded-xl border border-[#9bb6c4]/20 bg-white p-2 shadow-2xl">
-                  {activePlans.map((plan) => (
-                    <Link
-                      key={plan.id}
-                      href={`/app/savings?plan=${plan.id}`}
-                      className="flex items-center justify-between rounded-lg px-3 py-2 text-sm hover:bg-[#e7f6ff]"
-                    >
-                      <span className={plan.id === primaryPlan?.id ? "font-bold text-[#1b3641]" : "text-[#49636f]"}>{plan.name}</span>
-                      {plan.id === primaryPlan?.id ? <span className="material-symbols-outlined text-[16px] text-[#006f1d]">check_circle</span> : null}
-                    </Link>
-                  ))}
-                </div>
-              </details>
+            {plans.length ? (
+              <SavingsFilterDropdown
+                language={language}
+                currentFilter={activeFilter}
+                requestedPlanId={requestedPlanId}
+              />
             ) : null}
           </div>
         </div>
@@ -184,20 +217,33 @@ export default async function SavingsPage({ searchParams }: { searchParams: Sear
                     {t.savingsPrimaryFocus}
                   </span>
                 ) : null}
+                <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.08em] ${getPlanStatusClass(primaryPlan.effectiveStatus)}`}>
+                  {getPlanStatusLabel(primaryPlan.effectiveStatus, t)}
+                </span>
                 <span className="inline-flex items-center gap-1 text-xs text-[#49636f]">
                   <span className="material-symbols-outlined text-sm">calendar_today</span>
-                  {t.savingsTargeted} {new Intl.DateTimeFormat(language === "vi-VN" ? "vi-VN" : "en-US", { month: "short", year: "numeric" }).format(primaryPlan.targetDate)}
+                  {t.savingsTargeted} {localeDateLabel(primaryPlan.targetDate, language === "vi-VN" ? "vi-VN" : "en-US", { month: "short", year: "numeric" })}
                 </span>
               </div>
 
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <AddContributionDialog
-                  language={language}
-                  currency={currency}
-                  plans={activePlans.map((plan) => ({ id: plan.id, name: plan.name, progress: plan.progress }))}
-                  wallets={wallets}
-                  defaultPlanId={primaryPlan.id}
-                />
+                <div className="flex items-center gap-2">
+                  <SavingsPlanStateButton
+                    language={language}
+                    planId={primaryPlan.id}
+                    planName={primaryPlan.name}
+                    status={primaryPlan.effectiveStatus}
+                  />
+                  {primaryPlan.effectiveStatus !== "completed" ? (
+                    <AddContributionDialog
+                      language={language}
+                      currency={currency}
+                      plans={activePlans.map((plan) => ({ id: plan.id, name: plan.name, progress: plan.progress }))}
+                      wallets={wallets}
+                      defaultPlanId={primaryPlan.id}
+                    />
+                  ) : null}
+                </div>
               </div>
 
               <div className="flex items-center gap-3">
@@ -255,15 +301,27 @@ export default async function SavingsPage({ searchParams }: { searchParams: Sear
       <section className="space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 className="font-[var(--font-manrope)] text-3xl font-extrabold tracking-[-0.02em] text-[#1b3641]">{t.savingsOtherAmbitions}</h3>
-          {archivedPlans.length ? (
-            <p className="rounded-full bg-[#d4ecf9] px-3 py-1 text-[11px] font-bold text-[#40555f]">{t.savingsArchivedCount.replace("{count}", String(archivedPlans.length))}</p>
-          ) : null}
+          <div className="flex items-center gap-2">
+            {archivedPlans.length ? (
+              <p className="rounded-full bg-[#d4ecf9] px-3 py-1 text-[11px] font-bold text-[#40555f]">{t.savingsArchivedCount.replace("{count}", String(archivedPlans.length))}</p>
+            ) : null}
+            <Link href="/app/savings/cancelled" className="rounded-full border border-[#cbe7f6] bg-white px-3 py-1 text-[11px] font-bold text-[#006f1d] hover:bg-[#f5fcff]">
+              {t.savingsCancelledHistoryOpenLedger}
+            </Link>
+          </div>
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {otherPlans.slice(0, 2).map((plan) => (
+          {(activeFilter === "archived"
+            ? archivedPlans
+            : activeFilter === "completed"
+              ? otherCompletedPlans
+              : otherActivePlans
+          )
+            .slice(0, 2)
+            .map((plan) => (
             <Link
               key={plan.id}
-              href={`/app/savings?plan=${plan.id}`}
+              href={plan.status === "cancelled" ? `/app/savings/cancelled/${plan.id}` : `/app/savings?plan=${plan.id}&filter=${activeFilter}`}
               className="block rounded-[2rem] border border-transparent bg-white p-8 shadow-[0_4px_24px_rgba(27,54,65,0.04)] transition-all duration-300 hover:-translate-y-1 hover:border-[#006f1d]/10"
             >
               <article>

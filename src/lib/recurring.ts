@@ -1,8 +1,7 @@
 import { prisma } from "@/lib/db";
+import { DateTime } from "luxon";
 
-const dayLimitOfMonth = (year: number, monthIndex: number) => {
-  return new Date(year, monthIndex + 1, 0).getDate();
-};
+const dayLimitOfMonth = (year: number, monthIndex: number) => DateTime.local(year, monthIndex + 1).daysInMonth || 31;
 
 const occurrenceWithAnchor = (
   year: number,
@@ -10,16 +9,9 @@ const occurrenceWithAnchor = (
   dayOfMonth: number,
   anchorDate: Date,
 ) => {
+  const anchor = DateTime.fromJSDate(anchorDate);
   const clampedDay = Math.min(dayOfMonth, dayLimitOfMonth(year, monthIndex));
-  return new Date(
-    year,
-    monthIndex,
-    clampedDay,
-    anchorDate.getHours(),
-    anchorDate.getMinutes(),
-    anchorDate.getSeconds(),
-    anchorDate.getMilliseconds(),
-  );
+  return DateTime.local(year, monthIndex + 1, clampedDay, anchor.hour, anchor.minute, anchor.second, anchor.millisecond).toJSDate();
 };
 
 const nextOccurrenceDate = (
@@ -29,16 +21,18 @@ const nextOccurrenceDate = (
   dayOfMonth: number,
   recurringMonth?: number | null,
 ) => {
+  const current = DateTime.fromJSDate(currentRunDate);
+  const anchor = DateTime.fromJSDate(anchorDate);
   if (interval === "yearly") {
-    const monthIndex = recurringMonth ? recurringMonth - 1 : anchorDate.getMonth();
-    return occurrenceWithAnchor(currentRunDate.getFullYear() + 1, monthIndex, dayOfMonth, anchorDate);
+    const monthIndex = recurringMonth ? recurringMonth - 1 : anchor.month - 1;
+    return occurrenceWithAnchor(current.year + 1, monthIndex, dayOfMonth, anchorDate);
   }
 
-  const nextMonth = new Date(currentRunDate.getFullYear(), currentRunDate.getMonth() + 1, 1);
-  return occurrenceWithAnchor(nextMonth.getFullYear(), nextMonth.getMonth(), dayOfMonth, anchorDate);
+  const nextMonth = current.plus({ months: 1 }).startOf("month");
+  return occurrenceWithAnchor(nextMonth.year, nextMonth.month - 1, dayOfMonth, anchorDate);
 };
 
-export const materializeRecurringTransactions = async (userId: string, now = new Date()) => {
+export const materializeRecurringTransactions = async (userId: string, now = DateTime.now().toJSDate()) => {
   const templates = await prisma.transaction.findMany({
     where: {
       userId,
@@ -56,7 +50,7 @@ export const materializeRecurringTransactions = async (userId: string, now = new
     }
 
     const anchorDate = template.recurringStartDate ?? template.date;
-    const dayOfMonth = template.recurringDayOfMonth ?? anchorDate.getDate();
+    const dayOfMonth = template.recurringDayOfMonth ?? DateTime.fromJSDate(anchorDate).day;
     const baselineRun = template.lastRecurringRunAt ?? template.date;
     const recurringEndDate = template.recurringEndDate;
 
@@ -107,7 +101,7 @@ export const materializeRecurringTransactions = async (userId: string, now = new
       );
     }
 
-    if (lastProcessedDate.getTime() > baselineRun.getTime()) {
+    if (DateTime.fromJSDate(lastProcessedDate).toMillis() > DateTime.fromJSDate(baselineRun).toMillis()) {
       await prisma.transaction.update({
         where: { id: template.id },
         data: { lastRecurringRunAt: lastProcessedDate },

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
+import { addMonthsDate, fromISODate, isValidISODate, localeDateLabel, nowDate, startOfMonthDate, toISODate } from "@/lib/date";
 import { formatCurrency, formatCurrencyInput, getCurrencyInputSuggestions, parseCurrencyInput } from "@/lib/format";
 import { getDictionary } from "@/lib/i18n";
 import toast from "react-hot-toast";
@@ -17,24 +18,19 @@ type Props = {
 const savingsPlanIconChoices = ["home", "directions_car", "flight", "shield", "savings"] as const;
 
 const monthLabel = (language: string, value: Date, fallback: string) => {
-  if (Number.isNaN(value.getTime())) {
+  if (!value) {
     return fallback;
   }
 
-  return new Intl.DateTimeFormat(language === "vi-VN" ? "vi-VN" : "en-US", {
+  return localeDateLabel(value, language === "vi-VN" ? "vi-VN" : "en-US", {
     month: "long",
     year: "numeric",
-  }).format(value);
+  });
 };
 
-const toDateInputValue = (value: Date) => {
-  const year = value.getFullYear();
-  const month = String(value.getMonth() + 1).padStart(2, "0");
-  const day = String(value.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-};
+const toDateInputValue = (value: Date) => toISODate(value);
 
-const getProjectedArrivalDate = (target: number, monthly: number, from = new Date()) => {
+const getProjectedArrivalDate = (target: number, monthly: number, from = nowDate()) => {
   if (!Number.isFinite(target) || !Number.isFinite(monthly) || target <= 0 || monthly <= 0) {
     return null;
   }
@@ -44,8 +40,7 @@ const getProjectedArrivalDate = (target: number, monthly: number, from = new Dat
     return null;
   }
 
-  const projected = new Date(from.getFullYear(), from.getMonth() + months, 1);
-  return Number.isNaN(projected.getTime()) ? null : projected;
+  return startOfMonthDate(addMonthsDate(from, months));
 };
 
 export default function SavingsPlanCreateDialog({ language, currency, variant = "button" }: Props) {
@@ -57,8 +52,8 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
   const [isPrimary, setIsPrimary] = useState(true);
   const queryClient = useQueryClient();
 
-  const now = new Date();
-  const minDate = new Date(now.getFullYear(), now.getMonth(), 1);
+  const now = nowDate();
+  const minDate = startOfMonthDate(now);
 
   const createPlanMutation = useMutation({
     mutationFn: async (values: { name: string; targetAmount: string; monthlyContribution: string; targetDate: string }) => {
@@ -133,8 +128,8 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
       if (!values.targetDate) {
         errors.targetDate = t.savingsPlanDateRequired;
       } else {
-        const date = new Date(values.targetDate);
-        if (Number.isNaN(date.getTime())) {
+        const date = fromISODate(values.targetDate);
+        if (!date || !isValidISODate(values.targetDate)) {
           errors.targetDate = t.savingsPlanDateInvalid;
         } else if (date < minDate) {
           errors.targetDate = t.savingsPlanDateMin;

@@ -18,6 +18,6 @@ Assumption: no `## Naming` convention found; using `docs/plans/personal-finance-
 
 ### Progress
 
-- Overall: 86% (phases 01-03 completed; phases 04-05 in progress)
+- Overall: 92% (phases 01-03 completed; phase 04 near-complete; phase 05 near-complete)
 - Roadmap sync: `docs/project-roadmap.md` now reflects phase 03 as completed
 - Gate: user approval required before implementation

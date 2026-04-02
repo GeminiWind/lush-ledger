@@ -54,7 +54,10 @@ Notes:
 
 ### Savings and Reports
 - UI exists for savings and report views
-- Savings screen now supports active-plan selection driven by `SavingsPlan.status` (`active`/`archive`) and `isPrimary`
+- Savings screen now supports active-plan selection driven by `SavingsPlan.status` (`active`/`cancelled`/`archive`) and `isPrimary`
+- Savings primary goal block shows derived progression state (`active`/`funded`/`completed`) from contributions versus target
+- Savings cancel control is intentionally available only for `active` and `funded` states
+- Cancelling a savings plan writes a wallet-side `refund` transaction back to the default wallet and links it to the cancelled plan for auditability
 - Savings screen supports in-place "Add Contribution" dialog that writes income transactions linked by `Transaction.savingsPlanId`
 - `ledger/reports` includes client-rendered monthly cashflow trend (income vs expense) and expense-vs-budget charting via Recharts
 - Dedicated report/savings APIs are incomplete (see gaps below)

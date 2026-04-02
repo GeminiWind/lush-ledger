@@ -37,7 +37,7 @@ export const PATCH = async (
 
     const movement = walletTransactions.reduce((sum, tx) => {
       const amount = toNumber(tx.amount);
-      return tx.type === "income" ? sum + amount : sum - amount;
+      return tx.type === "income" || tx.type === "refund" ? sum + amount : sum - amount;
     }, 0);
 
     const openingBalance = balance - movement;

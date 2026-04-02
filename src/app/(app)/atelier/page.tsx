@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { prisma } from "@/lib/db";
-import { getMonthRange } from "@/lib/date";
+import { getMonthRange, localeDateLabel, nowDate } from "@/lib/date";
 import { formatCurrency } from "@/lib/format";
 import { ensureMonthlyCapSnapshot } from "@/lib/monthly-cap";
 import { requireUser } from "@/lib/user";
@@ -28,7 +28,8 @@ const categoryTones = [
 export default async function AtelierPage() {
   const user = await requireUser();
   const currency = user.settings?.currency || "VND";
-  const { start, end } = getMonthRange(new Date());
+  const now = nowDate();
+  const { start, end } = getMonthRange(now);
   await ensureMonthlyCapSnapshot(user.id, start);
 
   const [categories, monthTransactions, savingsPlans, monthLimits] = await Promise.all([
@@ -103,10 +104,7 @@ export default async function AtelierPage() {
   const savingsCoverage =
     savingsTarget > 0 ? Math.min((savingsSaved / savingsTarget) * 100, 100) : 0;
 
-  const monthLabel = new Intl.DateTimeFormat("en-US", {
-    month: "long",
-    year: "numeric",
-  }).format(new Date());
+  const monthLabel = localeDateLabel(now, "en-US", { month: "long", year: "numeric" });
 
   return (
     <div className="min-h-screen bg-[#f4faff] text-[#1b3641]">

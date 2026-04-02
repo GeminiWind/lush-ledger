@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Archived Ambitions | Fiscal Atelier</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;family=Inter:wght@300..700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-surface-variant": "#49636f",
+              "tertiary-container": "#fcfeb9",
+              "surface-container-high": "#d4ecf9",
+              "surface-container-lowest": "#ffffff",
+              "on-error": "#fff7f6",
+              "on-primary-container": "#005e17",
+              "on-tertiary-fixed": "#4d501d",
+              "on-secondary": "#f2faff",
+              "outline-variant": "#9bb6c4",
+              "on-secondary-fixed": "#2d424c",
+              "inverse-on-surface": "#929fa6",
+              "surface-container": "#dcf1fd",
+              "on-primary-fixed-variant": "#00691a",
+              "primary-container": "#91f78e",
+              "tertiary-fixed-dim": "#edefac",
+              "error-container": "#fd795a",
+              "secondary-dim": "#415660",
+              "secondary-container": "#cfe6f2",
+              "on-tertiary-container": "#60622d",
+              "secondary": "#4d626c",
+              "tertiary-fixed": "#fcfeb9",
+              "primary-fixed-dim": "#83e881",
+              "on-primary-fixed": "#00480f",
+              "error-dim": "#791903",
+              "surface-bright": "#f4faff",
+              "tertiary-dim": "#545622",
+              "secondary-fixed": "#cfe6f2",
+              "primary": "#006f1d",
+              "error": "#a73b21",
+              "on-tertiary": "#fcfdb9",
+              "inverse-primary": "#91f78e",
+              "surface-container-low": "#e7f6ff",
+              "secondary-fixed-dim": "#c1d8e4",
+              "on-tertiary-fixed-variant": "#6a6d37",
+              "surface-variant": "#cbe7f6",
+              "on-surface": "#1b3641",
+              "inverse-surface": "#041015",
+              "surface-tint": "#006f1d",
+              "surface": "#f4faff",
+              "background": "#f4faff",
+              "primary-dim": "#006118",
+              "surface-dim": "#c3deed",
+              "tertiary": "#60622d",
+              "on-background": "#1b3641",
+              "outline": "#647e8c",
+              "on-secondary-container": "#40555f",
+              "surface-container-highest": "#cbe7f6",
+              "primary-fixed": "#91f78e",
+              "on-primary": "#eaffe2",
+              "on-secondary-fixed-variant": "#495f69",
+              "on-error-container": "#6e1400"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface flex min-h-screen">
+<!-- SideNavBar (Shared Component) - Updated to Dashboard style soft green -->
+<aside class="h-screen w-64 border-r-0 bg-[#e7f6ff] dark:bg-slate-950 flex flex-col p-6 sticky top-0 shadow-[32px_0_32px_rgba(27,54,65,0.06)] hidden md:flex">
+<div class="mb-10">
+<h1 class="font-black text-[#1b3641] dark:text-slate-100 text-xl tracking-tight">The Atelier</h1>
+<p class="font-['Manrope'] font-medium text-sm text-[#1b3641] opacity-70">Wealth Curated</p>
+</div>
+<nav class="flex-grow space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 text-[#1b3641] dark:text-slate-400 opacity-70 font-['Manrope'] font-medium text-sm hover:bg-surface-container-low dark:hover:bg-slate-800 transition-all cubic-bezier(0.2,0,0,1)" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+                Portfolio
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#1b3641] dark:text-slate-400 opacity-70 font-['Manrope'] font-medium text-sm hover:bg-surface-container-low dark:hover:bg-slate-800 transition-all cubic-bezier(0.2,0,0,1)" href="#">
+<span class="material-symbols-outlined" data-icon="savings">savings</span>
+                Savings
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#1b3641] dark:text-slate-400 opacity-70 font-['Manrope'] font-medium text-sm hover:bg-surface-container-low dark:hover:bg-slate-800 transition-all cubic-bezier(0.2,0,0,1)" href="#">
+<span class="material-symbols-outlined" data-icon="monitoring">monitoring</span>
+                Insights
+            </a>
+<!-- Active Tab: Archives -->
+<a class="flex items-center gap-3 px-4 py-3 bg-[#2E7D32] text-white rounded-xl shadow-lg font-['Manrope'] font-medium text-sm transition-all cubic-bezier(0.2,0,0,1)" href="#">
+<span class="material-symbols-outlined" data-icon="archive">archive</span>
+                Archives
+            </a>
+</nav>
+<button class="mt-4 mb-8 bg-primary text-on-primary py-3 px-4 rounded-full font-['Manrope'] font-bold text-sm shadow-md hover:brightness-110 transition-all">
+            New Goal
+        </button>
+<div class="space-y-2 mt-auto pt-6 border-t border-outline-variant/10">
+<a class="flex items-center gap-3 px-4 py-2 text-[#1b3641] dark:text-slate-400 opacity-70 font-['Manrope'] font-medium text-sm hover:bg-surface-container-low transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+                Support
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-[#1b3641] dark:text-slate-400 opacity-70 font-['Manrope'] font-medium text-sm hover:bg-surface-container-low transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+                Sign Out
+            </a>
+</div>
+</aside>
+<main class="flex-1 flex flex-col min-w-0 bg-surface">
+<!-- TopNavBar (Shared Component) -->
+<header class="w-full top-0 sticky z-10 bg-[#f4faff] dark:bg-slate-950 flex justify-between items-center px-8 py-6 w-full max-w-7xl mx-auto">
+<div class="flex items-center gap-4">
+<span class="md:hidden material-symbols-outlined text-on-surface">menu</span>
+<span class="text-2xl font-black text-[#1b3641] dark:text-slate-100">Fiscal Atelier</span>
+</div>
+<div class="flex items-center gap-6">
+<button class="p-2 rounded-full hover:bg-[#cbe7f6] transition-colors scale-95 duration-200 ease-in-out">
+<span class="material-symbols-outlined text-[#1b3641]" data-icon="settings">settings</span>
+</button>
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container shadow-sm border-2 border-white">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="Close-up portrait of a professional man with a kind smile, neutral studio background, soft cinematic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbejxPJL4A-94-HfyI283iFO5-FP8X_Jajtft89r2DJiZvkBMTWz0v0oUSyOab7NnuaufdjJi94yRfXGc4Ubdpnp9Syzszu_hir2_R18SXY9iv9YEuzGPh61G52nUd36LG_KNV9YYfUAByKIZzyJYTecSQ5l1XMSM5YN76yb-bIMLzGfRpDk-BTWBTGfKAq_iGj18bYApTtWQK-beEP4xtWoSyyc88tMq9sZWH9U2-bTgQbgrncWB5WoktrMPkDD0RQZbstxHHDik"/>
+</div>
+</div>
+</header>
+<!-- Content Canvas -->
+<div class="px-8 py-4 max-w-7xl mx-auto w-full flex-grow">
+<!-- Breadcrumbs & Header - Consistent with Dashboard -->
+<header class="mb-12">
+<div class="flex flex-col md:flex-row md:items-baseline gap-6 mb-4">
+<div class="flex flex-col">
+<p class="text-on-surface-variant font-medium tracking-tight mb-2 text-sm">Fiscal Atelier • Savings Portfolio</p>
+<div class="flex flex-wrap items-baseline gap-4">
+<h1 class="text-5xl md:text-6xl font-extrabold tracking-tighter">
+<span class="text-[#1b3641]">Financial</span>
+<span class="text-primary italic">Ambition</span>
+</h1>
+<button class="flex items-center gap-2 bg-surface-container-low px-4 py-1.5 rounded-full border border-outline-variant/20 hover:bg-surface-container-high transition-colors shadow-sm h-fit self-center">
+<span class="text-[10px] font-black tracking-[0.15em] text-on-surface-variant uppercase">Active Plan</span>
+<span class="material-symbols-outlined text-on-surface-variant text-base">expand_more</span>
+</button>
+</div>
+</div>
+</div>
+<p class="text-on-surface-variant max-w-2xl text-lg font-medium leading-relaxed mt-6">
+    A collection of journeys paused, redirected, or concluded. Every entry tells a story of evolving priorities.
+</p>
+</header>
+<!-- Archived List - Updated to 3 cards per row (lg:grid-cols-3) -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
+<!-- Archived Item 1 -->
+<div class="bg-surface-container-lowest p-6 rounded-[2rem] shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+<!-- Ghost Background Graphic -->
+<span class="material-symbols-outlined absolute -right-4 -bottom-4 text-7xl opacity-[0.03] rotate-12 group-hover:rotate-0 transition-transform duration-700" data-icon="eco">eco</span>
+<div class="flex flex-col h-full relative z-10">
+<div class="flex justify-between items-start mb-6">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 bg-surface-container-low rounded-xl flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-2xl" data-icon="eco">eco</span>
+</div>
+<div>
+<h3 class="text-lg font-bold text-on-surface tracking-tight leading-tight">Green Future Fund</h3>
+<p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/60">OCT 14, 2024</p>
+</div>
+</div>
+<div class="bg-error-container/10 text-error px-3 py-1 rounded-full text-[10px] font-black border border-error/10">
+                                CANCELED
+                            </div>
+</div>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant mb-0.5 uppercase tracking-wider">Final Value</p>
+<p class="text-lg font-black text-on-surface">1.500.000 ₫</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] font-bold text-on-surface-variant mb-0.5 uppercase tracking-wider">Original Goal</p>
+<p class="text-lg font-black text-on-surface/40">10.000.000 ₫</p>
+</div>
+</div>
+<div class="mb-6">
+<div class="flex justify-between text-[10px] font-bold mb-1.5">
+<span class="text-on-surface-variant">Completion</span>
+<span class="text-on-surface">15%</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 15%"></div>
+</div>
+</div>
+<div class="mt-auto pt-4 border-t border-outline-variant/10 flex items-start gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-base" data-icon="info">info</span>
+<p class="text-[11px] italic text-on-surface-variant leading-snug">
+<span class="font-bold not-italic">Reason:</span> Changed financial priorities
+                            </p>
+</div>
+</div>
+</div>
+<!-- Archived Item 2 -->
+<div class="bg-surface-container-lowest p-6 rounded-[2rem] shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+<span class="material-symbols-outlined absolute -right-4 -bottom-4 text-7xl opacity-[0.03] rotate-12 group-hover:rotate-0 transition-transform duration-700" data-icon="flight_takeoff">flight_takeoff</span>
+<div class="flex flex-col h-full relative z-10">
+<div class="flex justify-between items-start mb-6">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 bg-surface-container-low rounded-xl flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-2xl" data-icon="flight_takeoff">flight_takeoff</span>
+</div>
+<div>
+<h3 class="text-lg font-bold text-on-surface tracking-tight leading-tight">Tokyo Escape 2025</h3>
+<p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/60">SEP 22, 2024</p>
+</div>
+</div>
+<div class="bg-error-container/10 text-error px-3 py-1 rounded-full text-[10px] font-black border border-error/10">
+                                REDIRECTED
+                            </div>
+</div>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant mb-0.5 uppercase tracking-wider">Final Value</p>
+<p class="text-lg font-black text-on-surface">45.000.000 ₫</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] font-bold text-on-surface-variant mb-0.5 uppercase tracking-wider">Original Goal</p>
+<p class="text-lg font-black text-on-surface/40">60.000.000 ₫</p>
+</div>
+</div>
+<div class="mb-6">
+<div class="flex justify-between text-[10px] font-bold mb-1.5">
+<span class="text-on-surface-variant">Completion</span>
+<span class="text-on-surface">75%</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 75%"></div>
+</div>
+</div>
+<div class="mt-auto pt-4 border-t border-outline-variant/10 flex items-start gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-base" data-icon="info">info</span>
+<p class="text-[11px] italic text-on-surface-variant leading-snug">
+<span class="font-bold not-italic">Reason:</span> Merged with 'Emergency Buffer'
+                            </p>
+</div>
+</div>
+</div>
+<!-- Archived Item 3 -->
+<div class="bg-surface-container-lowest p-6 rounded-[2rem] shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+<span class="material-symbols-outlined absolute -right-4 -bottom-4 text-7xl opacity-[0.03] rotate-12 group-hover:rotate-0 transition-transform duration-700" data-icon="laptop_mac">laptop_mac</span>
+<div class="flex flex-col h-full relative z-10">
+<div class="flex justify-between items-start mb-6">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 bg-surface-container-low rounded-xl flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-2xl" data-icon="laptop_mac">laptop_mac</span>
+</div>
+<div>
+<h3 class="text-lg font-bold text-on-surface tracking-tight leading-tight">Pro Setup Upgrade</h3>
+<p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/60">AUG 05, 2024</p>
+</div>
+</div>
+<div class="bg-error-container/10 text-error px-3 py-1 rounded-full text-[10px] font-black border border-error/10">
+                                CANCELED
+                            </div>
+</div>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant mb-0.5 uppercase tracking-wider">Final Value</p>
+<p class="text-lg font-black text-on-surface">8.200.000 ₫</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] font-bold text-on-surface-variant mb-0.5 uppercase tracking-wider">Original Goal</p>
+<p class="text-lg font-black text-on-surface/40">25.000.000 ₫</p>
+</div>
+</div>
+<div class="mb-6">
+<div class="flex justify-between text-[10px] font-bold mb-1.5">
+<span class="text-on-surface-variant">Completion</span>
+<span class="text-on-surface">32%</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 32%"></div>
+</div>
+</div>
+<div class="mt-auto pt-4 border-t border-outline-variant/10 flex items-start gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-base" data-icon="info">info</span>
+<p class="text-[11px] italic text-on-surface-variant leading-snug">
+<span class="font-bold not-italic">Reason:</span> Equipment provided by employer
+                            </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Spacer -->
+<div class="h-24"></div>
+</div>
+</main>
+<!-- Mobile Navigation (Shared Component Shell Logic) -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-[#f4faff] flex justify-around items-center py-4 px-2 border-t border-outline-variant/10 z-50">
+<a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="text-[10px] font-bold">Portfolio</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="savings">savings</span>
+<span class="text-[10px] font-bold">Savings</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="monitoring">monitoring</span>
+<span class="text-[10px] font-bold">Insights</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined" data-icon="archive">archive</span>
+<span class="text-[10px] font-bold">Archives</span>
+</a>
+</nav>
+</body></html>

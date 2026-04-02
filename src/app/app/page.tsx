@@ -1,4 +1,5 @@
 import { getDashboardData } from "@/lib/dashboard";
+import { localeDateLabel } from "@/lib/date";
 import { getDictionary } from "@/lib/i18n";
 import { requireUser } from "@/lib/user";
 import ActiveBudgetsPanel from "./ActiveBudgetsPanel";
@@ -14,12 +15,10 @@ const toCurrencyLabel = (amount: number, currency: string) => {
 };
 
 const shortDate = (date: Date, language: string) => {
-  return new Intl.DateTimeFormat(language === "vi-VN" ? "vi-VN" : "en-US", {
+  return localeDateLabel(date, language === "vi-VN" ? "vi-VN" : "en-US", {
     month: "short",
     day: "2-digit",
-  })
-    .format(date)
-    .toUpperCase();
+  }).toUpperCase();
 };
 
 const budgetWidth = (value: number) => `${Math.min(100, Math.max(0, value))}%`;
@@ -51,7 +50,7 @@ const capBadgeMeta = (usedPercent: number) => {
 
 const transactionMeta = (type: string, language: string) => {
   const t = getDictionary(language);
-  if (type === "income") {
+  if (type === "income" || type === "refund") {
     return {
       sign: "+",
       amountClass: "text-[#006f1d]",

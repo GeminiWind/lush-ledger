@@ -30,3 +30,9 @@ For every external library/framework API usage:
 1. Briefly state which `docs/` references informed the implementation.
 2. Briefly state which Context7 documentation was used for external APIs.
 3. Summarize changes and any assumptions made.
+
+## Search Tooling Rules
+
+1. Use Exa tools for web search and web content discovery by default.
+2. Use `grep_searchGitHub` for GitHub code search examples and usage patterns.
+3. Avoid substituting generic web/code search tools unless Exa or `grep_searchGitHub` cannot satisfy the need.

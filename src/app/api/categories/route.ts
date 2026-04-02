@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionFromRequest } from "@/lib/auth";
+import { addMonthsDate, nowDate } from "@/lib/date";
 import { ensureMonthlyCapSnapshot, monthStartOf } from "@/lib/monthly-cap";
 
 const toNumber = (value: unknown) => Number(value ?? 0);
@@ -43,9 +44,9 @@ export const POST = async (request: NextRequest) => {
   }
 
   const safeLimit = isNaN(monthlyLimit) ? 0 : monthlyLimit;
-  const now = new Date();
+  const now = nowDate();
   const monthStart = monthStartOf(now);
-  const nextMonthStart = monthStartOf(new Date(now.getFullYear(), now.getMonth() + 1, 1));
+  const nextMonthStart = monthStartOf(addMonthsDate(now, 1));
 
   const [currentCap, nextCap, currentMonthLimits, nextMonthLimits] = await Promise.all([
     ensureMonthlyCapSnapshot(userId, monthStart),

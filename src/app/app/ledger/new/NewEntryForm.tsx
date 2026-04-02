@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import DatePicker from "react-datepicker";
 import { useFormik } from "formik";
+import { dayOfMonth, nowDate, toISODate } from "@/lib/date";
 import { formatCurrencyInput, getCurrencyInputSuggestions, parseCurrencyInput } from "@/lib/format";
 import { getDictionary } from "@/lib/i18n";
 import toast from "react-hot-toast";
@@ -49,12 +50,7 @@ const iconForCategory = (name: string) => {
   return "payments";
 };
 
-const formatDateForApi = (date: Date) => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-};
+const formatDateForApi = (date: Date) => toISODate(date);
 
 export default function NewEntryForm({ wallets = [], defaultWalletId, categories, currency, language }: Props) {
   const router = useRouter();
@@ -113,10 +109,10 @@ export default function NewEntryForm({ wallets = [], defaultWalletId, categories
       amountDisplay: "",
       categoryId: categories[0]?.id || "",
       walletId: defaultWalletId || wallets[0]?.id || "",
-      date: new Date(),
+      date: nowDate(),
       isRecurring: false,
       recurringInterval: "monthly",
-      recurringDayOfMonth: String(new Date().getDate()),
+      recurringDayOfMonth: String(dayOfMonth(nowDate())),
       recurringEndDate: null,
       description: "",
       note: "",

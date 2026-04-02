@@ -1,22 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionFromRequest } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { addMonthsDate, fromISODate, monthKey, nowDate, startOfMonthDate } from "@/lib/date";
 import { ensureMonthlyCapSnapshot } from "@/lib/monthly-cap";
 
 const toNumber = (value: unknown) => Number(value ?? 0);
 
 const normalizeMonthStart = (value: string | undefined) => {
   if (!value) {
-    const now = new Date();
-    return new Date(now.getFullYear(), now.getMonth(), 1);
+    return startOfMonthDate(nowDate());
   }
 
-  const parsed = new Date(`${value}-01`);
-  if (Number.isNaN(parsed.getTime())) {
+  const parsed = fromISODate(`${value}-01`);
+  if (!parsed) {
     return null;
   }
 
-  return new Date(parsed.getFullYear(), parsed.getMonth(), 1);
+  return startOfMonthDate(parsed);
 };
 
 export const PATCH = async (request: NextRequest) => {
@@ -65,11 +65,10 @@ export const PATCH = async (request: NextRequest) => {
     },
   });
 
-  const nextMonthStart = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 1);
+  const nextMonthStart = startOfMonthDate(addMonthsDate(monthStart, 1));
   const nextSnapshot = await ensureMonthlyCapSnapshot(session.sub, nextMonthStart);
   const nextLimitTotal = toNumber(nextSnapshot.totalLimit);
-  const rawNextCap = keepCapNextMonth ? targetCap : 0;
-  const nextTotalCap = Math.max(rawNextCap, nextLimitTotal);
+  const nextTotalCap = keepCapNextMonth ? targetCap : nextLimitTotal;
   const nextUnallocatedBackup = Math.max(nextTotalCap - nextLimitTotal, 0);
 
   await prisma.userMonthlyCap.upsert({
@@ -95,7 +94,7 @@ export const PATCH = async (request: NextRequest) => {
 
   return NextResponse.json({
     ok: true,
-    month: `${monthStart.getFullYear()}-${String(monthStart.getMonth() + 1).padStart(2, "0")}`,
+    month: monthKey(monthStart),
     totalCap: targetCap,
     unallocatedBackup,
     keepCapNextMonth,

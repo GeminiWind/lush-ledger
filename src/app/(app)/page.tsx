@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { nowDate } from "@/lib/date";
 import { requireUser } from "@/lib/user";
 import { getMonthRange } from "@/lib/date";
 import { formatCurrency } from "@/lib/format";
@@ -8,7 +9,7 @@ const toNumber = (value: unknown) => Number(value ?? 0);
 
 export default async function OverviewPage() {
   const user = await requireUser();
-  const { start, end } = getMonthRange(new Date());
+  const { start, end } = getMonthRange(nowDate());
   const currency = user.settings?.currency || "VND";
   await ensureMonthlyCapSnapshot(user.id, start);
 

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { fromISODate, localeDateLabel, nowDate } from "@/lib/date";
 import { getDictionary } from "@/lib/i18n";
 import toast from "react-hot-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -69,11 +70,12 @@ export default function DeleteTransactionDialog({
   }, [transaction.accountName, transaction.categoryName, transaction.notes]);
 
   const category = transaction.categoryName || t.ledgerUncategorized;
-  const formattedDate = new Intl.DateTimeFormat(locale, {
+  const parsedDate = fromISODate(transaction.date) || nowDate();
+  const formattedDateLabel = localeDateLabel(parsedDate, locale, {
     month: "long",
     day: "numeric",
     year: "numeric",
-  }).format(new Date(transaction.date));
+  });
 
   useEffect(() => {
     if (!open) {
@@ -145,12 +147,12 @@ export default function DeleteTransactionDialog({
                     <p className="text-xs font-bold text-[#1b3641]">{subject}</p>
                     <p className="text-[10px] font-medium uppercase tracking-wider text-[#49636f]">{category}</p>
                     <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-[#49636f]/70">
-                      {formattedDate}
+                      {formattedDateLabel}
                     </p>
                   </div>
                 </div>
                 <p className="text-sm font-extrabold text-[#1b3641]">
-                  {transaction.type === "income" ? "+" : "-"}
+                  {transaction.type === "income" || transaction.type === "refund" ? "+" : "-"}
                   {asCurrency(Math.abs(transaction.amount), currency)}
                 </p>
               </div>

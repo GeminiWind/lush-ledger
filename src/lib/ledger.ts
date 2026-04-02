@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { getMonthRange } from "@/lib/date";
+import { getMonthRange, nowDate } from "@/lib/date";
 import { materializeRecurringTransactions } from "@/lib/recurring";
 
 type LedgerFilters = {
@@ -9,7 +9,7 @@ type LedgerFilters = {
   categoryId?: string;
 };
 
-type LedgerTxType = "income" | "expense" | "transfer_to_saving_plan";
+type LedgerTxType = "income" | "expense" | "transfer_to_saving_plan" | "refund";
 
 const toNumber = (value: unknown) => Number(value ?? 0);
 
@@ -18,7 +18,7 @@ const sum = (values: number[]) => values.reduce((total, value) => total + value,
 export const getLedgerData = async (userId: string, filters: LedgerFilters = {}) => {
   await materializeRecurringTransactions(userId);
 
-  const { start, end } = getMonthRange(new Date());
+  const { start, end } = getMonthRange(nowDate());
 
   const where: {
     userId: string;
@@ -28,7 +28,7 @@ export const getLedgerData = async (userId: string, filters: LedgerFilters = {})
     notes?: { contains: string };
   } = { userId };
 
-  if (filters.type === "income" || filters.type === "expense" || filters.type === "transfer_to_saving_plan") {
+  if (filters.type === "income" || filters.type === "expense" || filters.type === "transfer_to_saving_plan" || filters.type === "refund") {
     where.type = filters.type;
   }
   if (filters.accountId) {

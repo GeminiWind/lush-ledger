@@ -19,6 +19,8 @@ Canonical route tree (active):
 - `src/app/app/atelier/page.tsx` -> `/app/atelier`
 - `src/app/app/accounts/page.tsx` -> `/app/accounts`
 - `src/app/app/savings/page.tsx` -> `/app/savings`
+- `src/app/app/savings/cancelled/page.tsx` -> `/app/savings/cancelled`
+- `src/app/app/savings/cancelled/[id]/page.tsx` -> `/app/savings/cancelled/:id`
 
 Auth routes:
 - `src/app/(auth)/login/page.tsx` -> `/login`
@@ -95,9 +97,16 @@ Dialog behavior baseline:
 
 Savings UX notes:
 - active plan can be selected on `/app/savings` via query (`?plan=<id>`) with `isPrimary` fallback
+- primary plan now surfaces derived state badge (`active` -> `funded` after first contribution -> `completed` at target)
+- cancel action is only available while a plan is `active` or `funded`
+- completed plans are non-cancellable and should transition to `archive`
 - add-contribution dialog posts to `POST /api/ledger` with `savingsPlanId` linkage
 - contribution entries use transaction type `transfer_to_saving_plan` and appear in ledger activity
+- cancelling a savings plan creates a `refund` transaction into the default wallet with a cancellation note
+- archived list cards now deep-link cancelled plans to a dedicated detail view (`/app/savings/cancelled/:id`)
 - API now rejects contribution writes if `savingsPlanId` is provided with any type other than `transfer_to_saving_plan`
+- `PATCH /api/savings/plans/[id]` supports partial updates including state-only transitions
+- full lifecycle reference: `docs/savings-plan-status-flow.md`
 
 Charts:
 - Recharts used in reports/savings/top-categories style visualizations

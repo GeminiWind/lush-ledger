@@ -3,7 +3,8 @@ import DailyExpenseCalendar from "@/app/app/ledger/reports/DailyExpenseCalendar"
 import MonthlyCashflowChart from "@/app/app/ledger/reports/MonthlyCashflowChart";
 import MonthlyExpenseBudgetChart from "@/app/app/ledger/reports/MonthlyExpenseBudgetChart";
 import { prisma } from "@/lib/db";
-import { getMonthRange } from "@/lib/date";
+import { DateTime } from "luxon";
+import { addDaysDate, addMonthsDate, getMonthRange, localeDateLabel, localeTimeLabel, monthKey, nowDate, startOfMonthDate, toISODate } from "@/lib/date";
 import { getDictionary } from "@/lib/i18n";
 import { ensureMonthlyCapSnapshot, monthKeyOf } from "@/lib/monthly-cap";
 import { materializeRecurringTransactions } from "@/lib/recurring";
@@ -17,8 +18,6 @@ const asCurrency = (value: number, currency: string) => {
     maximumFractionDigits: currency === "VND" ? 0 : 2,
   }).format(value);
 };
-
-const monthKey = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
 
 const toNumber = (value: unknown) => Number(value ?? 0);
 
@@ -46,11 +45,12 @@ export default async function LedgerReportsPage({
   const t = getDictionary(language);
   const locale = language === "vi-VN" ? "vi-VN" : "en-US";
   const currency = user.settings?.currency ?? "VND";
-  const today = new Date();
+  const today = nowDate();
+  const todayDateTime = DateTime.fromJSDate(today);
   const params = await searchParams;
-  const selectedYear = Math.min(2100, Math.max(2000, parseIntSafe(params.year, today.getFullYear())));
-  const selectedMonth = Math.min(12, Math.max(1, parseIntSafe(params.month, today.getMonth() + 1)));
-  const selectedDate = new Date(selectedYear, selectedMonth - 1, 1);
+  const selectedYear = Math.min(2100, Math.max(2000, parseIntSafe(params.year, todayDateTime.year)));
+  const selectedMonth = Math.min(12, Math.max(1, parseIntSafe(params.month, todayDateTime.month)));
+  const selectedDate = DateTime.local(selectedYear, selectedMonth, 1).toJSDate();
   const { start, end } = getMonthRange(selectedDate);
 
   const [monthCap, monthTransactions, recentTransactions] = await Promise.all([
@@ -65,7 +65,7 @@ export default async function LedgerReportsPage({
     prisma.transaction.findMany({
       where: {
         userId: user.id,
-        date: { gte: new Date(start.getFullYear(), start.getMonth() - 5, 1), lte: end },
+        date: { gte: startOfMonthDate(addMonthsDate(start, -5)), lte: end },
       },
       orderBy: [{ date: "asc" }],
     }),
@@ -84,11 +84,11 @@ export default async function LedgerReportsPage({
   const topSavings = Math.max(monthIncome - totalExpense, 0);
 
   const monthLabels = Array.from({ length: 6 }).map((_, index) => {
-    const date = new Date(start.getFullYear(), start.getMonth() - (5 - index), 1);
+    const date = startOfMonthDate(addMonthsDate(start, -(5 - index)));
     return {
       date,
       key: monthKey(date),
-      label: date.toLocaleString(locale, { month: "short" }).toUpperCase(),
+      label: localeDateLabel(date, locale, { month: "short" }).toUpperCase(),
     };
   });
 
@@ -135,7 +135,7 @@ export default async function LedgerReportsPage({
   >();
 
   for (const tx of sortedExpenseDays) {
-    const key = tx.date.toISOString().slice(0, 10);
+    const key = toISODate(tx.date);
     if (!dayMap.has(key)) {
       dayMap.set(key, { total: 0, entries: [] });
     }
@@ -148,7 +148,7 @@ export default async function LedgerReportsPage({
     bucket.entries.push({
       id: tx.id,
       title: tx.notes?.trim() || tx.category?.name || t.reportsTransactionFallback,
-      subtitle: `${tx.category?.name || t.ledgerUncategorized} • ${tx.date.toLocaleTimeString(locale, {
+      subtitle: `${tx.category?.name || t.ledgerUncategorized} • ${localeTimeLabel(tx.date, locale, {
         hour: "2-digit",
         minute: "2-digit",
       })}`,
@@ -156,32 +156,30 @@ export default async function LedgerReportsPage({
     });
   }
 
-  const calendarStart = new Date(start);
-  const weekday = (calendarStart.getDay() + 6) % 7;
-  calendarStart.setDate(calendarStart.getDate() - weekday);
+  const weekday = (DateTime.fromJSDate(start).weekday + 6) % 7;
+  const calendarStart = addDaysDate(start, -weekday);
 
   const dailyTotals = Array.from(dayMap.values()).map((day) => day.total);
   const maxDailyTotal = Math.max(...dailyTotals, 1);
 
   const calendarDays = Array.from({ length: 42 }).map((_, index) => {
-    const date = new Date(calendarStart);
-    date.setDate(calendarStart.getDate() + index);
-    const key = date.toISOString().slice(0, 10);
+    const date = addDaysDate(calendarStart, index);
+    const key = toISODate(date);
     const source = dayMap.get(key);
     const total = source?.total || 0;
     const level = total > 0 ? Math.ceil((total / maxDailyTotal) * 5) : 0;
 
     return {
       key,
-      day: date.getDate(),
-      inMonth: date.getMonth() === start.getMonth(),
+      day: DateTime.fromJSDate(date).day,
+      inMonth: DateTime.fromJSDate(date).month === DateTime.fromJSDate(start).month,
       total,
       level,
       entries: source?.entries || [],
     };
   });
 
-  const monthLabel = selectedDate.toLocaleString(locale, { month: "long", year: "numeric" });
+  const monthLabel = localeDateLabel(selectedDate, locale, { month: "long", year: "numeric" });
   const yearOptions = Array.from({ length: 7 }).map((_, index) => selectedYear - 3 + index);
 
   return (

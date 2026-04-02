@@ -1,6 +1,7 @@
 import CategoryForm from "@/app/(app)/categories/CategoryForm";
 import { prisma } from "@/lib/db";
 import { getMonthRange } from "@/lib/date";
+import { nowDate } from "@/lib/date";
 import { formatCurrency } from "@/lib/format";
 import { ensureMonthlyCapSnapshot } from "@/lib/monthly-cap";
 import { requireUser } from "@/lib/user";
@@ -10,7 +11,7 @@ const toNumber = (value: unknown) => Number(value ?? 0);
 export default async function CategoriesPage() {
   const user = await requireUser();
   const currency = user.settings?.currency || "VND";
-  const { start, end } = getMonthRange(new Date());
+  const { start, end } = getMonthRange(nowDate());
   await ensureMonthlyCapSnapshot(user.id, start);
 
   const [categories, transactions, monthLimits] = await Promise.all([

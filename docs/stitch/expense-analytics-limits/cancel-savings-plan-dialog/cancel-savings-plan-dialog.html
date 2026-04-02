@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-dim": "#c3deed",
+            "secondary-fixed": "#cfe6f2",
+            "on-tertiary-fixed-variant": "#6a6d37",
+            "outline-variant": "#9bb6c4",
+            "secondary-dim": "#415660",
+            "background": "#f4faff",
+            "tertiary-dim": "#545622",
+            "inverse-primary": "#91f78e",
+            "secondary-fixed-dim": "#c1d8e4",
+            "on-background": "#1b3641",
+            "on-tertiary-container": "#60622d",
+            "surface-container": "#dcf1fd",
+            "primary-fixed": "#91f78e",
+            "tertiary-fixed-dim": "#edefac",
+            "secondary": "#4d626c",
+            "primary": "#006f1d",
+            "tertiary-container": "#fcfeb9",
+            "error-container": "#fd795a",
+            "inverse-on-surface": "#929fa6",
+            "primary-dim": "#006118",
+            "on-secondary-fixed": "#2d424c",
+            "on-error": "#fff7f6",
+            "on-primary-container": "#005e17",
+            "on-primary-fixed-variant": "#00691a",
+            "tertiary": "#60622d",
+            "primary-container": "#91f78e",
+            "surface-bright": "#f4faff",
+            "secondary-container": "#cfe6f2",
+            "outline": "#647e8c",
+            "on-secondary-fixed-variant": "#495f69",
+            "surface-container-highest": "#cbe7f6",
+            "on-surface": "#1b3641",
+            "surface-container-low": "#e7f6ff",
+            "on-secondary": "#f2faff",
+            "inverse-surface": "#041015",
+            "error-dim": "#791903",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-high": "#d4ecf9",
+            "on-tertiary": "#fcfdb9",
+            "surface-tint": "#006f1d",
+            "on-error-container": "#6e1400",
+            "on-surface-variant": "#49636f",
+            "on-secondary-container": "#40555f",
+            "surface-variant": "#cbe7f6",
+            "primary-fixed-dim": "#83e881",
+            "tertiary-fixed": "#fcfeb9",
+            "surface": "#f4faff",
+            "on-tertiary-fixed": "#4d501d",
+            "on-primary-fixed": "#00480f",
+            "on-primary": "#eaffe2",
+            "error": "#a73b21"
+          },
+          fontFamily: {
+            "headline": ["Manrope"],
+            "body": ["Inter"],
+            "label": ["Inter"]
+          },
+          borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.75rem", "full": "9999px"},
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .active-nav-shadow {
+      box-shadow: inset 0 2px 4px rgba(255,255,255,0.3);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body overflow-hidden">
+<!-- Background Layer: Savings Tracker (Blurred) -->
+<div class="fixed inset-0 z-0 flex blur-2xl saturate-150 scale-105 pointer-events-none opacity-60">
+<aside class="w-64 h-full bg-[#f4faff] p-6 border-r-0 hidden md:flex flex-col">
+<div class="text-xl font-black text-[#2E7D32] mb-8">Lush Ledger</div>
+<div class="space-y-2">
+<div class="flex items-center gap-3 px-4 py-3 text-slate-500">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-medium text-sm">Dashboard</span>
+</div>
+<div class="flex items-center gap-3 px-4 py-3 bg-[#e7f6ff] text-[#2E7D32] rounded-xl font-bold active-nav-shadow">
+<span class="material-symbols-outlined">savings</span>
+<span class="font-medium text-sm">Savings</span>
+</div>
+</div>
+</aside>
+<main class="flex-1 p-8 overflow-auto">
+<header class="flex justify-between items-center mb-12">
+<h1 class="font-headline font-extrabold text-4xl text-on-surface">Savings Portfolio</h1>
+<div class="flex gap-4">
+<div class="h-10 w-10 rounded-full bg-surface-container"></div>
+</div>
+</header>
+<div class="grid grid-cols-12 gap-8">
+<div class="col-span-8 bg-surface-container-lowest rounded-xl p-8 h-[400px]"></div>
+<div class="col-span-4 space-y-6">
+<div class="bg-primary-container rounded-xl p-6 h-32"></div>
+<div class="bg-surface-container-low rounded-xl p-6 h-32"></div>
+</div>
+</div>
+</main>
+</div>
+<!-- Modal Overlay -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-on-surface/10 backdrop-blur-md">
+<!-- Centered Dialog -->
+<div class="relative w-full max-w-lg bg-surface-container-lowest rounded-xl shadow-[0_32px_64px_rgba(27,54,65,0.12)] border border-outline-variant/10 overflow-hidden">
+<!-- Top Accent Line -->
+<div class="h-1.5 w-full bg-gradient-to-r from-error/40 to-error"></div>
+<div class="p-8">
+<!-- Header -->
+<div class="mb-8 text-center">
+<div class="inline-flex items-center justify-center w-14 h-14 bg-error/10 text-error rounded-full mb-4">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 0;">cancel</span>
+</div>
+<h2 class="font-headline font-bold text-2xl text-on-surface tracking-tight">Cancel Savings Plan</h2>
+<p class="mt-2 text-on-surface-variant font-body">Are you sure you want to discontinue your ‘Green Future’ growth strategy? This action cannot be undone.</p>
+</div>
+<!-- Form Sections -->
+<div class="space-y-6">
+<!-- Reason Selection -->
+<div>
+<label class="block font-headline font-bold text-sm text-on-surface mb-3">Cancellation Reason</label>
+<div class="grid grid-cols-1 gap-2">
+<label class="group flex items-center p-4 rounded-xl bg-surface-container-low hover:bg-surface-container-high transition-all duration-200 cursor-pointer">
+<input class="w-5 h-5 text-error border-outline-variant focus:ring-error focus:ring-offset-0 bg-surface" name="reason" type="radio"/>
+<span class="ml-3 text-sm font-medium text-on-surface group-hover:text-on-surface-variant transition-colors">Changed financial priorities</span>
+</label>
+<label class="group flex items-center p-4 rounded-xl bg-surface-container-low hover:bg-surface-container-high transition-all duration-200 cursor-pointer">
+<input class="w-5 h-5 text-error border-outline-variant focus:ring-error focus:ring-offset-0 bg-surface" name="reason" type="radio"/>
+<span class="ml-3 text-sm font-medium text-on-surface group-hover:text-on-surface-variant transition-colors">Achieved goal through other means</span>
+</label>
+<label class="group flex items-center p-4 rounded-xl bg-surface-container-low hover:bg-surface-container-high transition-all duration-200 cursor-pointer">
+<input class="w-5 h-5 text-error border-outline-variant focus:ring-error focus:ring-offset-0 bg-surface" name="reason" type="radio"/>
+<span class="ml-3 text-sm font-medium text-on-surface group-hover:text-on-surface-variant transition-colors">Emergency funds needed</span>
+</label>
+<label class="group flex items-center p-4 rounded-xl bg-surface-container-low hover:bg-surface-container-high transition-all duration-200 cursor-pointer">
+<input class="w-5 h-5 text-error border-outline-variant focus:ring-error focus:ring-offset-0 bg-surface" name="reason" type="radio"/>
+<span class="ml-3 text-sm font-medium text-on-surface group-hover:text-on-surface-variant transition-colors">Other</span>
+</label>
+</div>
+</div>
+<!-- Additional Notes -->
+<div>
+<label class="block font-headline font-bold text-sm text-on-surface mb-3">Additional Notes (Optional)</label>
+<textarea class="w-full p-4 rounded-xl bg-surface-container-low border-none focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-on-surface-variant/50 text-sm transition-all" placeholder="Tell us more about your decision..." rows="3"></textarea>
+</div>
+</div>
+<!-- Actions -->
+<div class="mt-8 flex items-start gap-3 p-4 rounded-xl bg-surface-container-low/50 border border-outline-variant/10">
+<span class="material-symbols-outlined text-primary text-xl" style="font-variation-settings: 'FILL' 1;">info</span>
+<p class="text-xs leading-relaxed text-on-surface-variant font-medium">
+<span class="font-bold text-on-surface">Note:</span> All contributions made to this plan will be returned to your default wallet.
+  </p>
+</div><div class="mt-10 flex flex-col sm:flex-row-reverse gap-3">
+<button class="flex-1 py-3.5 px-6 rounded-xl bg-gradient-to-br from-error to-error-dim text-on-error font-headline font-bold text-sm shadow-lg shadow-error/20 hover:opacity-90 active:scale-95 transition-all">
+            Confirm Cancelation
+          </button>
+<button class="flex-1 py-3.5 px-6 rounded-xl bg-surface-container-high text-on-surface font-headline font-bold text-sm hover:bg-surface-container-highest active:scale-95 transition-all">
+            Keep Plan
+          </button>
+</div>
+</div>
+<!-- Footer Branding -->
+<div class="px-8 py-4 bg-surface-container-low/50 flex justify-center">
+<div class="flex items-center gap-2 opacity-40">
+<span class="text-[10px] font-black text-on-surface-variant tracking-[0.2em] uppercase">Lush Ledger Secure Protocol</span>
+</div>
+</div>
+</div>
+</div>
+</body></html>

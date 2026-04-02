@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionFromRequest } from "@/lib/auth";
+import { fromISODate, nowDate, startOfMonthDate } from "@/lib/date";
 
 const toNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -18,7 +19,7 @@ export const POST = async (request: NextRequest) => {
   const name = String(body.name || "").trim();
   const targetAmount = toNumber(body.targetAmount);
   const monthlyContribution = toNumber(body.monthlyContribution);
-  const targetDate = new Date(String(body.targetDate || ""));
+  const targetDate = fromISODate(String(body.targetDate || ""));
   const requestedPrimary = Boolean(body.isPrimary);
   const icon = String(body.icon || "savings").trim() || "savings";
 
@@ -34,13 +35,11 @@ export const POST = async (request: NextRequest) => {
     return NextResponse.json({ error: "Monthly contribution must be greater than zero." }, { status: 400 });
   }
 
-  if (Number.isNaN(targetDate.getTime())) {
+  if (!targetDate) {
     return NextResponse.json({ error: "Target date is invalid." }, { status: 400 });
   }
 
-  const monthStart = new Date();
-  monthStart.setDate(1);
-  monthStart.setHours(0, 0, 0, 0);
+  const monthStart = startOfMonthDate(nowDate());
 
   if (targetDate < monthStart) {
     return NextResponse.json({ error: "Target date must be this month or later." }, { status: 400 });

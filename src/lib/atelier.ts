@@ -1,18 +1,13 @@
 import { prisma } from "@/lib/db";
-import { getMonthRange } from "@/lib/date";
+import { dayOfMonth, daysUntil, getMonthRange, nowDate } from "@/lib/date";
 import { ensureMonthlyCapSnapshot } from "@/lib/monthly-cap";
 
 const toNumber = (value: unknown) => Number(value ?? 0);
 
 const sum = (items: number[]) => items.reduce((total, value) => total + value, 0);
 
-const daysUntil = (date: Date, from: Date) => {
-  const distance = date.getTime() - from.getTime();
-  return Math.ceil(distance / 86400000);
-};
-
 export const getAtelierData = async (userId: string) => {
-  const now = new Date();
+  const now = nowDate();
   const { start, end } = getMonthRange(now);
 
   const [accounts, categories, savingsPlans, monthTransactions, monthCategoryLimits] = await Promise.all([
@@ -52,7 +47,7 @@ export const getAtelierData = async (userId: string) => {
   );
   const net = monthIncome - monthExpense;
 
-  const daysPassed = Math.max(1, now.getDate());
+  const daysPassed = Math.max(1, dayOfMonth(now));
   const avgDailyExpense = monthExpense / daysPassed;
 
   const liquidBalance = sum(
@@ -102,8 +97,11 @@ export const getAtelierData = async (userId: string) => {
   const savingsMilestones = savingsPlans.slice(0, 3).map((plan) => {
       const allocated = sum(
         monthTransactions
-          .filter((tx) => tx.savingsPlanId === plan.id && (tx.type === "income" || tx.type === "transfer_to_saving_plan"))
-          .map((tx) => toNumber(tx.amount))
+          .filter((tx) => tx.savingsPlanId === plan.id)
+          .map((tx) => {
+            const amount = toNumber(tx.amount);
+            return tx.type === "refund" || tx.type === "expense" ? -amount : amount;
+          })
     );
     const target = toNumber(plan.targetAmount);
     const progress = target > 0 ? (allocated / target) * 100 : 0;

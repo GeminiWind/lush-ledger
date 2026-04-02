@@ -1,4 +1,5 @@
 import { getLedgerData } from "@/lib/ledger";
+import { addDaysDate, localeDateLabel, localeTimeLabel, nowDate, sameDay, toISODate } from "@/lib/date";
 import { getDictionary } from "@/lib/i18n";
 import { requireUser } from "@/lib/user";
 import Link from "next/link";
@@ -22,28 +23,27 @@ const asCurrency = (value: number, currency: string) => {
 
 const asDayLabel = (value: Date, language: string) => {
   const t = getDictionary(language);
-  const today = new Date();
-  const yesterday = new Date();
-  yesterday.setDate(today.getDate() - 1);
+  const today = nowDate();
+  const yesterday = addDaysDate(today, -1);
 
-  if (value.toDateString() === today.toDateString()) {
+  if (sameDay(value, today)) {
     return t.ledgerToday;
   }
-  if (value.toDateString() === yesterday.toDateString()) {
+  if (sameDay(value, yesterday)) {
     return t.ledgerYesterday;
   }
 
-  return new Intl.DateTimeFormat(language === "vi-VN" ? "vi-VN" : "en-US", {
+  return localeDateLabel(value, language === "vi-VN" ? "vi-VN" : "en-US", {
     month: "long",
     day: "2-digit",
-  }).format(value);
+  });
 };
 
 const asTime = (value: Date, language: string) => {
-  return new Intl.DateTimeFormat(language === "vi-VN" ? "vi-VN" : "en-US", {
+  return localeTimeLabel(value, language === "vi-VN" ? "vi-VN" : "en-US", {
     hour: "2-digit",
     minute: "2-digit",
-  }).format(value);
+  });
 };
 
 const txVisual = (type: string, name: string, categoryIcon?: string | null) => {
@@ -60,6 +60,14 @@ const txVisual = (type: string, name: string, categoryIcon?: string | null) => {
       icon: "savings",
       badge: "bg-[#eaffe2] text-[#006f1d]",
       amountClass: "text-[#1b3641]",
+    };
+  }
+
+  if (type === "refund") {
+    return {
+      icon: "reply",
+      badge: "bg-[#eaffe2] text-[#006f1d]",
+      amountClass: "text-[#0f7a2f]",
     };
   }
 
@@ -120,7 +128,7 @@ export default async function LedgerPage({
   type LedgerTransaction = (typeof data.transactions)[number];
   const groupedTransactions = data.transactions.reduce(
     (groups: Array<{ key: string; label: string; items: LedgerTransaction[] }>, transaction) => {
-      const key = transaction.date.toISOString().slice(0, 10);
+      const key = toISODate(transaction.date);
       const currentGroup = groups[groups.length - 1];
 
       if (currentGroup && currentGroup.key === key) {
@@ -214,6 +222,7 @@ export default async function LedgerPage({
               <option value="income">{t.ledgerTypeIncome}</option>
               <option value="expense">{t.ledgerTypeExpense}</option>
               <option value="transfer_to_saving_plan">{t.ledgerTypeTransferToSaving}</option>
+              <option value="refund">Refund</option>
             </select>
           </div>
 
@@ -268,6 +277,8 @@ export default async function LedgerPage({
                     const detailLabel =
                       tx.type === "transfer_to_saving_plan"
                         ? `${t.ledgerTransferToSaving} • ${tx.savingsPlan?.name || t.ledgerUncategorized}`
+                        : tx.type === "refund"
+                          ? `Refund • ${tx.savingsPlan?.name || t.ledgerUncategorized}`
                         : tx.category?.name || t.ledgerUncategorized;
                     const detail = `${detailLabel} • ${asTime(tx.date, language)}`;
                     const visual = txVisual(tx.type, subject, tx.category?.icon);
@@ -292,7 +303,7 @@ export default async function LedgerPage({
                         <div className="ml-4 flex items-center gap-4">
                           <div className="text-right">
                             <p className={`font-[var(--font-manrope)] text-lg font-extrabold ${visual.amountClass}`}>
-                              {tx.type === "income" ? "+" : "-"}
+                              {tx.type === "income" || tx.type === "refund" ? "+" : "-"}
                               {asCurrency(Number(tx.amount), currency)}
                             </p>
                             <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#7f97a4]">
@@ -315,7 +326,7 @@ export default async function LedgerPage({
                                 type: tx.type,
                                 amount: Number(tx.amount),
                                 notes: tx.notes,
-                                date: tx.date.toISOString(),
+                                date: toISODate(tx.date),
                                 accountName: tx.account.name,
                                 categoryName: tx.category?.name || null,
                                 icon: visual.icon,

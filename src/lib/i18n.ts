@@ -1,424 +1,6 @@
 export type AppLanguage = "en-US" | "vi-VN" | "fr-FR" | "ja-JP";
 
-type FlatDictionary = {
-  navDashboard: string;
-  navAtelier: string;
-  navLedger: string;
-  navSavings: string;
-  navWallets: string;
-  navSettings: string;
-  actionNewEntry: string;
-  headerBrandSub: string;
-  headerUserRole: string;
-  actionLogout: string;
-  settingsTag: string;
-  settingsTitleLine1: string;
-  settingsTitleLine2: string;
-  settingsIntro: string;
-  settingsThemeTitle: string;
-  settingsVisualIdentity: string;
-  settingsLightMode: string;
-  settingsDarkMode: string;
-  settingsSystemDefault: string;
-  settingsProfileTitle: string;
-  settingsFullName: string;
-  settingsEmail: string;
-  settingsCurrencyHub: string;
-  settingsCurrency: string;
-  settingsLanguageTitle: string;
-  settingsCurrentDisplay: string;
-  settingsPrivacyTitle: string;
-  settingsPrivacyBody: string;
-  settingsFooterHint: string;
-  actionReset: string;
-  actionSaveSettings: string;
-  settingsSaved: string;
-  errorNameRequired: string;
-  errorCurrencyRequired: string;
-  errorLanguageRequired: string;
-  errorThemeRequired: string;
-  newEntryBreadcrumb: string;
-  newEntryTitle: string;
-  newEntryHeroTag: string;
-  newEntryHeroHeading: string;
-  newEntryHeroBody: string;
-  newEntryTipTitle: string;
-  newEntryTipBody: string;
-  txErrorAmountRequired: string;
-  txErrorDescriptionRequired: string;
-  txErrorDateRequired: string;
-  txErrorWalletRequired: string;
-  txErrorRecurringDayRange: string;
-  txErrorRecurringEndDate: string;
-  txTypeExpense: string;
-  txTypeIncome: string;
-  txRecurring: string;
-  txFrequency: string;
-  txFrequencyMonthly: string;
-  txFrequencyYearly: string;
-  txDayOfMonth: string;
-  txDayOfMonthHelp: string;
-  txEndDate: string;
-  txNoEndDate: string;
-  txEndDateHelp: string;
-  txDescription: string;
-  txDescriptionPlaceholder: string;
-  txCategory: string;
-  txNoCategory: string;
-  txWallet: string;
-  txDate: string;
-  txNotes: string;
-  txOptional: string;
-  txNotesPlaceholder: string;
-  txAdd: string;
-  txAdding: string;
-  txEditTitle: string;
-  txEditCloseAria: string;
-  txEditAmountLabel: string;
-  txEditCancel: string;
-  txEditSave: string;
-  txEditSaving: string;
-  txCreateFailed: string;
-  txCreateSuccess: string;
-  txUpdateFailed: string;
-  txUpdateSuccess: string;
-  settingsSaveFailed: string;
-  walletCreateSuccess: string;
-  walletUpdateSuccess: string;
-  walletDeleteSuccess: string;
-  ledgerDeleteFailed: string;
-  ledgerDeleteSuccess: string;
-  ledgerDeleteAria: string;
-  ledgerDeleteTitle: string;
-  ledgerDeleteBody: string;
-  ledgerDeleteDeleting: string;
-  ledgerDeleteAction: string;
-  ledgerDeleteKeep: string;
-  ledgerDeletePermanent: string;
-  dashBudgetAlert: string;
-  dashExceededBy: string;
-  dashReallocate: string;
-  dashDismissAlert: string;
-  dashTotalNetWorth: string;
-  dashVsLastMonth: string;
-  dashAssets: string;
-  dashLiabilities: string;
-  dashMonthlySpending: string;
-  dashMonthlyLimit: string;
-  dashUsed: string;
-  dashCapWarning80: string;
-  dashCapWarning100: string;
-  dashCapWarningOver: string;
-  dashSavingsGoal: string;
-  dashCreateOne: string;
-  dashComplete: string;
-  dashPrevSavingsGoal: string;
-  dashNextSavingsGoal: string;
-  dashRecentEntries: string;
-  dashFilters: string;
-  dashExportCsv: string;
-  dashNoRecentEntries: string;
-  dashUncategorized: string;
-  dashStatusReceived: string;
-  dashStatusCompleted: string;
-  topCategoriesTitle: string;
-  topCategoriesShowList: string;
-  topCategoriesShowChart: string;
-  topCategoriesNoSpending: string;
-  topCategoriesTotal: string;
-  activeBudgetsTitle: string;
-  activeBudgetsFilterLabel: string;
-  activeBudgetsFilterAll: string;
-  activeBudgetsFilterHealthy: string;
-  activeBudgetsFilterOverspent: string;
-  activeBudgetsPrev: string;
-  activeBudgetsNext: string;
-  activeBudgetsNoLimits: string;
-  activeBudgetsNoFiltered: string;
-  activeBudgetsEndsIn: string;
-  activeBudgetsDays: string;
-  activeBudgetsOverspent: string;
-  activeBudgetsHealthy: string;
-  activeBudgetsSpent: string;
-  activeBudgetsBudget: string;
-  activeBudgetsExcessThisMonth: string;
-  activeBudgetsRemainingLimit: string;
-  ledgerToday: string;
-  ledgerYesterday: string;
-  ledgerTabActivity: string;
-  ledgerTabReports: string;
-  ledgerTabBudgets: string;
-  ledgerTitle: string;
-  ledgerSubtitle: string;
-  ledgerMtdSpending: string;
-  ledgerSearchEntries: string;
-  ledgerSearchPlaceholder: string;
-  ledgerFilterCategory: string;
-  ledgerFilterAmount: string;
-  ledgerFilterWallet: string;
-  ledgerTypeIncome: string;
-  ledgerTypeExpense: string;
-  ledgerTypeTransferToSaving: string;
-  ledgerTransferToSaving: string;
-  ledgerApply: string;
-  ledgerNoEntriesMatch: string;
-  ledgerUncategorized: string;
-  ledgerShowingTransactions: string;
-  accountsPortfolio: string;
-  accountsYourAtelier: string;
-  accountsWallets: string;
-  accountsArchiveOld: string;
-  accountsNewWallet: string;
-  accountsNoWallet: string;
-  accountsCreateFirstWallet: string;
-  accountsSetDefault: string;
-  walletDefaultBadge: string;
-  walletEdit: string;
-  walletEditAria: string;
-  walletSetCurrentBalance: string;
-  walletSave: string;
-  walletSaving: string;
-  walletInvalidBalance: string;
-  walletUpdateFailed: string;
-  walletNameRequired: string;
-  walletCreateFailed: string;
-  walletCloseDialog: string;
-  walletDialogTag: string;
-  walletDialogTitle: string;
-  walletDialogBody: string;
-  walletDialogEditTitle: string;
-  walletDialogEditBody: string;
-  walletDialogNameLabel: string;
-  walletDialogNamePlaceholder: string;
-  walletDialogBalanceLabel: string;
-  walletDialogBalancePlaceholder: string;
-  walletDialogBalanceHint: string;
-  walletDialogDefaultTitle: string;
-  walletDialogDefaultBody: string;
-  walletDialogCreateAction: string;
-  walletDialogCreating: string;
-  walletDialogUpdateAction: string;
-  walletDialogUpdating: string;
-  walletDialogDeleteAction: string;
-  walletDialogDeleting: string;
-  walletDeleteFailed: string;
-  walletDeleteBlockedDefault: string;
-  walletCurrencyPrefix: string;
-  savingsPortfolio: string;
-  savingsTitle: string;
-  savingsTotal: string;
-  savingsPrimaryFocus: string;
-  savingsTargeted: string;
-  savingsPrimaryDesc: string;
-  savingsSaved: string;
-  savingsTarget: string;
-  savingsRemaining: string;
-  savingsNoPlan: string;
-  savingsCreatePlanHint: string;
-  savingsOtherAmbitions: string;
-  savingsMonthlyContributionTarget: string;
-  savingsEnvisionGoal: string;
-  savingsAddToAtelier: string;
-  savingsActivePlanLabel: string;
-  savingsAddContribution: string;
-  savingsNoActivePlan: string;
-  savingsNoActivePlanHint: string;
-  savingsArchivedCount: string;
-  savingsContributionTitle: string;
-  savingsContributionSubtitle: string;
-  savingsContributionTargetLabel: string;
-  savingsContributionAmountLabel: string;
-  savingsContributionDateLabel: string;
-  savingsContributionWalletLabel: string;
-  savingsContributionConfirm: string;
-  savingsContributionSubmitting: string;
-  savingsContributionSuccess: string;
-  savingsContributionFailed: string;
-  savingsContributionPlanRequired: string;
-  savingsContributionWalletRequired: string;
-  savingsContributionAmountRequired: string;
-  savingsContributionDateRequired: string;
-  savingsContributionNoteTemplate: string;
-  savingsContributionNoteFallback: string;
-  savingsContributionSecurity: string;
-  savingsContributionSecurityNote: string;
-  savingsCompleteBadge: string;
-  savingsPlanNameRequired: string;
-  savingsPlanTargetRequired: string;
-  savingsPlanMonthlyRequired: string;
-  savingsPlanDateRequired: string;
-  savingsPlanDateInvalid: string;
-  savingsPlanDateMin: string;
-  savingsPlanTargetMinSaved: string;
-  savingsPlanCreateFailed: string;
-  savingsPlanCreateSuccess: string;
-  savingsPlanEditSuccess: string;
-  savingsPlanNotAvailable: string;
-  savingsPlanCreateAction: string;
-  savingsPlanEditAction: string;
-  savingsPlanAddNewTitle: string;
-  savingsPlanEditTitle: string;
-  savingsPlanSubtitle: string;
-  savingsPlanEditSubtitle: string;
-  savingsPlanCloseAria: string;
-  savingsPlanBlueprintTitle: string;
-  savingsPlanNameLabel: string;
-  savingsPlanNamePlaceholder: string;
-  savingsPlanTargetLabel: string;
-  savingsPlanCurrentSavedHint: string;
-  savingsPlanTargetPlaceholder: string;
-  savingsPlanMonthlyLabel: string;
-  savingsPlanMonthlyPlaceholder: string;
-  savingsPlanArrivalDateLabel: string;
-  savingsPlanArrivalHint: string;
-  savingsPlanIsPrimaryLabel: string;
-  savingsPlanIsPrimaryHint: string;
-  savingsPlanIdentityLabel: string;
-  savingsPlanIdentitySelectTemplate: string;
-  savingsPlanDiscard: string;
-  savingsPlanCancel: string;
-  savingsPlanCreating: string;
-  savingsPlanSaveChanges: string;
-  savingsPlanProjectionPreview: string;
-  savingsPlanEstimatedMonths: string;
-  savingsPlanToReachTarget: string;
-  savingsPlanArrival: string;
-  savingsPlanMonthly: string;
-  savingsPlanTip: string;
-  atelierCapInvalidValue: string;
-  atelierCapUpdateFailed: string;
-  atelierCapUpdateSuccess: string;
-  atelierTotalMonthlyCap: string;
-  atelierEditTotalMonthlyCapAria: string;
-  atelierActionEdit: string;
-  atelierActionSaving: string;
-  atelierActionSave: string;
-  atelierActionCancel: string;
-  atelierAllocated: string;
-  atelierRemaining: string;
-  atelierThisMonthIncome: string;
-  atelierFiscalMasterplan: string;
-  atelierBudgetAllocation: string;
-  atelierPeriod: string;
-  atelierMonthlySavingsPlan: string;
-  atelierAutomaticVaultAllocation: string;
-  atelierOn: string;
-  atelierSavingsTarget: string;
-  atelierNoSavingsPlansYet: string;
-  atelierGoalCoverage: string;
-  atelierCovered: string;
-  atelierSavedThisMonth: string;
-  atelierAddCategoriesHint: string;
-  atelierMonthlyLimit: string;
-  atelierDragItemAria: string;
-  atelierDragToReorderTitle: string;
-  atelierUsed: string;
-  atelierSpent: string;
-  atelierOverspent: string;
-  atelierWarning: string;
-  atelierHealthy: string;
-  atelierCategoryAtelier: string;
-  atelierDragCardsHint: string;
-  atelierCurrencyHintVnd: string;
-  atelierCurrencyHintTemplate: string;
-  atelierCategoryNameRequired: string;
-  atelierMonthlyLimitNonNegative: string;
-  atelierCreateCategoryFailed: string;
-  atelierCreateCategorySuccess: string;
-  atelierAddNewCategory: string;
-  atelierCreateNewCategory: string;
-  atelierCategorySegment: string;
-  atelierCategoryNameLabel: string;
-  atelierCategoryNamePlaceholder: string;
-  atelierMonthlySpendingLimit: string;
-  atelierOverExpenseWarning: string;
-  atelierEnabled: string;
-  atelierDisabled: string;
-  atelierWarnAt: string;
-  atelierIconography: string;
-  atelierSearchIconsPlaceholder: string;
-  atelierNoIconsMatch: string;
-  atelierSelectIconAriaTemplate: string;
-  atelierAddingCategory: string;
-  atelierAddCategory: string;
-  atelierEditCategoryTitleTemplate: string;
-  atelierEditCategorySubtitle: string;
-  atelierEditCategoryFailed: string;
-  atelierEditCategorySuccess: string;
-  atelierEditIconAria: string;
-  atelierSaveChanges: string;
-  atelierDiscard: string;
-  atelierChooseIcon: string;
-  atelierCloseIconPickerAria: string;
-  atelierKeepLimitNextMonth: string;
-  atelierKeepLimitNextMonthHint: string;
-  atelierWarningHint: string;
-  atelierDeleteAriaTemplate: string;
-  atelierDeleteFailed: string;
-  atelierDeleteSuccess: string;
-  atelierDeleteTitleTemplate: string;
-  atelierDeleteBodyLine1: string;
-  atelierDeleteBodyLine2: string;
-  atelierAccumulatedValue: string;
-  atelierDeleteCategoryAction: string;
-  atelierDeleteCategoryDeleting: string;
-  atelierKeepCategory: string;
-  atelierSecurityProtocol: string;
-  atelierKeepCapNextMonth: string;
-  atelierKeepCapNextMonthHint: string;
-  reportsTransactionFallback: string;
-  reportsTotalExpense: string;
-  reportsLiveThisMonth: string;
-  reportsBudgetAdherence: string;
-  reportsOverTarget: string;
-  reportsOnTrackPerformance: string;
-  reportsTopSavings: string;
-  reportsPotentialOptimization: string;
-  reportsPerformanceAnalytics: string;
-  reportsFlowHorizons: string;
-  reportsMonthly: string;
-  reportsMonthlyCashflow: string;
-  reportsMonthlyExpenseVsBudget: string;
-  reportsActual: string;
-  reportsBudget: string;
-  reportsYearlyHorizon: string;
-  reportsAnnualBudget: string;
-  reportsActualSpentYtd: string;
-  reportsHealthyBehaviorHint: string;
-  reportsExportPdf: string;
-  calendarWeekdayMon: string;
-  calendarWeekdayTue: string;
-  calendarWeekdayWed: string;
-  calendarWeekdayThu: string;
-  calendarWeekdayFri: string;
-  calendarWeekdaySat: string;
-  calendarWeekdaySun: string;
-  calendarMonthJanuary: string;
-  calendarMonthFebruary: string;
-  calendarMonthMarch: string;
-  calendarMonthApril: string;
-  calendarMonthMay: string;
-  calendarMonthJune: string;
-  calendarMonthJuly: string;
-  calendarMonthAugust: string;
-  calendarMonthSeptember: string;
-  calendarMonthOctober: string;
-  calendarMonthNovember: string;
-  calendarMonthDecember: string;
-  calendarDailyExpenseTitle: string;
-  calendarDailyDetailsTitle: string;
-  calendarTotalSpent: string;
-  calendarCloseView: string;
-  onboardingSidebar: string;
-  onboardingDashboard: string;
-  onboardingAtelier: string;
-  onboardingLedger: string;
-  onboardingSavings: string;
-  onboardingWallets: string;
-  onboardingNewEntry: string;
-  onboardingSettings: string;
-  onboardingMainContent: string;
-};
+type FlatDictionary = Record<DictionarySectionKey, string>;
 
 const enUS: FlatDictionary = {
   navDashboard: "Dashboard",
@@ -640,6 +222,10 @@ const enUS: FlatDictionary = {
   savingsEnvisionGoal: "Envision New Goal",
   savingsAddToAtelier: "Add to your fiscal atelier",
   savingsActivePlanLabel: "Active Plan",
+  savingsFilterActivePlans: "Active plans",
+  savingsFilterCompletedPlans: "Completed plans",
+  savingsFilterArchivedPlans: "Archived plans",
+  savingsFilterCancelledPlans: "Cancelled plans",
   savingsAddContribution: "Add Contribution",
   savingsNoActivePlan: "No active savings plan",
   savingsNoActivePlanHint: "Activate a savings plan or create a new one to track progress here.",
@@ -663,6 +249,29 @@ const enUS: FlatDictionary = {
   savingsContributionSecurity: "Encrypted Transaction",
   savingsContributionSecurityNote: "Verified by Lush Ledger Security",
   savingsCompleteBadge: "Complete",
+  savingsPlanStatusActive: "Active",
+  savingsPlanStatusFunded: "Funded",
+  savingsPlanStatusCompleted: "Completed",
+  savingsPlanStatusCancelled: "Cancelled",
+  savingsPlanStatusArchived: "Archived",
+  savingsPlanCancelAction: "Cancel Plan",
+  savingsPlanCancelDialogTitle: "Cancel Savings Plan",
+  savingsPlanCancelDialogSubtitle: "Are you sure you want to discontinue your {plan} strategy? This action cannot be undone.",
+  savingsPlanCancelReasonLabel: "Cancellation Reason",
+  savingsPlanCancelReasonPriorities: "Changed financial priorities",
+  savingsPlanCancelReasonGoalElsewhere: "Achieved goal through other means",
+  savingsPlanCancelReasonNeedLiquidity: "Emergency funds needed",
+  savingsPlanCancelReasonOther: "Other",
+  savingsPlanCancelNotesLabel: "Additional Notes (Optional)",
+  savingsPlanCancelNotesPlaceholder: "Tell us more about your decision...",
+  savingsPlanCancelInfoTitle: "Note",
+  savingsPlanCancelInfoBody: "All contributions made to this plan will be returned to your default wallet.",
+  savingsPlanCancelConfirm: "Confirm Cancellation",
+  savingsPlanCancelConfirming: "Cancelling...",
+  savingsPlanCancelKeep: "Keep Plan",
+  savingsPlanActivateAction: "Activate Plan",
+  savingsPlanStatusUpdateSuccess: "Savings plan state updated",
+  savingsPlanStatusUpdateFailed: "Unable to update savings plan state.",
   savingsPlanNameRequired: "Plan name is required.",
   savingsPlanTargetRequired: "Savings target must be greater than zero.",
   savingsPlanMonthlyRequired: "Monthly contribution must be greater than zero.",
@@ -705,6 +314,35 @@ const enUS: FlatDictionary = {
   savingsPlanArrival: "Arrival",
   savingsPlanMonthly: "Monthly",
   savingsPlanTip: "Tip: increase monthly contribution to shorten your timeline.",
+  savingsCancelledBackToArchive: "Return to Archive",
+  savingsCancelledStatusLabel: "Cancelled",
+  savingsCancelledClosedOn: "Account closure finalized on",
+  savingsCancelledFinalProgress: "Final Progress Snapshot",
+  savingsCancelledFinalSaved: "Final saved amount",
+  savingsCancelledTargetObjective: "Target objective",
+  savingsCancelledCompletion: "Completion",
+  savingsCancelledArchiveLock: "Archive lock enabled",
+  savingsCancelledImpactAnalysis: "Impact Analysis",
+  savingsCancelledDurationActive: "Total Duration Active",
+  savingsCancelledLiquidityDestination: "Liquidity Reallocation Destination",
+  savingsCancelledReasonTitle: "Reason for Closure",
+  savingsCancelledReasonFallback: "Funds returned to primary wallet to maintain immediate access for upcoming commitments.",
+  savingsCancelledHistoryTitle: "Plan History",
+  savingsCancelledHistoryOpenLedger: "View Archive Ledger",
+  savingsCancelledHistoryInception: "Plan Inception",
+  savingsCancelledHistoryInceptionBody: "Strategic goal defined",
+  savingsCancelledHistoryCancellation: "Manual Termination",
+  savingsCancelledHistoryCancellationBody: "Termination requested by user",
+  savingsCancelledHistoryContribution: "Final Deposit Allocation",
+  savingsCancelledHistoryContributionBody: "Last automated transfer before closure",
+  savingsCancelledNoHistory: "No historical events for this plan yet.",
+  savingsCancelledListTitle: "Archived Ambitions",
+  savingsCancelledListSubtitle: "A collection of journeys paused, redirected, or concluded.",
+  savingsCancelledListEmpty: "No cancelled plans yet.",
+  savingsCancelledCardCancelledAt: "Cancelled at",
+  savingsCancelledCardFinalValue: "Final value",
+  savingsCancelledCardOriginalGoal: "Original goal",
+  savingsCancelledCardReasonPrefix: "Reason",
   atelierCapInvalidValue: "Please enter a valid cap value.",
   atelierCapUpdateFailed: "Unable to update total monthly cap.",
   atelierCapUpdateSuccess: "Monthly cap updated successfully",
@@ -1061,6 +699,10 @@ const viVN: FlatDictionary = {
   savingsEnvisionGoal: "Thêm mục tiêu mới",
   savingsAddToAtelier: "Bổ sung vào không gian tài chính",
   savingsActivePlanLabel: "Kế hoạch đang chạy",
+  savingsFilterActivePlans: "Kế hoạch hoạt động",
+  savingsFilterCompletedPlans: "Kế hoạch hoàn thành",
+  savingsFilterArchivedPlans: "Kế hoạch lưu trữ",
+  savingsFilterCancelledPlans: "Kế hoạch đã hủy",
   savingsAddContribution: "Thêm đóng góp",
   savingsNoActivePlan: "Chưa có kế hoạch tiết kiệm đang hoạt động",
   savingsNoActivePlanHint: "Hãy kích hoạt một kế hoạch hoặc tạo kế hoạch mới để theo dõi tiến độ tại đây.",
@@ -1084,6 +726,29 @@ const viVN: FlatDictionary = {
   savingsContributionSecurity: "Giao dịch được mã hóa",
   savingsContributionSecurityNote: "Đã xác minh bởi bảo mật Lush Ledger",
   savingsCompleteBadge: "hoàn thành",
+  savingsPlanStatusActive: "Đang hoạt động",
+  savingsPlanStatusFunded: "Đã nạp vốn",
+  savingsPlanStatusCompleted: "Hoàn thành",
+  savingsPlanStatusCancelled: "Đã hủy",
+  savingsPlanStatusArchived: "Đã lưu trữ",
+  savingsPlanCancelAction: "Hủy kế hoạch",
+  savingsPlanCancelDialogTitle: "Hủy kế hoạch tiết kiệm",
+  savingsPlanCancelDialogSubtitle: "Bạn có chắc muốn dừng chiến lược {plan}? Hành động này không thể hoàn tác.",
+  savingsPlanCancelReasonLabel: "Lý do hủy",
+  savingsPlanCancelReasonPriorities: "Thay đổi ưu tiên tài chính",
+  savingsPlanCancelReasonGoalElsewhere: "Đã đạt mục tiêu theo cách khác",
+  savingsPlanCancelReasonNeedLiquidity: "Cần tiền cho tình huống khẩn cấp",
+  savingsPlanCancelReasonOther: "Lý do khác",
+  savingsPlanCancelNotesLabel: "Ghi chú thêm (Tùy chọn)",
+  savingsPlanCancelNotesPlaceholder: "Chia sẻ thêm về quyết định của bạn...",
+  savingsPlanCancelInfoTitle: "Lưu ý",
+  savingsPlanCancelInfoBody: "Toàn bộ khoản đã đóng góp vào kế hoạch sẽ được hoàn về ví mặc định.",
+  savingsPlanCancelConfirm: "Xác nhận hủy",
+  savingsPlanCancelConfirming: "Đang hủy...",
+  savingsPlanCancelKeep: "Giữ kế hoạch",
+  savingsPlanActivateAction: "Kích hoạt kế hoạch",
+  savingsPlanStatusUpdateSuccess: "Đã cập nhật trạng thái kế hoạch tiết kiệm",
+  savingsPlanStatusUpdateFailed: "Không thể cập nhật trạng thái kế hoạch tiết kiệm.",
   savingsPlanNameRequired: "Tên kế hoạch là bắt buộc.",
   savingsPlanTargetRequired: "Mục tiêu tiết kiệm phải lớn hơn 0.",
   savingsPlanMonthlyRequired: "Mức đóng góp hằng tháng phải lớn hơn 0.",
@@ -1126,6 +791,35 @@ const viVN: FlatDictionary = {
   savingsPlanArrival: "Về đích",
   savingsPlanMonthly: "Theo tháng",
   savingsPlanTip: "Gợi ý: tăng đóng góp hằng tháng để rút ngắn thời gian đạt mục tiêu.",
+  savingsCancelledBackToArchive: "Quay lại kho lưu trữ",
+  savingsCancelledStatusLabel: "Đã hủy",
+  savingsCancelledClosedOn: "Kế hoạch đã được chốt hủy vào",
+  savingsCancelledFinalProgress: "Ảnh chụp tiến độ cuối",
+  savingsCancelledFinalSaved: "Số tiền đã tích lũy cuối cùng",
+  savingsCancelledTargetObjective: "Mục tiêu ban đầu",
+  savingsCancelledCompletion: "Mức hoàn thành",
+  savingsCancelledArchiveLock: "Đã khóa trong kho lưu trữ",
+  savingsCancelledImpactAnalysis: "Phân tích tác động",
+  savingsCancelledDurationActive: "Tổng thời gian hoạt động",
+  savingsCancelledLiquidityDestination: "Ví nhận hoàn tiền",
+  savingsCancelledReasonTitle: "Lý do kết thúc kế hoạch",
+  savingsCancelledReasonFallback: "Khoản tiền đã được hoàn về ví mặc định để đảm bảo thanh khoản tức thời cho các ưu tiên mới.",
+  savingsCancelledHistoryTitle: "Lịch sử kế hoạch",
+  savingsCancelledHistoryOpenLedger: "Xem sổ lưu trữ",
+  savingsCancelledHistoryInception: "Khởi tạo kế hoạch",
+  savingsCancelledHistoryInceptionBody: "Mục tiêu tài chính được thiết lập",
+  savingsCancelledHistoryCancellation: "Kết thúc thủ công",
+  savingsCancelledHistoryCancellationBody: "Người dùng yêu cầu dừng kế hoạch",
+  savingsCancelledHistoryContribution: "Khoản đóng góp cuối",
+  savingsCancelledHistoryContributionBody: "Khoản chuyển cuối cùng trước khi đóng kế hoạch",
+  savingsCancelledNoHistory: "Chưa có sự kiện lịch sử cho kế hoạch này.",
+  savingsCancelledListTitle: "Mục tiêu đã lưu trữ",
+  savingsCancelledListSubtitle: "Những hành trình đã tạm dừng, điều hướng lại hoặc kết thúc.",
+  savingsCancelledListEmpty: "Chưa có kế hoạch bị hủy.",
+  savingsCancelledCardCancelledAt: "Hủy vào",
+  savingsCancelledCardFinalValue: "Giá trị cuối",
+  savingsCancelledCardOriginalGoal: "Mục tiêu ban đầu",
+  savingsCancelledCardReasonPrefix: "Lý do",
   atelierCapInvalidValue: "Vui lòng nhập hạn mức hợp lệ.",
   atelierCapUpdateFailed: "Không thể cập nhật tổng hạn mức tháng.",
   atelierCapUpdateSuccess: "Cập nhật hạn mức tháng thành công",
@@ -1277,21 +971,22 @@ export const getDictionary = (language?: string | null): FlatDictionary => {
   return enUS;
 };
 
+type DictionaryTree = {
+  [key: string]: readonly string[] | DictionaryTree;
+};
+
 const dictionarySections = {
-  common: [
-    "navDashboard",
-    "navAtelier",
-    "navLedger",
-    "navSavings",
-    "navWallets",
-    "navSettings",
-    "actionNewEntry",
-    "headerBrandSub",
-    "headerUserRole",
-    "actionLogout",
-    "actionReset",
-    "actionSaveSettings",
-  ],
+  common: {
+    nav: ["navDashboard", "navAtelier", "navLedger", "navSavings", "navWallets", "navSettings"],
+    action: ["actionNewEntry", "actionLogout", "actionReset", "actionSaveSettings"],
+    header: ["headerBrandSub", "headerUserRole"],
+    error: {
+      name: ["errorNameRequired"],
+      currency: ["errorCurrencyRequired"],
+      language: ["errorLanguageRequired"],
+      theme: ["errorThemeRequired"],
+    },
+  },
   settings: [
     "settingsTag",
     "settingsTitleLine1",
@@ -1314,10 +1009,6 @@ const dictionarySections = {
     "settingsFooterHint",
     "settingsSaved",
     "settingsSaveFailed",
-    "errorNameRequired",
-    "errorCurrencyRequired",
-    "errorLanguageRequired",
-    "errorThemeRequired",
   ],
   newEntry: [
     "newEntryBreadcrumb",
@@ -1396,30 +1087,137 @@ const dictionarySections = {
     "dashStatusReceived",
     "dashStatusCompleted",
   ],
-  atelier: [
-    "topCategoriesTitle",
-    "topCategoriesShowList",
-    "topCategoriesShowChart",
-    "topCategoriesNoSpending",
-    "topCategoriesTotal",
-    "activeBudgetsTitle",
-    "activeBudgetsFilterLabel",
-    "activeBudgetsFilterAll",
-    "activeBudgetsFilterHealthy",
-    "activeBudgetsFilterOverspent",
-    "activeBudgetsPrev",
-    "activeBudgetsNext",
-    "activeBudgetsNoLimits",
-    "activeBudgetsNoFiltered",
-    "activeBudgetsEndsIn",
-    "activeBudgetsDays",
-    "activeBudgetsOverspent",
-    "activeBudgetsHealthy",
-    "activeBudgetsSpent",
-    "activeBudgetsBudget",
-    "activeBudgetsExcessThisMonth",
-    "activeBudgetsRemainingLimit",
-  ],
+  atelier: {
+    activities: [
+      "topCategoriesTitle",
+      "topCategoriesShowList",
+      "topCategoriesShowChart",
+      "topCategoriesNoSpending",
+      "topCategoriesTotal",
+      "activeBudgetsTitle",
+      "activeBudgetsFilterLabel",
+      "activeBudgetsFilterAll",
+      "activeBudgetsFilterHealthy",
+      "activeBudgetsFilterOverspent",
+      "activeBudgetsPrev",
+      "activeBudgetsNext",
+      "activeBudgetsNoLimits",
+      "activeBudgetsNoFiltered",
+      "activeBudgetsEndsIn",
+      "activeBudgetsDays",
+      "activeBudgetsOverspent",
+      "activeBudgetsHealthy",
+      "activeBudgetsSpent",
+      "activeBudgetsBudget",
+      "activeBudgetsExcessThisMonth",
+      "activeBudgetsRemainingLimit",
+    ],
+    planner: [
+      "atelierCapInvalidValue",
+      "atelierCapUpdateFailed",
+      "atelierCapUpdateSuccess",
+      "atelierTotalMonthlyCap",
+      "atelierEditTotalMonthlyCapAria",
+      "atelierActionEdit",
+      "atelierActionSaving",
+      "atelierActionSave",
+      "atelierActionCancel",
+      "atelierAllocated",
+      "atelierRemaining",
+      "atelierThisMonthIncome",
+      "atelierFiscalMasterplan",
+      "atelierBudgetAllocation",
+      "atelierPeriod",
+      "atelierMonthlySavingsPlan",
+      "atelierAutomaticVaultAllocation",
+      "atelierOn",
+      "atelierSavingsTarget",
+      "atelierNoSavingsPlansYet",
+      "atelierGoalCoverage",
+      "atelierCovered",
+      "atelierSavedThisMonth",
+      "atelierAddCategoriesHint",
+      "atelierMonthlyLimit",
+      "atelierDragItemAria",
+      "atelierDragToReorderTitle",
+      "atelierUsed",
+      "atelierSpent",
+      "atelierOverspent",
+      "atelierWarning",
+      "atelierHealthy",
+      "atelierCategoryAtelier",
+      "atelierDragCardsHint",
+      "atelierCurrencyHintVnd",
+      "atelierCurrencyHintTemplate",
+      "atelierCategoryNameRequired",
+      "atelierMonthlyLimitNonNegative",
+      "atelierCreateCategoryFailed",
+      "atelierCreateCategorySuccess",
+      "atelierAddNewCategory",
+      "atelierCreateNewCategory",
+      "atelierCategorySegment",
+      "atelierCategoryNameLabel",
+      "atelierCategoryNamePlaceholder",
+      "atelierMonthlySpendingLimit",
+      "atelierOverExpenseWarning",
+      "atelierEnabled",
+      "atelierDisabled",
+      "atelierWarnAt",
+      "atelierIconography",
+      "atelierSearchIconsPlaceholder",
+      "atelierNoIconsMatch",
+      "atelierSelectIconAriaTemplate",
+      "atelierAddingCategory",
+      "atelierAddCategory",
+      "atelierEditCategoryTitleTemplate",
+      "atelierEditCategorySubtitle",
+      "atelierEditCategoryFailed",
+      "atelierEditCategorySuccess",
+      "atelierEditIconAria",
+      "atelierSaveChanges",
+      "atelierDiscard",
+      "atelierChooseIcon",
+      "atelierCloseIconPickerAria",
+      "atelierKeepLimitNextMonth",
+      "atelierKeepLimitNextMonthHint",
+      "atelierWarningHint",
+      "atelierDeleteAriaTemplate",
+      "atelierDeleteFailed",
+      "atelierDeleteSuccess",
+      "atelierDeleteTitleTemplate",
+      "atelierDeleteBodyLine1",
+      "atelierDeleteBodyLine2",
+      "atelierAccumulatedValue",
+      "atelierDeleteCategoryAction",
+      "atelierDeleteCategoryDeleting",
+      "atelierKeepCategory",
+      "atelierSecurityProtocol",
+      "atelierKeepCapNextMonth",
+      "atelierKeepCapNextMonthHint",
+    ],
+    report: [
+      "reportsTransactionFallback",
+      "reportsTotalExpense",
+      "reportsLiveThisMonth",
+      "reportsBudgetAdherence",
+      "reportsOverTarget",
+      "reportsOnTrackPerformance",
+      "reportsTopSavings",
+      "reportsPotentialOptimization",
+      "reportsPerformanceAnalytics",
+      "reportsFlowHorizons",
+      "reportsMonthly",
+      "reportsMonthlyCashflow",
+      "reportsMonthlyExpenseVsBudget",
+      "reportsActual",
+      "reportsBudget",
+      "reportsYearlyHorizon",
+      "reportsAnnualBudget",
+      "reportsActualSpentYtd",
+      "reportsHealthyBehaviorHint",
+      "reportsExportPdf",
+    ],
+  },
   ledger: [
     "ledgerToday",
     "ledgerYesterday",
@@ -1516,6 +1314,10 @@ const dictionarySections = {
     "savingsEnvisionGoal",
     "savingsAddToAtelier",
     "savingsActivePlanLabel",
+    "savingsFilterActivePlans",
+    "savingsFilterCompletedPlans",
+    "savingsFilterArchivedPlans",
+    "savingsFilterCancelledPlans",
     "savingsAddContribution",
     "savingsNoActivePlan",
     "savingsNoActivePlanHint",
@@ -1539,6 +1341,125 @@ const dictionarySections = {
     "savingsContributionSecurity",
     "savingsContributionSecurityNote",
     "savingsCompleteBadge",
+    "savingsPlanStatusActive",
+    "savingsPlanStatusFunded",
+    "savingsPlanStatusCompleted",
+    "savingsPlanStatusCancelled",
+    "savingsPlanStatusArchived",
+    "savingsPlanCancelAction",
+    "savingsPlanCancelDialogTitle",
+    "savingsPlanCancelDialogSubtitle",
+    "savingsPlanCancelReasonLabel",
+    "savingsPlanCancelReasonPriorities",
+    "savingsPlanCancelReasonGoalElsewhere",
+    "savingsPlanCancelReasonNeedLiquidity",
+    "savingsPlanCancelReasonOther",
+    "savingsPlanCancelNotesLabel",
+    "savingsPlanCancelNotesPlaceholder",
+    "savingsPlanCancelInfoTitle",
+    "savingsPlanCancelInfoBody",
+    "savingsPlanCancelConfirm",
+    "savingsPlanCancelConfirming",
+    "savingsPlanCancelKeep",
+    "savingsPlanActivateAction",
+    "savingsPlanStatusUpdateSuccess",
+    "savingsPlanStatusUpdateFailed",
+    "savingsPlanNameRequired",
+    "savingsPlanTargetRequired",
+    "savingsPlanMonthlyRequired",
+    "savingsPlanDateRequired",
+    "savingsPlanDateInvalid",
+    "savingsPlanDateMin",
+    "savingsPlanTargetMinSaved",
+    "savingsPlanCreateFailed",
+    "savingsPlanCreateSuccess",
+    "savingsPlanEditSuccess",
+    "savingsPlanNotAvailable",
+    "savingsPlanCreateAction",
+    "savingsPlanEditAction",
+    "savingsPlanAddNewTitle",
+    "savingsPlanEditTitle",
+    "savingsPlanSubtitle",
+    "savingsPlanEditSubtitle",
+    "savingsPlanCloseAria",
+    "savingsPlanBlueprintTitle",
+    "savingsPlanNameLabel",
+    "savingsPlanNamePlaceholder",
+    "savingsPlanTargetLabel",
+    "savingsPlanCurrentSavedHint",
+    "savingsPlanTargetPlaceholder",
+    "savingsPlanMonthlyLabel",
+    "savingsPlanMonthlyPlaceholder",
+    "savingsPlanArrivalDateLabel",
+    "savingsPlanArrivalHint",
+    "savingsPlanIsPrimaryLabel",
+    "savingsPlanIsPrimaryHint",
+    "savingsPlanIdentityLabel",
+    "savingsPlanIdentitySelectTemplate",
+    "savingsPlanDiscard",
+    "savingsPlanCancel",
+    "savingsPlanCreating",
+    "savingsPlanSaveChanges",
+    "savingsPlanProjectionPreview",
+    "savingsPlanEstimatedMonths",
+    "savingsPlanToReachTarget",
+    "savingsPlanArrival",
+    "savingsPlanMonthly",
+    "savingsPlanTip",
+    "savingsCancelledBackToArchive",
+    "savingsCancelledStatusLabel",
+    "savingsCancelledClosedOn",
+    "savingsCancelledFinalProgress",
+    "savingsCancelledFinalSaved",
+    "savingsCancelledTargetObjective",
+    "savingsCancelledCompletion",
+    "savingsCancelledArchiveLock",
+    "savingsCancelledImpactAnalysis",
+    "savingsCancelledDurationActive",
+    "savingsCancelledLiquidityDestination",
+    "savingsCancelledReasonTitle",
+    "savingsCancelledReasonFallback",
+    "savingsCancelledHistoryTitle",
+    "savingsCancelledHistoryOpenLedger",
+    "savingsCancelledHistoryInception",
+    "savingsCancelledHistoryInceptionBody",
+    "savingsCancelledHistoryCancellation",
+    "savingsCancelledHistoryCancellationBody",
+    "savingsCancelledHistoryContribution",
+    "savingsCancelledHistoryContributionBody",
+    "savingsCancelledNoHistory",
+    "savingsCancelledListTitle",
+    "savingsCancelledListSubtitle",
+    "savingsCancelledListEmpty",
+    "savingsCancelledCardCancelledAt",
+    "savingsCancelledCardFinalValue",
+    "savingsCancelledCardOriginalGoal",
+    "savingsCancelledCardReasonPrefix",
+  ],
+  calendar: [
+    "calendarWeekdayMon",
+    "calendarWeekdayTue",
+    "calendarWeekdayWed",
+    "calendarWeekdayThu",
+    "calendarWeekdayFri",
+    "calendarWeekdaySat",
+    "calendarWeekdaySun",
+    "calendarMonthJanuary",
+    "calendarMonthFebruary",
+    "calendarMonthMarch",
+    "calendarMonthApril",
+    "calendarMonthMay",
+    "calendarMonthJune",
+    "calendarMonthJuly",
+    "calendarMonthAugust",
+    "calendarMonthSeptember",
+    "calendarMonthOctober",
+    "calendarMonthNovember",
+    "calendarMonthDecember",
+    "calendarDailyExpenseTitle",
+    "calendarDailyDetailsTitle",
+    "calendarTotalSpent",
+    "calendarCloseView",
   ],
   onboarding: [
     "onboardingSidebar",
@@ -1551,37 +1472,44 @@ const dictionarySections = {
     "onboardingSettings",
     "onboardingMainContent",
   ],
-} as const satisfies Record<string, readonly (keyof FlatDictionary)[]>;
+} as const satisfies DictionaryTree;
 
-type DictionarySections = typeof dictionarySections;
+type DictionaryLeafKeysFromTree<T> = T extends readonly (infer K)[]
+  ? K
+  : T extends DictionaryTree
+    ? { [P in keyof T]: DictionaryLeafKeysFromTree<T[P]> }[keyof T]
+    : never;
 
-export type Dictionary = {
-  [K in keyof DictionarySections]: Pick<FlatDictionary, DictionarySections[K][number]>;
+type DictionarySectionKey = Extract<DictionaryLeafKeysFromTree<typeof dictionarySections>, string>;
+
+type DictionaryFromTree<T> = {
+  [K in keyof T]: T[K] extends readonly DictionarySectionKey[]
+    ? Pick<FlatDictionary, T[K][number]>
+    : T[K] extends DictionaryTree
+      ? DictionaryFromTree<T[K]>
+      : never;
 };
 
-const pickSection = <K extends readonly (keyof FlatDictionary)[]>(flat: FlatDictionary, keys: K): Pick<FlatDictionary, K[number]> => {
+export type Dictionary = DictionaryFromTree<typeof dictionarySections>;
+
+const pickSection = <K extends readonly DictionarySectionKey[]>(flat: FlatDictionary, keys: K): Pick<FlatDictionary, K[number]> => {
   const result = {} as Pick<FlatDictionary, K[number]>;
   for (const key of keys) {
-    (result as Record<keyof FlatDictionary, string>)[key] = flat[key];
+    (result as Record<DictionarySectionKey, string>)[key] = flat[key];
+  }
+  return result;
+};
+
+const pickTree = (flat: FlatDictionary, tree: DictionaryTree): Record<string, unknown> => {
+  const result: Record<string, unknown> = {};
+  for (const [key, node] of Object.entries(tree)) {
+    result[key] = Array.isArray(node) ? pickSection(flat, node) : pickTree(flat, node as DictionaryTree);
   }
   return result;
 };
 
 export const getDictionaryBySection = (language?: string | null): Dictionary => {
-  const flat = getDictionary(language);
-  return {
-    common: pickSection(flat, dictionarySections.common),
-    settings: pickSection(flat, dictionarySections.settings),
-    newEntry: pickSection(flat, dictionarySections.newEntry),
-    transaction: pickSection(flat, dictionarySections.transaction),
-    dashboard: pickSection(flat, dictionarySections.dashboard),
-    atelier: pickSection(flat, dictionarySections.atelier),
-    ledger: pickSection(flat, dictionarySections.ledger),
-    accounts: pickSection(flat, dictionarySections.accounts),
-    wallet: pickSection(flat, dictionarySections.wallet),
-    savings: pickSection(flat, dictionarySections.savings),
-    onboarding: pickSection(flat, dictionarySections.onboarding),
-  };
+  return pickTree(getDictionary(language), dictionarySections) as Dictionary;
 };
 
 export const tr = (language: string | null | undefined, enText: string, viText: string) => {
