@@ -30,6 +30,17 @@ type Props = {
 
 const toDateInputValue = (value: Date) => toISODate(value);
 
+const buildDateTimeWithCurrentTime = (dateValue: string) => {
+  const selectedDate = new Date(`${dateValue}T00:00:00`);
+  if (Number.isNaN(selectedDate.getTime())) {
+    return dateValue;
+  }
+
+  const now = nowDate();
+  selectedDate.setHours(now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds());
+  return selectedDate.toISOString();
+};
+
 export default function AddContributionDialog({ language, currency, plans, wallets, defaultPlanId }: Props) {
   const router = useRouter();
   const t = getDictionary(language);
@@ -70,7 +81,7 @@ export default function AddContributionDialog({ language, currency, plans, walle
           accountId: values.walletId,
           type: "transfer_to_saving_plan",
           amount: parseCurrencyInput(values.amountDisplay),
-          date: values.date,
+          date: buildDateTimeWithCurrentTime(values.date),
           savingsPlanId: values.savingsPlanId,
           notes: contributionLabel,
         }),

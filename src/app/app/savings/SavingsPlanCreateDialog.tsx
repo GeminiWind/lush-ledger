@@ -74,8 +74,10 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
         const data = await response.json();
         throw new Error(data.error || t.savingsPlanCreateFailed);
       }
+
+      return response.json() as Promise<{ plan?: { id?: string } }>;
     },
-    onSuccess: async () => {
+    onSuccess: async (payload) => {
       formik.resetForm({
         values: {
           name: "",
@@ -88,7 +90,8 @@ export default function SavingsPlanCreateDialog({ language, currency, variant = 
       setIsPrimary(true);
       setOpen(false);
       await queryClient.invalidateQueries({ queryKey: ["savings"] });
-      router.refresh();
+      const planId = payload?.plan?.id;
+      router.push(planId ? `/app/savings?filter=active&plan=${planId}` : "/app/savings?filter=active");
       toast.success(t.savingsPlanCreateSuccess);
     },
     onError: (mutationError: unknown) => {

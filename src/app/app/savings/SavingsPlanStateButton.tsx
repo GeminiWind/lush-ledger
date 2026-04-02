@@ -11,6 +11,7 @@ type Props = {
   planId: string;
   planName: string;
   status: string;
+  compact?: boolean;
 };
 
 const reasonOptionKeys = [
@@ -20,7 +21,7 @@ const reasonOptionKeys = [
   "savingsPlanCancelReasonOther",
 ] as const;
 
-export default function SavingsPlanStateButton({ language, planId, planName, status }: Props) {
+export default function SavingsPlanStateButton({ language, planId, planName, status, compact = false }: Props) {
   const t = getDictionary(language);
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -29,6 +30,7 @@ export default function SavingsPlanStateButton({ language, planId, planName, sta
   const [additionalNotes, setAdditionalNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
   const canCancel = status === "active" || status === "funded";
+  const canArchive = status === "completed";
   const nextStatus = "cancelled";
   const reasonLabel = t[reason];
 
@@ -76,7 +78,7 @@ export default function SavingsPlanStateButton({ language, planId, planName, sta
       setError(null);
       toast.success(t.savingsPlanStatusUpdateSuccess);
       await queryClient.invalidateQueries({ queryKey: ["savings"] });
-      router.refresh();
+      router.push("/app/savings/cancelled");
     },
     onError: (error: unknown) => {
       const message = error instanceof Error ? error.message : t.savingsPlanStatusUpdateFailed;
@@ -85,23 +87,68 @@ export default function SavingsPlanStateButton({ language, planId, planName, sta
     },
   });
 
-  if (!canCancel) {
+  const archivePlanMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/savings/plans/${planId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "archive" }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || t.savingsPlanStatusUpdateFailed);
+      }
+    },
+    onSuccess: async () => {
+      setError(null);
+      toast.success(t.savingsPlanStatusUpdateSuccess);
+      await queryClient.invalidateQueries({ queryKey: ["savings"] });
+      router.push(`/app/savings?filter=archived&plan=${planId}`);
+    },
+    onError: (mutationError: unknown) => {
+      const message = mutationError instanceof Error ? mutationError.message : t.savingsPlanStatusUpdateFailed;
+      setError(message);
+      toast.error(message);
+    },
+  });
+
+  if (!canCancel && !canArchive) {
     return null;
   }
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => {
-          setOpen(true);
-          setError(null);
-        }}
-        disabled={updateStateMutation.isPending}
-        className="flex items-center justify-center rounded-xl bg-[#d4ecf9] px-6 py-3 text-xs font-bold uppercase tracking-widest text-[#49636f] transition-all hover:bg-[#f8cfc4] hover:text-[#a73b21] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
-      >
-        {t.savingsPlanCancelAction}
-      </button>
+      {canCancel ? (
+        <button
+          type="button"
+          onClick={() => {
+            setOpen(true);
+            setError(null);
+          }}
+          disabled={updateStateMutation.isPending}
+          className="flex items-center justify-center rounded-xl bg-[#d4ecf9] px-6 py-3 text-xs font-bold uppercase tracking-widest text-[#49636f] transition-all hover:bg-[#f8cfc4] hover:text-[#a73b21] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
+        >
+          {t.savingsPlanCancelAction}
+        </button>
+      ) : null}
+
+      {canArchive ? (
+        <button
+          type="button"
+          onClick={() => archivePlanMutation.mutate()}
+          disabled={archivePlanMutation.isPending}
+          className={
+            compact
+              ? "grid h-10 w-10 place-items-center rounded-full border border-[#006f1d]/10 bg-white/60 text-[#006f1d] shadow-sm transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-70"
+              : "grid h-11 w-11 place-items-center rounded-xl bg-[#d4ecf9] text-[#49636f] transition-all hover:bg-[#cbe7f6] hover:text-[#1b3641] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
+          }
+          title={t.savingsPlanArchiveAction}
+          aria-label={t.savingsPlanArchiveAction}
+        >
+          <span className="material-symbols-outlined text-[20px]">archive</span>
+        </button>
+      ) : null}
 
       {open ? (
         <div

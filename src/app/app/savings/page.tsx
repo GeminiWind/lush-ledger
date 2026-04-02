@@ -81,7 +81,7 @@ export default async function SavingsPage({ searchParams }: { searchParams: Sear
   const [savingsPlans, savingsTransactions, wallets] = await Promise.all([
     prisma.savingsPlan.findMany({
       where: { userId: user.id },
-      orderBy: [{ isPrimary: "desc" }, { targetAmount: "desc" }, { targetDate: "asc" }],
+      orderBy: [{ createdAt: "desc" }],
     }),
     prisma.transaction.findMany({
       where: { userId: user.id, savingsPlanId: { not: null } },
@@ -128,19 +128,35 @@ export default async function SavingsPage({ searchParams }: { searchParams: Sear
       saved: Math.max(0, saved),
       progress: Math.max(0, Math.min(progress, 100)),
       targetDate: plan.targetDate,
+      createdAt: plan.createdAt,
       monthlyContribution: toNumber(plan.monthlyContribution),
     };
   });
 
-  const activePlans = plans.filter((plan) => plan.status === "active");
-  const completedPlans = activePlans.filter((plan) => plan.effectiveStatus === "completed");
-  const archivedPlans = plans.filter((plan) => plan.status === "archive");
+  const sortLatest = <T extends { createdAt: Date }>(items: T[]) =>
+    items.slice().sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime());
+
+  const activePlans = sortLatest(plans.filter((plan) => plan.status === "active"));
+  const completedPlans = sortLatest(activePlans.filter((plan) => plan.effectiveStatus === "completed"));
+  const archivedPlans = sortLatest(plans.filter((plan) => plan.status === "archive"));
+  const activeFundedPlans = activePlans.filter((plan) => plan.effectiveStatus === "active" || plan.effectiveStatus === "funded");
+
+  const plansByFilter =
+    activeFilter === "archived"
+      ? archivedPlans
+      : activeFilter === "completed"
+        ? completedPlans
+        : activePlans;
 
   const primaryPlan =
-    activePlans.find((plan) => plan.id === requestedPlanId) ||
-    activePlans.find((plan) => plan.isPrimary) ||
-    activePlans[0] ||
+    plansByFilter.find((plan) => plan.id === requestedPlanId) ||
+    (activeFilter === "active" ? activePlans.find((plan) => plan.isPrimary) : undefined) ||
+    plansByFilter[0] ||
     null;
+
+  const filteredOtherPlans = plansByFilter.filter((plan) => plan.id !== primaryPlan?.id);
+  const isCompletedOrArchivedEmpty =
+    (activeFilter === "completed" || activeFilter === "archived") && plansByFilter.length === 0;
 
   const chartTransactions = primaryPlan
     ? savingsTransactions.filter((tx) => tx.savingsPlanId === primaryPlan.id)
@@ -228,17 +244,19 @@ export default async function SavingsPage({ searchParams }: { searchParams: Sear
 
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  <SavingsPlanStateButton
-                    language={language}
-                    planId={primaryPlan.id}
-                    planName={primaryPlan.name}
-                    status={primaryPlan.effectiveStatus}
-                  />
-                  {primaryPlan.effectiveStatus !== "completed" ? (
+                  {primaryPlan.effectiveStatus === "active" || primaryPlan.effectiveStatus === "funded" ? (
+                    <SavingsPlanStateButton
+                      language={language}
+                      planId={primaryPlan.id}
+                      planName={primaryPlan.name}
+                      status={primaryPlan.effectiveStatus}
+                    />
+                  ) : null}
+                  {primaryPlan.effectiveStatus === "active" || primaryPlan.effectiveStatus === "funded" ? (
                     <AddContributionDialog
                       language={language}
                       currency={currency}
-                      plans={activePlans.map((plan) => ({ id: plan.id, name: plan.name, progress: plan.progress }))}
+                      plans={activeFundedPlans.map((plan) => ({ id: plan.id, name: plan.name, progress: plan.progress }))}
                       wallets={wallets}
                       defaultPlanId={primaryPlan.id}
                     />
@@ -250,12 +268,22 @@ export default async function SavingsPage({ searchParams }: { searchParams: Sear
                 <h2 className="font-[var(--font-manrope)] text-3xl font-extrabold tracking-[-0.02em] text-[#1b3641] lg:text-4xl">
                   {primaryPlan.name}
                 </h2>
-                <EditSavingsPlanDialog
-                  language={language}
-                  currency={currency}
-                  plan={primaryPlan}
-                  trigger="primary"
-                />
+                {primaryPlan.effectiveStatus === "active" || primaryPlan.effectiveStatus === "funded" ? (
+                  <EditSavingsPlanDialog
+                    language={language}
+                    currency={currency}
+                    plan={primaryPlan}
+                    trigger="primary"
+                  />
+                ) : primaryPlan.effectiveStatus === "completed" ? (
+                  <SavingsPlanStateButton
+                    language={language}
+                    planId={primaryPlan.id}
+                    planName={primaryPlan.name}
+                    status={primaryPlan.effectiveStatus}
+                    compact
+                  />
+                ) : null}
               </div>
               <p className="max-w-2xl text-[#49636f]">
                 {t.savingsPrimaryDesc}
@@ -286,6 +314,10 @@ export default async function SavingsPage({ searchParams }: { searchParams: Sear
 
           <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#006f1d]/5 blur-3xl" />
         </section>
+      ) : isCompletedOrArchivedEmpty ? (
+        <section className="rounded-2xl border border-dashed border-[#c7dce9] bg-white px-4 py-10 text-center text-sm text-[#647e8c]">
+          {t.savingsNoPlan}
+        </section>
       ) : (
         <section className="rounded-[2rem] border-2 border-dashed border-[#c7dce9] bg-white p-12 text-center">
           <h2 className="font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">{t.savingsNoActivePlan}</h2>
@@ -296,8 +328,9 @@ export default async function SavingsPage({ searchParams }: { searchParams: Sear
         </section>
       )}
 
-      <SavingsGrowthChart currency={currency} points={growthPoints} />
+      {!isCompletedOrArchivedEmpty ? <SavingsGrowthChart currency={currency} points={growthPoints} /> : null}
 
+      {!isCompletedOrArchivedEmpty ? (
       <section className="space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 className="font-[var(--font-manrope)] text-3xl font-extrabold tracking-[-0.02em] text-[#1b3641]">{t.savingsOtherAmbitions}</h3>
@@ -312,7 +345,7 @@ export default async function SavingsPage({ searchParams }: { searchParams: Sear
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
           {(activeFilter === "archived"
-            ? archivedPlans
+            ? filteredOtherPlans
             : activeFilter === "completed"
               ? otherCompletedPlans
               : otherActivePlans
@@ -351,9 +384,12 @@ export default async function SavingsPage({ searchParams }: { searchParams: Sear
             </Link>
           ))}
 
-          <SavingsPlanCreateDialog language={language} currency={currency} variant="card" />
+          {activeFilter !== "archived" ? (
+            <SavingsPlanCreateDialog language={language} currency={currency} variant="card" />
+          ) : null}
         </div>
       </section>
+      ) : null}
     </div>
   );
 }

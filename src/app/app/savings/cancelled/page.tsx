@@ -74,7 +74,7 @@ export default async function CancelledSavingsPlansPage() {
       target,
       completion,
     };
-  });
+  }).sort((left, right) => right.closedAt.getTime() - left.closedAt.getTime());
 
   return (
     <div className="space-y-8">
