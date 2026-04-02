@@ -4,8 +4,8 @@ This document defines practical standards for this repository so feature work st
 
 ## Scope Rules
 
-- Use `src/app/app/*` for new authenticated pages and app navigation.
-- Keep `src/app/(app)/*` as legacy unless explicitly refactoring/deprecating.
+- Use `src/app/(dashboard)/app/*` for authenticated page routes (`/app/*`).
+- Keep route files thin; place feature UI/hooks in `src/features/*`.
 - Keep docs in sync with actual routes/APIs in the same PR.
 
 ## API Design

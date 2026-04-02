@@ -26,7 +26,7 @@
 
 ## Related code files
 
-- `src/app/(app)/savings/page.tsx`
+- `src/app/(dashboard)/app/savings/page.tsx`
 - `src/app/api/savings/*`
 - `prisma/schema.prisma`
 

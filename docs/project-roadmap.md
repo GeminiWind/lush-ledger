@@ -20,8 +20,8 @@ Related plan source:
 Overall completion estimate: **92%**.
 
 1) Stabilize canonical route surface
-- keep `src/app/app/*` as active surface
-- mark/deprecate overlapping `src/app/(app)/*` paths
+- keep `src/app/(dashboard)/app/*` as active surface
+- keep `/app/*` URL surface stable while route groups evolve internally
 
 2) Complete API CRUD baseline
 - reports: add `/api/reports`

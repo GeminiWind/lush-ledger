@@ -5,7 +5,8 @@
 Lush Ledger is a server-rendered Next.js App Router application with route handlers for APIs, Prisma for data access, and SQLite as the default persistence layer.
 
 Main layers:
-- UI routes (`src/app/app/*`, `src/app/(auth)/*`)
+- UI routes (`src/app/(public)/*`, `src/app/(auth)/*`, `src/app/(dashboard)/app/*`)
+- feature modules (`src/features/*` for UI components/hooks/services)
 - client API state/caching (TanStack Query via `src/app/QueryProvider.tsx`)
 - API routes (`src/app/api/*`)
 - domain services/utilities (`src/lib/*`)
@@ -81,10 +82,7 @@ Design patterns:
 - no `/api/savings` CRUD
 - no `/api/settings`
 - no update/delete for accounts/categories/ledger transactions
-- legacy overlapping route tree `src/app/(app)/*` remains in repo
 
 ## Canonical Architecture Decision
 
-Use `src/app/app/*` as the canonical authenticated route tree.
-
-Treat `src/app/(app)/*` as legacy until a dedicated migration/removal phase is executed.
+Use `src/app/(dashboard)/app/*` as the canonical authenticated route tree.

@@ -27,11 +27,11 @@
 
 ## Related code files
 
-- `src/app/app/atelier/page.tsx`
-- `src/app/app/atelier/CategoryAtelierGrid.tsx`
-- `src/app/app/atelier/AddCategoryModal.tsx`
-- `src/app/app/atelier/EditCategoryModal.tsx`
-- `src/app/app/atelier/DeleteCategoryDialog.tsx`
+- `src/app/(dashboard)/app/atelier/page.tsx`
+- `src/features/atelier/components/CategoryAtelierGrid.tsx`
+- `src/features/atelier/dialogs/AddCategoryModal.tsx`
+- `src/features/atelier/dialogs/EditCategoryModal.tsx`
+- `src/features/atelier/dialogs/DeleteCategoryDialog.tsx`
 - `src/app/api/categories/route.ts`
 - `src/app/api/categories/[id]/route.ts`
 - `prisma/schema.prisma`

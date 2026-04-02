@@ -20,7 +20,7 @@ Canonical authenticated navigation should map to:
 - `/app/accounts`
 - `/app/savings`
 
-Avoid introducing new user-facing flows in legacy `src/app/(app)/*`.
+Implement authenticated flows under `src/app/(dashboard)/app/*` and keep shared UI in `src/features/*` + `src/components/*`.
 
 ## Domain UX Expectations
 

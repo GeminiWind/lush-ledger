@@ -36,8 +36,8 @@
 
 - `src/app/(auth)/login/page.tsx`
 - `src/app/(auth)/register/page.tsx`
-- `src/app/(app)/layout.tsx`
-- `src/app/(app)/settings/page.tsx`
+- `src/app/(dashboard)/app/layout.tsx`
+- `src/app/(dashboard)/app/settings/page.tsx`
 - `src/app/api/auth/login/route.ts`
 - `src/app/api/auth/register/route.ts`
 - `src/app/api/settings/route.ts`

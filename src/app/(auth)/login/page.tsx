@@ -2,10 +2,9 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useFormik } from "formik";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
 const heroImage =
   "https://www.figma.com/api/mcp/asset/11fd5c6c-d5a1-45e3-b3c9-c49f24eda584";
@@ -40,7 +39,6 @@ function EyeIcon({ hidden }: { hidden: boolean }) {
 }
 
 export default function LoginPage() {
-  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const { login, isLoggingIn } = useAuth();
@@ -65,8 +63,6 @@ export default function LoginPage() {
       setError(null);
       try {
         await login(values);
-        router.push("/app");
-        router.refresh();
       } catch (mutationError) {
         setError(mutationError instanceof Error ? mutationError.message : "Login failed.");
       }

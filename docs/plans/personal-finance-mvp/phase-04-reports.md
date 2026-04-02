@@ -27,12 +27,12 @@
 
 ## Related code files
 
-- `src/app/app/ledger/reports/page.tsx`
-- `src/app/app/ledger/reports/ReportsView.tsx`
-- `src/app/app/ledger/reports/ExpenseBudgetChart.tsx`
-- `src/app/app/ledger/reports/CashflowChart.tsx`
-- `src/app/app/ledger/reports/CategoryChart.tsx`
-- `src/app/app/ledger/reports/DailyCalendar.tsx`
+- `src/app/(dashboard)/app/ledger/reports/page.tsx`
+- `src/features/ledger/components/reports/ReportsView.tsx`
+- `src/features/ledger/components/reports/ExpenseBudgetChart.tsx`
+- `src/features/ledger/components/reports/CashflowChart.tsx`
+- `src/features/ledger/components/reports/CategoryChart.tsx`
+- `src/features/ledger/components/reports/DailyCalendar.tsx`
 - `src/lib/ledger.ts` (`getLedgerReportsData`)
 
 ## Implementation Steps

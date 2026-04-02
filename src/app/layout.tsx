@@ -3,6 +3,7 @@ import { Inter, Manrope } from "next/font/google";
 import "./globals.css";
 import ToasterProvider from "./ToasterProvider";
 import QueryProvider from "./QueryProvider";
+import { AuthProvider } from "@/features/auth/context/AuthContext";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -31,8 +32,10 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-slate-950 text-slate-50">
         <QueryProvider>
-          <ToasterProvider />
-          {children}
+          <AuthProvider>
+            <ToasterProvider />
+            {children}
+          </AuthProvider>
         </QueryProvider>
       </body>
     </html>

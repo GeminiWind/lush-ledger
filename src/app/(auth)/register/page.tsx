@@ -2,10 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useFormik } from "formik";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
 const visualTextureImage = "/images/auth/register-visual-texture.png";
 
@@ -28,7 +27,6 @@ function EyeIcon({ hidden }: { hidden: boolean }) {
 }
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -80,8 +78,6 @@ export default function RegisterPage() {
           password: values.password,
           acceptedTerms: values.acceptedTerms,
         });
-        router.push("/app");
-        router.refresh();
       } catch (mutationError) {
         setError(mutationError instanceof Error ? mutationError.message : "Registration failed.");
       }

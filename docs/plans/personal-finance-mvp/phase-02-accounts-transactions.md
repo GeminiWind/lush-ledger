@@ -29,8 +29,8 @@
 
 ## Related code files
 
-- `src/app/(app)/accounts/page.tsx`
-- `src/app/(app)/transactions/page.tsx`
+- `src/app/(dashboard)/app/accounts/page.tsx`
+- `src/app/(dashboard)/app/ledger/page.tsx`
 - `src/app/api/accounts/*`
 - `src/app/api/transactions/*`
 - `prisma/schema.prisma`

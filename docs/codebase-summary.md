@@ -4,6 +4,8 @@
 
 - Framework: Next.js App Router
 - Main app code: `src/app`
+- Feature modules: `src/features/*`
+- Shared UI/layout: `src/components/*`
 - API routes: `src/app/api/*`
 - Domain/business utilities: `src/lib/*`
 - Data schema: `prisma/schema.prisma`
@@ -12,26 +14,19 @@
 ## Route Structure
 
 Canonical route tree (active):
-- `src/app/app/page.tsx` -> `/app`
-- `src/app/app/ledger/page.tsx` -> `/app/ledger`
-- `src/app/app/ledger/new/page.tsx` -> `/app/ledger/new`
-- `src/app/app/ledger/reports/page.tsx` -> `/app/ledger/reports`
-- `src/app/app/atelier/page.tsx` -> `/app/atelier`
-- `src/app/app/accounts/page.tsx` -> `/app/accounts`
-- `src/app/app/savings/page.tsx` -> `/app/savings`
-- `src/app/app/savings/cancelled/page.tsx` -> `/app/savings/cancelled`
-- `src/app/app/savings/cancelled/[id]/page.tsx` -> `/app/savings/cancelled/:id`
+- `src/app/(dashboard)/app/page.tsx` -> `/app`
+- `src/app/(dashboard)/app/ledger/page.tsx` -> `/app/ledger`
+- `src/app/(dashboard)/app/ledger/new/page.tsx` -> `/app/ledger/new`
+- `src/app/(dashboard)/app/ledger/reports/page.tsx` -> `/app/ledger/reports`
+- `src/app/(dashboard)/app/atelier/page.tsx` -> `/app/atelier`
+- `src/app/(dashboard)/app/accounts/page.tsx` -> `/app/accounts`
+- `src/app/(dashboard)/app/savings/page.tsx` -> `/app/savings`
+- `src/app/(dashboard)/app/savings/cancelled/page.tsx` -> `/app/savings/cancelled`
+- `src/app/(dashboard)/app/savings/cancelled/[id]/page.tsx` -> `/app/savings/cancelled/:id`
 
 Auth routes:
 - `src/app/(auth)/login/page.tsx` -> `/login`
 - `src/app/(auth)/register/page.tsx` -> `/register`
-
-Legacy/parallel tree (overlapping, partially stale):
-- `src/app/(app)/*`
-
-Recommendation:
-- treat `src/app/app/*` as canonical product surface
-- avoid adding new UX flows to `src/app/(app)/*`
 
 ## API Inventory
 
@@ -54,7 +49,6 @@ Implemented:
 Missing or partial:
 - missing `/api/reports`
 - savings plan delete/archive endpoints are still partial
-- missing `/api/settings`
 - accounts missing full update/delete
 - categories missing update/delete
 - ledger transactions missing update/delete
@@ -114,6 +108,5 @@ Charts:
 
 ## Active Tech Debt
 
-- parallel route trees (`app/*` and `(app)/*`) increase navigation drift risk
 - API surface is uneven across domains (create/list strong, update/delete weaker)
 - roadmap references and implementation naming differ in a few areas (`reports` vs `ledger/reports`)

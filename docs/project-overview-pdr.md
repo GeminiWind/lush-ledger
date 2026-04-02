@@ -61,11 +61,11 @@ Known feature/API gaps:
 - predictable recurring transaction generation
 - documentation-first delivery for remaining roadmap phases
 
-## Canonical vs Legacy Route Trees
+## Route and Feature Structure
 
-Canonical active app routes live under `src/app/app/*`.
+Canonical authenticated routes live under `src/app/(dashboard)/app/*` (serving `/app/*` URLs).
 
-There is a parallel legacy route group under `src/app/(app)/*` with overlapping pages and stale links. It should be treated as legacy until deprecation/cleanup is planned.
+Feature-specific UI/hooks/services live under `src/features/*`, and shared layout/UI building blocks live under `src/components/*`.
 
 ## Source of Truth Docs
 
