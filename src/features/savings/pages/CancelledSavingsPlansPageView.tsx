@@ -72,7 +72,7 @@ export default function CancelledSavingsPlansPageView({ language, currency, plan
       name: plan.name,
       icon: plan.icon || getPlanIcon(plan.name),
       closedAt: cancellationTx?.date || plan.transactions[0]?.date || plan.createdAt,
-      reason: cancellationTx?.notes?.trim() || t.savingsCancelledReasonFallback,
+      reason: cancellationTx?.notes?.trim() || t("savingsCancelledReasonFallback"),
       saved,
       target,
       completion,
@@ -82,18 +82,18 @@ export default function CancelledSavingsPlansPageView({ language, currency, plan
   return (
     <div className="space-y-8">
       <header className="space-y-3">
-        <p className="text-sm font-medium text-[#49636f]">{t.savingsPortfolio}</p>
+        <p className="text-sm font-medium text-[#49636f]">{t("savingsPortfolio")}</p>
         <div className="flex flex-wrap items-center gap-4">
           <h1 className="font-[var(--font-manrope)] text-4xl font-extrabold tracking-[-0.03em] text-[#1b3641] lg:text-6xl">
-            {t.savingsTitle.split(" ")[0]} <span className="italic text-[#006f1d]">{t.savingsTitle.split(" ").slice(1).join(" ")}</span>
+            {t("savingsTitle").split(" ")[0]} <span className="italic text-[#006f1d]">{t("savingsTitle").split(" ").slice(1).join(" ")}</span>
           </h1>
           <SavingsFilterDropdown currentFilter={activeFilter} />
         </div>
-        <p className="max-w-3xl text-base text-[#49636f]">{t.savingsCancelledListSubtitle}</p>
+        <p className="max-w-3xl text-base text-[#49636f]">{t("savingsCancelledListSubtitle")}</p>
       </header>
 
       {list.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-[#c7dce9] bg-white px-4 py-10 text-center text-sm text-[#647e8c]">{t.savingsCancelledListEmpty}</p>
+        <p className="rounded-2xl border border-dashed border-[#c7dce9] bg-white px-4 py-10 text-center text-sm text-[#647e8c]">{t("savingsCancelledListEmpty")}</p>
       ) : (
         <section className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {list.map((plan) => (
@@ -113,30 +113,30 @@ export default function CancelledSavingsPlansPageView({ language, currency, plan
                     <div>
                       <h2 className="font-[var(--font-manrope)] text-lg font-bold leading-tight tracking-tight text-[#1b3641]">{plan.name}</h2>
                       <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#647e8c]">
-                        {t.savingsCancelledCardCancelledAt} {localeDateLabel(plan.closedAt, locale, { month: "short", day: "2-digit", year: "numeric" })}
+                        {t("savingsCancelledCardCancelledAt")} {localeDateLabel(plan.closedAt, locale, { month: "short", day: "2-digit", year: "numeric" })}
                       </p>
                     </div>
                   </div>
 
                   <span className="rounded-full border border-[#f8cfc4] bg-[#fff3ef] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.08em] text-[#a73b21]">
-                    {t.savingsCancelledStatusLabel}
+                    {t("savingsCancelledStatusLabel")}
                   </span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#647e8c]">{t.savingsCancelledCardFinalValue}</p>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#647e8c]">{t("savingsCancelledCardFinalValue")}</p>
                     <p className="mt-1 font-[var(--font-manrope)] text-xl font-black text-[#1b3641]">{formatCurrency(plan.saved, currency)}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#647e8c]">{t.savingsCancelledCardOriginalGoal}</p>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#647e8c]">{t("savingsCancelledCardOriginalGoal")}</p>
                     <p className="mt-1 font-[var(--font-manrope)] text-xl font-black text-[#1b3641]/45">{formatCurrency(plan.target, currency)}</p>
                   </div>
                 </div>
 
                 <div>
                   <div className="mb-2 flex items-center justify-between text-xs font-bold">
-                    <span className="text-[#647e8c]">{t.savingsCancelledCompletion}</span>
+                    <span className="text-[#647e8c]">{t("savingsCancelledCompletion")}</span>
                     <span className="text-[#1b3641]">{Math.round(plan.completion)}%</span>
                   </div>
                   <div className="h-3 w-full overflow-hidden rounded-full bg-[#d4ecf9]">
@@ -146,7 +146,7 @@ export default function CancelledSavingsPlansPageView({ language, currency, plan
 
                 <div className="border-t border-[#9bb6c4]/20 pt-5">
                   <p className="text-sm italic leading-relaxed text-[#49636f]">
-                    <span className="font-bold not-italic">{t.savingsCancelledCardReasonPrefix}:</span> {plan.reason}
+                    <span className="font-bold not-italic">{t("savingsCancelledCardReasonPrefix")}:</span> {plan.reason}
                   </p>
                 </div>
               </div>

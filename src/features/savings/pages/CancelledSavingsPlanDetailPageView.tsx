@@ -60,15 +60,15 @@ export default function CancelledSavingsPlanDetailPageView({ language, currency,
 
   const closedAt = cancellationTx?.date || plan.transactions[0]?.date || plan.createdAt;
   const durationDays = Math.max(1, daysUntil(closedAt, plan.createdAt));
-  const destinationWallet = cancellationTx?.account?.name || t.walletDefaultBadge;
+  const destinationWallet = cancellationTx?.account?.name || t("walletDefaultBadge");
 
   const history: HistoryEvent[] = [];
 
   if (cancellationTx) {
     history.push({
       id: `cancel-${cancellationTx.id}`,
-      title: t.savingsCancelledHistoryCancellation,
-      subtitle: t.savingsCancelledHistoryCancellationBody,
+      title: t("savingsCancelledHistoryCancellation"),
+      subtitle: t("savingsCancelledHistoryCancellationBody"),
       date: cancellationTx.date,
       icon: "event_busy",
       amountTone: "neutral",
@@ -81,8 +81,8 @@ export default function CancelledSavingsPlanDetailPageView({ language, currency,
     }
     history.push({
       id: `contribution-${tx.id}`,
-      title: t.savingsCancelledHistoryContribution,
-      subtitle: tx.notes?.trim() || t.savingsCancelledHistoryContributionBody,
+      title: t("savingsCancelledHistoryContribution"),
+      subtitle: tx.notes?.trim() || t("savingsCancelledHistoryContributionBody"),
       date: tx.date,
       icon: "add_circle",
       amount: toNumber(tx.amount),
@@ -95,8 +95,8 @@ export default function CancelledSavingsPlanDetailPageView({ language, currency,
 
   history.push({
     id: `inception-${plan.id}`,
-    title: t.savingsCancelledHistoryInception,
-    subtitle: `${t.savingsCancelledHistoryInceptionBody}: ${plan.name}`,
+    title: t("savingsCancelledHistoryInception"),
+    subtitle: `${t("savingsCancelledHistoryInceptionBody")}: ${plan.name}`,
     date: plan.createdAt,
     icon: "flag",
     amountTone: "neutral",
@@ -109,7 +109,7 @@ export default function CancelledSavingsPlanDetailPageView({ language, currency,
       <div>
         <Link href="/app/savings/cancelled" className="inline-flex items-center gap-2 text-sm font-medium text-[#49636f] hover:text-[#006f1d]">
           <span className="material-symbols-outlined text-sm">arrow_back</span>
-          {t.savingsCancelledBackToArchive}
+          {t("savingsCancelledBackToArchive")}
         </Link>
       </div>
 
@@ -117,26 +117,26 @@ export default function CancelledSavingsPlanDetailPageView({ language, currency,
         <div>
           <span className="inline-flex items-center gap-2 rounded-full border border-[#f8cfc4] bg-[#fd795a]/20 px-3 py-1 text-xs font-bold uppercase tracking-[0.12em] text-[#6e1400]">
             <span className="material-symbols-outlined text-sm">cancel</span>
-            {t.savingsCancelledStatusLabel}
+            {t("savingsCancelledStatusLabel")}
           </span>
           <h1 className="mt-4 font-[var(--font-manrope)] text-4xl font-extrabold tracking-tight text-[#1b3641] md:text-5xl">{plan.name}</h1>
           <p className="mt-2 text-sm text-[#49636f]">
-            {t.savingsCancelledClosedOn} <span className="font-bold">{localeDateLabel(closedAt, locale, { month: "short", day: "2-digit", year: "numeric" })}</span>
+            {t("savingsCancelledClosedOn")} <span className="font-bold">{localeDateLabel(closedAt, locale, { month: "short", day: "2-digit", year: "numeric" })}</span>
           </p>
         </div>
       </section>
 
       <section className="grid grid-cols-1 gap-6 md:grid-cols-12">
         <article className="rounded-3xl bg-white p-8 shadow-sm md:col-span-7">
-          <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-[#647e8c]">{t.savingsCancelledFinalProgress}</h2>
+          <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-[#647e8c]">{t("savingsCancelledFinalProgress")}</h2>
           <div className="mt-6 flex items-end justify-between gap-6">
             <div>
               <p className="font-[var(--font-manrope)] text-3xl font-extrabold text-[#1b3641]">{formatCurrency(finalSaved, currency)}</p>
-              <p className="mt-1 text-sm text-[#647e8c]">{t.savingsCancelledFinalSaved}</p>
+              <p className="mt-1 text-sm text-[#647e8c]">{t("savingsCancelledFinalSaved")}</p>
             </div>
             <div className="text-right">
               <p className="font-[var(--font-manrope)] text-2xl font-bold text-[#647e8c]">{formatCurrency(targetAmount, currency)}</p>
-              <p className="mt-1 text-sm text-[#647e8c]">{t.savingsCancelledTargetObjective}</p>
+              <p className="mt-1 text-sm text-[#647e8c]">{t("savingsCancelledTargetObjective")}</p>
             </div>
           </div>
 
@@ -144,16 +144,16 @@ export default function CancelledSavingsPlanDetailPageView({ language, currency,
             <div className="h-full rounded-full bg-[#647e8c]" style={{ width: `${Math.round(completion)}%` }} />
           </div>
           <div className="mt-3 flex items-center justify-between text-sm">
-            <span className="font-bold text-[#49636f]">{Math.round(completion)}% {t.savingsCancelledCompletion}</span>
+            <span className="font-bold text-[#49636f]">{Math.round(completion)}% {t("savingsCancelledCompletion")}</span>
             <span className="inline-flex items-center gap-1 text-xs text-[#647e8c]">
               <span className="material-symbols-outlined text-sm">history</span>
-              {t.savingsCancelledArchiveLock}
+              {t("savingsCancelledArchiveLock")}
             </span>
           </div>
         </article>
 
         <article className="rounded-3xl bg-[#e7f6ff] p-8 md:col-span-5">
-          <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-[#647e8c]">{t.savingsCancelledImpactAnalysis}</h2>
+          <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-[#647e8c]">{t("savingsCancelledImpactAnalysis")}</h2>
           <div className="mt-6 space-y-5">
             <div className="flex items-center gap-4">
               <div className="grid h-11 w-11 place-items-center rounded-xl bg-[#d4ecf9] text-[#006f1d]">
@@ -161,7 +161,7 @@ export default function CancelledSavingsPlanDetailPageView({ language, currency,
               </div>
               <div>
                 <p className="font-[var(--font-manrope)] text-xl font-bold text-[#1b3641]">{durationDays} days</p>
-                <p className="text-xs text-[#647e8c]">{t.savingsCancelledDurationActive}</p>
+                <p className="text-xs text-[#647e8c]">{t("savingsCancelledDurationActive")}</p>
               </div>
             </div>
 
@@ -171,7 +171,7 @@ export default function CancelledSavingsPlanDetailPageView({ language, currency,
               </div>
               <div>
                 <p className="font-[var(--font-manrope)] text-xl font-bold text-[#1b3641]">{destinationWallet}</p>
-                <p className="text-xs text-[#647e8c]">{t.savingsCancelledLiquidityDestination}</p>
+                <p className="text-xs text-[#647e8c]">{t("savingsCancelledLiquidityDestination")}</p>
               </div>
             </div>
           </div>
@@ -179,9 +179,9 @@ export default function CancelledSavingsPlanDetailPageView({ language, currency,
 
         <article className="relative overflow-hidden rounded-3xl bg-[#e7f6ff] p-8 md:col-span-8">
           <span className="material-symbols-outlined pointer-events-none absolute -right-4 -top-4 text-8xl text-[#9bb6c4]/30">format_quote</span>
-          <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-[#647e8c]">{t.savingsCancelledReasonTitle}</h2>
+          <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-[#647e8c]">{t("savingsCancelledReasonTitle")}</h2>
           <p className="relative z-10 mt-4 font-[var(--font-manrope)] text-2xl font-medium leading-snug text-[#1b3641]">
-            {cancellationTx?.notes?.trim() || t.savingsCancelledReasonFallback}
+            {cancellationTx?.notes?.trim() || t("savingsCancelledReasonFallback")}
           </p>
         </article>
 
@@ -196,16 +196,16 @@ export default function CancelledSavingsPlanDetailPageView({ language, currency,
 
       <section className="space-y-5">
         <div className="flex items-center justify-between gap-4">
-          <h2 className="font-[var(--font-manrope)] text-2xl font-extrabold text-[#1b3641]">{t.savingsCancelledHistoryTitle}</h2>
+          <h2 className="font-[var(--font-manrope)] text-2xl font-extrabold text-[#1b3641]">{t("savingsCancelledHistoryTitle")}</h2>
           <Link href={`/app/ledger?query=${encodeURIComponent(plan.name)}`} className="inline-flex items-center gap-1 text-sm font-bold text-[#006f1d] hover:underline">
-            {t.savingsCancelledHistoryOpenLedger}
+            {t("savingsCancelledHistoryOpenLedger")}
             <span className="material-symbols-outlined text-sm">open_in_new</span>
           </Link>
         </div>
 
         <div className="space-y-3">
           {history.length === 0 ? (
-            <p className="rounded-2xl border border-dashed border-[#c7dce9] bg-white px-4 py-8 text-center text-sm text-[#647e8c]">{t.savingsCancelledNoHistory}</p>
+            <p className="rounded-2xl border border-dashed border-[#c7dce9] bg-white px-4 py-8 text-center text-sm text-[#647e8c]">{t("savingsCancelledNoHistory")}</p>
           ) : (
             history.map((event) => (
               <article key={event.id} className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-white p-6 shadow-sm transition hover:bg-[#f7fcff]">

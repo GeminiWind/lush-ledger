@@ -64,18 +64,18 @@ const getPlanIcon = (name: string) => {
 
 const getPlanStatusLabel = (status: string, t: Translator) => {
   if (status === "completed") {
-    return t.savingsPlanStatusCompleted;
+    return t("savingsPlanStatusCompleted");
   }
   if (status === "funded") {
-    return t.savingsPlanStatusFunded;
+    return t("savingsPlanStatusFunded");
   }
   if (status === "cancelled") {
-    return t.savingsPlanStatusCancelled;
+    return t("savingsPlanStatusCancelled");
   }
   if (status === "archive") {
-    return t.savingsPlanStatusArchived;
+    return t("savingsPlanStatusArchived");
   }
-  return t.savingsPlanStatusActive;
+  return t("savingsPlanStatusActive");
 };
 
 const getPlanStatusClass = (status: string) => {
@@ -196,10 +196,10 @@ export default function SavingsPageView({
     <div className="space-y-8">
       <section className="flex flex-wrap items-end justify-between gap-4">
         <div className="space-y-1">
-          <p className="text-xs font-medium text-[#49636f]">{t.savingsPortfolio}</p>
+          <p className="text-xs font-medium text-[#49636f]">{t("savingsPortfolio")}</p>
           <div className="flex flex-wrap items-center gap-4">
             <h1 className="font-[var(--font-manrope)] text-4xl font-extrabold tracking-[-0.03em] text-[#1b3641] lg:text-5xl">
-              {t.savingsTitle.split(" ")[0]} <span className="italic text-[#006f1d]">{t.savingsTitle.split(" ").slice(1).join(" ")}</span>
+              {t("savingsTitle").split(" ")[0]} <span className="italic text-[#006f1d]">{t("savingsTitle").split(" ").slice(1).join(" ")}</span>
             </h1>
             {plans.length ? (
               <SavingsFilterDropdown
@@ -212,7 +212,7 @@ export default function SavingsPageView({
         <div className="space-y-3">
           <SavingsPlanCreateDialog />
           <div className="rounded-[1.25rem] bg-[#e7f6ff] px-6 py-4">
-            <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-[#647e8c]">{t.savingsTotal}</p>
+            <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-[#647e8c]">{t("savingsTotal")}</p>
             <div className="mt-1 flex items-center gap-3">
               <p className="font-[var(--font-manrope)] text-2xl font-extrabold text-[#1b3641]">
                 {formatCurrency(totalSaved, currency)}
@@ -234,7 +234,7 @@ export default function SavingsPageView({
               <div className="flex flex-wrap items-center gap-3">
                 {primaryPlan.isPrimary ? (
                   <span className="rounded-full bg-[#006f1d] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-[#eaffe2]">
-                    {t.savingsPrimaryFocus}
+                    {t("savingsPrimaryFocus")}
                   </span>
                 ) : null}
                 <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.08em] ${getPlanStatusClass(primaryPlan.effectiveStatus)}`}>
@@ -242,7 +242,7 @@ export default function SavingsPageView({
                 </span>
                 <span className="inline-flex items-center gap-1 text-xs text-[#49636f]">
                   <span className="material-symbols-outlined text-sm">calendar_today</span>
-                  {t.savingsTargeted} {localeDateLabel(primaryPlan.targetDate, language === "vi-VN" ? "vi-VN" : "en-US", { month: "short", year: "numeric" })}
+                  {t("savingsTargeted")} {localeDateLabel(primaryPlan.targetDate, language === "vi-VN" ? "vi-VN" : "en-US", { month: "short", year: "numeric" })}
                 </span>
               </div>
 
@@ -284,24 +284,24 @@ export default function SavingsPageView({
                 ) : null}
               </div>
               <p className="max-w-2xl text-[#49636f]">
-                {t.savingsPrimaryDesc}
+                {t("savingsPrimaryDesc")}
               </p>
 
               <div className="grid gap-6 pt-2 sm:grid-cols-3">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#647e8c]">{t.savingsSaved}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#647e8c]">{t("savingsSaved")}</p>
                   <p className="mt-1 font-[var(--font-manrope)] text-2xl font-bold text-[#006f1d]">
                     {formatCurrency(primaryPlan.saved, currency)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#647e8c]">{t.savingsTarget}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#647e8c]">{t("savingsTarget")}</p>
                   <p className="mt-1 font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">
                     {formatCurrency(primaryPlan.target, currency)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#647e8c]">{t.savingsRemaining}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#647e8c]">{t("savingsRemaining")}</p>
                   <p className="mt-1 font-[var(--font-manrope)] text-2xl font-bold text-[#49636f]">
                     {formatCurrency(Math.max(0, primaryPlan.target - primaryPlan.saved), currency)}
                   </p>
@@ -314,12 +314,12 @@ export default function SavingsPageView({
         </section>
       ) : isCompletedOrArchivedEmpty ? (
         <section className="rounded-2xl border border-dashed border-[#c7dce9] bg-white px-4 py-10 text-center text-sm text-[#647e8c]">
-          {t.savingsNoPlan}
+          {t("savingsNoPlan")}
         </section>
       ) : (
         <section className="rounded-[2rem] border-2 border-dashed border-[#c7dce9] bg-white p-12 text-center">
-          <h2 className="font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">{t.savingsNoActivePlan}</h2>
-          <p className="mt-2 text-[#647e8c]">{t.savingsNoActivePlanHint}</p>
+          <h2 className="font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">{t("savingsNoActivePlan")}</h2>
+          <p className="mt-2 text-[#647e8c]">{t("savingsNoActivePlanHint")}</p>
           <div className="mt-5 inline-flex">
             <SavingsPlanCreateDialog />
           </div>
@@ -331,13 +331,13 @@ export default function SavingsPageView({
       {!isCompletedOrArchivedEmpty ? (
       <section className="space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h3 className="font-[var(--font-manrope)] text-3xl font-extrabold tracking-[-0.02em] text-[#1b3641]">{t.savingsOtherAmbitions}</h3>
+          <h3 className="font-[var(--font-manrope)] text-3xl font-extrabold tracking-[-0.02em] text-[#1b3641]">{t("savingsOtherAmbitions")}</h3>
           <div className="flex items-center gap-2">
             {archivedPlans.length ? (
-              <p className="rounded-full bg-[#d4ecf9] px-3 py-1 text-[11px] font-bold text-[#40555f]">{t.savingsArchivedCount.replace("{count}", String(archivedPlans.length))}</p>
+              <p className="rounded-full bg-[#d4ecf9] px-3 py-1 text-[11px] font-bold text-[#40555f]">{t("savingsArchivedCount").replace("{count}", String(archivedPlans.length))}</p>
             ) : null}
             <Link href="/app/savings/cancelled" className="rounded-full border border-[#cbe7f6] bg-white px-3 py-1 text-[11px] font-bold text-[#006f1d] hover:bg-[#f5fcff]">
-              {t.savingsCancelledHistoryOpenLedger}
+              {t("savingsCancelledHistoryOpenLedger")}
             </Link>
           </div>
         </div>
@@ -367,7 +367,7 @@ export default function SavingsPageView({
 
                 <h4 className="font-[var(--font-manrope)] text-xl font-bold text-[#1b3641]">{plan.name}</h4>
                 <p className="mt-2 text-sm leading-relaxed text-[#647e8c]">
-                  {t.savingsMonthlyContributionTarget}: {formatCurrency(plan.monthlyContribution, currency)}.
+                  {t("savingsMonthlyContributionTarget")}: {formatCurrency(plan.monthlyContribution, currency)}.
                 </p>
 
                 <div className="mt-6 h-1.5 overflow-hidden rounded-full bg-[#e7f6ff]">
@@ -376,7 +376,7 @@ export default function SavingsPageView({
 
                 <div className="mt-4 flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.14em] text-[#647e8c]">
                   <span>{formatCurrency(plan.saved, currency)}</span>
-                  <span>{formatCurrency(plan.target, currency)} {t.savingsTarget.toLowerCase()}</span>
+                  <span>{formatCurrency(plan.target, currency)} {t("savingsTarget").toLowerCase()}</span>
                 </div>
               </article>
             </Link>

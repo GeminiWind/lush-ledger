@@ -20,13 +20,13 @@ export default function LedgerReportsPageView({ language, currency, reportsData 
           href="/app/ledger"
           className="pb-2 font-[var(--font-manrope)] text-lg font-semibold text-[#006f1d]/60 hover:text-[#1b3641]"
         >
-          {t.ledgerTabActivity}
+          {t("ledgerTabActivity")}
         </Link>
         <Link
           href="/app/ledger/reports"
           className="border-b-2 border-[#006f1d] pb-2 font-[var(--font-manrope)] text-lg font-semibold text-[#1b3641]"
         >
-          {t.ledgerTabReports}
+          {t("ledgerTabReports")}
         </Link>
       </section>
 

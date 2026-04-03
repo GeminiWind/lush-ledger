@@ -119,13 +119,13 @@ export default function AtelierPageView({
         <section className="space-y-6">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="text-sm font-medium text-[#49636f]">{t.atelierFiscalMasterplan}</p>
+              <p className="text-sm font-medium text-[#49636f]">{t("atelierFiscalMasterplan")}</p>
               <h1 className="font-[var(--font-manrope)] text-4xl font-extrabold tracking-[-0.02em] text-[#1b3641]">
-                {t.atelierBudgetAllocation}
+                {t("atelierBudgetAllocation")}
               </h1>
             </div>
             <div className="text-right">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">{t.atelierPeriod}</p>
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">{t("atelierPeriod")}</p>
               <p className="font-[var(--font-manrope)] text-xl font-bold text-[#2e7d32]">{monthLabel}</p>
             </div>
           </div>
@@ -145,17 +145,17 @@ export default function AtelierPageView({
             <article className="rounded-[2rem] bg-white p-8 shadow-[0_24px_48px_-12px_rgba(27,54,65,0.08)]">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h2 className="font-[var(--font-manrope)] text-xl font-bold">{t.atelierMonthlySavingsPlan}</h2>
-                  <p className="text-xs text-[#49636f]">{t.atelierAutomaticVaultAllocation}</p>
+                  <h2 className="font-[var(--font-manrope)] text-xl font-bold">{t("atelierMonthlySavingsPlan")}</h2>
+                  <p className="text-xs text-[#49636f]">{t("atelierAutomaticVaultAllocation")}</p>
                 </div>
                 <div className="rounded-xl bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800">
-                  {t.atelierOn}
+                  {t("atelierOn")}
                 </div>
               </div>
 
               <div className="mt-7 space-y-5">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">{t.atelierSavingsTarget}</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">{t("atelierSavingsTarget")}</p>
                   <p className="mt-1 font-[var(--font-manrope)] text-3xl font-extrabold text-[#1b3641]">
                     {formatCurrency(savingsTarget, currency)}
                   </p>
@@ -163,7 +163,7 @@ export default function AtelierPageView({
 
                 <div className="space-y-2">
                   {savingsByPlan.length === 0 ? (
-                    <p className="text-sm text-[#6f8793]">{t.atelierNoSavingsPlansYet}</p>
+                    <p className="text-sm text-[#6f8793]">{t("atelierNoSavingsPlansYet")}</p>
                   ) : (
                     savingsByPlan.slice(0, 3).map((plan) => (
                       <div key={plan.id} className="flex items-center justify-between text-sm">
@@ -178,9 +178,9 @@ export default function AtelierPageView({
 
                 <div className="space-y-2">
                   <div className="flex items-end justify-between">
-                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">{t.atelierGoalCoverage}</p>
+                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">{t("atelierGoalCoverage")}</p>
                     <p className="font-[var(--font-manrope)] text-sm font-bold text-[#2e7d32]">
-                      {Math.round(savingsCoverage)}% {t.atelierCovered}
+                      {Math.round(savingsCoverage)}% {t("atelierCovered")}
                     </p>
                   </div>
                   <div className="h-3 overflow-hidden rounded-full bg-[#e4f1fa]">
@@ -190,7 +190,7 @@ export default function AtelierPageView({
                     />
                   </div>
                   <p className="text-xs text-[#6f8793]">
-                    {t.atelierSavedThisMonth} <span className="font-semibold text-[#1b3641]">{formatCurrency(savingsSaved, currency)}</span>
+                    {t("atelierSavedThisMonth")} <span className="font-semibold text-[#1b3641]">{formatCurrency(savingsSaved, currency)}</span>
                   </p>
                 </div>
               </div>
@@ -202,7 +202,7 @@ export default function AtelierPageView({
           {categoryStats.length === 0 ? (
             <div className="space-y-5">
               <div className="rounded-3xl border-2 border-dashed border-[#c7dce9] bg-white p-12 text-center text-[#6f8793]">
-                {t.atelierAddCategoriesHint}
+                {t("atelierAddCategoriesHint")}
               </div>
               <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
                 <AddCategoryModal currency={currency} language={language} />

@@ -36,10 +36,10 @@ const asDayLabel = (value: Date, language: string, t: Translator) => {
   const yesterday = addDaysDate(today, -1);
 
   if (sameDay(value, today)) {
-    return t.ledgerToday;
+    return t("ledgerToday");
   }
   if (sameDay(value, yesterday)) {
-    return t.ledgerYesterday;
+    return t("ledgerYesterday");
   }
 
   return localeDateLabel(value, language === "vi-VN" ? "vi-VN" : "en-US", {
@@ -146,26 +146,26 @@ export default function LedgerPageView({ language, currency, params, data }: Pro
     <div className="space-y-10">
       <section className="flex items-center gap-8 border-b border-[#dce9e2] pb-2">
           <Link href="/app/ledger" className="border-b-2 border-[#006f1d] pb-2 font-[var(--font-manrope)] text-lg font-semibold text-[#1b3641]">
-          {t.ledgerTabActivity}
+          {t("ledgerTabActivity")}
         </Link>
         <Link href="/app/ledger/reports" className="pb-2 font-[var(--font-manrope)] text-lg font-semibold text-[#006f1d]/60 hover:text-[#1b3641]">
-          {t.ledgerTabReports}
+          {t("ledgerTabReports")}
         </Link>
       </section>
 
       <section className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <div>
           <h1 className="font-[var(--font-manrope)] text-5xl font-extrabold tracking-[-0.03em] text-[#1b3641]">
-            {t.ledgerTitle}
+            {t("ledgerTitle")}
           </h1>
           <p className="mt-2 max-w-xl text-sm font-medium text-[#49636f]">
-            {t.ledgerSubtitle}
+            {t("ledgerSubtitle")}
           </p>
         </div>
 
         <div className="grid w-full gap-4 sm:w-auto sm:grid-cols-1">
           <article className="rounded-2xl border border-slate-100 bg-white px-8 py-5 text-center shadow-[0_6px_24px_-18px_rgba(27,54,65,0.4)]">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7b939f]">{t.ledgerMtdSpending}</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7b939f]">{t("ledgerMtdSpending")}</p>
             <p className="mt-1 font-[var(--font-manrope)] text-2xl font-extrabold tracking-tight text-[#1b3641]">
               {asCurrency(data.summary.monthExpense, currency)}
             </p>
@@ -176,7 +176,7 @@ export default function LedgerPageView({ language, currency, params, data }: Pro
       <section className="space-y-5">
         <form className="flex flex-wrap items-center gap-3" method="get" role="search">
           <label className="sr-only" htmlFor="query">
-            {t.ledgerSearchEntries}
+            {t("ledgerSearchEntries")}
           </label>
           <div className="flex items-center gap-2 rounded-xl border border-slate-100 bg-white px-4 py-2 shadow-sm">
             <span className="material-symbols-outlined text-sm text-slate-400">search</span>
@@ -184,7 +184,7 @@ export default function LedgerPageView({ language, currency, params, data }: Pro
               id="query"
               name="query"
               defaultValue={params.query || ""}
-              placeholder={t.ledgerSearchPlaceholder}
+              placeholder={t("ledgerSearchPlaceholder")}
               className="w-40 border-none bg-transparent p-0 text-sm text-[#1b3641] placeholder:text-[#8aa2b0] focus:ring-0"
             />
           </div>
@@ -196,7 +196,7 @@ export default function LedgerPageView({ language, currency, params, data }: Pro
               defaultValue={params.categoryId || ""}
               className="border-none bg-transparent p-0 text-sm font-semibold text-[#1b3641] focus:ring-0"
             >
-              <option value="">{t.ledgerFilterCategory}</option>
+              <option value="">{t("ledgerFilterCategory")}</option>
               {data.categories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name}
@@ -212,10 +212,10 @@ export default function LedgerPageView({ language, currency, params, data }: Pro
               defaultValue={params.type || ""}
               className="border-none bg-transparent p-0 text-sm font-semibold text-[#1b3641] focus:ring-0"
             >
-              <option value="">{t.ledgerFilterAmount}</option>
-              <option value="income">{t.ledgerTypeIncome}</option>
-              <option value="expense">{t.ledgerTypeExpense}</option>
-              <option value="transfer_to_saving_plan">{t.ledgerTypeTransferToSaving}</option>
+              <option value="">{t("ledgerFilterAmount")}</option>
+              <option value="income">{t("ledgerTypeIncome")}</option>
+              <option value="expense">{t("ledgerTypeExpense")}</option>
+              <option value="transfer_to_saving_plan">{t("ledgerTypeTransferToSaving")}</option>
               <option value="refund">Refund</option>
             </select>
           </div>
@@ -227,7 +227,7 @@ export default function LedgerPageView({ language, currency, params, data }: Pro
               defaultValue={params.accountId || ""}
               className="border-none bg-transparent p-0 text-sm font-semibold text-[#1b3641] focus:ring-0"
             >
-              <option value="">{t.ledgerFilterWallet}</option>
+              <option value="">{t("ledgerFilterWallet")}</option>
               {data.accounts.map((account) => (
                 <option key={account.id} value={account.id}>
                   {account.name}
@@ -247,7 +247,7 @@ export default function LedgerPageView({ language, currency, params, data }: Pro
               type="submit"
               className="rounded-xl bg-[#006f1d] px-4 py-2 text-sm font-bold text-[#eaffe2] shadow-[0_10px_20px_-12px_rgba(0,111,29,0.6)] hover:brightness-105"
             >
-              {t.ledgerApply}
+              {t("ledgerApply")}
             </button>
           </div>
         </form>
@@ -255,7 +255,7 @@ export default function LedgerPageView({ language, currency, params, data }: Pro
         <section className="space-y-8">
           {groupedTransactions.length === 0 ? (
             <p className="rounded-2xl border border-dashed border-[#d7e5dc] bg-white px-4 py-8 text-center text-sm text-[#647e8c]">
-              {t.ledgerNoEntriesMatch}
+              {t("ledgerNoEntriesMatch")}
             </p>
           ) : (
             groupedTransactions.map((group) => (
@@ -270,10 +270,10 @@ export default function LedgerPageView({ language, currency, params, data }: Pro
                     const subject = tx.notes?.trim() || tx.category?.name || tx.account.name;
                     const detailLabel =
                       tx.type === "transfer_to_saving_plan"
-                        ? `${t.ledgerTransferToSaving} • ${tx.savingsPlan?.name || t.ledgerUncategorized}`
+                        ? `${t("ledgerTransferToSaving")} • ${tx.savingsPlan?.name || t("ledgerUncategorized")}`
                         : tx.type === "refund"
-                          ? `Refund • ${tx.savingsPlan?.name || t.ledgerUncategorized}`
-                        : tx.category?.name || t.ledgerUncategorized;
+                          ? `Refund • ${tx.savingsPlan?.name || t("ledgerUncategorized")}`
+                        : tx.category?.name || t("ledgerUncategorized");
                     const detail = `${detailLabel} • ${asTime(tx.date, language)}`;
                     const visual = txVisual(tx.type, subject, tx.category?.icon);
 
@@ -340,7 +340,7 @@ export default function LedgerPageView({ language, currency, params, data }: Pro
       </section>
 
       <footer className="flex items-center justify-between border-t border-slate-200/60 pt-8">
-        <p className="text-sm font-medium text-[#6f8793]">{t.ledgerShowingTransactions}: {renderedCount}</p>
+        <p className="text-sm font-medium text-[#6f8793]">{t("ledgerShowingTransactions")}: {renderedCount}</p>
         <div className="flex items-center gap-2">
           <button type="button" className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100">
             <span className="material-symbols-outlined">chevron_left</span>

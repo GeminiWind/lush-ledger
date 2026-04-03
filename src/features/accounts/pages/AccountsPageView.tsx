@@ -73,16 +73,16 @@ export default function AccountsPageView({ language, currency, wallets, transact
     <div className="space-y-10">
       <section className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
         <div className="space-y-2">
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-[#6f8793]">{t.accountsPortfolio}</p>
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-[#6f8793]">{t("accountsPortfolio")}</p>
           <h1 className="font-[var(--font-manrope)] text-5xl font-extrabold leading-none tracking-tight text-[#1b3641] sm:text-6xl">
-            {t.accountsYourAtelier} <br />
-            <span className="text-[#006f1d]">{t.accountsWallets}.</span>
+            {t("accountsYourAtelier")} <br />
+            <span className="text-[#006f1d]">{t("accountsWallets")}.</span>
           </h1>
         </div>
 
         <div className="flex flex-wrap gap-3">
           <button className="rounded-xl bg-[#d4ecf9] px-6 py-3 font-semibold text-[#49636f] hover:bg-[#c8e6f5]">
-            {t.accountsArchiveOld}
+            {t("accountsArchiveOld")}
           </button>
           <WalletCreateForm language={language} currency={currency} />
         </div>
@@ -105,8 +105,8 @@ export default function AccountsPageView({ language, currency, wallets, transact
           />
         ) : (
           <article className="rounded-[2rem] bg-[#e7f6ff] p-10 md:col-span-7">
-            <h3 className="font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">{t.accountsNoWallet}</h3>
-            <p className="mt-2 text-sm text-[#49636f]">{t.accountsCreateFirstWallet}</p>
+            <h3 className="font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">{t("accountsNoWallet")}</h3>
+            <p className="mt-2 text-sm text-[#49636f]">{t("accountsCreateFirstWallet")}</p>
           </article>
         )}
 
@@ -147,14 +147,14 @@ export default function AccountsPageView({ language, currency, wallets, transact
                   <div className="relative h-4 w-8 rounded-full bg-[#cbe7f6] shadow-inner">
                     <div className="absolute left-1 top-1 h-2 w-2 rounded-full bg-[#49636f]/40" />
                   </div>
-                  {t.accountsSetDefault}
+                  {t("accountsSetDefault")}
                 </button>
               </div>
             </article>
           ) : (
             <article className="rounded-[2rem] bg-white p-8 shadow-sm">
-              <h3 className="font-[var(--font-manrope)] text-xl font-bold text-[#1b3641]">{t.accountsNoWallet}</h3>
-              <p className="mt-2 text-sm text-[#49636f]">{t.accountsCreateFirstWallet}</p>
+              <h3 className="font-[var(--font-manrope)] text-xl font-bold text-[#1b3641]">{t("accountsNoWallet")}</h3>
+              <p className="mt-2 text-sm text-[#49636f]">{t("accountsCreateFirstWallet")}</p>
             </article>
           )}
         </div>
