@@ -1,7 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { daysUntil, localeDateLabel, localeTimeLabel } from "@/lib/date";
 import { formatCurrency } from "@/lib/format";
-import { getDictionary } from "@/lib/i18n";
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 
 const toNumber = (value: unknown) => Number(value ?? 0);
 
@@ -39,7 +41,7 @@ type HistoryEvent = {
 
 export default function CancelledSavingsPlanDetailPageView({ language, currency, plan }: Props) {
   const locale = language === "vi-VN" ? "vi-VN" : "en-US";
-  const t = getDictionary(language);
+  const t = useNamespacedTranslation("savings", language);
 
   const targetAmount = toNumber(plan.targetAmount);
   const finalSaved = Math.max(

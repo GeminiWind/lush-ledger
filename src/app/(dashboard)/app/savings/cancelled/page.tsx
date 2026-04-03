@@ -1,5 +1,6 @@
 import { CancelledSavingsPlansPageView } from "@/features/savings";
 import { prisma } from "@/lib/db";
+import { serializeForClient } from "@/lib/serialize-for-client";
 import { requireUser } from "@/lib/user";
 
 export default async function CancelledSavingsPlansPage() {
@@ -7,7 +8,7 @@ export default async function CancelledSavingsPlansPage() {
   const language = user.settings?.language || "en-US";
   const currency = user.settings?.currency ?? "VND";
 
-  const plans = await prisma.savingsPlan.findMany({
+  const plans = serializeForClient(await prisma.savingsPlan.findMany({
     where: { userId: user.id, status: "cancelled" },
     include: {
       transactions: {
@@ -22,7 +23,7 @@ export default async function CancelledSavingsPlansPage() {
       },
     },
     orderBy: [{ targetDate: "desc" }, { createdAt: "desc" }],
-  });
+  }));
 
   return (
     <CancelledSavingsPlansPageView

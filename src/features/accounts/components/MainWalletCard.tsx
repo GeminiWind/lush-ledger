@@ -1,12 +1,12 @@
 "use client";
 
 import WalletCreateForm from "@/features/accounts/components/WalletCreateForm";
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import { formatCurrency } from "@/lib/format";
-import { getDictionary } from "@/lib/i18n";
 import type { MainWalletCardProps } from "@/features/accounts/types";
 
 export default function MainWalletCard({ wallet, currency, language, icon }: MainWalletCardProps) {
-  const t = getDictionary(language);
+  const t = useNamespacedTranslation("accounts", language);
 
   return (
     <article className="relative flex min-h-[360px] flex-col justify-between overflow-hidden rounded-[2rem] bg-[#e7f6ff] p-10 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-900/5 md:col-span-7">
@@ -23,7 +23,7 @@ export default function MainWalletCard({ wallet, currency, language, icon }: Mai
           </div>
           <span className="inline-flex items-center gap-1 rounded-full bg-[#91f78e]/40 px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest text-[#005e17] shadow-sm">
             <span className="material-symbols-outlined text-[14px]">verified</span>
-            {t.walletDefaultBadge}
+            {t("accounts.walletDefaultBadge")}
           </span>
         </div>
 

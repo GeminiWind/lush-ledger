@@ -1,7 +1,9 @@
+"use client";
+
 import MainWalletCard from "@/features/accounts/components/MainWalletCard";
 import WalletCreateForm from "@/features/accounts/components/WalletCreateForm";
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import { formatCurrency } from "@/lib/format";
-import { getDictionary } from "@/lib/i18n";
 
 type WalletStat = {
   id: string;
@@ -43,7 +45,7 @@ const walletIcon = (type: string) => {
 };
 
 export default function AccountsPageView({ language, currency, wallets, transactions }: Props) {
-  const t = getDictionary(language);
+  const t = useNamespacedTranslation("accounts", language);
 
   const movementByWallet = new Map<string, number>();
   for (const tx of transactions) {

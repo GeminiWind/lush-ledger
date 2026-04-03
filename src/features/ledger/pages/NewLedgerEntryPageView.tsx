@@ -1,5 +1,7 @@
+"use client";
+
 import NewEntryForm from "@/features/ledger/components/new/NewEntryForm";
-import { getDictionary } from "@/lib/i18n";
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 
 type Option = {
   id: string;
@@ -14,7 +16,7 @@ type Props = {
 };
 
 export default function NewLedgerEntryPageView({ language, categories, wallets, defaultWalletId }: Props) {
-  const t = getDictionary(language);
+  const t = useNamespacedTranslation("newEntry", language);
 
   return (
     <div className="relative min-h-[calc(100vh-180px)]">

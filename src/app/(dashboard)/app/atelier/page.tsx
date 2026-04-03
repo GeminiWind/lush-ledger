@@ -2,6 +2,7 @@ import { AtelierPageView } from "@/features/atelier";
 import { prisma } from "@/lib/db";
 import { getMonthRange, nowDate } from "@/lib/date";
 import { materializeRecurringTransactions } from "@/lib/recurring";
+import { serializeForClient } from "@/lib/serialize-for-client";
 import { requireUser } from "@/lib/user";
 import { ensureMonthlyCapSnapshot } from "@/lib/monthly-cap";
 
@@ -15,7 +16,7 @@ export default async function AtelierPage() {
   const now = nowDate();
   const { start, end } = getMonthRange(now);
 
-  const [categories, monthTransactions, savingsPlans, monthlyCap, monthLimits] = await Promise.all([
+  const [categories, rawMonthTransactions, rawSavingsPlans, rawMonthlyCap, rawMonthLimits] = await Promise.all([
     prisma.category.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: "desc" },
@@ -49,6 +50,11 @@ export default async function AtelierPage() {
       select: { categoryId: true, limit: true, warningEnabled: true, warnAt: true },
     }),
   ]);
+
+  const monthTransactions = serializeForClient(rawMonthTransactions);
+  const savingsPlans = serializeForClient(rawSavingsPlans);
+  const monthlyCap = serializeForClient(rawMonthlyCap);
+  const monthLimits = serializeForClient(rawMonthLimits);
 
   return (
     <AtelierPageView

@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { fromISODate, localeDateLabel, nowDate } from "@/lib/date";
-import { getDictionary } from "@/lib/i18n";
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import toast from "react-hot-toast";
 import type { DeleteTransactionDialogProps } from "@/features/ledger/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -25,7 +25,7 @@ export default function DeleteTransactionDialog({
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const t = getDictionary(language);
+  const t = useNamespacedTranslation("ledger", language);
   const locale = language === "vi-VN" ? "vi-VN" : "en-US";
   const queryClient = useQueryClient();
 
@@ -37,17 +37,17 @@ export default function DeleteTransactionDialog({
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || t.ledgerDeleteFailed);
+        throw new Error(data.error || t("ledger.ledgerDeleteFailed"));
       }
     },
     onSuccess: async () => {
-      toast.success(t.ledgerDeleteSuccess);
+      toast.success(t("ledger.ledgerDeleteSuccess"));
       close();
       await queryClient.invalidateQueries({ queryKey: ["ledger"] });
       router.refresh();
     },
     onError: (mutationError: unknown) => {
-      setError(mutationError instanceof Error ? mutationError.message : t.ledgerDeleteFailed);
+      setError(mutationError instanceof Error ? mutationError.message : t("ledger.ledgerDeleteFailed"));
     },
   });
 
@@ -55,7 +55,7 @@ export default function DeleteTransactionDialog({
     return transaction.notes?.trim() || transaction.categoryName || transaction.accountName;
   }, [transaction.accountName, transaction.categoryName, transaction.notes]);
 
-  const category = transaction.categoryName || t.ledgerUncategorized;
+  const category = transaction.categoryName || t("ledger.ledgerUncategorized");
   const parsedDate = fromISODate(transaction.date) || nowDate();
   const formattedDateLabel = localeDateLabel(parsedDate, locale, {
     month: "long",
@@ -93,7 +93,7 @@ export default function DeleteTransactionDialog({
     <>
       <button
         type="button"
-        aria-label={t.ledgerDeleteAria}
+        aria-label={t("ledger.ledgerDeleteAria")}
         onClick={() => {
           setOpen(true);
           setError(null);
@@ -118,10 +118,10 @@ export default function DeleteTransactionDialog({
               </div>
 
               <h2 className="mb-3 font-[var(--font-manrope)] text-2xl font-extrabold tracking-tight text-[#1b3641]">
-                {t.ledgerDeleteTitle}
+                {t("ledger.ledgerDeleteTitle")}
               </h2>
               <p className="mb-6 text-sm font-medium leading-relaxed text-[#49636f]">
-                {t.ledgerDeleteBody}
+                {t("ledger.ledgerDeleteBody")}
               </p>
 
               <div className="mb-8 flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-4">
@@ -155,15 +155,15 @@ export default function DeleteTransactionDialog({
                   className="w-full rounded-2xl bg-[#fcedea] py-4 text-sm font-bold tracking-tight text-[#7d2212] transition-colors hover:bg-[#f9dad4] disabled:opacity-70"
                 >
                   {deleteTransactionMutation.isPending
-                    ? t.ledgerDeleteDeleting
-                    : t.ledgerDeleteAction}
+                    ? t("ledger.ledgerDeleteDeleting")
+                    : t("ledger.ledgerDeleteAction")}
                 </button>
                 <button
                   type="button"
                   onClick={close}
                   className="w-full rounded-2xl border border-transparent bg-white py-4 text-sm font-bold tracking-tight text-[#49636f] transition-colors hover:bg-slate-50"
                 >
-                  {t.ledgerDeleteKeep}
+                  {t("ledger.ledgerDeleteKeep")}
                 </button>
               </div>
             </div>
@@ -171,7 +171,7 @@ export default function DeleteTransactionDialog({
             <div className="flex items-center justify-center gap-2 border-t border-slate-100 bg-slate-50/50 px-8 py-6">
               <span className="material-symbols-outlined text-xs text-slate-400">info</span>
               <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                {t.ledgerDeletePermanent}
+                {t("ledger.ledgerDeletePermanent")}
               </p>
             </div>
           </div>

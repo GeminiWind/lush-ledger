@@ -1,6 +1,7 @@
 import { CancelledSavingsPlanDetailPageView } from "@/features/savings";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
+import { serializeForClient } from "@/lib/serialize-for-client";
 import { requireUser } from "@/lib/user";
 
 type Params = Promise<{ id: string }>;
@@ -27,11 +28,13 @@ export default async function CancelledSavingsPlanDetailPage({ params }: { param
     notFound();
   }
 
+  const serializedPlan = serializeForClient(plan);
+
   return (
     <CancelledSavingsPlanDetailPageView
       language={language}
       currency={currency}
-      plan={plan}
+      plan={serializedPlan}
     />
   );
 }

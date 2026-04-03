@@ -1,4 +1,6 @@
-import { getDictionary } from "@/lib/i18n";
+"use client";
+
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import SettingsForm from "@/features/settings/components/SettingsForm";
 
 type Props = {
@@ -13,7 +15,7 @@ type Props = {
 };
 
 export default function SettingsPageView({ language, initialValues }: Props) {
-  const t = getDictionary(language);
+  const t = useNamespacedTranslation("settings", language);
 
   return (
     <div className="space-y-8">

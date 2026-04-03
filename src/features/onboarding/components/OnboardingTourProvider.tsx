@@ -3,57 +3,57 @@
 import { useEffect, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import { TourProvider, type StepType, useTour } from "@reactour/tour";
-import { getDictionaryBySection } from "@/lib/i18n";
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import type { OnboardingTourProviderProps } from "@/features/onboarding/types";
 
 const TOUR_STORAGE_KEY = "lush-ledger:onboarding-tour:v1";
 
 export default function OnboardingTourProvider({ language, children }: OnboardingTourProviderProps) {
   const pathname = usePathname();
+  const t = useNamespacedTranslation("onboarding", language);
 
   const steps = useMemo<StepType[]>(
     () => {
-      const t = getDictionaryBySection(language).onboarding;
       return [
         {
           selector: ".tour-sidebar",
-          content: t.onboardingSidebar,
+          content: t("onboarding.onboardingSidebar"),
         },
         {
           selector: ".tour-nav-dashboard",
-          content: t.onboardingDashboard,
+          content: t("onboarding.onboardingDashboard"),
         },
         {
           selector: ".tour-nav-atelier",
-          content: t.onboardingAtelier,
+          content: t("onboarding.onboardingAtelier"),
         },
         {
           selector: ".tour-nav-ledger",
-          content: t.onboardingLedger,
+          content: t("onboarding.onboardingLedger"),
         },
         {
           selector: ".tour-nav-savings",
-          content: t.onboardingSavings,
+          content: t("onboarding.onboardingSavings"),
         },
         {
           selector: ".tour-nav-wallets",
-          content: t.onboardingWallets,
+          content: t("onboarding.onboardingWallets"),
         },
         {
           selector: ".tour-new-entry",
-          content: t.onboardingNewEntry,
+          content: t("onboarding.onboardingNewEntry"),
         },
         {
           selector: ".tour-nav-settings",
-          content: t.onboardingSettings,
+          content: t("onboarding.onboardingSettings"),
         },
         {
           selector: ".tour-main-content",
-          content: t.onboardingMainContent,
+          content: t("onboarding.onboardingMainContent"),
         },
       ];
     },
-    [language],
+    [t],
   );
 
   return (

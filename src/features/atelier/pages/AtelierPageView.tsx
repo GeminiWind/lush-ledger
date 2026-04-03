@@ -1,7 +1,8 @@
-import { localeDateLabel } from "@/lib/date";
+"use client";
+
+import { localeDateLabel, monthKey, startOfMonthDate } from "@/lib/date";
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import { formatCurrency } from "@/lib/format";
-import { getDictionary } from "@/lib/i18n";
-import { ensureMonthlyCapSnapshot, monthKeyOf } from "@/lib/monthly-cap";
 import AddCategoryModal from "@/features/atelier/dialogs/AddCategoryModal";
 import TotalCapCard from "@/features/atelier/components/TotalCapCard";
 import CategoryAtelierGrid from "@/features/atelier/components/CategoryAtelierGrid";
@@ -29,7 +30,10 @@ type Props = {
     name: string;
     monthlyContribution: unknown;
   }>;
-  monthlyCap: Awaited<ReturnType<typeof ensureMonthlyCapSnapshot>>;
+  monthlyCap: {
+    totalCap: unknown;
+    totalLimit: unknown;
+  };
   monthLimits: Array<{
     categoryId: string;
     limit: unknown;
@@ -37,6 +41,8 @@ type Props = {
     warnAt: number;
   }>;
 };
+
+const monthKeyOf = (value: Date) => monthKey(startOfMonthDate(value));
 
 export default function AtelierPageView({
   language,
@@ -49,7 +55,7 @@ export default function AtelierPageView({
   monthlyCap,
   monthLimits,
 }: Props) {
-  const t = getDictionary(language);
+  const t = useNamespacedTranslation("atelier", language);
   const monthLimitByCategoryId = new Map(monthLimits.map((item) => [item.categoryId, item]));
 
   const monthIncome = monthTransactions

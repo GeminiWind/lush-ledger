@@ -63,8 +63,8 @@ Current naming convention examples:
 
 ## i18n and Localization
 
-- Use `src/lib/i18n.ts` as the single source of truth for translated UI copy.
-- Use `getDictionary(language)` (or section helpers) for user-facing text instead of hardcoded strings.
+- Use `src/features/i18n/locales/*.json` as the source of truth for translated UI copy.
+- Use `useNamespacedTranslation(namespace, language)` for user-facing text instead of hardcoded strings.
 - Reuse existing dictionary keys and naming patterns before adding new keys.
 - Keep language handling normalized through `normalizeLanguage` and supported `AppLanguage` values.
 - For date/number/currency formatting, use locale-aware APIs (`Intl.*`) and align with current user language/currency settings.

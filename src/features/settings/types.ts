@@ -1,4 +1,4 @@
-import type { AppLanguage } from "@/lib/i18n";
+import type { AppLanguage } from "@/features/i18n/language";
 
 export type UserSetting = {
   currency: string;

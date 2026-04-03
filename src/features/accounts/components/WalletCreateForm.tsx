@@ -1,6 +1,6 @@
 "use client";
 
-import { getDictionary } from "@/lib/i18n";
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useFormik } from "formik";
@@ -9,7 +9,7 @@ import type { WalletCreateFormProps } from "@/features/accounts/types";
 import toast from "react-hot-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 export default function WalletCreateForm({ language, currency, wallet, trigger = "primary" }: WalletCreateFormProps) {
-  const t = getDictionary(language);
+  const t = useNamespacedTranslation("wallet", language);
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,18 +43,18 @@ export default function WalletCreateForm({ language, currency, wallet, trigger =
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || (isEdit ? t.walletUpdateFailed : t.walletCreateFailed));
+        throw new Error(data.error || (isEdit ? t("wallet.walletUpdateFailed") : t("wallet.walletCreateFailed")));
       }
     },
     onSuccess: async () => {
       formik.resetForm();
       closeModal();
-      toast.success(isEdit ? t.walletUpdateSuccess : t.walletCreateSuccess);
+      toast.success(isEdit ? t("wallet.walletUpdateSuccess") : t("wallet.walletCreateSuccess"));
       await queryClient.invalidateQueries({ queryKey: ["accounts"] });
       router.refresh();
     },
     onError: (mutationError: unknown) => {
-      setError(mutationError instanceof Error ? mutationError.message : (isEdit ? t.walletUpdateFailed : t.walletCreateFailed));
+      setError(mutationError instanceof Error ? mutationError.message : (isEdit ? t("wallet.walletUpdateFailed") : t("wallet.walletCreateFailed")));
     },
   });
 
@@ -70,17 +70,17 @@ export default function WalletCreateForm({ language, currency, wallet, trigger =
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || t.walletDeleteFailed);
+        throw new Error(data.error || t("wallet.walletDeleteFailed"));
       }
     },
     onSuccess: async () => {
       closeModal();
-      toast.success(t.walletDeleteSuccess);
+      toast.success(t("wallet.walletDeleteSuccess"));
       await queryClient.invalidateQueries({ queryKey: ["accounts"] });
       router.refresh();
     },
     onError: (mutationError: unknown) => {
-      setError(mutationError instanceof Error ? mutationError.message : t.walletDeleteFailed);
+      setError(mutationError instanceof Error ? mutationError.message : t("wallet.walletDeleteFailed"));
     },
   });
 
@@ -112,11 +112,11 @@ export default function WalletCreateForm({ language, currency, wallet, trigger =
     validate: (values) => {
       const errors: { name?: string; openingBalance?: string } = {};
       if (!values.name.trim()) {
-        errors.name = t.walletNameRequired;
+        errors.name = t("wallet.walletNameRequired");
       }
       const balance = parseCurrencyInput(values.openingBalance);
       if (!Number.isFinite(balance) || balance < 0) {
-        errors.openingBalance = t.walletInvalidBalance;
+        errors.openingBalance = t("wallet.walletInvalidBalance");
       }
       return errors;
     },
@@ -158,7 +158,7 @@ export default function WalletCreateForm({ language, currency, wallet, trigger =
           type="button"
           onClick={openModal}
           className="inline-flex items-center justify-center rounded-lg bg-white/70 p-2 text-[#49636f] transition-colors hover:text-[#1b3641]"
-          aria-label={t.walletEditAria}
+          aria-label={t("wallet.walletEditAria")}
         >
           <span className="material-symbols-outlined text-[18px]">edit</span>
         </button>
@@ -169,7 +169,7 @@ export default function WalletCreateForm({ language, currency, wallet, trigger =
           className="inline-flex items-center gap-2 rounded-xl bg-[#006f1d] px-6 py-3 font-bold text-[#eaffe2] shadow-lg shadow-[#006f1d]/20 hover:brightness-105"
         >
           <span className="material-symbols-outlined">add_card</span>
-          <span>{t.accountsNewWallet}</span>
+          <span>{t("wallet.accountsNewWallet")}</span>
         </button>
       )}
 
@@ -189,38 +189,38 @@ export default function WalletCreateForm({ language, currency, wallet, trigger =
               type="button"
               onClick={closeModal}
               className="absolute right-6 top-6 grid h-10 w-10 place-items-center rounded-full bg-white text-[#49636f] hover:bg-[#dcf1fd]"
-              aria-label={t.walletCloseDialog}
+              aria-label={t("wallet.walletCloseDialog")}
             >
               <span className="material-symbols-outlined">close</span>
             </button>
 
             <div className="relative z-10 space-y-8">
               <div className="space-y-2 pr-12">
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#006f1d]">{t.walletDialogTag}</p>
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#006f1d]">{t("wallet.walletDialogTag")}</p>
                 <h2 className="font-[var(--font-manrope)] text-4xl font-extrabold tracking-tight text-[#1b3641]">
-                  {isEdit ? t.walletDialogEditTitle : t.walletDialogTitle}
+                  {isEdit ? t("wallet.walletDialogEditTitle") : t("wallet.walletDialogTitle")}
                 </h2>
-                <p className="max-w-xl text-sm text-[#49636f]">{isEdit ? t.walletDialogEditBody : t.walletDialogBody}</p>
+                <p className="max-w-xl text-sm text-[#49636f]">{isEdit ? t("wallet.walletDialogEditBody") : t("wallet.walletDialogBody")}</p>
               </div>
 
               <form onSubmit={formik.handleSubmit} className="space-y-6">
                 <div className="space-y-2">
                   <label className="block text-sm font-bold text-[#1b3641]">
-                    {t.walletDialogNameLabel} <span className="text-[#a73b21]">*</span>
+                    {t("wallet.walletDialogNameLabel")} <span className="text-[#a73b21]">*</span>
                   </label>
                   <input
                     name="name"
                     value={formik.values.name}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    placeholder={t.walletDialogNamePlaceholder}
+                    placeholder={t("wallet.walletDialogNamePlaceholder")}
                     className="w-full rounded-2xl border-none bg-white px-5 py-4 text-lg font-medium text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/25"
                   />
                   {formik.touched.name && formik.errors.name ? <p className="text-xs text-[#a73b21]">{formik.errors.name}</p> : null}
                 </div>
 
                 <div className="space-y-2">
-                  <label className="block text-sm font-bold text-[#1b3641]">{t.walletDialogBalanceLabel}</label>
+                  <label className="block text-sm font-bold text-[#1b3641]">{t("wallet.walletDialogBalanceLabel")}</label>
                   <div className="relative flex items-center">
                     <input
                       name="openingBalance"
@@ -230,7 +230,7 @@ export default function WalletCreateForm({ language, currency, wallet, trigger =
                       }}
                       onBlur={formik.handleBlur}
                       inputMode="numeric"
-                      placeholder={t.walletDialogBalancePlaceholder}
+                      placeholder={t("wallet.walletDialogBalancePlaceholder")}
                       className="w-full rounded-2xl border-none bg-white py-4 pl-5 pr-16 font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/25"
                     />
                     <span className="pointer-events-none absolute right-5 text-lg font-bold text-[#006f1d]">{currencyAffix}</span>
@@ -249,7 +249,7 @@ export default function WalletCreateForm({ language, currency, wallet, trigger =
                       ))}
                     </div>
                   ) : null}
-                  <p className="text-[11px] font-medium tracking-wide text-[#49636f]/80">{t.walletDialogBalanceHint}</p>
+                  <p className="text-[11px] font-medium tracking-wide text-[#49636f]/80">{t("wallet.walletDialogBalanceHint")}</p>
                   {formik.touched.openingBalance && formik.errors.openingBalance ? (
                     <p className="text-xs text-[#a73b21]">{formik.errors.openingBalance}</p>
                   ) : null}
@@ -263,8 +263,8 @@ export default function WalletCreateForm({ language, currency, wallet, trigger =
                       </span>
                     </div>
                     <div>
-                      <p className="font-bold text-[#1b3641]">{t.walletDialogDefaultTitle}</p>
-                      <p className="text-xs text-[#49636f]">{t.walletDialogDefaultBody}</p>
+                      <p className="font-bold text-[#1b3641]">{t("wallet.walletDialogDefaultTitle")}</p>
+                      <p className="text-xs text-[#49636f]">{t("wallet.walletDialogDefaultBody")}</p>
                     </div>
                   </div>
 
@@ -274,7 +274,7 @@ export default function WalletCreateForm({ language, currency, wallet, trigger =
                     className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
                       formik.values.setAsDefault ? "bg-[#006f1d]" : "bg-[#9bb6c4]"
                     }`}
-                    aria-label={t.walletDialogDefaultTitle}
+                    aria-label={t("wallet.walletDialogDefaultTitle")}
                   >
                     <span
                       className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
@@ -294,18 +294,18 @@ export default function WalletCreateForm({ language, currency, wallet, trigger =
                   <span>
                     {saveWalletMutation.isPending
                       ? isEdit
-                        ? t.walletDialogUpdating
-                        : t.walletDialogCreating
+                        ? t("wallet.walletDialogUpdating")
+                        : t("wallet.walletDialogCreating")
                       : isEdit
-                        ? t.walletDialogUpdateAction
-                        : t.walletDialogCreateAction}
+                        ? t("wallet.walletDialogUpdateAction")
+                        : t("wallet.walletDialogCreateAction")}
                   </span>
                   <span className="material-symbols-outlined">chevron_right</span>
                 </button>
 
                 {isEdit ? (
                   wallet?.isDefault ? (
-                    <p className="text-center text-xs font-semibold text-[#6f8793]">{t.walletDeleteBlockedDefault}</p>
+                    <p className="text-center text-xs font-semibold text-[#6f8793]">{t("wallet.walletDeleteBlockedDefault")}</p>
                   ) : (
                     <button
                       type="button"
@@ -313,7 +313,7 @@ export default function WalletCreateForm({ language, currency, wallet, trigger =
                       disabled={deleteWalletMutation.isPending}
                       className="w-full rounded-xl border border-[#f8cfc4] bg-[#fff3ef] px-4 py-3 text-sm font-bold text-[#a73b21] hover:bg-[#fde9e2] disabled:opacity-70"
                     >
-                      {deleteWalletMutation.isPending ? t.walletDialogDeleting : t.walletDialogDeleteAction}
+                      {deleteWalletMutation.isPending ? t("wallet.walletDialogDeleting") : t("wallet.walletDialogDeleteAction")}
                     </button>
                   )
                 ) : null}

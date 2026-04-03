@@ -4,8 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import OnboardingTourProvider from "@/features/onboarding/components/OnboardingTourProvider";
-import { getDictionary } from "@/lib/i18n";
 
 const navItems = [
   { href: "/app", key: "navDashboard", icon: "dashboard" },
@@ -41,7 +41,7 @@ type Props = {
 export default function AppChrome({ userEmail, language, children }: Props) {
   const pathname = usePathname();
   const router = useRouter();
-  const t = getDictionary(language);
+  const t = useNamespacedTranslation("common", language);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -115,7 +115,7 @@ export default function AppChrome({ userEmail, language, children }: Props) {
               className="tour-new-entry flex w-full items-center justify-center gap-2 rounded-lg bg-[#006f1d] px-4 py-2.5 text-sm font-bold text-[#eaffe2] shadow-[0_14px_30px_-12px_rgba(0,111,29,0.45)] hover:brightness-105"
             >
               <span className="material-symbols-outlined text-[18px]">add</span>
-              <span>{t.actionNewEntry}</span>
+              <span>{t("common.actionNewEntry")}</span>
             </Link>
           </div>
         </aside>
@@ -128,13 +128,13 @@ export default function AppChrome({ userEmail, language, children }: Props) {
                   Lush Ledger
                 </p>
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#6f8793]">
-                  {t.headerBrandSub}
+                  {t("common.headerBrandSub")}
                 </p>
               </div>
 
               <div className="flex items-center gap-3">
                 <div className="hidden text-right leading-tight sm:block">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#6f8793]">{t.headerUserRole}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#6f8793]">{t("common.headerUserRole")}</p>
                   <p className="max-w-[260px] truncate font-[var(--font-manrope)] text-sm font-bold text-[#1b3641]">{userEmail}</p>
                 </div>
                 <div className="h-11 w-11 overflow-hidden rounded-full border-2 border-[#d7e8f3] bg-[#dfeef8]">
@@ -148,7 +148,7 @@ export default function AppChrome({ userEmail, language, children }: Props) {
                 </div>
                 <form action="/api/auth/logout" method="post">
                   <button className="rounded-lg border border-[#c8d8ce] bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#49636f] hover:border-[#93b3a0] hover:text-[#1b3641]">
-                    {t.actionLogout}
+                    {t("common.actionLogout")}
                   </button>
                 </form>
               </div>

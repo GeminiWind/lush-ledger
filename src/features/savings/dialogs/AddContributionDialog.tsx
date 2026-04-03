@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { isValidISODate, nowDate, toISODate } from "@/lib/date";
 import toast from "react-hot-toast";
 import { formatCurrencyInput, parseCurrencyInput } from "@/lib/format";
-import { getDictionary } from "@/lib/i18n";
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import { useUserSetting } from "@/features/settings/hooks/useUserSetting";
 import type { AddContributionDialogProps } from "@/features/savings/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -27,7 +27,7 @@ const buildDateTimeWithCurrentTime = (dateValue: string) => {
 export default function AddContributionDialog({ plans, wallets, defaultPlanId }: AddContributionDialogProps) {
   const router = useRouter();
   const { language, currency } = useUserSetting();
-  const t = getDictionary(language);
+  const t = useNamespacedTranslation("savings", language);
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
@@ -55,8 +55,8 @@ export default function AddContributionDialog({ plans, wallets, defaultPlanId }:
     mutationFn: async (values: { savingsPlanId: string; walletId: string; amountDisplay: string; date: string }) => {
       const selectedPlan = plans.find((plan) => plan.id === values.savingsPlanId);
       const contributionLabel = selectedPlan
-        ? t.savingsContributionNoteTemplate.replace("{plan}", selectedPlan.name)
-        : t.savingsContributionNoteFallback;
+        ? t("savings.savingsContributionNoteTemplate").replace("{plan}", selectedPlan.name)
+        : t("savings.savingsContributionNoteFallback");
 
       const response = await fetch("/api/ledger", {
         method: "POST",
@@ -73,18 +73,18 @@ export default function AddContributionDialog({ plans, wallets, defaultPlanId }:
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || t.savingsContributionFailed);
+        throw new Error(data.error || t("savings.savingsContributionFailed"));
       }
     },
     onSuccess: async () => {
       formik.resetForm();
-      toast.success(t.savingsContributionSuccess);
+      toast.success(t("savings.savingsContributionSuccess"));
       setOpen(false);
       await queryClient.invalidateQueries({ queryKey: ["savings"] });
       router.refresh();
     },
     onError: (mutationError: unknown) => {
-      setError(mutationError instanceof Error ? mutationError.message : t.savingsContributionFailed);
+      setError(mutationError instanceof Error ? mutationError.message : t("savings.savingsContributionFailed"));
     },
   });
 
@@ -105,16 +105,16 @@ export default function AddContributionDialog({ plans, wallets, defaultPlanId }:
 
       const amount = parseCurrencyInput(values.amountDisplay);
       if (!values.savingsPlanId) {
-        errors.savingsPlanId = t.savingsContributionPlanRequired;
+        errors.savingsPlanId = t("savings.savingsContributionPlanRequired");
       }
       if (!values.walletId) {
-        errors.walletId = t.savingsContributionWalletRequired;
+        errors.walletId = t("savings.savingsContributionWalletRequired");
       }
       if (!Number.isFinite(amount) || amount <= 0) {
-        errors.amountDisplay = t.savingsContributionAmountRequired;
+        errors.amountDisplay = t("savings.savingsContributionAmountRequired");
       }
       if (!values.date || !isValidISODate(values.date)) {
-        errors.date = t.savingsContributionDateRequired;
+        errors.date = t("savings.savingsContributionDateRequired");
       }
 
       return errors;
@@ -136,7 +136,7 @@ export default function AddContributionDialog({ plans, wallets, defaultPlanId }:
         className="inline-flex items-center gap-2 rounded-xl bg-[#006f1d] px-5 py-3 text-sm font-bold text-[#eaffe2] shadow-[0_16px_30px_-18px_rgba(0,111,29,0.8)] hover:brightness-105"
       >
         <span className="material-symbols-outlined text-[18px]">payments</span>
-        {t.savingsAddContribution}
+        {t("savings.savingsAddContribution")}
       </button>
 
       {open ? (
@@ -154,24 +154,24 @@ export default function AddContributionDialog({ plans, wallets, defaultPlanId }:
             <div className="px-10 pb-6 pt-10">
               <div className="mb-2 flex items-start justify-between">
                 <h2 className="font-[var(--font-manrope)] text-3xl font-extrabold tracking-tight text-[#1b3641]">
-                  {t.savingsContributionTitle}
+                  {t("savings.savingsContributionTitle")}
                 </h2>
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
                   className="grid h-10 w-10 place-items-center rounded-full text-[#49636f] hover:bg-[#d4ecf9]"
-                  aria-label={t.savingsPlanCloseAria}
+                  aria-label={t("savings.savingsPlanCloseAria")}
                 >
                   <span className="material-symbols-outlined">close</span>
                 </button>
               </div>
-              <p className="text-sm leading-relaxed text-[#49636f]">{t.savingsContributionSubtitle}</p>
+              <p className="text-sm leading-relaxed text-[#49636f]">{t("savings.savingsContributionSubtitle")}</p>
             </div>
 
             <form onSubmit={formik.handleSubmit} className="space-y-8 px-10 pb-10">
               <div className="space-y-3">
                 <label className="block px-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#49636f]">
-                  {t.savingsContributionTargetLabel} <span className="text-[#a73b21]">*</span>
+                  {t("savings.savingsContributionTargetLabel")} <span className="text-[#a73b21]">*</span>
                 </label>
                 <div className="relative">
                   <select
@@ -183,7 +183,7 @@ export default function AddContributionDialog({ plans, wallets, defaultPlanId }:
                   >
                     {plans.map((plan) => (
                       <option key={plan.id} value={plan.id}>
-                        {plan.name} ({Math.round(plan.progress)}% {t.savingsCompleteBadge})
+                        {plan.name} ({Math.round(plan.progress)}% {t("savings.savingsCompleteBadge")})
                       </option>
                     ))}
                   </select>
@@ -198,7 +198,7 @@ export default function AddContributionDialog({ plans, wallets, defaultPlanId }:
 
               <div className="space-y-3">
                 <label className="block px-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#49636f]">
-                  {t.savingsContributionAmountLabel} <span className="text-[#a73b21]">*</span>
+                  {t("savings.savingsContributionAmountLabel")} <span className="text-[#a73b21]">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -225,7 +225,7 @@ export default function AddContributionDialog({ plans, wallets, defaultPlanId }:
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div className="space-y-3">
                   <label className="block px-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#49636f]">
-                    {t.savingsContributionDateLabel} <span className="text-[#a73b21]">*</span>
+                    {t("savings.savingsContributionDateLabel")} <span className="text-[#a73b21]">*</span>
                   </label>
                   <input
                     type="date"
@@ -240,7 +240,7 @@ export default function AddContributionDialog({ plans, wallets, defaultPlanId }:
 
                 <div className="space-y-3">
                   <label className="block px-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#49636f]">
-                    {t.savingsContributionWalletLabel} <span className="text-[#a73b21]">*</span>
+                    {t("savings.savingsContributionWalletLabel")} <span className="text-[#a73b21]">*</span>
                   </label>
                   <div className="relative">
                     <select
@@ -272,14 +272,14 @@ export default function AddContributionDialog({ plans, wallets, defaultPlanId }:
                   disabled={addContributionMutation.isPending}
                   className="flex-1 rounded-xl bg-gradient-to-br from-[#006f1d] to-[#006118] py-4 font-[var(--font-manrope)] text-lg font-bold text-[#eaffe2] shadow-[0_14px_30px_-18px_rgba(0,111,29,0.8)] hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {addContributionMutation.isPending ? t.savingsContributionSubmitting : t.savingsContributionConfirm}
+                  {addContributionMutation.isPending ? t("savings.savingsContributionSubmitting") : t("savings.savingsContributionConfirm")}
                 </button>
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
                   className="rounded-xl px-8 py-4 font-[var(--font-manrope)] font-bold text-[#647e8c] hover:bg-[#d4ecf9]"
                 >
-                  {t.savingsPlanDiscard}
+                  {t("savings.savingsPlanDiscard")}
                 </button>
               </div>
             </form>
@@ -289,9 +289,9 @@ export default function AddContributionDialog({ plans, wallets, defaultPlanId }:
                 <span className="material-symbols-outlined text-sm text-[#005e17]" style={{ fontVariationSettings: "'FILL' 1" }}>
                   security
                 </span>
-                <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#005e17]">{t.savingsContributionSecurity}</span>
+                <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#005e17]">{t("savings.savingsContributionSecurity")}</span>
               </div>
-              <span className="text-[10px] text-[#49636f]">{t.savingsContributionSecurityNote}</span>
+              <span className="text-[10px] text-[#49636f]">{t("savings.savingsContributionSecurityNote")}</span>
             </div>
           </div>
         </div>

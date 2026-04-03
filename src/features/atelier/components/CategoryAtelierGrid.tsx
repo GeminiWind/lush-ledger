@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import GridLayout, { Layout, useContainerWidth } from "react-grid-layout";
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import { formatCurrency } from "@/lib/format";
-import { getDictionary } from "@/lib/i18n";
 import AddCategoryModal from "@/features/atelier/dialogs/AddCategoryModal";
 import EditCategoryModal from "@/features/atelier/dialogs/EditCategoryModal";
 import DeleteCategoryDialog from "@/features/atelier/dialogs/DeleteCategoryDialog";
@@ -83,7 +83,7 @@ function CategoryCard({
   language: string;
   draggable: boolean;
 }) {
-  const t = getDictionary(language);
+  const t = useNamespacedTranslation("atelier", language);
   const usedPercent = Math.round(category.usage * 100);
   const atLimit = category.limit > 0 && category.spent >= category.limit;
   const threshold = Math.min(Math.max(category.warnAt || 80, 1), 100);
@@ -105,7 +105,7 @@ function CategoryCard({
             </div>
             <div>
               <h3 className="font-[var(--font-manrope)] text-lg font-bold text-[#1b3641]">{category.name}</h3>
-              <p className="text-xs text-[#6f8793]">{t.atelierMonthlyLimit}</p>
+              <p className="text-xs text-[#6f8793]">{t("atelier.atelierMonthlyLimit")}</p>
             </div>
           </div>
 
@@ -118,8 +118,8 @@ function CategoryCard({
               <button
                 type="button"
                 className="category-drag-handle cursor-grab rounded-lg bg-[#eef7ff] px-2 py-1 text-[#49636f] active:cursor-grabbing"
-                aria-label={t.atelierDragItemAria.replace("{name}", category.name)}
-                title={t.atelierDragToReorderTitle}
+                aria-label={t("atelier.atelierDragItemAria").replace("{name}", category.name)}
+                title={t("atelier.atelierDragToReorderTitle")}
               >
                 <span className="material-symbols-outlined text-base">drag_indicator</span>
               </button>
@@ -132,7 +132,7 @@ function CategoryCard({
             <p className="font-[var(--font-manrope)] text-2xl font-extrabold text-[#1b3641]">
               {formatCurrency(category.limit, currency)}
             </p>
-            <span className={`rounded-md px-2 py-1 text-xs font-bold ${usedBadgeClass}`}>{usedPercent}% {t.atelierUsed}</span>
+            <span className={`rounded-md px-2 py-1 text-xs font-bold ${usedBadgeClass}`}>{usedPercent}% {t("atelier.atelierUsed")}</span>
           </div>
 
           <div className="h-2 overflow-hidden rounded-full bg-[#e4f1fa]">
@@ -140,13 +140,13 @@ function CategoryCard({
           </div>
 
           <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.16em] text-[#8aa2b0]">
-            <span>{t.atelierSpent} {formatCurrency(category.spent, currency)}</span>
+            <span>{t("atelier.atelierSpent")} {formatCurrency(category.spent, currency)}</span>
             <span className={atLimit ? "text-[#a73b21]" : inWarnRange ? "text-[#b35a00]" : "text-[#1f6f3a]"}>
               {atLimit
-                ? t.atelierOverspent
+                ? t("atelier.atelierOverspent")
                 : inWarnRange
-                  ? t.atelierWarning
-                  : t.atelierHealthy}
+                  ? t("atelier.atelierWarning")
+                  : t("atelier.atelierHealthy")}
             </span>
           </div>
         </div>
@@ -156,7 +156,7 @@ function CategoryCard({
 }
 
 export default function CategoryAtelierGrid({ categories, currency, language }: CategoryAtelierGridProps) {
-  const t = getDictionary(language);
+  const t = useNamespacedTranslation("atelier", language);
   const { width, mounted, containerRef } = useContainerWidth({ initialWidth: 1200 });
   const [orderedCategoryIds, setOrderedCategoryIds] = useState<string[]>(
     categories.map((category) => category.id),
@@ -230,11 +230,11 @@ export default function CategoryAtelierGrid({ categories, currency, language }: 
   return (
     <div ref={containerRef} className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">{t.atelierCategoryAtelier}</h2>
+        <h2 className="font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">{t("atelier.atelierCategoryAtelier")}</h2>
       </div>
 
       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#6f8793]">
-        {t.atelierDragCardsHint}
+        {t("atelier.atelierDragCardsHint")}
       </p>
 
       {mounted ? (

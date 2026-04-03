@@ -5,7 +5,7 @@ import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import { addMonthsDate, fromISODate, isValidISODate, localeDateLabel, nowDate, startOfMonthDate, toISODate } from "@/lib/date";
 import { formatCurrency, formatCurrencyInput, getCurrencyInputSuggestions, parseCurrencyInput } from "@/lib/format";
-import { getDictionary } from "@/lib/i18n";
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import { useUserSetting } from "@/features/settings/hooks/useUserSetting";
 import type { SavingsPlanCreateDialogProps } from "@/features/savings/types";
 import toast from "react-hot-toast";
@@ -42,7 +42,7 @@ const getProjectedArrivalDate = (target: number, monthly: number, from = nowDate
 export default function SavingsPlanCreateDialog({ variant = "button" }: SavingsPlanCreateDialogProps) {
   const router = useRouter();
   const { language, currency } = useUserSetting();
-  const t = getDictionary(language);
+  const t = useNamespacedTranslation("savings", language);
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedIcon, setSelectedIcon] = useState<(typeof savingsPlanIconChoices)[number]>("home");
@@ -69,7 +69,7 @@ export default function SavingsPlanCreateDialog({ variant = "button" }: SavingsP
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || t.savingsPlanCreateFailed);
+        throw new Error(data.error || t("savings.savingsPlanCreateFailed"));
       }
 
       return response.json() as Promise<{ plan?: { id?: string } }>;
@@ -89,10 +89,10 @@ export default function SavingsPlanCreateDialog({ variant = "button" }: SavingsP
       await queryClient.invalidateQueries({ queryKey: ["savings"] });
       const planId = payload?.plan?.id;
       router.push(planId ? `/app/savings?filter=active&plan=${planId}` : "/app/savings?filter=active");
-      toast.success(t.savingsPlanCreateSuccess);
+      toast.success(t("savings.savingsPlanCreateSuccess"));
     },
     onError: (mutationError: unknown) => {
-      setError(mutationError instanceof Error ? mutationError.message : t.savingsPlanCreateFailed);
+      setError(mutationError instanceof Error ? mutationError.message : t("savings.savingsPlanCreateFailed"));
     },
   });
 
@@ -112,27 +112,27 @@ export default function SavingsPlanCreateDialog({ variant = "button" }: SavingsP
       } = {};
 
       if (!values.name.trim()) {
-        errors.name = t.savingsPlanNameRequired;
+        errors.name = t("savings.savingsPlanNameRequired");
       }
 
       const targetAmount = parseCurrencyInput(values.targetAmount);
       if (!Number.isFinite(targetAmount) || targetAmount <= 0) {
-        errors.targetAmount = t.savingsPlanTargetRequired;
+        errors.targetAmount = t("savings.savingsPlanTargetRequired");
       }
 
       const monthlyContribution = parseCurrencyInput(values.monthlyContribution);
       if (!Number.isFinite(monthlyContribution) || monthlyContribution <= 0) {
-        errors.monthlyContribution = t.savingsPlanMonthlyRequired;
+        errors.monthlyContribution = t("savings.savingsPlanMonthlyRequired");
       }
 
       if (!values.targetDate) {
-        errors.targetDate = t.savingsPlanDateRequired;
+        errors.targetDate = t("savings.savingsPlanDateRequired");
       } else {
         const date = fromISODate(values.targetDate);
         if (!date || !isValidISODate(values.targetDate)) {
-          errors.targetDate = t.savingsPlanDateInvalid;
+          errors.targetDate = t("savings.savingsPlanDateInvalid");
         } else if (date < minDate) {
-          errors.targetDate = t.savingsPlanDateMin;
+          errors.targetDate = t("savings.savingsPlanDateMin");
         }
       }
 
@@ -183,9 +183,9 @@ export default function SavingsPlanCreateDialog({ variant = "button" }: SavingsP
       months,
       target,
       monthly,
-      arrivalText: arrivalDate ? monthLabel(language, arrivalDate, t.savingsPlanNotAvailable) : t.savingsPlanNotAvailable,
+      arrivalText: arrivalDate ? monthLabel(language, arrivalDate, t("savings.savingsPlanNotAvailable")) : t("savings.savingsPlanNotAvailable"),
     };
-  }, [formik.values.monthlyContribution, formik.values.targetAmount, language, t.savingsPlanNotAvailable]);
+  }, [formik.values.monthlyContribution, formik.values.targetAmount, language, t]);
 
   const targetAmountSuggestions = useMemo(() => {
     return getCurrencyInputSuggestions(formik.values.targetAmount, currency);
@@ -209,7 +209,7 @@ export default function SavingsPlanCreateDialog({ variant = "button" }: SavingsP
           className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#006f1d] to-[#006118] px-6 py-3 text-sm font-bold text-[#eaffe2] shadow-[0_20px_30px_-20px_rgba(0,111,29,0.75)] hover:brightness-105"
         >
           <span className="material-symbols-outlined text-lg">add</span>
-          <span>{t.savingsPlanCreateAction}</span>
+          <span>{t("savings.savingsPlanCreateAction")}</span>
         </button>
       ) : (
         <button
@@ -225,8 +225,8 @@ export default function SavingsPlanCreateDialog({ variant = "button" }: SavingsP
           <div className="mb-4 grid h-14 w-14 place-items-center rounded-full border-2 border-dashed border-[#9bb6c4]">
             <span className="material-symbols-outlined text-3xl text-[#647e8c]">add</span>
           </div>
-          <p className="font-[var(--font-manrope)] text-base font-bold text-[#49636f]">{t.savingsEnvisionGoal}</p>
-          <p className="mt-1 text-xs text-[#647e8c]">{t.savingsAddToAtelier}</p>
+          <p className="font-[var(--font-manrope)] text-base font-bold text-[#49636f]">{t("savings.savingsEnvisionGoal")}</p>
+          <p className="mt-1 text-xs text-[#647e8c]">{t("savings.savingsAddToAtelier")}</p>
         </button>
       )}
 
@@ -245,10 +245,10 @@ export default function SavingsPlanCreateDialog({ variant = "button" }: SavingsP
             <div className="flex items-center justify-between gap-4 border-b border-[#d4ecf9] bg-white/70 px-8 py-6 backdrop-blur-sm md:px-10 md:py-8">
               <div>
                 <h2 className="font-[var(--font-manrope)] text-2xl font-extrabold tracking-tight text-[#1b3641] md:text-3xl">
-                  {t.savingsPlanAddNewTitle}
+                  {t("savings.savingsPlanAddNewTitle")}
                 </h2>
                 <p className="mt-1 max-w-2xl text-sm font-medium text-[#49636f]">
-                  {t.savingsPlanSubtitle}
+                  {t("savings.savingsPlanSubtitle")}
                 </p>
               </div>
 
@@ -259,7 +259,7 @@ export default function SavingsPlanCreateDialog({ variant = "button" }: SavingsP
                   setError(null);
                 }}
                 className="grid h-10 w-10 place-items-center rounded-full text-[#49636f] transition hover:bg-[#d4ecf9]"
-                aria-label={t.savingsPlanCloseAria}
+                aria-label={t("savings.savingsPlanCloseAria")}
               >
                 <span className="material-symbols-outlined">close</span>
               </button>
@@ -270,19 +270,19 @@ export default function SavingsPlanCreateDialog({ variant = "button" }: SavingsP
                 <section className="space-y-6 lg:col-span-7">
                   <h3 className="flex items-center gap-2 font-[var(--font-manrope)] text-lg font-bold text-[#1b3641]">
                     <span className="h-6 w-1.5 rounded-full bg-[#006f1d]" />
-                  {t.savingsPlanBlueprintTitle}
+                  {t("savings.savingsPlanBlueprintTitle")}
                   </h3>
 
                   <div className="space-y-2">
                     <label className="text-xs font-bold uppercase tracking-[0.18em] text-[#647e8c]">
-                      {t.savingsPlanNameLabel} <span className="text-[#a73b21]">*</span>
+                      {t("savings.savingsPlanNameLabel")} <span className="text-[#a73b21]">*</span>
                     </label>
                     <input
                       name="name"
                       value={formik.values.name}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
-                      placeholder={t.savingsPlanNamePlaceholder}
+                      placeholder={t("savings.savingsPlanNamePlaceholder")}
                       className="w-full rounded-2xl border-none bg-[#e7f6ff] p-4 text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/25"
                     />
                     {formik.touched.name && formik.errors.name ? <p className="text-xs text-[#a73b21]">{formik.errors.name}</p> : null}
@@ -291,7 +291,7 @@ export default function SavingsPlanCreateDialog({ variant = "button" }: SavingsP
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <div className="space-y-2">
                       <label className="text-xs font-bold uppercase tracking-[0.18em] text-[#647e8c]">
-                        {t.savingsPlanTargetLabel} <span className="text-[#a73b21]">*</span>
+                        {t("savings.savingsPlanTargetLabel")} <span className="text-[#a73b21]">*</span>
                       </label>
                       <div className="relative">
                         <input
@@ -302,7 +302,7 @@ export default function SavingsPlanCreateDialog({ variant = "button" }: SavingsP
                           }}
                           onBlur={formik.handleBlur}
                           inputMode="numeric"
-                          placeholder={t.savingsPlanTargetPlaceholder}
+                          placeholder={t("savings.savingsPlanTargetPlaceholder")}
                           className="w-full rounded-2xl border-none bg-[#e7f6ff] p-4 pr-16 font-[var(--font-manrope)] font-bold text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/25"
                         />
                         <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 font-bold text-[#006f1d]">
@@ -330,7 +330,7 @@ export default function SavingsPlanCreateDialog({ variant = "button" }: SavingsP
 
                     <div className="space-y-2">
                       <label className="text-xs font-bold uppercase tracking-[0.18em] text-[#647e8c]">
-                        {t.savingsPlanMonthlyLabel} <span className="text-[#a73b21]">*</span>
+                        {t("savings.savingsPlanMonthlyLabel")} <span className="text-[#a73b21]">*</span>
                       </label>
                       <div className="relative">
                         <input
@@ -341,7 +341,7 @@ export default function SavingsPlanCreateDialog({ variant = "button" }: SavingsP
                           }}
                           onBlur={formik.handleBlur}
                           inputMode="numeric"
-                          placeholder={t.savingsPlanMonthlyPlaceholder}
+                          placeholder={t("savings.savingsPlanMonthlyPlaceholder")}
                           className="w-full rounded-2xl border-none bg-[#e7f6ff] p-4 pr-16 font-[var(--font-manrope)] font-bold text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/25"
                         />
                         <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 font-bold text-[#006f1d]">
@@ -370,7 +370,7 @@ export default function SavingsPlanCreateDialog({ variant = "button" }: SavingsP
 
                   <div className="space-y-2">
                     <label className="text-xs font-bold uppercase tracking-[0.18em] text-[#647e8c]">
-                      {t.savingsPlanArrivalDateLabel} <span className="text-[#a73b21]">*</span>
+                      {t("savings.savingsPlanArrivalDateLabel")} <span className="text-[#a73b21]">*</span>
                     </label>
                     <input
                       name="targetDate"
@@ -382,7 +382,7 @@ export default function SavingsPlanCreateDialog({ variant = "button" }: SavingsP
                       className="w-full rounded-2xl border-none bg-[#e7f6ff] p-4 text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/25"
                     />
                     <p className="text-[11px] text-[#647e8c]">
-                      {t.savingsPlanArrivalHint}
+                      {t("savings.savingsPlanArrivalHint")}
                     </p>
                     {formik.touched.targetDate && formik.errors.targetDate ? (
                       <p className="text-xs text-[#a73b21]">{formik.errors.targetDate}</p>
@@ -391,7 +391,7 @@ export default function SavingsPlanCreateDialog({ variant = "button" }: SavingsP
 
                   <div className="space-y-3 rounded-2xl bg-[#eef8ff] p-4">
                     <div className="flex items-center justify-between">
-                      <label className="text-xs font-bold uppercase tracking-[0.18em] text-[#647e8c]">{t.savingsPlanIsPrimaryLabel}</label>
+                      <label className="text-xs font-bold uppercase tracking-[0.18em] text-[#647e8c]">{t("savings.savingsPlanIsPrimaryLabel")}</label>
                       <button
                         type="button"
                         role="switch"
@@ -402,11 +402,11 @@ export default function SavingsPlanCreateDialog({ variant = "button" }: SavingsP
                         <span className={`inline-block h-4 w-4 transform rounded-full bg-[#eaffe2] transition ${isPrimary ? "translate-x-6" : "translate-x-1"}`} />
                       </button>
                     </div>
-                    <p className="text-[11px] text-[#647e8c]">{t.savingsPlanIsPrimaryHint}</p>
+                    <p className="text-[11px] text-[#647e8c]">{t("savings.savingsPlanIsPrimaryHint")}</p>
                   </div>
 
                   <div className="space-y-3">
-                    <label className="text-xs font-bold uppercase tracking-[0.18em] text-[#647e8c]">{t.savingsPlanIdentityLabel}</label>
+                    <label className="text-xs font-bold uppercase tracking-[0.18em] text-[#647e8c]">{t("savings.savingsPlanIdentityLabel")}</label>
                     <div className="flex flex-wrap gap-3 rounded-2xl bg-[#eef8ff] p-4">
                       {savingsPlanIconChoices.map((icon) => {
                         const selected = selectedIcon === icon;
@@ -418,7 +418,7 @@ export default function SavingsPlanCreateDialog({ variant = "button" }: SavingsP
                             className={`grid h-12 w-12 place-items-center rounded-xl transition ${
                               selected ? "bg-[#006f1d] text-[#eaffe2] shadow-[0_8px_20px_-10px_rgba(0,111,29,0.6)]" : "bg-white text-[#49636f] hover:bg-[#dff1fb]"
                             }`}
-                            aria-label={t.savingsPlanIdentitySelectTemplate.replace("{icon}", icon)}
+                            aria-label={t("savings.savingsPlanIdentitySelectTemplate").replace("{icon}", icon)}
                             title={icon}
                           >
                             <span className="material-symbols-outlined text-xl">{icon}</span>
@@ -435,7 +435,7 @@ export default function SavingsPlanCreateDialog({ variant = "button" }: SavingsP
                   <article className="relative overflow-hidden rounded-[2rem] bg-[linear-gradient(135deg,#006f1d_0%,#006118_100%)] p-8 text-[#eaffe2] shadow-xl">
                     <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-white/10 blur-3xl transition-all duration-700" />
                     <h3 className="relative z-10 text-lg font-bold opacity-90">
-                      {t.savingsPlanProjectionPreview}
+                      {t("savings.savingsPlanProjectionPreview")}
                     </h3>
 
                     <div className="relative z-10 mt-8 flex flex-col items-center space-y-5 text-center">
@@ -444,20 +444,20 @@ export default function SavingsPlanCreateDialog({ variant = "button" }: SavingsP
                       </div>
 
                       <div>
-                        <p className="font-[var(--font-manrope)] text-xl font-bold">{t.savingsPlanEstimatedMonths}</p>
+                        <p className="font-[var(--font-manrope)] text-xl font-bold">{t("savings.savingsPlanEstimatedMonths")}</p>
                         <p className="mt-1 text-xs text-[#d8ffe0]">
-                          {t.savingsPlanToReachTarget}: {formatCurrency(projection.target, currency)}
+                          {t("savings.savingsPlanToReachTarget")}: {formatCurrency(projection.target, currency)}
                         </p>
                       </div>
 
                       <div className="w-full space-y-3 pt-4 text-[10px] font-semibold uppercase tracking-[0.14em]">
                         <div className="flex items-center justify-between text-[#d8ffe0]">
-                          <span>{t.savingsPlanArrival}</span>
+                          <span>{t("savings.savingsPlanArrival")}</span>
                           <span className="text-[#eaffe2]">{projection.arrivalText}</span>
                         </div>
                         <div className="h-px w-full bg-white/10" />
                         <div className="flex items-center justify-between text-[#d8ffe0]">
-                          <span>{t.savingsPlanMonthly}</span>
+                          <span>{t("savings.savingsPlanMonthly")}</span>
                           <span className="text-[#eaffe2]">{formatCurrency(projection.monthly, currency)}</span>
                         </div>
                       </div>
@@ -470,7 +470,7 @@ export default function SavingsPlanCreateDialog({ variant = "button" }: SavingsP
                         <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>lightbulb</span>
                       </div>
                       <p className="text-sm leading-relaxed text-[#40555f]">
-                        {t.savingsPlanTip}
+                        {t("savings.savingsPlanTip")}
                       </p>
                     </div>
                   </article>
@@ -486,14 +486,14 @@ export default function SavingsPlanCreateDialog({ variant = "button" }: SavingsP
                   }}
                   className="rounded-full px-6 py-3 text-sm font-bold text-[#49636f] transition hover:bg-[#d4ecf9]"
                 >
-                  {t.savingsPlanDiscard}
+                  {t("savings.savingsPlanDiscard")}
                 </button>
                 <button
                   type="submit"
                   disabled={createPlanMutation.isPending}
                   className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#006f1d] to-[#006118] px-8 py-3 text-sm font-bold text-[#eaffe2] shadow-[0_20px_30px_-20px_rgba(0,111,29,0.75)] transition hover:brightness-105 disabled:opacity-70"
                 >
-                  <span>{createPlanMutation.isPending ? t.savingsPlanCreating : t.savingsPlanCreateAction}</span>
+                  <span>{createPlanMutation.isPending ? t("savings.savingsPlanCreating") : t("savings.savingsPlanCreateAction")}</span>
                 </button>
               </div>
             </form>

@@ -1,7 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { localeDateLabel } from "@/lib/date";
 import { formatCurrency } from "@/lib/format";
-import { getDictionary } from "@/lib/i18n";
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import SavingsFilterDropdown from "@/features/savings/components/SavingsFilterDropdown";
 
 const toNumber = (value: unknown) => Number(value ?? 0);
@@ -46,7 +48,7 @@ const getPlanIcon = (name: string) => {
 
 export default function CancelledSavingsPlansPageView({ language, currency, plans }: Props) {
   const locale = language === "vi-VN" ? "vi-VN" : "en-US";
-  const t = getDictionary(language);
+  const t = useNamespacedTranslation("savings", language);
   const activeFilter = "cancelled";
 
   const list = plans.map((plan) => {

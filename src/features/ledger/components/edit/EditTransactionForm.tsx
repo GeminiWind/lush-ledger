@@ -1,6 +1,6 @@
 "use client";
 
-import { getDictionary } from "@/lib/i18n";
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import { useRouter } from "next/navigation";
 import { useFormik } from "formik";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -21,7 +21,7 @@ export default function EditTransactionForm({
   initialNote,
 }: EditTransactionFormProps) {
   const router = useRouter();
-  const t = getDictionary(language);
+  const t = useNamespacedTranslation("transaction", language);
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
@@ -58,17 +58,17 @@ export default function EditTransactionForm({
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || t.txUpdateFailed);
+        throw new Error(data.error || t("transaction.txUpdateFailed"));
       }
     },
     onSuccess: async () => {
-      toast.success(t.txUpdateSuccess);
+      toast.success(t("transaction.txUpdateSuccess"));
       await queryClient.invalidateQueries({ queryKey: ["ledger"] });
       router.push("/app/ledger");
       router.refresh();
     },
     onError: (mutationError: unknown) => {
-      setError(mutationError instanceof Error ? mutationError.message : t.txUpdateFailed);
+      setError(mutationError instanceof Error ? mutationError.message : t("transaction.txUpdateFailed"));
     },
   });
 
@@ -83,10 +83,10 @@ export default function EditTransactionForm({
     validate: (values) => {
       const errors: Partial<Record<keyof EditTransactionFormValues, string>> = {};
       if (parseCurrencyInput(values.amountDisplay) <= 0) {
-        errors.amountDisplay = t.txErrorAmountRequired;
+        errors.amountDisplay = t("transaction.txErrorAmountRequired");
       }
       if (!values.date) {
-        errors.date = t.txErrorDateRequired;
+        errors.date = t("transaction.txErrorDateRequired");
       }
       return errors;
     },
@@ -114,12 +114,12 @@ export default function EditTransactionForm({
         onMouseDown={(event) => event.stopPropagation()}
       >
         <div className="flex items-center justify-between px-8 pb-4 pt-8">
-          <h1 className="font-[var(--font-manrope)] text-2xl font-extrabold tracking-tight text-emerald-900">{t.txEditTitle}</h1>
+          <h1 className="font-[var(--font-manrope)] text-2xl font-extrabold tracking-tight text-emerald-900">{t("transaction.txEditTitle")}</h1>
             <button
               type="button"
               onClick={closeDialog}
               className="rounded-full p-2 text-slate-400 transition-colors hover:bg-slate-100"
-              aria-label={t.txEditCloseAria}
+              aria-label={t("transaction.txEditCloseAria")}
             >
             <span className="material-symbols-outlined">close</span>
           </button>
@@ -127,7 +127,7 @@ export default function EditTransactionForm({
 
         <form onSubmit={formik.handleSubmit} className="space-y-5 px-8 pb-8">
           <div className="space-y-1.5">
-            <label className="ml-1 text-[10px] font-bold uppercase tracking-[0.15em] text-[#6f8793]">{t.txEditAmountLabel}</label>
+            <label className="ml-1 text-[10px] font-bold uppercase tracking-[0.15em] text-[#6f8793]">{t("transaction.txEditAmountLabel")}</label>
             <div className="relative">
               <input
                 name="amountDisplay"
@@ -162,7 +162,7 @@ export default function EditTransactionForm({
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <label className="ml-1 text-[10px] font-bold uppercase tracking-[0.15em] text-[#6f8793]">{t.txCategory}</label>
+              <label className="ml-1 text-[10px] font-bold uppercase tracking-[0.15em] text-[#6f8793]">{t("transaction.txCategory")}</label>
               <div className="relative">
                 <select
                   name="categoryId"
@@ -170,7 +170,7 @@ export default function EditTransactionForm({
                   onChange={formik.handleChange}
                   className="w-full appearance-none rounded-2xl border-2 border-emerald-100 bg-emerald-50/50 px-5 py-3 text-sm font-semibold text-[#1b3641] transition-all focus:border-emerald-600 focus:ring-0"
                 >
-                  <option value="">{t.txNoCategory}</option>
+                  <option value="">{t("transaction.txNoCategory")}</option>
                   {categories.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}
@@ -184,7 +184,7 @@ export default function EditTransactionForm({
             </div>
 
             <div className="space-y-1.5">
-              <label className="ml-1 text-[10px] font-bold uppercase tracking-[0.15em] text-[#6f8793]">{t.txDate}</label>
+              <label className="ml-1 text-[10px] font-bold uppercase tracking-[0.15em] text-[#6f8793]">{t("transaction.txDate")}</label>
               <div className="relative">
                 <input
                   type="date"
@@ -200,13 +200,13 @@ export default function EditTransactionForm({
           </div>
 
           <div className="space-y-1.5">
-            <label className="ml-1 text-[10px] font-bold uppercase tracking-[0.15em] text-[#6f8793]">{t.txDescription}</label>
+            <label className="ml-1 text-[10px] font-bold uppercase tracking-[0.15em] text-[#6f8793]">{t("transaction.txDescription")}</label>
             <input
               name="description"
               value={formik.values.description}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              placeholder={t.txDescriptionPlaceholder}
+              placeholder={t("transaction.txDescriptionPlaceholder")}
               className="w-full rounded-2xl border-2 border-emerald-100 bg-emerald-50/50 px-5 py-3 text-sm font-semibold text-[#1b3641] transition-all focus:border-emerald-600 focus:ring-0"
             />
             {formik.touched.description && formik.errors.description ? (
@@ -215,13 +215,13 @@ export default function EditTransactionForm({
           </div>
 
           <div className="space-y-1.5">
-            <label className="ml-1 text-[10px] font-bold uppercase tracking-[0.15em] text-[#6f8793]">{t.txNotes}</label>
+            <label className="ml-1 text-[10px] font-bold uppercase tracking-[0.15em] text-[#6f8793]">{t("transaction.txNotes")}</label>
             <textarea
               name="note"
               value={formik.values.note}
               onChange={formik.handleChange}
               rows={4}
-              placeholder={t.txNotesPlaceholder}
+              placeholder={t("transaction.txNotesPlaceholder")}
               className="min-h-[100px] w-full resize-none rounded-2xl border-2 border-emerald-100 bg-emerald-50/50 px-5 py-3 text-sm font-medium text-[#1b3641] transition-all focus:border-emerald-600 focus:ring-0"
             />
           </div>
@@ -234,7 +234,7 @@ export default function EditTransactionForm({
               onClick={closeDialog}
               className="flex-1 rounded-2xl bg-slate-100 py-3.5 text-sm font-bold text-slate-500 transition-all hover:bg-slate-200"
             >
-              {t.txEditCancel}
+              {t("transaction.txEditCancel")}
             </button>
             <button
               type="submit"
@@ -242,7 +242,7 @@ export default function EditTransactionForm({
               className="flex flex-[2] items-center justify-center gap-2 rounded-2xl bg-[#2e7d32] py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-900/10 transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
             >
               <span className="material-symbols-outlined text-sm">check_circle</span>
-              {updateTransactionMutation.isPending ? t.txEditSaving : t.txEditSave}
+              {updateTransactionMutation.isPending ? t("transaction.txEditSaving") : t("transaction.txEditSave")}
             </button>
           </div>
         </form>

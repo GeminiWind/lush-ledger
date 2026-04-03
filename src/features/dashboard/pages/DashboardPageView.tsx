@@ -1,8 +1,12 @@
+"use client";
+
 import type { getDashboardData } from "@/lib/dashboard";
 import { localeDateLabel } from "@/lib/date";
-import { getDictionary } from "@/lib/i18n";
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import ActiveBudgetsPanel from "@/features/dashboard/components/ActiveBudgetsPanel";
 import TopCategoriesPanel from "@/features/dashboard/components/TopCategoriesPanel";
+
+type Translator = ((key: string) => string) & Record<string, string>;
 
 type Props = {
   language: string;
@@ -53,7 +57,7 @@ const capBadgeMeta = (usedPercent: number) => {
   return null;
 };
 
-const transactionMeta = (type: string, t: ReturnType<typeof getDictionary>) => {
+const transactionMeta = (type: string, t: Translator) => {
   if (type === "income" || type === "refund") {
     return {
       sign: "+",
@@ -74,7 +78,7 @@ const transactionMeta = (type: string, t: ReturnType<typeof getDictionary>) => {
 };
 
 export default function DashboardPageView({ language, currency, data }: Props) {
-  const t = getDictionary(language);
+  const t = useNamespacedTranslation("dashboard", language);
   const maxTrendValue = Math.max(...data.monthlySpendingTrend.map((item) => item.value), 1);
   const capBadge = data.monthlyLimit > 0 ? capBadgeMeta(data.monthlyUsedPercent) : null;
 

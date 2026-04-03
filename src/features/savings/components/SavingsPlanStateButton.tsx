@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { getDictionary } from "@/lib/i18n";
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import { useUserSetting } from "@/features/settings/hooks/useUserSetting";
 import type { SavingsPlanStateButtonProps } from "@/features/savings/types";
 
@@ -17,7 +17,7 @@ const reasonOptionKeys = [
 
 export default function SavingsPlanStateButton({ planId, planName, status, compact = false }: SavingsPlanStateButtonProps) {
   const { language } = useUserSetting();
-  const t = getDictionary(language);
+  const t = useNamespacedTranslation("savings", language);
   const router = useRouter();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -30,8 +30,8 @@ export default function SavingsPlanStateButton({ planId, planName, status, compa
   const reasonLabel = t[reason];
 
   const subtitle = useMemo(() => {
-    return t.savingsPlanCancelDialogSubtitle.replace("{plan}", `\u201c${planName}\u201d`);
-  }, [planName, t.savingsPlanCancelDialogSubtitle]);
+    return t("savings.savingsPlanCancelDialogSubtitle").replace("{plan}", `\u201c${planName}\u201d`);
+  }, [planName, t]);
 
   useEffect(() => {
     if (!open) {
@@ -63,7 +63,7 @@ export default function SavingsPlanStateButton({ planId, planName, status, compa
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || t.savingsPlanStatusUpdateFailed);
+        throw new Error(data.error || t("savings.savingsPlanStatusUpdateFailed"));
       }
     },
     onSuccess: async () => {
@@ -71,12 +71,12 @@ export default function SavingsPlanStateButton({ planId, planName, status, compa
       setAdditionalNotes("");
       setReason(reasonOptionKeys[0]);
       setError(null);
-      toast.success(t.savingsPlanStatusUpdateSuccess);
+      toast.success(t("savings.savingsPlanStatusUpdateSuccess"));
       await queryClient.invalidateQueries({ queryKey: ["savings"] });
       router.push("/app/savings/cancelled");
     },
     onError: (error: unknown) => {
-      const message = error instanceof Error ? error.message : t.savingsPlanStatusUpdateFailed;
+      const message = error instanceof Error ? error.message : t("savings.savingsPlanStatusUpdateFailed");
       setError(message);
       toast.error(message);
     },
@@ -92,17 +92,17 @@ export default function SavingsPlanStateButton({ planId, planName, status, compa
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || t.savingsPlanStatusUpdateFailed);
+        throw new Error(data.error || t("savings.savingsPlanStatusUpdateFailed"));
       }
     },
     onSuccess: async () => {
       setError(null);
-      toast.success(t.savingsPlanStatusUpdateSuccess);
+      toast.success(t("savings.savingsPlanStatusUpdateSuccess"));
       await queryClient.invalidateQueries({ queryKey: ["savings"] });
       router.push(`/app/savings?filter=archived&plan=${planId}`);
     },
     onError: (mutationError: unknown) => {
-      const message = mutationError instanceof Error ? mutationError.message : t.savingsPlanStatusUpdateFailed;
+      const message = mutationError instanceof Error ? mutationError.message : t("savings.savingsPlanStatusUpdateFailed");
       setError(message);
       toast.error(message);
     },
@@ -124,7 +124,7 @@ export default function SavingsPlanStateButton({ planId, planName, status, compa
           disabled={updateStateMutation.isPending}
           className="flex items-center justify-center rounded-xl bg-[#d4ecf9] px-6 py-3 text-xs font-bold uppercase tracking-widest text-[#49636f] transition-all hover:bg-[#f8cfc4] hover:text-[#a73b21] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {t.savingsPlanCancelAction}
+          {t("savings.savingsPlanCancelAction")}
         </button>
       ) : null}
 
@@ -138,8 +138,8 @@ export default function SavingsPlanStateButton({ planId, planName, status, compa
               ? "grid h-10 w-10 place-items-center rounded-full border border-[#006f1d]/10 bg-white/60 text-[#006f1d] shadow-sm transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-70"
               : "grid h-11 w-11 place-items-center rounded-xl bg-[#d4ecf9] text-[#49636f] transition-all hover:bg-[#cbe7f6] hover:text-[#1b3641] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
           }
-          title={t.savingsPlanArchiveAction}
-          aria-label={t.savingsPlanArchiveAction}
+          title={t("savings.savingsPlanArchiveAction")}
+          aria-label={t("savings.savingsPlanArchiveAction")}
         >
           <span className="material-symbols-outlined text-[20px]">archive</span>
         </button>
@@ -164,7 +164,7 @@ export default function SavingsPlanStateButton({ planId, planName, status, compa
                   <span className="material-symbols-outlined text-3xl">cancel</span>
                 </div>
                 <h2 className="font-[var(--font-manrope)] text-2xl font-bold tracking-tight text-[#1b3641]">
-                  {t.savingsPlanCancelDialogTitle}
+                  {t("savings.savingsPlanCancelDialogTitle")}
                 </h2>
                 <p className="mt-2 text-sm text-[#49636f]">{subtitle}</p>
                 <button
@@ -174,7 +174,7 @@ export default function SavingsPlanStateButton({ planId, planName, status, compa
                     setError(null);
                   }}
                   className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full text-[#49636f] transition hover:bg-[#d4ecf9]"
-                  aria-label={t.savingsPlanCloseAria}
+                  aria-label={t("savings.savingsPlanCloseAria")}
                 >
                   <span className="material-symbols-outlined">close</span>
                 </button>
@@ -182,7 +182,7 @@ export default function SavingsPlanStateButton({ planId, planName, status, compa
 
               <div className="space-y-6">
                 <div>
-                  <label className="mb-3 block text-sm font-bold text-[#1b3641]">{t.savingsPlanCancelReasonLabel}</label>
+                  <label className="mb-3 block text-sm font-bold text-[#1b3641]">{t("savings.savingsPlanCancelReasonLabel")}</label>
                   <div className="grid grid-cols-1 gap-2">
                     {reasonOptionKeys.map((optionKey) => (
                       <label
@@ -205,11 +205,11 @@ export default function SavingsPlanStateButton({ planId, planName, status, compa
                 </div>
 
                 <div>
-                  <label className="mb-3 block text-sm font-bold text-[#1b3641]">{t.savingsPlanCancelNotesLabel}</label>
+                  <label className="mb-3 block text-sm font-bold text-[#1b3641]">{t("savings.savingsPlanCancelNotesLabel")}</label>
                   <textarea
                     value={additionalNotes}
                     onChange={(event) => setAdditionalNotes(event.target.value)}
-                    placeholder={t.savingsPlanCancelNotesPlaceholder}
+                    placeholder={t("savings.savingsPlanCancelNotesPlaceholder")}
                     rows={3}
                     className="w-full rounded-xl bg-[#e7f6ff] p-4 text-sm text-[#1b3641] placeholder:text-[#49636f]/60 outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/20"
                   />
@@ -221,7 +221,7 @@ export default function SavingsPlanStateButton({ planId, planName, status, compa
                   info
                 </span>
                 <p className="text-xs font-medium leading-relaxed text-[#49636f]">
-                  <span className="font-bold text-[#1b3641]">{t.savingsPlanCancelInfoTitle}:</span> {t.savingsPlanCancelInfoBody}
+                  <span className="font-bold text-[#1b3641]">{t("savings.savingsPlanCancelInfoTitle")}:</span> {t("savings.savingsPlanCancelInfoBody")}
                 </p>
               </div>
 
@@ -234,7 +234,7 @@ export default function SavingsPlanStateButton({ planId, planName, status, compa
                   disabled={updateStateMutation.isPending}
                   className="flex-1 rounded-xl bg-gradient-to-br from-[#a73b21] to-[#791903] px-6 py-3.5 font-[var(--font-manrope)] text-sm font-bold text-[#fff7f6] shadow-lg shadow-[#a73b21]/20 transition-all hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {updateStateMutation.isPending ? t.savingsPlanCancelConfirming : t.savingsPlanCancelConfirm}
+                  {updateStateMutation.isPending ? t("savings.savingsPlanCancelConfirming") : t("savings.savingsPlanCancelConfirm")}
                 </button>
                 <button
                   type="button"
@@ -244,7 +244,7 @@ export default function SavingsPlanStateButton({ planId, planName, status, compa
                   }}
                   className="flex-1 rounded-xl bg-[#d4ecf9] px-6 py-3.5 font-[var(--font-manrope)] text-sm font-bold text-[#1b3641] transition-all hover:bg-[#cbe7f6] active:scale-95"
                 >
-                  {t.savingsPlanCancelKeep}
+                  {t("savings.savingsPlanCancelKeep")}
                 </button>
               </div>
             </div>

@@ -1,6 +1,7 @@
 import { SavingsPageView } from "@/features/savings";
 import { prisma } from "@/lib/db";
 import { materializeRecurringTransactions } from "@/lib/recurring";
+import { serializeForClient } from "@/lib/serialize-for-client";
 import { requireUser } from "@/lib/user";
 
 type SearchParams = Promise<{ plan?: string | string[] | undefined; filter?: string | string[] | undefined }>;
@@ -20,7 +21,7 @@ export default async function SavingsPage({ searchParams }: { searchParams: Sear
       ? requestedFilter
       : "active";
 
-  const [savingsPlans, savingsTransactions, wallets] = await Promise.all([
+  const [rawSavingsPlans, rawSavingsTransactions, wallets] = await Promise.all([
     prisma.savingsPlan.findMany({
       where: { userId: user.id },
       orderBy: [{ createdAt: "desc" }],
@@ -52,6 +53,9 @@ export default async function SavingsPage({ searchParams }: { searchParams: Sear
       select: { id: true, name: true },
     }),
   ]);
+
+  const savingsPlans = serializeForClient(rawSavingsPlans);
+  const savingsTransactions = serializeForClient(rawSavingsTransactions);
 
   return (
     <SavingsPageView

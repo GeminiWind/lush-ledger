@@ -1,6 +1,8 @@
+"use client";
+
 import { addMonthsDate, endOfMonthDate, localeDateLabel, nowDate, startOfMonthDate } from "@/lib/date";
 import { formatCurrency } from "@/lib/format";
-import { getDictionary } from "@/lib/i18n";
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import Link from "next/link";
 import AddContributionDialog from "@/features/savings/dialogs/AddContributionDialog";
 import EditSavingsPlanDialog from "@/features/savings/dialogs/EditSavingsPlanDialog";
@@ -9,6 +11,8 @@ import SavingsPlanStateButton from "@/features/savings/components/SavingsPlanSta
 import SavingsGrowthChart from "@/features/savings/components/SavingsGrowthChart";
 import SavingsPlanCreateDialog from "@/features/savings/dialogs/SavingsPlanCreateDialog";
 import SavingsFilterDropdown from "@/features/savings/components/SavingsFilterDropdown";
+
+type Translator = ((key: string) => string) & Record<string, string>;
 
 const toNumber = (value: unknown) => Number(value ?? 0);
 
@@ -58,7 +62,7 @@ const getPlanIcon = (name: string) => {
   return "savings";
 };
 
-const getPlanStatusLabel = (status: string, t: ReturnType<typeof getDictionary>) => {
+const getPlanStatusLabel = (status: string, t: Translator) => {
   if (status === "completed") {
     return t.savingsPlanStatusCompleted;
   }
@@ -99,7 +103,7 @@ export default function SavingsPageView({
   savingsTransactions,
   wallets,
 }: Props) {
-  const t = getDictionary(language);
+  const t = useNamespacedTranslation("savings", language);
 
   const plans = savingsPlans.map((plan) => {
     const saved = savingsTransactions

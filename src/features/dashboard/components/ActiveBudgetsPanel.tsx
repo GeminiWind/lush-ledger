@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { getDictionary } from "@/lib/i18n";
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import type { ActiveBudgetsPanelProps } from "@/features/dashboard/types";
 
 const toCurrencyLabel = (amount: number, currency: string) => {
@@ -16,7 +16,7 @@ const toCurrencyLabel = (amount: number, currency: string) => {
 export default function ActiveBudgetsPanel({ budgets, currency, daysRemaining, language }: ActiveBudgetsPanelProps) {
   const [pageIndex, setPageIndex] = useState(0);
   const [filter, setFilter] = useState<"all" | "healthy" | "overspent">("all");
-  const t = getDictionary(language);
+  const t = useNamespacedTranslation("atelier", language);
   const itemsPerPage = 2;
 
   const filteredBudgets = useMemo(() => {
@@ -41,7 +41,7 @@ export default function ActiveBudgetsPanel({ budgets, currency, daysRemaining, l
   return (
     <article className="xl:col-span-2 rounded-2xl bg-[#edf3ee] p-6">
       <div className="flex items-center justify-between">
-        <h2 className="font-[var(--font-manrope)] text-2xl font-bold">{t.activeBudgetsTitle}</h2>
+        <h2 className="font-[var(--font-manrope)] text-2xl font-bold">{t("atelier.activeBudgetsTitle")}</h2>
         <div className="flex items-center gap-2 text-[#49636f]">
           <button
             type="button"
@@ -51,9 +51,9 @@ export default function ActiveBudgetsPanel({ budgets, currency, daysRemaining, l
               setPageIndex(0);
             }}
             className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#1b3641] shadow-sm transition-colors hover:text-[#006f1d]"
-            aria-label={t.activeBudgetsFilterLabel}
-            title={`${t.activeBudgetsFilterLabel}: ${
-              filter === "all" ? t.activeBudgetsFilterAll : filter === "healthy" ? t.activeBudgetsFilterHealthy : t.activeBudgetsFilterOverspent
+            aria-label={t("atelier.activeBudgetsFilterLabel")}
+            title={`${t("atelier.activeBudgetsFilterLabel")}: ${
+              filter === "all" ? t("atelier.activeBudgetsFilterAll") : filter === "healthy" ? t("atelier.activeBudgetsFilterHealthy") : t("atelier.activeBudgetsFilterOverspent")
             }`}
           >
             <span className="material-symbols-outlined text-xl">filter_alt</span>
@@ -63,7 +63,7 @@ export default function ActiveBudgetsPanel({ budgets, currency, daysRemaining, l
             disabled={!hasMultiplePages}
             onClick={() => setPageIndex(activePageIndex === 0 ? pageCount - 1 : activePageIndex - 1)}
             className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#1b3641] shadow-sm transition-colors hover:text-[#006f1d] disabled:cursor-not-allowed disabled:opacity-40"
-            aria-label={t.activeBudgetsPrev}
+            aria-label={t("atelier.activeBudgetsPrev")}
           >
             <span className="material-symbols-outlined text-xl">chevron_left</span>
           </button>
@@ -72,7 +72,7 @@ export default function ActiveBudgetsPanel({ budgets, currency, daysRemaining, l
             disabled={!hasMultiplePages}
             onClick={() => setPageIndex(activePageIndex === pageCount - 1 ? 0 : activePageIndex + 1)}
             className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#1b3641] shadow-sm transition-colors hover:text-[#006f1d] disabled:cursor-not-allowed disabled:opacity-40"
-            aria-label={t.activeBudgetsNext}
+            aria-label={t("atelier.activeBudgetsNext")}
           >
             <span className="material-symbols-outlined text-xl">chevron_right</span>
           </button>
@@ -83,8 +83,8 @@ export default function ActiveBudgetsPanel({ budgets, currency, daysRemaining, l
         {visibleBudgets.length === 0 ? (
           <p className="text-sm text-[#647e8c]">
               {budgets.length === 0
-                ? t.activeBudgetsNoLimits
-                : `${t.activeBudgetsNoFiltered} (${filter === "all" ? t.activeBudgetsFilterAll : filter === "healthy" ? t.activeBudgetsFilterHealthy : t.activeBudgetsFilterOverspent})`}
+                ? t("atelier.activeBudgetsNoLimits")
+                : `${t("atelier.activeBudgetsNoFiltered")} (${filter === "all" ? t("atelier.activeBudgetsFilterAll") : filter === "healthy" ? t("atelier.activeBudgetsFilterHealthy") : t("atelier.activeBudgetsFilterOverspent")})`}
             </p>
         ) : (
           visibleBudgets.map((budget) => (
@@ -97,18 +97,18 @@ export default function ActiveBudgetsPanel({ budgets, currency, daysRemaining, l
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <h3 className="font-semibold text-[#1b3641]">{budget.name}</h3>
-                  <p className="text-sm text-[#647e8c]">{t.activeBudgetsEndsIn} {daysRemaining} {t.activeBudgetsDays}</p>
+                  <p className="text-sm text-[#647e8c]">{t("atelier.activeBudgetsEndsIn")} {daysRemaining} {t("atelier.activeBudgetsDays")}</p>
                 </div>
                 <span
                   className={`rounded px-3 py-1 text-[11px] font-semibold uppercase ${
                     budget.isOverspent ? "bg-[#a73b21] text-white" : "bg-[#eaffe2] text-[#006f1d]"
                   }`}
                 >
-                  {budget.isOverspent ? t.activeBudgetsOverspent : t.activeBudgetsHealthy}
+                  {budget.isOverspent ? t("atelier.activeBudgetsOverspent") : t("atelier.activeBudgetsHealthy")}
                 </span>
               </div>
               <p className="mt-3 text-sm text-[#49636f]">
-                {t.activeBudgetsSpent} <span className="font-semibold text-[#1b3641]">{toCurrencyLabel(budget.spent, currency)}</span> | {t.activeBudgetsBudget}{" "}
+                {t("atelier.activeBudgetsSpent")} <span className="font-semibold text-[#1b3641]">{toCurrencyLabel(budget.spent, currency)}</span> | {t("atelier.activeBudgetsBudget")}{" "}
                 <span className="font-semibold text-[#1b3641]">{toCurrencyLabel(budget.budget, currency)}</span>
               </p>
               <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#edf2ef]">
@@ -119,8 +119,8 @@ export default function ActiveBudgetsPanel({ budgets, currency, daysRemaining, l
               </div>
               <p className={`mt-3 text-sm font-semibold ${budget.isOverspent ? "text-[#a73b21]" : "text-[#006f1d]"}`}>
                 {budget.isOverspent
-                  ? `${t.activeBudgetsExcessThisMonth}: ${toCurrencyLabel(Math.abs(budget.remaining), currency)}.`
-                  : `${toCurrencyLabel(budget.remaining, currency)} ${t.activeBudgetsRemainingLimit}.`}
+                  ? `${t("atelier.activeBudgetsExcessThisMonth")}: ${toCurrencyLabel(Math.abs(budget.remaining), currency)}.`
+                  : `${toCurrencyLabel(budget.remaining, currency)} ${t("atelier.activeBudgetsRemainingLimit")}.`}
               </p>
             </div>
           ))

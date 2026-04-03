@@ -4,10 +4,10 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useFormik } from "formik";
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import { formatCurrencyInput, getCurrencyInputSuggestions, parseCurrencyInput } from "@/lib/format";
 import type { EditCategoryModalProps } from "@/features/atelier/types";
 import toast from "react-hot-toast";
-import { getDictionary } from "@/lib/i18n";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const allIconChoices = [
@@ -83,7 +83,7 @@ const allIconChoices = [
 
 export default function EditCategoryModal({ category, currency, language }: EditCategoryModalProps) {
   const router = useRouter();
-  const t = getDictionary(language);
+  const t = useNamespacedTranslation("atelier", language);
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [keepNextMonth, setKeepNextMonth] = useState(true);
@@ -96,10 +96,10 @@ export default function EditCategoryModal({ category, currency, language }: Edit
 
   const currencyHint = useMemo(() => {
     if (currency === "VND") {
-      return t.atelierCurrencyHintVnd;
+      return t("atelier.atelierCurrencyHintVnd");
     }
-    return t.atelierCurrencyHintTemplate.replace("{currency}", currency);
-  }, [currency, t.atelierCurrencyHintTemplate, t.atelierCurrencyHintVnd]);
+    return t("atelier.atelierCurrencyHintTemplate").replace("{currency}", currency);
+  }, [currency, t]);
 
   const updateCategoryMutation = useMutation({
     mutationFn: async (values: { name: string; monthlyLimit: string }) => {
@@ -118,17 +118,17 @@ export default function EditCategoryModal({ category, currency, language }: Edit
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || t.atelierEditCategoryFailed);
+        throw new Error(data.error || t("atelier.atelierEditCategoryFailed"));
       }
     },
     onSuccess: async () => {
       setIsOpen(false);
-      toast.success(t.atelierEditCategorySuccess);
+      toast.success(t("atelier.atelierEditCategorySuccess"));
       await queryClient.invalidateQueries({ queryKey: ["atelier"] });
       router.refresh();
     },
     onError: (mutationError: unknown) => {
-      setError(mutationError instanceof Error ? mutationError.message : t.atelierEditCategoryFailed);
+      setError(mutationError instanceof Error ? mutationError.message : t("atelier.atelierEditCategoryFailed"));
     },
   });
 
@@ -141,10 +141,10 @@ export default function EditCategoryModal({ category, currency, language }: Edit
     validate: (values) => {
       const errors: { name?: string; monthlyLimit?: string } = {};
       if (!values.name.trim()) {
-        errors.name = t.atelierCategoryNameRequired;
+        errors.name = t("atelier.atelierCategoryNameRequired");
       }
       if (parseCurrencyInput(values.monthlyLimit) < 0) {
-        errors.monthlyLimit = t.atelierMonthlyLimitNonNegative;
+        errors.monthlyLimit = t("atelier.atelierMonthlyLimitNonNegative");
       }
       return errors;
     },
@@ -207,7 +207,7 @@ export default function EditCategoryModal({ category, currency, language }: Edit
         type="button"
         onClick={openModal}
         className="rounded-full bg-[#eef7ff] p-2 text-[#49636f] transition hover:bg-[#dbeefb]"
-        aria-label={`${t.atelierActionEdit} ${category.name}`}
+        aria-label={`${t("atelier.atelierActionEdit")} ${category.name}`}
       >
         <span className="material-symbols-outlined text-base">edit</span>
       </button>
@@ -231,21 +231,21 @@ export default function EditCategoryModal({ category, currency, language }: Edit
                       type="button"
                       onClick={closeModal}
                       className="grid h-10 w-10 place-items-center rounded-full text-[#647e8c] transition hover:bg-[#eef7ff]"
-                      aria-label={t.atelierActionCancel}
+                      aria-label={t("atelier.atelierActionCancel")}
                     >
                       <span className="material-symbols-outlined">close</span>
                     </button>
                   </div>
                   <h2 className="font-[var(--font-manrope)] text-3xl font-extrabold tracking-[-0.02em] text-[#1b3641]">
-                    {t.atelierEditCategoryTitleTemplate.replace("{name}", category.name)}
+                    {t("atelier.atelierEditCategoryTitleTemplate").replace("{name}", category.name)}
                   </h2>
-                  <p className="mt-2 text-sm text-[#49636f]">{t.atelierEditCategorySubtitle}</p>
+                  <p className="mt-2 text-sm text-[#49636f]">{t("atelier.atelierEditCategorySubtitle")}</p>
                 </div>
 
                 <form onSubmit={formik.handleSubmit} className="space-y-7 px-8 pb-10 sm:px-10">
                   <div className="space-y-2">
                     <label className="ml-1 block text-xs font-bold uppercase tracking-[0.2em] text-[#647e8c]">
-                      {t.atelierCategoryNameLabel}
+                      {t("atelier.atelierCategoryNameLabel")}
                     </label>
                     <div className="relative">
                       <input
@@ -259,8 +259,8 @@ export default function EditCategoryModal({ category, currency, language }: Edit
                         type="button"
                         onClick={() => setIconDialogOpen(true)}
                         className="absolute right-3 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-xl bg-white text-[#2e7d32] shadow-sm transition hover:bg-[#edf8f0]"
-                        title={t.atelierEditIconAria}
-                        aria-label={t.atelierEditIconAria}
+                        title={t("atelier.atelierEditIconAria")}
+                        aria-label={t("atelier.atelierEditIconAria")}
                       >
                         <span className="material-symbols-outlined text-[20px]">{selectedIcon}</span>
                       </button>
@@ -272,7 +272,7 @@ export default function EditCategoryModal({ category, currency, language }: Edit
 
                   <div className="space-y-2">
                     <label className="ml-1 block text-xs font-bold uppercase tracking-[0.2em] text-[#647e8c]">
-                      {t.atelierMonthlySpendingLimit}
+                      {t("atelier.atelierMonthlySpendingLimit")}
                     </label>
                     <input
                       name="monthlyLimit"
@@ -305,7 +305,7 @@ export default function EditCategoryModal({ category, currency, language }: Edit
 
                   <div className="space-y-3 rounded-2xl border border-[#d7e8f3] bg-[#f7fcff] p-5">
                     <div className="flex items-center justify-between gap-4">
-                      <label className="text-sm font-bold text-[#49636f]">{t.atelierKeepLimitNextMonth}</label>
+                      <label className="text-sm font-bold text-[#49636f]">{t("atelier.atelierKeepLimitNextMonth")}</label>
                       <button
                         type="button"
                         onClick={() => setKeepNextMonth((value) => !value)}
@@ -321,7 +321,7 @@ export default function EditCategoryModal({ category, currency, language }: Edit
                         />
                       </button>
                     </div>
-                    <p className="text-[11px] leading-relaxed text-[#6f8793]">{t.atelierKeepLimitNextMonthHint}</p>
+                    <p className="text-[11px] leading-relaxed text-[#6f8793]">{t("atelier.atelierKeepLimitNextMonthHint")}</p>
                   </div>
 
                   <div className="rounded-2xl border border-[#d7e8f3] bg-[#f7fcff] p-5">
@@ -331,8 +331,8 @@ export default function EditCategoryModal({ category, currency, language }: Edit
                           <span className="material-symbols-outlined">notifications_active</span>
                         </div>
                         <div>
-                          <h3 className="text-sm font-bold text-[#1b3641]">{t.atelierOverExpenseWarning}</h3>
-                          <p className="text-xs text-[#6f8793]">{t.atelierWarningHint}</p>
+                          <h3 className="text-sm font-bold text-[#1b3641]">{t("atelier.atelierOverExpenseWarning")}</h3>
+                          <p className="text-xs text-[#6f8793]">{t("atelier.atelierWarningHint")}</p>
                         </div>
                       </div>
                       <button
@@ -379,14 +379,14 @@ export default function EditCategoryModal({ category, currency, language }: Edit
                       className="flex h-14 min-w-[220px] flex-1 items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(145deg,#2e7d32_0%,#006118_100%)] px-6 text-sm font-bold text-[#eaffe2] shadow-[0_12px_28px_-12px_rgba(0,111,29,0.45)] transition hover:brightness-105 disabled:opacity-70"
                     >
                       <span className="material-symbols-outlined text-lg">done_all</span>
-                      {updateCategoryMutation.isPending ? t.atelierActionSaving : t.atelierSaveChanges}
+                      {updateCategoryMutation.isPending ? t("atelier.atelierActionSaving") : t("atelier.atelierSaveChanges")}
                     </button>
                     <button
                       type="button"
                       onClick={closeModal}
                       className="px-2 text-sm font-bold text-[#6f8793] transition hover:text-[#a73b21]"
                     >
-                      {t.atelierDiscard}
+                      {t("atelier.atelierDiscard")}
                     </button>
                   </div>
                 </form>
@@ -394,12 +394,12 @@ export default function EditCategoryModal({ category, currency, language }: Edit
                 {iconDialogOpen ? (
                   <div className="absolute inset-0 bg-white/95 p-6 sm:p-8">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-[var(--font-manrope)] text-xl font-bold text-[#1b3641]">{t.atelierChooseIcon}</h3>
+                      <h3 className="font-[var(--font-manrope)] text-xl font-bold text-[#1b3641]">{t("atelier.atelierChooseIcon")}</h3>
                       <button
                         type="button"
                         onClick={() => setIconDialogOpen(false)}
                         className="grid h-9 w-9 place-items-center rounded-full text-[#647e8c] hover:bg-[#eef7ff]"
-                        aria-label={t.atelierCloseIconPickerAria}
+                        aria-label={t("atelier.atelierCloseIconPickerAria")}
                       >
                         <span className="material-symbols-outlined">close</span>
                       </button>
@@ -412,7 +412,7 @@ export default function EditCategoryModal({ category, currency, language }: Edit
                       <input
                         value={iconSearch}
                         onChange={(event) => setIconSearch(event.target.value)}
-                        placeholder={t.atelierSearchIconsPlaceholder}
+                        placeholder={t("atelier.atelierSearchIconsPlaceholder")}
                         className="w-full rounded-xl border border-[#d7e8f3] bg-white py-2.5 pl-10 pr-3 text-sm text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#2e7d32]/30"
                       />
                     </div>

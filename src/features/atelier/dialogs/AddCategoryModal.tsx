@@ -4,8 +4,8 @@ import { useRouter } from "next/navigation";
 import { startTransition, useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useFormik } from "formik";
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import { formatCurrencyInput, getCurrencyInputSuggestions, parseCurrencyInput } from "@/lib/format";
-import { getDictionary } from "@/lib/i18n";
 import type { AddCategoryModalProps } from "@/features/atelier/types";
 import toast from "react-hot-toast";
 import { useMutation } from "@tanstack/react-query";
@@ -83,7 +83,7 @@ const allIconChoices = [
 
 export default function AddCategoryModal({ currency, language }: AddCategoryModalProps) {
   const router = useRouter();
-  const t = getDictionary(language);
+  const t = useNamespacedTranslation("atelier", language);
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [keepNextMonth, setKeepNextMonth] = useState(true);
@@ -93,10 +93,10 @@ export default function AddCategoryModal({ currency, language }: AddCategoryModa
 
   const currencyHint = useMemo(() => {
     if (currency === "VND") {
-      return t.atelierCurrencyHintVnd;
+      return t("atelier.atelierCurrencyHintVnd");
     }
-    return t.atelierCurrencyHintTemplate.replace("{currency}", currency);
-  }, [currency, t.atelierCurrencyHintTemplate, t.atelierCurrencyHintVnd]);
+    return t("atelier.atelierCurrencyHintTemplate").replace("{currency}", currency);
+  }, [currency, t]);
 
   const resetUiState = useCallback(() => {
     setError(null);
@@ -123,20 +123,20 @@ export default function AddCategoryModal({ currency, language }: AddCategoryModa
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || t.atelierCreateCategoryFailed);
+        throw new Error(data.error || t("atelier.atelierCreateCategoryFailed"));
       }
     },
     onSuccess: () => {
       resetUiState();
       formik.resetForm();
       setIsOpen(false);
-      toast.success(t.atelierCreateCategorySuccess);
+      toast.success(t("atelier.atelierCreateCategorySuccess"));
       startTransition(() => {
         router.refresh();
       });
     },
     onError: (mutationError: unknown) => {
-      setError(mutationError instanceof Error ? mutationError.message : t.atelierCreateCategoryFailed);
+      setError(mutationError instanceof Error ? mutationError.message : t("atelier.atelierCreateCategoryFailed"));
     },
   });
 
@@ -148,10 +148,10 @@ export default function AddCategoryModal({ currency, language }: AddCategoryModa
     validate: (values) => {
       const errors: { name?: string; monthlyLimit?: string } = {};
       if (!values.name.trim()) {
-        errors.name = t.atelierCategoryNameRequired;
+        errors.name = t("atelier.atelierCategoryNameRequired");
       }
       if (parseCurrencyInput(values.monthlyLimit) < 0) {
-        errors.monthlyLimit = t.atelierMonthlyLimitNonNegative;
+        errors.monthlyLimit = t("atelier.atelierMonthlyLimitNonNegative");
       }
       return errors;
     },
@@ -200,7 +200,7 @@ export default function AddCategoryModal({ currency, language }: AddCategoryModa
           <span className="material-symbols-outlined text-2xl">add</span>
         </div>
         <span className="font-[var(--font-manrope)] text-base font-bold text-[#49636f] group-hover:text-[#2e7d32]">
-          {t.atelierAddNewCategory}
+          {t("atelier.atelierAddNewCategory")}
         </span>
       </button>
 
@@ -217,15 +217,15 @@ export default function AddCategoryModal({ currency, language }: AddCategoryModa
             <div className="p-8 sm:p-10">
               <div className="mb-8 text-center">
                 <h2 className="font-[var(--font-manrope)] text-3xl font-extrabold tracking-[-0.02em] text-[#1b3641]">
-                  {t.atelierCreateNewCategory}
+                  {t("atelier.atelierCreateNewCategory")}
                 </h2>
-                <p className="mt-2 text-[#49636f]">{t.atelierCategorySegment}</p>
+                <p className="mt-2 text-[#49636f]">{t("atelier.atelierCategorySegment")}</p>
               </div>
 
               <form onSubmit={formik.handleSubmit} className="space-y-6">
                 <div className="space-y-2">
                   <label className="ml-2 block text-xs font-bold uppercase tracking-[0.2em] text-[#6f8793]">
-                    {t.atelierCategoryNameLabel} <span className="text-[#a73b21]">*</span>
+                    {t("atelier.atelierCategoryNameLabel")} <span className="text-[#a73b21]">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -233,7 +233,7 @@ export default function AddCategoryModal({ currency, language }: AddCategoryModa
                       value={formik.values.name}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
-                      placeholder={t.atelierCategoryNamePlaceholder}
+                      placeholder={t("atelier.atelierCategoryNamePlaceholder")}
                       className="w-full rounded-2xl border-none bg-[#e7f6ff] px-6 py-4 pr-16 text-base text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#2e7d32]/40"
                     />
                     <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#2e7d32]/55">
@@ -247,7 +247,7 @@ export default function AddCategoryModal({ currency, language }: AddCategoryModa
 
                 <div className="space-y-3 pt-1">
                   <label className="ml-2 block text-xs font-bold uppercase tracking-[0.2em] text-[#6f8793]">
-                    {t.atelierIconography}
+                    {t("atelier.atelierIconography")}
                   </label>
                   <div className="max-h-56 overflow-y-auto rounded-2xl bg-[#e7f6ff]/60 p-4 pr-3">
                     <div className="grid grid-cols-5 gap-3 sm:grid-cols-7">
@@ -264,7 +264,7 @@ export default function AddCategoryModal({ currency, language }: AddCategoryModa
                                 : "bg-white/70 text-[#49636f] hover:bg-white"
                             }`}
                             title={icon}
-                            aria-label={t.atelierSelectIconAriaTemplate.replace("{icon}", icon)}
+                            aria-label={t("atelier.atelierSelectIconAriaTemplate").replace("{icon}", icon)}
                           >
                             <span className="material-symbols-outlined text-2xl">{icon}</span>
                           </button>
@@ -276,7 +276,7 @@ export default function AddCategoryModal({ currency, language }: AddCategoryModa
 
                 <div className="space-y-2">
                   <label className="ml-2 block text-xs font-bold uppercase tracking-[0.2em] text-[#6f8793]">
-                    {t.atelierMonthlySpendingLimit}
+                    {t("atelier.atelierMonthlySpendingLimit")}
                   </label>
                   <div className="relative">
                     <span className="absolute left-6 top-1/2 -translate-y-1/2 text-xl font-bold text-[#647e8c]">
@@ -315,7 +315,7 @@ export default function AddCategoryModal({ currency, language }: AddCategoryModa
 
                 <div className="space-y-3 rounded-2xl border border-[#d7e8f3] bg-[#f7fcff] p-4">
                   <div className="flex items-center justify-between gap-4">
-                    <span className="text-sm font-bold text-[#1b3641]">{t.atelierKeepLimitNextMonth}</span>
+                    <span className="text-sm font-bold text-[#1b3641]">{t("atelier.atelierKeepLimitNextMonth")}</span>
                     <button
                       type="button"
                       onClick={() => setKeepNextMonth((value) => !value)}
@@ -331,14 +331,14 @@ export default function AddCategoryModal({ currency, language }: AddCategoryModa
                       />
                     </button>
                   </div>
-                  <p className="text-[11px] leading-relaxed text-[#6f8793]">{t.atelierKeepLimitNextMonthHint}</p>
+                  <p className="text-[11px] leading-relaxed text-[#6f8793]">{t("atelier.atelierKeepLimitNextMonthHint")}</p>
                 </div>
 
                 <div className="space-y-3">
                   <div className="flex flex-wrap items-end justify-between gap-4 rounded-2xl bg-[#e7f6ff] px-4 py-3">
                     <div>
                       <label className="ml-1 block text-xs font-bold uppercase tracking-[0.2em] text-[#6f8793]">
-                        {t.atelierOverExpenseWarning}
+                        {t("atelier.atelierOverExpenseWarning")}
                       </label>
                       <div className="mt-2 flex items-center gap-3">
                         <button
@@ -356,14 +356,14 @@ export default function AddCategoryModal({ currency, language }: AddCategoryModa
                           />
                         </button>
                         <span className="text-sm font-semibold text-[#1b3641]">
-                          {warningEnabled ? t.atelierEnabled : t.atelierDisabled}
+                          {warningEnabled ? t("atelier.atelierEnabled") : t("atelier.atelierDisabled")}
                         </span>
                       </div>
                     </div>
 
                     <div className="w-24">
                       <label className="ml-1 block text-xs font-bold uppercase tracking-[0.2em] text-[#6f8793]">
-                        {t.atelierWarnAt}
+                        {t("atelier.atelierWarnAt")}
                       </label>
                       <input
                         value={`${warnAt}%`}
@@ -386,14 +386,14 @@ export default function AddCategoryModal({ currency, language }: AddCategoryModa
                     onClick={closeModal}
                     className="flex-1 rounded-2xl bg-[#d4ecf9] px-6 py-4 font-bold text-[#1b3641] transition hover:bg-[#c7e3f3]"
                   >
-                    {t.atelierActionCancel}
+                    {t("atelier.atelierActionCancel")}
                   </button>
                   <button
                     type="submit"
                     disabled={createCategoryMutation.isPending}
                     className="flex-[1.4] rounded-2xl bg-[linear-gradient(145deg,#2e7d32_0%,#006118_100%)] px-6 py-4 font-bold text-[#eaffe2] shadow-[0_16px_28px_-12px_rgba(0,111,29,0.4)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-70"
                   >
-                    {createCategoryMutation.isPending ? t.atelierAddingCategory : t.atelierAddCategory}
+                    {createCategoryMutation.isPending ? t("atelier.atelierAddingCategory") : t("atelier.atelierAddCategory")}
                   </button>
                 </div>
               </form>

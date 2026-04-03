@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useFormik } from "formik";
-import { getDictionary } from "@/lib/i18n";
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import toast from "react-hot-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -43,7 +43,7 @@ export default function SettingsForm({ language, initialValues }: Props) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
-  const t = getDictionary(language);
+  const t = useNamespacedTranslation("settings", language);
   const queryClient = useQueryClient();
 
   const updateSettingsMutation = useMutation({
@@ -56,17 +56,17 @@ export default function SettingsForm({ language, initialValues }: Props) {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || t.settingsSaveFailed);
+        throw new Error(data.error || t("settings.settingsSaveFailed"));
       }
     },
     onSuccess: async () => {
       setSaved(true);
-      toast.success(t.settingsSaved);
+      toast.success(t("settings.settingsSaved"));
       await queryClient.invalidateQueries({ queryKey: ["settings"] });
       router.refresh();
     },
     onError: (mutationError: unknown) => {
-      setError(mutationError instanceof Error ? mutationError.message : t.settingsSaveFailed);
+      setError(mutationError instanceof Error ? mutationError.message : t("settings.settingsSaveFailed"));
     },
   });
 
@@ -76,19 +76,19 @@ export default function SettingsForm({ language, initialValues }: Props) {
       const errors: { name?: string; currency?: string; language?: string; theme?: string } = {};
 
       if (!values.name.trim() || values.name.trim().length < 2) {
-        errors.name = t.errorNameRequired;
+        errors.name = t("common.errorNameRequired");
       }
 
       if (!values.currency) {
-        errors.currency = t.errorCurrencyRequired;
+        errors.currency = t("common.errorCurrencyRequired");
       }
 
       if (!values.language) {
-        errors.language = t.errorLanguageRequired;
+        errors.language = t("common.errorLanguageRequired");
       }
 
       if (!values.theme) {
-        errors.theme = t.errorThemeRequired;
+        errors.theme = t("common.errorThemeRequired");
       }
 
       return errors;
@@ -106,8 +106,8 @@ export default function SettingsForm({ language, initialValues }: Props) {
         <section className="space-y-6 lg:col-span-8">
           <article className="rounded-xl bg-[#e7f6ff] p-8">
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="font-[var(--font-manrope)] text-xl font-bold text-[#1b3641]">{t.settingsThemeTitle}</h2>
-              <span className="text-xs font-medium text-[#49636f]">{t.settingsVisualIdentity}</span>
+              <h2 className="font-[var(--font-manrope)] text-xl font-bold text-[#1b3641]">{t("settings.settingsThemeTitle")}</h2>
+              <span className="text-xs font-medium text-[#49636f]">{t("settings.settingsVisualIdentity")}</span>
             </div>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -126,7 +126,7 @@ export default function SettingsForm({ language, initialValues }: Props) {
                   >
                     <div className={`mb-4 h-20 rounded-lg ${theme.preview}`} />
                     <div className="flex items-center justify-between">
-                      <span className={`font-bold ${selected ? "text-[#1b3641]" : "text-[#49636f]"}`}>{t[theme.key]}</span>
+                      <span className={`font-bold ${selected ? "text-[#1b3641]" : "text-[#49636f]"}`}>{t(`settings.${theme.key}`)}</span>
                       <span className={`material-symbols-outlined ${selected ? "text-[#006f1d]" : "text-[#9bb6c4]"}`}>
                         {selected ? theme.activeIcon : "circle"}
                       </span>
@@ -141,11 +141,11 @@ export default function SettingsForm({ language, initialValues }: Props) {
           </article>
 
           <article className="rounded-xl bg-white p-8">
-            <h2 className="font-[var(--font-manrope)] text-xl font-bold text-[#1b3641]">{t.settingsProfileTitle}</h2>
+            <h2 className="font-[var(--font-manrope)] text-xl font-bold text-[#1b3641]">{t("settings.settingsProfileTitle")}</h2>
             <div className="mt-6 space-y-4">
               <div>
                 <label className="mb-1 ml-1 block text-xs font-bold uppercase tracking-[0.12em] text-[#6f8793]">
-                  {t.settingsFullName} <span className="text-[#a73b21]">*</span>
+                  {t("settings.settingsFullName")} <span className="text-[#a73b21]">*</span>
                 </label>
                 <input
                   name="name"
@@ -160,7 +160,7 @@ export default function SettingsForm({ language, initialValues }: Props) {
               </div>
 
               <div>
-                <label className="mb-1 ml-1 block text-xs font-bold uppercase tracking-[0.12em] text-[#6f8793]">{t.settingsEmail}</label>
+                <label className="mb-1 ml-1 block text-xs font-bold uppercase tracking-[0.12em] text-[#6f8793]">{t("settings.settingsEmail")}</label>
                 <input
                   value={formik.values.email}
                   disabled
@@ -173,10 +173,10 @@ export default function SettingsForm({ language, initialValues }: Props) {
 
         <section className="space-y-6 lg:col-span-4">
           <article className="rounded-xl bg-[#006f1d] p-8 text-[#eaffe2]">
-            <h2 className="font-[var(--font-manrope)] text-xl font-bold">{t.settingsCurrencyHub}</h2>
+            <h2 className="font-[var(--font-manrope)] text-xl font-bold">{t("settings.settingsCurrencyHub")}</h2>
             <div className="mt-5">
               <label className="mb-1 block text-xs font-bold uppercase tracking-[0.12em] text-[#d8ffe0]">
-                {t.settingsCurrency} <span className="text-[#ffd8cd]">*</span>
+                {t("settings.settingsCurrency")} <span className="text-[#ffd8cd]">*</span>
               </label>
               <select
                 name="currency"
@@ -197,10 +197,10 @@ export default function SettingsForm({ language, initialValues }: Props) {
           </article>
 
           <article className="rounded-xl bg-[#e7f6ff] p-8">
-            <h2 className="font-[var(--font-manrope)] text-xl font-bold text-[#1b3641]">{t.settingsLanguageTitle}</h2>
+            <h2 className="font-[var(--font-manrope)] text-xl font-bold text-[#1b3641]">{t("settings.settingsLanguageTitle")}</h2>
             <div className="mt-5">
               <label className="mb-1 block text-xs font-bold uppercase tracking-[0.12em] text-[#6f8793]">
-                {t.settingsCurrentDisplay} <span className="text-[#a73b21]">*</span>
+                {t("settings.settingsCurrentDisplay")} <span className="text-[#a73b21]">*</span>
               </label>
               <select
                 name="language"
@@ -223,17 +223,17 @@ export default function SettingsForm({ language, initialValues }: Props) {
           <article className="rounded-xl border-2 border-dashed border-[#c7dce9] bg-white p-6">
             <div className="flex items-center gap-2">
               <span className="material-symbols-outlined text-[#006f1d]">security</span>
-            <p className="text-sm font-bold text-[#1b3641]">{t.settingsPrivacyTitle}</p>
+            <p className="text-sm font-bold text-[#1b3641]">{t("settings.settingsPrivacyTitle")}</p>
             </div>
             <p className="mt-2 text-xs leading-relaxed text-[#49636f]">
-              {t.settingsPrivacyBody}
+              {t("settings.settingsPrivacyBody")}
             </p>
           </article>
         </section>
       </div>
 
       <section className="flex flex-col items-start justify-between gap-4 border-t border-[#d8e8f3] pt-8 md:flex-row md:items-center">
-        <p className="text-sm text-[#6f8793]">{t.settingsFooterHint}</p>
+        <p className="text-sm text-[#6f8793]">{t("settings.settingsFooterHint")}</p>
         <div className="flex gap-3">
           <button
             type="button"
@@ -244,19 +244,19 @@ export default function SettingsForm({ language, initialValues }: Props) {
             }}
             className="rounded-xl bg-[#d4ecf9] px-6 py-3 text-sm font-bold text-[#1b3641] hover:bg-[#c5e4f4]"
           >
-            {t.actionReset}
+            {t("common.actionReset")}
           </button>
           <button
             type="submit"
             disabled={updateSettingsMutation.isPending}
             className="rounded-xl bg-[linear-gradient(145deg,#2e7d32_0%,#006118_100%)] px-6 py-3 text-sm font-bold text-[#eaffe2] shadow-[0_12px_28px_-14px_rgba(0,111,29,0.45)] hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {t.actionSaveSettings}
+            {t("common.actionSaveSettings")}
           </button>
         </div>
       </section>
 
-      {saved ? <p className="text-sm font-semibold text-[#0f7a2f]">{t.settingsSaved}</p> : null}
+      {saved ? <p className="text-sm font-semibold text-[#0f7a2f]">{t("settings.settingsSaved")}</p> : null}
       {error ? <p className="text-sm font-semibold text-[#a73b21]">{error}</p> : null}
     </form>
   );

@@ -2,8 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import { formatCurrency, formatCurrencyInput, getCurrencyInputSuggestions, parseCurrencyInput } from "@/lib/format";
-import { getDictionary } from "@/lib/i18n";
 import type { TotalCapCardProps } from "@/features/atelier/types";
 import toast from "react-hot-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -19,7 +19,7 @@ export default function TotalCapCard({
   capProgress,
 }: TotalCapCardProps) {
   const router = useRouter();
-  const t = getDictionary(language);
+  const t = useNamespacedTranslation("atelier", language);
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(formatCurrencyInput(String(Math.max(0, Math.round(totalCap))), currency));
   const [keepCapNextMonth, setKeepCapNextMonth] = useState(true);
@@ -36,7 +36,7 @@ export default function TotalCapCard({
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || t.atelierCapUpdateFailed);
+        throw new Error(data.error || t("atelier.atelierCapUpdateFailed"));
       }
     },
   });
@@ -51,19 +51,19 @@ export default function TotalCapCard({
     const nextKeep = options?.keepCapNextMonth ?? keepCapNextMonth;
 
     if (!Number.isFinite(nextCap) || nextCap < 0) {
-      setError(t.atelierCapInvalidValue);
+      setError(t("atelier.atelierCapInvalidValue"));
       return false;
     }
 
     try {
       await updateCapMutation.mutateAsync({ nextCap, nextKeep });
     } catch (mutationError) {
-      setError(mutationError instanceof Error ? mutationError.message : t.atelierCapUpdateFailed);
+      setError(mutationError instanceof Error ? mutationError.message : t("atelier.atelierCapUpdateFailed"));
       return false;
     }
 
     setEditing(false);
-    toast.success(t.atelierCapUpdateSuccess);
+    toast.success(t("atelier.atelierCapUpdateSuccess"));
     await queryClient.invalidateQueries({ queryKey: ["atelier"] });
     router.refresh();
     return true;
@@ -72,7 +72,7 @@ export default function TotalCapCard({
   return (
     <article className="rounded-[2rem] bg-white p-8 shadow-[0_24px_48px_-12px_rgba(27,54,65,0.08)] lg:p-10">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-sm font-semibold text-[#49636f]">{t.atelierTotalMonthlyCap}</p>
+        <p className="text-sm font-semibold text-[#49636f]">{t("atelier.atelierTotalMonthlyCap")}</p>
         <button
           type="button"
           onClick={() => {
@@ -80,11 +80,11 @@ export default function TotalCapCard({
             setEditing((state) => !state);
           }}
             className="inline-flex items-center gap-1 rounded-lg bg-[#eef7ff] px-2.5 py-1.5 text-[#49636f] transition hover:text-[#1b3641] disabled:opacity-70"
-            aria-label={t.atelierEditTotalMonthlyCapAria}
+            aria-label={t("atelier.atelierEditTotalMonthlyCapAria")}
             disabled={updateCapMutation.isPending}
           >
             <span className="material-symbols-outlined text-[16px]">edit</span>
-            <span className="text-xs font-semibold">{t.atelierActionEdit}</span>
+            <span className="text-xs font-semibold">{t("atelier.atelierActionEdit")}</span>
           </button>
         </div>
 
@@ -120,7 +120,7 @@ export default function TotalCapCard({
               disabled={updateCapMutation.isPending}
               className="rounded-xl bg-[#006f1d] px-4 py-2 text-xs font-bold text-[#eaffe2] disabled:opacity-70"
             >
-              {updateCapMutation.isPending ? t.atelierActionSaving : t.atelierActionSave}
+              {updateCapMutation.isPending ? t("atelier.atelierActionSaving") : t("atelier.atelierActionSave")}
             </button>
             <button
               type="button"
@@ -131,7 +131,7 @@ export default function TotalCapCard({
               }}
               className="rounded-xl bg-[#e7f6ff] px-4 py-2 text-xs font-bold text-[#1b3641]"
             >
-              {t.atelierActionCancel}
+              {t("atelier.atelierActionCancel")}
             </button>
           </>
         ) : (
@@ -152,19 +152,19 @@ export default function TotalCapCard({
 
       <div className="mt-8 grid gap-5 sm:grid-cols-3">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">{t.atelierAllocated}</p>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">{t("atelier.atelierAllocated")}</p>
           <p className="mt-1 font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">
             {formatCurrency(allocated, currency)}
           </p>
         </div>
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">{t.atelierRemaining}</p>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">{t("atelier.atelierRemaining")}</p>
           <p className="mt-1 font-[var(--font-manrope)] text-2xl font-bold text-[#2e7d32]">
             {formatCurrency(remaining, currency)}
           </p>
         </div>
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">{t.atelierThisMonthIncome}</p>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">{t("atelier.atelierThisMonthIncome")}</p>
           <p className="mt-1 font-[var(--font-manrope)] text-2xl font-bold text-[#1b3641]">
             {formatCurrency(monthIncome, currency)}
           </p>
@@ -173,8 +173,8 @@ export default function TotalCapCard({
 
       <div className="mt-8 flex flex-wrap items-start justify-between gap-3 rounded-xl bg-[#f7fcff] px-4 py-3">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#49636f]">{t.atelierKeepCapNextMonth}</p>
-          <p className="mt-1 max-w-[420px] text-[11px] leading-relaxed text-[#7b939f]">{t.atelierKeepCapNextMonthHint}</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#49636f]">{t("atelier.atelierKeepCapNextMonth")}</p>
+          <p className="mt-1 max-w-[420px] text-[11px] leading-relaxed text-[#7b939f]">{t("atelier.atelierKeepCapNextMonthHint")}</p>
         </div>
         <button
           type="button"
@@ -196,7 +196,7 @@ export default function TotalCapCard({
             keepCapNextMonth ? "bg-[#2e7d32]" : "bg-[#9bb6c4]"
           } disabled:opacity-70`}
           aria-pressed={keepCapNextMonth}
-          aria-label={t.atelierKeepCapNextMonth}
+          aria-label={t("atelier.atelierKeepCapNextMonth")}
         >
           <span
             className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${

@@ -1,6 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import ReportsView from "@/features/ledger/components/reports/ReportsView";
-import { getDictionary } from "@/lib/i18n";
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 
 type Props = {
   language: string;
@@ -9,7 +11,7 @@ type Props = {
 };
 
 export default function LedgerReportsPageView({ language, currency, reportsData }: Props) {
-  const t = getDictionary(language);
+  const t = useNamespacedTranslation("ledger", language);
 
   return (
     <div className="space-y-8 lg:space-y-10">

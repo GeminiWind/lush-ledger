@@ -1,6 +1,6 @@
 "use client";
 
-import { getDictionary } from "@/lib/i18n";
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import { useMemo, useState } from "react";
 import CashflowChart from "./CashflowChart";
 import CategoryChart from "./CategoryChart";
@@ -14,7 +14,7 @@ const selectClassName =
   "appearance-none rounded-full border border-[#c3d8e5] bg-white py-2.5 pl-4 pr-10 text-sm font-semibold text-[#1b3641]";
 
 export default function ReportsView({ language, currency, data }: ReportsViewProps) {
-  const t = getDictionary(language);
+  const t = useNamespacedTranslation("ledger", language);
   const [viewMode, setViewMode] = useState<ReportsViewMode>("monthly");
 
   const monthOptions = data.monthlySeries.map((item) => item.key);
@@ -89,7 +89,7 @@ export default function ReportsView({ language, currency, data }: ReportsViewPro
         return map;
       }
 
-      const label = entry.categoryName?.trim() || t.reportsTransactionFallback;
+      const label = entry.categoryName?.trim() || t("ledger.reportsTransactionFallback");
       map.set(label, (map.get(label) ?? 0) + entry.amount);
       return map;
     }, new Map<string, number>());
@@ -101,7 +101,7 @@ export default function ReportsView({ language, currency, data }: ReportsViewPro
         color: chartColors[index % chartColors.length],
       }))
       .sort((a, b) => b.value - a.value);
-  }, [data.expenseEntries, monthlyFrom, monthlyTo, t.reportsTransactionFallback, viewMode, yearlyFrom, yearlyTo]);
+  }, [data.expenseEntries, monthlyFrom, monthlyTo, t, viewMode, yearlyFrom, yearlyTo]);
 
   const budgetStateOver = data.summary.budget > 0 && data.summary.totalExpense > data.summary.budget;
 
@@ -110,40 +110,40 @@ export default function ReportsView({ language, currency, data }: ReportsViewPro
       <section className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         <article className="rounded-[2rem] border border-[#dce9e2] bg-white px-7 py-6 shadow-[0_1px_2px_rgba(27,54,65,0.06)]">
           <div className="flex items-center justify-between">
-            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#647e8c]">{t.reportsTotalExpense}</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#647e8c]">{t("ledger.reportsTotalExpense")}</p>
             <span className="material-symbols-outlined text-[#006f1d]">trending_down</span>
           </div>
           <p className="mt-3 font-[var(--font-manrope)] text-4xl font-extrabold tracking-tight text-[#1b3641]">
             {asCurrency(data.summary.totalExpense, currency)}
           </p>
           <span className="mt-3 inline-flex rounded-full bg-[#eaffe2] px-3 py-1 text-xs font-semibold text-[#006f1d]">
-            {t.reportsLiveThisMonth}
+            {t("ledger.reportsLiveThisMonth")}
           </span>
         </article>
 
         <article className="rounded-[2rem] border border-[#dce9e2] bg-[#f8fcff] px-7 py-6 shadow-[0_1px_2px_rgba(27,54,65,0.06)]">
           <div className="flex items-center justify-between">
-            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#647e8c]">{t.reportsBudgetAdherence}</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#647e8c]">{t("ledger.reportsBudgetAdherence")}</p>
             <span className="material-symbols-outlined text-[#49636f]">verified</span>
           </div>
           <p className="mt-3 font-[var(--font-manrope)] text-4xl font-extrabold tracking-tight text-[#1b3641]">
             {Number.isFinite(data.summary.budgetAdherence) ? `${data.summary.budgetAdherence.toFixed(1)}%` : "0%"}
           </p>
           <p className={`mt-3 text-xs font-semibold ${budgetStateOver ? "text-[#a73b21]" : "text-[#006f1d]"}`}>
-            {budgetStateOver ? t.reportsOverTarget : t.reportsOnTrackPerformance}
+            {budgetStateOver ? t("ledger.reportsOverTarget") : t("ledger.reportsOnTrackPerformance")}
           </p>
         </article>
 
         <article className="relative overflow-hidden rounded-[2rem] bg-[#006f1d] px-7 py-6 text-[#eaffe2] shadow-[0_10px_30px_-18px_rgba(0,111,29,0.75)]">
           <div className="pointer-events-none absolute -right-8 -top-8 h-36 w-36 rounded-full bg-white/10 blur-2xl" />
           <div className="relative z-10 flex items-center justify-between">
-            <p className="text-[11px] font-bold uppercase tracking-[0.2em]">{t.reportsTopSavings}</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em]">{t("ledger.reportsTopSavings")}</p>
             <span className="material-symbols-outlined">lightbulb</span>
           </div>
           <p className="relative z-10 mt-3 font-[var(--font-manrope)] text-3xl font-bold tracking-tight">
             {asCurrency(data.summary.topSavingsAmount, currency)}
           </p>
-          <p className="relative z-10 mt-2 text-xs font-medium text-[#d8f4dd]">{t.reportsPotentialOptimization}</p>
+          <p className="relative z-10 mt-2 text-xs font-medium text-[#d8f4dd]">{t("ledger.reportsPotentialOptimization")}</p>
         </article>
       </section>
 
@@ -151,9 +151,9 @@ export default function ReportsView({ language, currency, data }: ReportsViewPro
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <h2 className="font-[var(--font-manrope)] text-3xl font-extrabold tracking-tight text-[#1b3641]">
-              {t.reportsUnifiedAnalysis}
+              {t("ledger.reportsUnifiedAnalysis")}
             </h2>
-            <p className="mt-1 text-sm text-[#49636f]">{t.reportsUnifiedAnalysisSubtitle}</p>
+            <p className="mt-1 text-sm text-[#49636f]">{t("ledger.reportsUnifiedAnalysisSubtitle")}</p>
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -165,8 +165,8 @@ export default function ReportsView({ language, currency, data }: ReportsViewPro
                   value={viewMode}
                   onChange={(event) => setViewMode(event.target.value as ReportsViewMode)}
                 >
-                  <option value="monthly">{t.reportsMonthly}</option>
-                  <option value="yearly">{t.reportsYearlyHorizon}</option>
+                  <option value="monthly">{t("ledger.reportsMonthly")}</option>
+                  <option value="yearly">{t("ledger.reportsYearlyHorizon")}</option>
                 </select>
                 <span className="pointer-events-none material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[18px] text-[#6f8793]">
                   expand_more
@@ -177,7 +177,7 @@ export default function ReportsView({ language, currency, data }: ReportsViewPro
             {viewMode === "monthly" ? (
               <div className="flex items-center gap-2">
                 <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#647e8c]" htmlFor="reports-month-from">
-                  {t.reportsRangeFrom}
+                  {t("ledger.reportsRangeFrom")}
                 </label>
                 <div className="relative">
                   <select
@@ -198,7 +198,7 @@ export default function ReportsView({ language, currency, data }: ReportsViewPro
                 </div>
 
                 <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#647e8c]" htmlFor="reports-month-to">
-                  {t.reportsRangeTo}
+                  {t("ledger.reportsRangeTo")}
                 </label>
                 <div className="relative">
                   <select
@@ -221,7 +221,7 @@ export default function ReportsView({ language, currency, data }: ReportsViewPro
             ) : (
               <div className="flex items-center gap-2">
                 <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#647e8c]" htmlFor="reports-year-from">
-                  {t.reportsRangeFrom}
+                  {t("ledger.reportsRangeFrom")}
                 </label>
                 <div className="relative">
                   <select
@@ -242,7 +242,7 @@ export default function ReportsView({ language, currency, data }: ReportsViewPro
                 </div>
 
                 <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#647e8c]" htmlFor="reports-year-to">
-                  {t.reportsRangeTo}
+                  {t("ledger.reportsRangeTo")}
                 </label>
                 <div className="relative">
                   <select
@@ -270,25 +270,25 @@ export default function ReportsView({ language, currency, data }: ReportsViewPro
           <ExpenseBudgetChart
             rows={expenseBudgetRows}
             currency={currency}
-            title={t.reportsMonthlyExpenseVsBudget}
-            actualLabel={t.reportsActual}
-            budgetLabel={t.reportsBudget}
+            title={t("ledger.reportsMonthlyExpenseVsBudget")}
+            actualLabel={t("ledger.reportsActual")}
+            budgetLabel={t("ledger.reportsBudget")}
           />
           <CategoryChart
             rows={categoryRows}
             currency={currency}
-            title={t.reportsSpendByCategory}
-            totalLabel={t.reportsTotal}
-            noDataLabel={t.reportsNoExpenseData}
+            title={t("ledger.reportsSpendByCategory")}
+            totalLabel={t("ledger.reportsTotal")}
+            noDataLabel={t("ledger.reportsNoExpenseData")}
           />
         </div>
 
         <CashflowChart
           rows={cashflowRows}
           currency={currency}
-          title={t.reportsIncomeVsOutcome}
-          incomeLabel={t.reportsMonthlyCashflow.split("(")[0].trim()}
-          outcomeLabel={t.reportsOutcome}
+          title={t("ledger.reportsIncomeVsOutcome")}
+          incomeLabel={t("ledger.reportsMonthlyCashflow").split("(")[0].trim()}
+          outcomeLabel={t("ledger.reportsOutcome")}
         />
       </section>
 
@@ -298,21 +298,21 @@ export default function ReportsView({ language, currency, data }: ReportsViewPro
         monthOptions={monthOptions}
         expenseEntries={data.expenseEntries}
         labels={{
-          title: t.calendarDailyExpenseTitle,
+          title: t("ledger.calendarDailyExpenseTitle"),
           weekdays: [
-            t.calendarWeekdayMon,
-            t.calendarWeekdayTue,
-            t.calendarWeekdayWed,
-            t.calendarWeekdayThu,
-            t.calendarWeekdayFri,
-            t.calendarWeekdaySat,
-            t.calendarWeekdaySun,
+            t("ledger.calendarWeekdayMon"),
+            t("ledger.calendarWeekdayTue"),
+            t("ledger.calendarWeekdayWed"),
+            t("ledger.calendarWeekdayThu"),
+            t("ledger.calendarWeekdayFri"),
+            t("ledger.calendarWeekdaySat"),
+            t("ledger.calendarWeekdaySun"),
           ],
-          detailsTitle: t.calendarDailyDetailsTitle,
-          totalSpent: t.calendarTotalSpent,
-          closeView: t.calendarCloseView,
-          noExpenseData: t.reportsNoExpenseData,
-          fallbackTransaction: t.reportsTransactionFallback,
+          detailsTitle: t("ledger.calendarDailyDetailsTitle"),
+          totalSpent: t("ledger.calendarTotalSpent"),
+          closeView: t("ledger.calendarCloseView"),
+          noExpenseData: t("ledger.reportsNoExpenseData"),
+          fallbackTransaction: t("ledger.reportsTransactionFallback"),
         }}
       />
     </div>

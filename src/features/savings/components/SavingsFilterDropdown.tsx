@@ -2,33 +2,28 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getDictionary } from "@/lib/i18n";
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import { useUserSetting } from "@/features/settings/hooks/useUserSetting";
 import type { SavingsFilter, SavingsFilterDropdownProps } from "@/features/savings/types";
 
 export default function SavingsFilterDropdown({ currentFilter, requestedPlanId }: SavingsFilterDropdownProps) {
   const { language } = useUserSetting();
-  const t = getDictionary(language);
+  const t = useNamespacedTranslation("savings", language);
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const options = useMemo(
     () => [
-      { value: "active" as const, label: t.savingsFilterActivePlans },
-      { value: "completed" as const, label: t.savingsFilterCompletedPlans },
-      { value: "archived" as const, label: t.savingsFilterArchivedPlans },
-      { value: "cancelled" as const, label: t.savingsFilterCancelledPlans },
+      { value: "active" as const, label: t("savings.savingsFilterActivePlans") },
+      { value: "completed" as const, label: t("savings.savingsFilterCompletedPlans") },
+      { value: "archived" as const, label: t("savings.savingsFilterArchivedPlans") },
+      { value: "cancelled" as const, label: t("savings.savingsFilterCancelledPlans") },
     ],
-    [
-      t.savingsFilterActivePlans,
-      t.savingsFilterArchivedPlans,
-      t.savingsFilterCancelledPlans,
-      t.savingsFilterCompletedPlans,
-    ],
+    [t],
   );
 
-  const selectedLabel = options.find((option) => option.value === currentFilter)?.label || t.savingsFilterActivePlans;
+  const selectedLabel = options.find((option) => option.value === currentFilter)?.label || t("savings.savingsFilterActivePlans");
 
   useEffect(() => {
     if (!open) {

@@ -1,4 +1,4 @@
-import { normalizeLanguage } from "@/lib/i18n";
+import { normalizeLanguage } from "@/features/i18n/language";
 import type { SettingsPayload, UserSetting } from "@/features/settings/types";
 
 const validCurrencies = new Set(["VND", "USD", "EUR", "JPY"]);

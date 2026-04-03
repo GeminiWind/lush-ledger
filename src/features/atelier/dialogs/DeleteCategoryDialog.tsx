@@ -3,13 +3,13 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import { formatCurrency } from "@/lib/format";
-import { getDictionary } from "@/lib/i18n";
 import type { DeleteCategoryDialogProps } from "@/features/atelier/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 export default function DeleteCategoryDialog({ category, currency, language }: DeleteCategoryDialogProps) {
   const router = useRouter();
-  const t = getDictionary(language);
+  const t = useNamespacedTranslation("atelier", language);
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
@@ -22,17 +22,17 @@ export default function DeleteCategoryDialog({ category, currency, language }: D
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || t.atelierDeleteFailed);
+        throw new Error(data.error || t("atelier.atelierDeleteFailed"));
       }
     },
     onSuccess: async () => {
-      toast.success(t.atelierDeleteSuccess);
+      toast.success(t("atelier.atelierDeleteSuccess"));
       close();
       await queryClient.invalidateQueries({ queryKey: ["atelier"] });
       router.refresh();
     },
     onError: (mutationError: unknown) => {
-      setError(mutationError instanceof Error ? mutationError.message : t.atelierDeleteFailed);
+      setError(mutationError instanceof Error ? mutationError.message : t("atelier.atelierDeleteFailed"));
     },
   });
 
@@ -66,7 +66,7 @@ export default function DeleteCategoryDialog({ category, currency, language }: D
     <>
         <button
           type="button"
-          aria-label={t.atelierDeleteAriaTemplate.replace("{name}", category.name)}
+          aria-label={t("atelier.atelierDeleteAriaTemplate").replace("{name}", category.name)}
           onClick={() => {
             setOpen(true);
             setError(null);
@@ -99,19 +99,19 @@ export default function DeleteCategoryDialog({ category, currency, language }: D
                 </div>
 
                 <h2 className="font-[var(--font-manrope)] text-3xl font-extrabold leading-tight tracking-tight text-[#1b3641]">
-                  {t.atelierDeleteTitleTemplate.replace("{name}", category.name)}
+                  {t("atelier.atelierDeleteTitleTemplate").replace("{name}", category.name)}
                 </h2>
               </div>
 
               <div className="space-y-4">
-                <p className="text-sm leading-relaxed text-[#49636f]">{t.atelierDeleteBodyLine1}</p>
-                <p className="text-sm leading-relaxed text-[#49636f]">{t.atelierDeleteBodyLine2}</p>
+                <p className="text-sm leading-relaxed text-[#49636f]">{t("atelier.atelierDeleteBodyLine1")}</p>
+                <p className="text-sm leading-relaxed text-[#49636f]">{t("atelier.atelierDeleteBodyLine2")}</p>
               </div>
 
               <div className="flex items-center justify-between rounded-xl bg-[#e7f6ff] p-5">
                 <div className="flex items-center gap-3">
                   <span className="material-symbols-outlined text-[#49636f]">history</span>
-                  <span className="text-sm font-semibold text-[#49636f]">{t.atelierAccumulatedValue}</span>
+                  <span className="text-sm font-semibold text-[#49636f]">{t("atelier.atelierAccumulatedValue")}</span>
                 </div>
                 <span className="font-[var(--font-manrope)] font-bold text-[#1b3641]">
                   {formatCurrency(category.spent, currency)}
@@ -129,20 +129,20 @@ export default function DeleteCategoryDialog({ category, currency, language }: D
                   disabled={deleteCategoryMutation.isPending}
                   className="w-full rounded-xl bg-[#a73b21] py-4 text-lg font-extrabold text-[#fff7f6] shadow-[0_4px_12px_rgba(167,59,33,0.3)] transition hover:brightness-110 disabled:opacity-70"
                 >
-                  {deleteCategoryMutation.isPending ? t.atelierDeleteCategoryDeleting : t.atelierDeleteCategoryAction}
+                  {deleteCategoryMutation.isPending ? t("atelier.atelierDeleteCategoryDeleting") : t("atelier.atelierDeleteCategoryAction")}
                 </button>
                 <button
                   type="button"
                   onClick={close}
                   className="w-full rounded-xl bg-transparent py-4 text-lg font-bold text-[#49636f] transition hover:bg-[#d4ecf9]"
                 >
-                  {t.atelierKeepCategory}
+                  {t("atelier.atelierKeepCategory")}
                 </button>
               </div>
             </div>
 
             <div className="flex justify-center border-t border-[#9bb6c4]/20 bg-[#e7f6ff] px-10 py-6">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#647e8c]">{t.atelierSecurityProtocol}</p>
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#647e8c]">{t("atelier.atelierSecurityProtocol")}</p>
             </div>
           </div>
         </div>

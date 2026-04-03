@@ -1,5 +1,6 @@
 import { AccountsPageView } from "@/features/accounts";
 import { prisma } from "@/lib/db";
+import { serializeForClient } from "@/lib/serialize-for-client";
 import { requireUser } from "@/lib/user";
 import { ensureDefaultWallet } from "@/lib/wallet";
 
@@ -10,7 +11,7 @@ export default async function AccountsPage() {
 
   await ensureDefaultWallet(user.id);
 
-  const [wallets, transactions] = await Promise.all([
+  const [rawWallets, rawTransactions] = await Promise.all([
     prisma.account.findMany({
       where: { userId: user.id },
       orderBy: [{ isDefault: "desc" }, { createdAt: "asc" }],
@@ -27,6 +28,9 @@ export default async function AccountsPage() {
       select: { accountId: true, type: true, amount: true },
     }),
   ]);
+
+  const wallets = serializeForClient(rawWallets);
+  const transactions = serializeForClient(rawTransactions);
 
   return (
     <AccountsPageView

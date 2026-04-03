@@ -1,8 +1,12 @@
+"use client";
+
 import { addDaysDate, localeDateLabel, localeTimeLabel, nowDate, sameDay, toISODate } from "@/lib/date";
-import { getDictionary } from "@/lib/i18n";
-import { getLedgerData } from "@/lib/ledger";
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
+import type { getLedgerData } from "@/lib/ledger";
 import Link from "next/link";
 import DeleteTransactionDialog from "@/features/ledger/dialogs/DeleteTransactionDialog";
+
+type Translator = ((key: string) => string) & Record<string, string>;
 
 type SearchParams = {
   query?: string;
@@ -14,7 +18,6 @@ type SearchParams = {
 type Props = {
   language: string;
   currency: string;
-  t: ReturnType<typeof getDictionary>;
   params: SearchParams;
   data: Awaited<ReturnType<typeof getLedgerData>>;
 };
@@ -28,7 +31,7 @@ const asCurrency = (value: number, currency: string) => {
   }).format(value);
 };
 
-const asDayLabel = (value: Date, language: string, t: ReturnType<typeof getDictionary>) => {
+const asDayLabel = (value: Date, language: string, t: Translator) => {
   const today = nowDate();
   const yesterday = addDaysDate(today, -1);
 
@@ -113,7 +116,8 @@ const txVisual = (type: string, name: string, categoryIcon?: string | null) => {
   return { ...fallback, icon: categoryIcon?.trim() || fallback.icon };
 };
 
-export default function LedgerPageView({ language, currency, t, params, data }: Props) {
+export default function LedgerPageView({ language, currency, params, data }: Props) {
+  const t = useNamespacedTranslation("ledger", language);
 
   type LedgerTransaction = (typeof data.transactions)[number];
   const groupedTransactions = data.transactions.reduce(
