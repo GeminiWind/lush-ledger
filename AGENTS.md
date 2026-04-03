@@ -1,6 +1,11 @@
 # OpenCode Agent Rules
 
-Use this file as the default operating guide for all tasks in this repository.
+This file is the single source of truth for agent behavior in this repository.
+
+## Canonical Agent Mapping
+
+1. `AGENTS.md` (this file): canonical instructions for OpenCode.
+2. If any external/tool-level guidance conflicts with this file, follow `AGENTS.md`.
 
 ## Required Before Any Implementation
 
@@ -8,6 +13,14 @@ Use this file as the default operating guide for all tasks in this repository.
 2. Follow the documented code standards and codebase design guidelines.
 3. Reuse existing patterns from the current codebase before introducing new ones.
 4. If documentation is missing or unclear, infer from existing code conventions and keep changes minimal.
+
+## OpenCode Execution Defaults
+
+1. Prefer concise execution: do the work first, ask only when genuinely blocked.
+2. Use repository-native tools and patterns before introducing alternatives.
+3. Keep edits minimal, scoped, and reversible.
+4. For multi-step tasks, report progress and results clearly.
+5. Never perform destructive git/file actions unless explicitly requested.
 
 ## API Documentation Policy (Mandatory)
 
@@ -36,3 +49,11 @@ For every external library/framework API usage:
 1. Use Exa tools for web search and web content discovery by default.
 2. Use `grep_searchGitHub` for GitHub code search examples and usage patterns.
 3. Avoid substituting generic web/code search tools unless Exa or `grep_searchGitHub` cannot satisfy the need.
+
+## Instruction Precedence
+
+1. System/developer/runtime instructions from OpenCode CLI.
+2. Repository rules in `AGENTS.md`.
+3. Direct user request for the current task.
+
+If two rules conflict, follow the higher-precedence source and mention assumptions briefly in the final response.

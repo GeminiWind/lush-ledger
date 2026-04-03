@@ -1,4 +1,4 @@
-import AtelierPageView from "@/features/atelier/components/AtelierPageView";
+import { AtelierPageView } from "@/features/atelier";
 import { prisma } from "@/lib/db";
 import { getMonthRange, nowDate } from "@/lib/date";
 import { materializeRecurringTransactions } from "@/lib/recurring";

@@ -1,4 +1,4 @@
-import LedgerPageView from "@/features/ledger/components/LedgerPageView";
+import { LedgerPageView } from "@/features/ledger";
 import { getDictionary } from "@/lib/i18n";
 import { getLedgerData } from "@/lib/ledger";
 import { requireUser } from "@/lib/user";

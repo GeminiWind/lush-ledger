@@ -1,4 +1,4 @@
-import DashboardPageView from "@/features/dashboard/components/DashboardPageView";
+import { DashboardPageView } from "@/features/dashboard";
 import { getDashboardData } from "@/lib/dashboard";
 import { requireUser } from "@/lib/user";
 

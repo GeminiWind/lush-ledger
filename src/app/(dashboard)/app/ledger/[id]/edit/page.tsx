@@ -1,4 +1,4 @@
-import EditLedgerTransactionPageView from "@/features/ledger/components/edit/EditLedgerTransactionPageView";
+import { EditLedgerTransactionPageView } from "@/features/ledger";
 import { toISODate } from "@/lib/date";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/user";

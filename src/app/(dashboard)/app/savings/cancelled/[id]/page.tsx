@@ -1,4 +1,4 @@
-import CancelledSavingsPlanDetailPageView from "@/features/savings/components/cancelled/CancelledSavingsPlanDetailPageView";
+import { CancelledSavingsPlanDetailPageView } from "@/features/savings";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/user";

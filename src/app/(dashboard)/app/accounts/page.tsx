@@ -1,4 +1,4 @@
-import AccountsPageView from "@/features/accounts/components/AccountsPageView";
+import { AccountsPageView } from "@/features/accounts";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/user";
 import { ensureDefaultWallet } from "@/lib/wallet";

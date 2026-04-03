@@ -1,4 +1,4 @@
-import NewLedgerEntryPageView from "@/features/ledger/components/new/NewLedgerEntryPageView";
+import { NewLedgerEntryPageView } from "@/features/ledger";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/user";
 import { ensureDefaultWallet } from "@/lib/wallet";

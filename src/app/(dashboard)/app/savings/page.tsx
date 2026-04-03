@@ -1,4 +1,4 @@
-import SavingsPageView from "@/features/savings/components/SavingsPageView";
+import { SavingsPageView } from "@/features/savings";
 import { prisma } from "@/lib/db";
 import { materializeRecurringTransactions } from "@/lib/recurring";
 import { requireUser } from "@/lib/user";

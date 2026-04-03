@@ -1,4 +1,4 @@
-import SettingsPageView from "@/features/settings/components/SettingsPageView";
+import { SettingsPageView } from "@/features/settings";
 import { requireUser } from "@/lib/user";
 
 export default async function SettingsPage() {

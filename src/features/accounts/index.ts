@@ -1,0 +1,1 @@
+export { AccountsPageView } from "./pages";

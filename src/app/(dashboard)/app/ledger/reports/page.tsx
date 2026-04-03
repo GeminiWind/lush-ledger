@@ -1,4 +1,4 @@
-import LedgerReportsPageView from "@/features/ledger/components/reports/LedgerReportsPageView";
+import { LedgerReportsPageView } from "@/features/ledger";
 import { getLedgerReportsData } from "@/lib/ledger";
 import { requireUser } from "@/lib/user";
 
