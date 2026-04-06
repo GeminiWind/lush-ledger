@@ -32,8 +32,12 @@ export default function AddContributionDialog({ plans, wallets, defaultPlanId }:
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
-  const initialPlanId = defaultPlanId || plans[0]?.id || "";
-  const initialWalletId = wallets[0]?.id || "";
+  const buildInitialValues = () => ({
+    savingsPlanId: defaultPlanId || plans[0]?.id || "",
+    walletId: wallets[0]?.id || "",
+    amountDisplay: "",
+    date: toDateInputValue(nowDate()),
+  });
 
   useEffect(() => {
     if (!open) {
@@ -89,12 +93,7 @@ export default function AddContributionDialog({ plans, wallets, defaultPlanId }:
   });
 
   const formik = useFormik({
-    initialValues: {
-      savingsPlanId: initialPlanId,
-      walletId: initialWalletId,
-      amountDisplay: "",
-      date: toDateInputValue(nowDate()),
-    },
+    initialValues: buildInitialValues(),
     validate: (values) => {
       const errors: {
         savingsPlanId?: string;
@@ -131,6 +130,7 @@ export default function AddContributionDialog({ plans, wallets, defaultPlanId }:
         type="button"
         onClick={() => {
           setError(null);
+          formik.resetForm({ values: buildInitialValues() });
           setOpen(true);
         }}
         className="inline-flex items-center gap-2 rounded-xl bg-[#006f1d] px-5 py-3 text-sm font-bold text-[#eaffe2] shadow-[0_16px_30px_-18px_rgba(0,111,29,0.8)] hover:brightness-105"
