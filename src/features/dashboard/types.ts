@@ -5,6 +5,7 @@ export type BudgetItem = {
   budget: number;
   remaining: number;
   isOverspent: boolean;
+  isWarning: boolean;
 };
 
 export type ActiveBudgetsPanelProps = {

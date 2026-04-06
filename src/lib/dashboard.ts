@@ -58,13 +58,11 @@ export const getDashboardData = async (userId: string) => {
       }),
       prisma.categoryMonthlyLimit.findMany({
         where: { userId, monthStart: start },
-        select: { categoryId: true, limit: true },
+        select: { categoryId: true, limit: true, warningEnabled: true, warnAt: true },
       }),
     ]);
 
-  const monthLimitByCategoryId = new Map(
-    monthCategoryLimits.map((item) => [item.categoryId, toNumber(item.limit)]),
-  );
+  const monthLimitByCategoryId = new Map(monthCategoryLimits.map((item) => [item.categoryId, item]));
 
   const accountBalances = accounts.map((account) => {
     const accountDelta = sum(
@@ -131,7 +129,9 @@ export const getDashboardData = async (userId: string) => {
         name: category.name,
         icon: category.icon,
         spent,
-        budget: monthLimitByCategoryId.get(category.id) ?? 0,
+        budget: toNumber(monthLimitByCategoryId.get(category.id)?.limit),
+        warningEnabled: monthLimitByCategoryId.get(category.id)?.warningEnabled !== false,
+        warnAt: Math.min(Math.max(toNumber(monthLimitByCategoryId.get(category.id)?.warnAt || 80), 1), 100),
       };
     })
     .filter((row) => row.spent > 0 || row.budget > 0)
@@ -145,10 +145,15 @@ export const getDashboardData = async (userId: string) => {
     .filter((row) => row.budget > 0)
     .map((row) => {
       const remaining = row.budget - row.spent;
+      const usedPercent = row.budget > 0 ? (row.spent / row.budget) * 100 : 0;
+      const isOverspent = remaining < 0;
+      const isWarning = row.warningEnabled && !isOverspent && row.budget > 0 && usedPercent >= row.warnAt;
+
       return {
         ...row,
         remaining,
-        isOverspent: remaining < 0,
+        isOverspent,
+        isWarning,
       };
     });
 

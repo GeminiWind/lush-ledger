@@ -21,7 +21,7 @@ export default function ActiveBudgetsPanel({ budgets, currency, daysRemaining, l
 
   const filteredBudgets = useMemo(() => {
     if (filter === "healthy") {
-      return budgets.filter((budget) => !budget.isOverspent);
+      return budgets.filter((budget) => !budget.isOverspent && !budget.isWarning);
     }
     if (filter === "overspent") {
       return budgets.filter((budget) => budget.isOverspent);
@@ -87,24 +87,35 @@ export default function ActiveBudgetsPanel({ budgets, currency, daysRemaining, l
                 : `${t("atelier.activeBudgetsNoFiltered")} (${filter === "all" ? t("atelier.activeBudgetsFilterAll") : filter === "healthy" ? t("atelier.activeBudgetsFilterHealthy") : t("atelier.activeBudgetsFilterOverspent")})`}
             </p>
         ) : (
-          visibleBudgets.map((budget) => (
-            <div
-              key={budget.id}
-              className={`rounded-2xl border bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)] ${
-                budget.isOverspent ? "border-[#f8cece]" : "border-[#d5f1da]"
-              }`}
-            >
+          visibleBudgets.map((budget) => {
+            const borderTone = budget.isOverspent ? "border-[#f8cece]" : budget.isWarning ? "border-[#ffe2b5]" : "border-[#d5f1da]";
+            const badgeTone = budget.isOverspent
+              ? "bg-[#a73b21] text-white"
+              : budget.isWarning
+                ? "bg-[#fff4dd] text-[#b35a00]"
+                : "bg-[#eaffe2] text-[#006f1d]";
+            const barTone = budget.isOverspent ? "bg-[#a73b21]" : budget.isWarning ? "bg-[#f59e0b]" : "bg-[#006f1d]";
+            const textTone = budget.isOverspent ? "text-[#a73b21]" : budget.isWarning ? "text-[#b35a00]" : "text-[#006f1d]";
+            const statusLabel = budget.isOverspent
+              ? t("atelier.activeBudgetsOverspent")
+              : budget.isWarning
+                ? t("atelier.atelierWarning")
+                : t("atelier.activeBudgetsHealthy");
+
+            return (
+              <div
+                key={budget.id}
+                className={`rounded-2xl border bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)] ${borderTone}`}
+              >
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <h3 className="font-semibold text-[#1b3641]">{budget.name}</h3>
                   <p className="text-sm text-[#647e8c]">{t("atelier.activeBudgetsEndsIn")} {daysRemaining} {t("atelier.activeBudgetsDays")}</p>
                 </div>
                 <span
-                  className={`rounded px-3 py-1 text-[11px] font-semibold uppercase ${
-                    budget.isOverspent ? "bg-[#a73b21] text-white" : "bg-[#eaffe2] text-[#006f1d]"
-                  }`}
+                  className={`rounded px-3 py-1 text-[11px] font-semibold uppercase ${badgeTone}`}
                 >
-                  {budget.isOverspent ? t("atelier.activeBudgetsOverspent") : t("atelier.activeBudgetsHealthy")}
+                  {statusLabel}
                 </span>
               </div>
               <p className="mt-3 text-sm text-[#49636f]">
@@ -113,17 +124,18 @@ export default function ActiveBudgetsPanel({ budgets, currency, daysRemaining, l
               </p>
               <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#edf2ef]">
                 <div
-                  className={`h-full rounded-full ${budget.isOverspent ? "bg-[#a73b21]" : "bg-[#006f1d]"}`}
+                  className={`h-full rounded-full ${barTone}`}
                   style={{ width: `${Math.min(100, (budget.spent / budget.budget) * 100)}%` }}
                 />
               </div>
-              <p className={`mt-3 text-sm font-semibold ${budget.isOverspent ? "text-[#a73b21]" : "text-[#006f1d]"}`}>
+              <p className={`mt-3 text-sm font-semibold ${textTone}`}>
                 {budget.isOverspent
                   ? `${t("atelier.activeBudgetsExcessThisMonth")}: ${toCurrencyLabel(Math.abs(budget.remaining), currency)}.`
                   : `${toCurrencyLabel(budget.remaining, currency)} ${t("atelier.activeBudgetsRemainingLimit")}.`}
               </p>
-            </div>
-          ))
+              </div>
+            );
+          })
         )}
       </div>
     </article>
