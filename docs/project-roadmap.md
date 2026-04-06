@@ -12,7 +12,7 @@ Related plan source:
 | 01 | Foundation + Auth | completed | settings API/page parity and auth rate limiting are implemented |
 | 02 | Accounts + Transactions | completed | account + ledger CRUD (including update/delete) is implemented |
 | 03 | Budgets | completed | category lifecycle + monthly cap snapshot workflow are implemented; warnings are consistent in current MVP flow |
-| 04 | Reports | in_progress | report UI is mature (`/app/ledger/reports`) but no dedicated `/api/reports` contract and export flow is still partial |
+| 04 | Reports | in_progress | report UI is mature (`/app/ledger/reports`) and CSV export from ledger is now implemented; remaining gap is a dedicated `/api/reports` contract |
 | 05 | Savings Plans | in_progress | create/edit/contribution/cancel/refund flow is implemented with cancelled list+detail pages; remaining work is full lifecycle API hardening (delete/archive endpoint strategy) |
 
 ## Current Milestones
@@ -31,6 +31,7 @@ Overall completion estimate: **92%**.
 - explicit income-vs-expense time-series (implemented on `ledger/reports`)
 - category-by-month report view
 - account snapshot report block
+- transaction CSV export from ledger filters (implemented via `/api/ledger/export`)
 - savings plan create/edit/delete workflows
 - active/archived plan lifecycle management and primary-plan switching UX
 

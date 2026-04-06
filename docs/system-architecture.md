@@ -39,10 +39,11 @@ Notes:
 ## Domain Architecture
 
 ### Ledger and Accounts
-- API: `/api/accounts`, `/api/accounts/[id]`, `/api/ledger`
+- API: `/api/accounts`, `/api/accounts/[id]`, `/api/ledger`, `/api/ledger/export`
 - Supports list/create plus partial balance update for accounts
 - Ledger supports list/create and recurring metadata capture
 - Savings contributions are stored as ledger transactions with `type = transfer_to_saving_plan` and linked via `savingsPlanId`
+- Ledger export path (`src/lib/ledger-export.ts`) applies authenticated user scoping, validates filter input, and serializes RFC-4180-safe CSV output for spreadsheet compatibility
 
 ### Budgets (Atelier)
 - API: `/api/atelier`, `/api/atelier/cap`, `/api/categories`
