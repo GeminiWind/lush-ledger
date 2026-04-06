@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/db";
-import { addMonthsDate, getMonthRange, monthKey, nowDate, startOfMonthDate } from "@/lib/date";
+import type { Prisma } from "@prisma/client";
+import { addMonthsDate, fromISODate, getMonthRange, monthKey, nowDate, startOfMonthDate } from "@/lib/date";
+import { DateTime } from "luxon";
 import { ensureMonthlyCapSnapshot } from "@/lib/monthly-cap";
 import { materializeRecurringTransactions } from "@/lib/recurring";
 
@@ -8,9 +10,9 @@ type LedgerFilters = {
   type?: string;
   accountId?: string;
   categoryId?: string;
+  startDate?: string;
+  endDate?: string;
 };
-
-type LedgerTxType = "income" | "expense" | "transfer_to_saving_plan" | "refund";
 
 const toNumber = (value: unknown) => Number(value ?? 0);
 
@@ -21,13 +23,7 @@ export const getLedgerData = async (userId: string, filters: LedgerFilters = {})
 
   const { start, end } = getMonthRange(nowDate());
 
-  const where: {
-    userId: string;
-    type?: LedgerTxType;
-    accountId?: string;
-    categoryId?: string;
-    notes?: { contains: string };
-  } = { userId };
+  const where: Prisma.TransactionWhereInput = { userId };
 
   if (filters.type === "income" || filters.type === "expense" || filters.type === "transfer_to_saving_plan" || filters.type === "refund") {
     where.type = filters.type;
@@ -40,6 +36,18 @@ export const getLedgerData = async (userId: string, filters: LedgerFilters = {})
   }
   if (filters.query) {
     where.notes = { contains: filters.query.trim() };
+  }
+  if (filters.startDate || filters.endDate) {
+    where.date = {};
+    if (filters.startDate) {
+      const start = fromISODate(filters.startDate);
+      if (start) {
+        where.date.gte = start;
+      }
+    }
+    if (filters.endDate) {
+      where.date.lte = DateTime.fromISO(filters.endDate).endOf("day").toJSDate();
+    }
   }
 
   const [accounts, categories, transactions, monthTransactions] = await Promise.all([

@@ -8,6 +8,8 @@ type SearchParams = Promise<{
   type?: string;
   accountId?: string;
   categoryId?: string;
+  startDate?: string;
+  endDate?: string;
 }>;
 
 export default async function LedgerPage({
@@ -25,6 +27,8 @@ export default async function LedgerPage({
     type: params.type,
     accountId: params.accountId,
     categoryId: params.categoryId,
+    startDate: params.startDate,
+    endDate: params.endDate,
   }));
 
   return (

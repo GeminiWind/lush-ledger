@@ -4,6 +4,21 @@ import type { ExpenseEntry, ReportsData } from "@/features/ledger/components/rep
 
 export type LedgerJsonRecord = Record<string, unknown>;
 
+export type LedgerExportFilters = {
+  query?: string;
+  type?: LedgerEntryType;
+  accountId?: string;
+  categoryId?: string;
+  startDate?: string;
+  endDate?: string;
+};
+
+export type LedgerExportDownload = {
+  fileName: string;
+  blob: Blob;
+  contentType: string | null;
+};
+
 export type LedgerOption = {
   id: string;
   name: string;
