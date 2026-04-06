@@ -17,6 +17,7 @@ type LedgerFilters = {
 const toNumber = (value: unknown) => Number(value ?? 0);
 
 const sum = (values: number[]) => values.reduce((total, value) => total + value, 0);
+const MIN_REPORT_MONTHS = 36;
 
 export const getLedgerData = async (userId: string, filters: LedgerFilters = {}) => {
   await materializeRecurringTransactions(userId);
@@ -192,7 +193,9 @@ export const getLedgerReportsData = async (userId: string) => {
     .filter((value): value is Date => Boolean(value))
     .sort((a, b) => a.getTime() - b.getTime())[0] || currentMonthStart;
 
-  const firstMonth = startOfMonthDate(firstObserved);
+  const firstObservedMonth = startOfMonthDate(firstObserved);
+  const minimumRangeStart = startOfMonthDate(addMonthsDate(currentMonthStart, -(MIN_REPORT_MONTHS - 1)));
+  const firstMonth = firstObservedMonth <= minimumRangeStart ? firstObservedMonth : minimumRangeStart;
   const months: string[] = [];
   let cursor = firstMonth;
   let guard = 0;
