@@ -40,6 +40,7 @@ Implemented:
 - `GET /api/categories`
 - `POST /api/categories`
 - `GET /api/ledger`
+- `GET /api/ledger/export`
 - `POST /api/ledger`
 - `GET /api/atelier`
 - `PATCH /api/atelier/cap`
@@ -101,6 +102,11 @@ Savings UX notes:
 - API now rejects contribution writes if `savingsPlanId` is provided with any type other than `transfer_to_saving_plan`
 - `PATCH /api/savings/plans/[id]` supports partial updates including state-only transitions
 - full lifecycle reference: `docs/savings-plan-status-flow.md`
+
+Ledger CSV export notes:
+- `/api/ledger/export` returns `text/csv` download scoped to the authenticated user
+- export supports `query`, `type`, `accountId`, `categoryId`, `startDate`, `endDate`
+- export is designed to mirror the active filter state from `/app/ledger`
 
 Charts:
 - Recharts used in reports/savings/top-categories style visualizations

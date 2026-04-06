@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { addDaysDate, localeDateLabel, localeTimeLabel, nowDate, sameDay, toISODate } from "@/lib/date";
 import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import type { getLedgerData } from "@/lib/ledger";
 import Link from "next/link";
+import toast from "react-hot-toast";
 import DeleteTransactionDialog from "@/features/ledger/dialogs/DeleteTransactionDialog";
+import { exportTransactionsCsv } from "@/features/ledger/services";
 
 type Translator = ((key: string) => string) & Record<string, string>;
 
@@ -13,6 +16,8 @@ type SearchParams = {
   type?: string;
   accountId?: string;
   categoryId?: string;
+  startDate?: string;
+  endDate?: string;
 };
 
 type Props = {
@@ -118,6 +123,41 @@ const txVisual = (type: string, name: string, categoryIcon?: string | null) => {
 
 export default function LedgerPageView({ language, currency, params, data }: Props) {
   const t = useNamespacedTranslation("ledger", language);
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+
+  const handleExport = async () => {
+    setIsExporting(true);
+    setExportError(null);
+
+    try {
+      const result = await exportTransactionsCsv({
+        query: params.query,
+        type: params.type as "income" | "expense" | "transfer_to_saving_plan" | "refund" | undefined,
+        accountId: params.accountId,
+        categoryId: params.categoryId,
+        startDate: params.startDate,
+        endDate: params.endDate,
+      });
+
+      const fileUrl = URL.createObjectURL(result.blob);
+      const anchor = document.createElement("a");
+      anchor.href = fileUrl;
+      anchor.download = result.fileName;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(fileUrl);
+
+      toast.success(t("ledgerExportSuccess"));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : t("ledgerExportFailed");
+      setExportError(message);
+      toast.error(message);
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   type LedgerTransaction = (typeof data.transactions)[number];
   const groupedTransactions = data.transactions.reduce(
@@ -236,12 +276,46 @@ export default function LedgerPageView({ language, currency, params, data }: Pro
             </select>
           </div>
 
+          <div className="flex items-center gap-2 rounded-xl border border-slate-100 bg-white px-4 py-2 shadow-sm">
+            <span className="material-symbols-outlined text-sm text-slate-400">calendar_today</span>
+            <label className="sr-only" htmlFor="startDate">
+              {t("ledgerFilterDateFrom")}
+            </label>
+            <input
+              id="startDate"
+              name="startDate"
+              type="date"
+              defaultValue={params.startDate || ""}
+              className="border-none bg-transparent p-0 text-sm font-semibold text-[#1b3641] focus:ring-0"
+            />
+            <span className="text-xs font-semibold text-[#6f8793]">{t("ledgerFilterDateTo")}</span>
+            <label className="sr-only" htmlFor="endDate">
+              {t("ledgerFilterDateTo")}
+            </label>
+            <input
+              id="endDate"
+              name="endDate"
+              type="date"
+              defaultValue={params.endDate || ""}
+              className="border-none bg-transparent p-0 text-sm font-semibold text-[#1b3641] focus:ring-0"
+            />
+          </div>
+
           <div className="ml-auto flex items-center gap-1 sm:gap-2">
             <button type="button" className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-[#006f1d]">
               <span className="material-symbols-outlined">view_list</span>
             </button>
             <button type="button" className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-[#006f1d]">
               <span className="material-symbols-outlined">grid_view</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleExport}
+              disabled={isExporting}
+              className="flex items-center gap-2 rounded-xl border border-transparent px-4 py-2 text-sm font-bold text-[#006f1d] transition-all hover:border-emerald-100 hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <span className="material-symbols-outlined text-sm">download</span>
+              {isExporting ? t("ledgerExporting") : t("ledgerExport")}
             </button>
             <button
               type="submit"
@@ -251,6 +325,20 @@ export default function LedgerPageView({ language, currency, params, data }: Pro
             </button>
           </div>
         </form>
+
+        {exportError ? (
+          <div className="flex items-center justify-between gap-4 rounded-xl border border-[#fd795a]/40 bg-[#fff7f6] px-4 py-3 text-sm text-[#6e1400]">
+            <p>{exportError}</p>
+            <button
+              type="button"
+              onClick={handleExport}
+              disabled={isExporting}
+              className="rounded-lg bg-[#6e1400] px-3 py-1.5 text-xs font-bold text-[#fff7f6] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {t("ledgerExportRetry")}
+            </button>
+          </div>
+        ) : null}
 
         <section className="space-y-8">
           {groupedTransactions.length === 0 ? (

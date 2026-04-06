@@ -1,0 +1,107 @@
+openapi: 3.1.0
+info:
+  title: Ledger CSV Export API
+  version: 1.0.0
+  description: Contract for exporting authenticated user ledger transactions to CSV.
+paths:
+  /api/ledger/export:
+    get:
+      summary: Export ledger transactions as CSV
+      description: Returns a CSV download containing only transactions owned by the authenticated user and matching active filters.
+      parameters:
+        - in: query
+          name: query
+          required: false
+          schema:
+            type: string
+          description: Free-text transaction search input.
+        - in: query
+          name: type
+          required: false
+          schema:
+            type: string
+            enum: [income, expense, transfer_to_saving_plan, refund]
+          description: Transaction type filter.
+        - in: query
+          name: accountId
+          required: false
+          schema:
+            type: string
+          description: Account identifier scoped to current user.
+        - in: query
+          name: categoryId
+          required: false
+          schema:
+            type: string
+          description: Category identifier scoped to current user.
+        - in: query
+          name: startDate
+          required: false
+          schema:
+            type: string
+            format: date
+          description: Inclusive start date for export range.
+        - in: query
+          name: endDate
+          required: false
+          schema:
+            type: string
+            format: date
+          description: Inclusive end date for export range.
+      responses:
+        "200":
+          description: CSV file generated successfully.
+          headers:
+            Content-Disposition:
+              description: Attachment filename for the CSV export.
+              schema:
+                type: string
+            Content-Type:
+              description: CSV media type.
+              schema:
+                type: string
+                example: text/csv; charset=utf-8
+          content:
+            text/csv:
+              schema:
+                type: string
+                description: Raw CSV document with header and zero or more data rows.
+        "400":
+          description: Invalid filter input.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                invalidDateRange:
+                  value:
+                    error: Start date must be before or equal to end date.
+        "401":
+          description: Missing or invalid authenticated session.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                unauthorized:
+                  value:
+                    error: Unauthorized
+        "500":
+          description: Export generation failed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                exportFailure:
+                  value:
+                    error: Could not export transactions. Please try again.
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string

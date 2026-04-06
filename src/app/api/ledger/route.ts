@@ -16,12 +16,16 @@ export const GET = async (request: NextRequest) => {
   const type = searchParams.get("type") || undefined;
   const accountId = searchParams.get("accountId") || undefined;
   const categoryId = searchParams.get("categoryId") || undefined;
+  const startDate = searchParams.get("startDate") || undefined;
+  const endDate = searchParams.get("endDate") || undefined;
 
   const ledger = await getLedgerData(session.sub, {
     query,
     type,
     accountId,
     categoryId,
+    startDate,
+    endDate,
   });
 
   return NextResponse.json({ ledger });
