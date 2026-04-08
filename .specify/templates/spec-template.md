@@ -1,7 +1,6 @@
 # Feature Specification: [FEATURE NAME]
 
 ## Metadata
-
 - **Name**: [FEATURE NAME]
 - **Last Updated**: [DATE]
 - **Updated By**: [NAME/ROLE]
@@ -12,13 +11,13 @@
 **Status**: Draft  
 **Input**: User description: "$ARGUMENTS"
 
-## UI Design References *(optional, include when UI is in scope)*
+## Summary
+[1-3 sentences describing the feature and its value]
 
-<!--
-  Use this section only when the feature includes UI work.
-  Include links/IDs to design sources so implementation and QA can trace exact screens.
--->
+## System Scope
+- This is a fullstack feature including frontend UI and backend API.
 
+## UI Scope & Design References *(mandatory when UI is in scope)*
 - **UI Required**: [Yes/No]
 - **Design Source**: [Figma/Stitch/Other]
 - **Project**: [Name + ID]
@@ -27,136 +26,127 @@
 - **Design Assets**:
   - Screenshot: `[path-or-url]`
   - HTML/Spec export: `[path-or-url]`
-- **Implementation Notes**: [Key UI constraints, states, interactions, accessibility expectations]
+
+### UI Flow Summary
+- User opens [page]
+- User sees [state/data]
+- User clicks [action]
+- System shows [modal/page transition]
+- User inputs [fields]
+- User submits
+- System shows [loading/error/success]
+- UI updates by [refreshing list / redirecting / inline update]
+
+### UI / UX Requirements
+
+#### Screens / Pages
+- Page A
+- Page B
+
+#### Components
+- [List / Table / Form / Modal]
+
+#### User Interactions
+- click / submit / navigate / select
+
+#### UI States
+- loading
+- error
+- empty
+- success
+
+#### Transitions
+- modal open/close
+- page navigation
+- UI update after action
 
 ## User Scenarios & Testing *(mandatory)*
 
-<!--
-  IMPORTANT: User stories should be PRIORITIZED as user journeys ordered by importance.
-  Each user story/journey must be INDEPENDENTLY TESTABLE - meaning if you implement just ONE of them,
-  you should still have a viable MVP (Minimum Viable Product) that delivers value.
-  
-  Assign priorities (P1, P2, P3, etc.) to each story, where P1 is the most critical.
-  Think of each story as a standalone slice of functionality that can be:
-  - Developed independently
-  - Tested independently
-  - Deployed independently
-  - Demonstrated to users independently
--->
-
 ### User Story 1 - [Brief Title] (Priority: P1)
-
 [Describe this user journey in plain language]
 
 **Why this priority**: [Explain the value and why it has this priority level]
 
-**Independent Test**: [Describe how this can be tested independently - e.g., "Can be fully tested by [specific action] and delivers [specific value]"]
+**Independent Test**: [Describe how this can be tested independently]
+
+**UI Flow**: [Describe the screen-level interaction flow]
 
 **Acceptance Scenarios**:
-
 1. **Given** [initial state], **When** [action], **Then** [expected outcome]
 2. **Given** [initial state], **When** [action], **Then** [expected outcome]
 
 ---
 
 ### User Story 2 - [Brief Title] (Priority: P2)
-
 [Describe this user journey in plain language]
 
 **Why this priority**: [Explain the value and why it has this priority level]
 
 **Independent Test**: [Describe how this can be tested independently]
 
-**Acceptance Scenarios**:
-
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
-
----
-
-### User Story 3 - [Brief Title] (Priority: P3)
-
-[Describe this user journey in plain language]
-
-**Why this priority**: [Explain the value and why it has this priority level]
-
-**Independent Test**: [Describe how this can be tested independently]
+**UI Flow**: [Describe the screen-level interaction flow]
 
 **Acceptance Scenarios**:
-
 1. **Given** [initial state], **When** [action], **Then** [expected outcome]
 
----
-
-[Add more user stories as needed, each with an assigned priority]
-
-### Edge Cases
-
-<!--
-  ACTION REQUIRED: The content in this section represents placeholders.
-  Fill them out with the right edge cases.
--->
-
+## Edge Cases
 - What happens when [boundary condition]?
 - How does system handle [error scenario]?
 
 ## Requirements *(mandatory)*
 
-<!--
-  ACTION REQUIRED: The content in this section represents placeholders.
-  Fill them out with the right functional requirements.
--->
-
 ### Functional Requirements
 
-- **FR-001**: System MUST [specific capability, e.g., "allow users to create accounts"]
-- **FR-002**: System MUST [specific capability, e.g., "validate email addresses"]  
-- **FR-003**: Users MUST be able to [key interaction, e.g., "reset their password"]
-- **FR-004**: System MUST [data requirement, e.g., "persist user preferences"]
-- **FR-005**: System MUST [behavior, e.g., "log all security events"]
+#### Validation Rules
+- **FR-001**: [Field] must not be empty
+- **FR-002**: [Field] must be a valid format
+- **FR-003**: [Field] must be greater than / less than [value]
 
-*Example of marking unclear requirements:*
+#### Business Rules
+- **FR-004**: [Entity] must be unique based on [field]
+- **FR-005**: System must prevent duplicate [entity] creation
 
-- **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
-- **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
+#### Permissions
+- **FR-006**: Only users with role [role] can perform [action]
+- **FR-007**: Users can only access their own [resource]
+
+#### System Behavior
+- **FR-008**: System must persist [entity] after successful validation
+- **FR-009**: System must return the created [entity] with a unique ID
+- **FR-010**: System must update UI-relevant data after mutation
+
+#### Error Handling
+- **FR-011**: System must return structured error responses for invalid input
+- **FR-012**: System must provide clear error messages for UI display
 
 ### Non-Functional Requirements *(mandatory)*
-
-- **NFR-001 (Code Quality)**: Change MUST pass lint and build gates and follow existing repository patterns.
-- **NFR-002 (Testing)**: Change MUST define automated test coverage for all new or changed behavior.
-- **NFR-003 (UX Consistency)**: UI behavior MUST align with `docs/design-guidelines.md` and canonical route conventions.
-- **NFR-004 (Performance)**: Spec MUST define measurable performance budgets (for example latency p95, render timing, or throughput).
+- **NFR-001 (Code Quality)**: Change must pass lint and build gates and follow existing repository patterns.
+- **NFR-002 (Testing)**: Change must define automated test coverage for all new or changed behavior.
+- **NFR-003 (UX Consistency)**: UI behavior must align with design guidelines and canonical route conventions.
 
 ### Key Entities *(include if feature involves data)*
-
 - **[Entity 1]**: [What it represents, key attributes without implementation]
-- **[Entity 2]**: [What it represents, relationships to other entities]
+- **[Entity 2]**: [Relationships / constraints]
+
+## API-Relevant Behaviors
+- UI sends [request]
+- Backend returns [response]
+- Errors are returned in [structured format]
+- Successful mutations update [UI area]
 
 ## Success Criteria *(mandatory)*
 
-<!--
-  ACTION REQUIRED: Define measurable success criteria.
-  These must be technology-agnostic and measurable.
--->
-
 ### Measurable Outcomes
-
-- **SC-001**: [Measurable metric, e.g., "Users can complete account creation in under 2 minutes"]
-- **SC-002**: [Measurable metric, e.g., "System handles 1000 concurrent users without degradation"]
-- **SC-003**: [User satisfaction metric, e.g., "90% of users successfully complete primary task on first attempt"]
-- **SC-004**: [Business metric, e.g., "Reduce support tickets related to [X] by 50%"]
+- **SC-001**: [Primary user task can be completed successfully]
+- **SC-002**: [Validation and errors are clearly surfaced]
+- **SC-003**: [Updated data appears correctly in UI]
+- **SC-004**: [Business or usability metric]
 
 ## Assumptions
-
-<!--
-  ACTION REQUIRED: The content in this section represents placeholders.
-  Fill them out with the right assumptions based on reasonable defaults
-  chosen when the feature description did not specify certain details.
--->
-
-- [Assumption about target users, e.g., "Users have stable internet connectivity"]
-- [Assumption about scope boundaries, e.g., "Mobile support is out of scope for v1"]
-- [Assumption about data/environment, e.g., "Existing authentication system will be reused"]
-- [Dependency on existing system/service, e.g., "Requires access to the existing user profile API"]
+- [Assumption about target users]
+- [Assumption about scope boundaries]
+- [Assumption about environment/data]
+- [Dependency on existing systems/services]
 
 ## Changelog
 
