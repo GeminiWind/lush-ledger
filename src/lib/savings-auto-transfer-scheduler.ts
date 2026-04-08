@@ -11,9 +11,17 @@ export const isSchedulerWindowUtc = (value: Date) => {
   return utcDay >= 27 || utcDay === 1;
 };
 
+export const hasCrossedLocalMonthBoundarySincePreviousRun = (timezone: string, now = new Date()) => {
+  const utcNow = DateTime.fromJSDate(now, { zone: "utc" });
+  const localNow = utcNow.setZone(timezone);
+  const localPreviousRun = utcNow.minus({ days: 1 }).setZone(timezone);
+
+  return !localNow.hasSame(localPreviousRun, "month");
+};
+
 const buildMonthStartToEvaluate = (timezone: string, now = new Date()) => {
   const localNow = DateTime.fromJSDate(now, { zone: "utc" }).setZone(timezone);
-  if (localNow.day !== 1) {
+  if (!hasCrossedLocalMonthBoundarySincePreviousRun(timezone, now)) {
     return null;
   }
 
@@ -78,7 +86,7 @@ export const startAutoTransferScheduler = () => {
   }
 
   schedulerSingleton = cron.schedule(
-    "0 0 * * *",
+    "0 12 1,27-31 * *",
     async () => {
       try {
         await enqueueDueAutoTransferJobs(new Date());
