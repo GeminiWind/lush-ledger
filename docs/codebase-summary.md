@@ -37,22 +37,33 @@ Implemented:
 - `GET /api/accounts`
 - `POST /api/accounts`
 - `PATCH /api/accounts/[id]` (balance-oriented partial update)
+- `DELETE /api/accounts/[id]`
 - `GET /api/categories`
 - `POST /api/categories`
+- `PATCH /api/categories/[id]`
+- `DELETE /api/categories/[id]`
 - `GET /api/ledger`
 - `GET /api/ledger/export`
 - `POST /api/ledger`
+- `PATCH /api/ledger/[id]`
+- `DELETE /api/ledger/[id]`
 - `GET /api/atelier`
 - `PATCH /api/atelier/cap`
+- `GET /api/settings`
+- `PATCH /api/settings`
 - `POST /api/savings/plans`
 - `PATCH /api/savings/plans/[id]`
+- `GET /api/savings/remainder-allocation`
+- `POST /api/savings/remainder-allocation`
+- `GET /api/savings/remainder-allocation/settings`
+- `PUT /api/savings/remainder-allocation/settings`
+- `POST /api/savings/remainder-allocation/settings`
+- `GET /api/internal/jobs/month-end-remainder-allocation`
+- `POST /api/internal/jobs/month-end-remainder-allocation/replay`
 
 Missing or partial:
 - missing `/api/reports`
 - savings plan delete/archive endpoints are still partial
-- accounts missing full update/delete
-- categories missing update/delete
-- ledger transactions missing update/delete
 
 ## Data Model Snapshot
 
@@ -72,6 +83,8 @@ Core models in `prisma/schema.prisma`:
 - Monthly snapshot strategy: `src/lib/monthly-cap.ts`
 - Recurring generation: `src/lib/recurring.ts`
 - Domain calculations: `src/lib/dashboard.ts`, `src/lib/ledger.ts`, `src/lib/atelier.ts`, `src/lib/wallet.ts`
+- Queue modules: `src/lib/queue/connection.ts`, `src/lib/queue/month-end-allocation-queue.ts`, `src/lib/queue/producer.ts`, `src/lib/queue/worker.ts`
+- Month-end orchestration helpers: `src/lib/month-end-allocation-cron.ts`, `src/lib/savings-remainder-allocation.ts`
 - Client query/mutation cache: `src/app/QueryProvider.tsx` (`@tanstack/react-query`)
 
 Client API handling convention:
@@ -102,6 +115,7 @@ Savings UX notes:
 - API now rejects contribution writes if `savingsPlanId` is provided with any type other than `transfer_to_saving_plan`
 - `PATCH /api/savings/plans/[id]` supports partial updates including state-only transitions
 - full lifecycle reference: `docs/savings-plan-status-flow.md`
+- monthly remainder auto-allocation summary includes queue trace metadata (transaction ID + run source)
 
 Ledger CSV export notes:
 - `/api/ledger/export` returns `text/csv` download scoped to the authenticated user

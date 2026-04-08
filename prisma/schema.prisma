@@ -23,6 +23,7 @@ model User {
   savingsPlans SavingsPlan[]
   monthlyCaps  UserMonthlyCap[]
   categoryMonthlyLimits CategoryMonthlyLimit[]
+  savingsPlanMonthlyPriorities SavingsPlanMonthlyPriority[]
 }
 
 model UserSettings {
@@ -144,8 +145,25 @@ model SavingsPlan {
   createdAt          DateTime      @default(now())
   user               User          @relation(fields: [userId], references: [id])
   transactions       Transaction[]
+  monthlyPriorities  SavingsPlanMonthlyPriority[]
 
   @@index([userId])
   @@index([userId, status])
   @@index([userId, isPrimary])
+}
+
+model SavingsPlanMonthlyPriority {
+  id             String     @id @default(cuid())
+  userId         String
+  savingsPlanId  String
+  monthStart     DateTime
+  priorityPercent Decimal
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  user           User       @relation(fields: [userId], references: [id])
+  savingsPlan    SavingsPlan @relation(fields: [savingsPlanId], references: [id])
+
+  @@unique([userId, savingsPlanId, monthStart])
+  @@index([userId, monthStart])
+  @@index([savingsPlanId])
 }

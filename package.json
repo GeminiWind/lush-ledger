@@ -6,6 +6,7 @@
     "dev": "npm run prisma:generate && next dev --webpack",
     "build": "npm run prisma:generate && next build --webpack",
     "start": "next start",
+    "worker:month-end": "tsx src/lib/queue/worker.ts",
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -19,6 +20,7 @@
     "bcryptjs": "^3.0.3",
     "formik": "^2.4.9",
     "i18next": "^26.0.3",
+    "ioredis": "^5.8.1",
     "jose": "^6.2.2",
     "luxon": "^3.7.2",
     "next": "16.2.1",
@@ -29,7 +31,8 @@
     "react-grid-layout": "^2.2.2",
     "react-hot-toast": "^2.6.0",
     "react-i18next": "^17.0.2",
-    "recharts": "^3.8.0"
+    "recharts": "^3.8.0",
+    "bullmq": "^5.58.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -40,6 +43,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
     "tailwindcss": "^4",
+    "tsx": "^4.20.6",
     "typescript": "^5",
     "vitest": "^3.2.4"
   }

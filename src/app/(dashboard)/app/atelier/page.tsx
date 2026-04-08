@@ -5,6 +5,10 @@ import { materializeRecurringTransactions } from "@/lib/recurring";
 import { serializeForClient } from "@/lib/serialize-for-client";
 import { requireUser } from "@/lib/user";
 import { ensureMonthlyCapSnapshot } from "@/lib/monthly-cap";
+import {
+  getSavingsRemainderAllocationSummary,
+  getSavingsRemainderPrioritySettings,
+} from "@/lib/savings-remainder-allocation";
 
 export default async function AtelierPage() {
   const user = await requireUser();
@@ -16,7 +20,15 @@ export default async function AtelierPage() {
   const now = nowDate();
   const { start, end } = getMonthRange(now);
 
-  const [categories, rawMonthTransactions, rawSavingsPlans, rawMonthlyCap, rawMonthLimits] = await Promise.all([
+  const [
+    categories,
+    rawMonthTransactions,
+    rawSavingsPlans,
+    rawMonthlyCap,
+    rawMonthLimits,
+    remainderAllocationSummary,
+    monthlyPrioritySettings,
+  ] = await Promise.all([
     prisma.category.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: "desc" },
@@ -41,6 +53,8 @@ export default async function AtelierPage() {
       select: {
         id: true,
         name: true,
+        status: true,
+        isPrimary: true,
         monthlyContribution: true,
       },
     }),
@@ -49,6 +63,8 @@ export default async function AtelierPage() {
       where: { userId: user.id, monthStart: start },
       select: { categoryId: true, limit: true, warningEnabled: true, warnAt: true },
     }),
+    getSavingsRemainderAllocationSummary(user.id, start),
+    getSavingsRemainderPrioritySettings(user.id, start),
   ]);
 
   const monthTransactions = serializeForClient(rawMonthTransactions);
@@ -67,6 +83,8 @@ export default async function AtelierPage() {
       savingsPlans={savingsPlans}
       monthlyCap={monthlyCap}
       monthLimits={monthLimits}
+      remainderAllocationSummary={remainderAllocationSummary}
+      monthlyPrioritySettings={monthlyPrioritySettings}
     />
   );
 }

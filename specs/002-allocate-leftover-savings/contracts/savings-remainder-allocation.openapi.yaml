@@ -1,0 +1,271 @@
+openapi: 3.1.0
+info:
+  title: Savings Remainder Allocation API
+  version: 1.0.0
+  description: >
+    Contract for end-of-month remainder-to-savings eligibility and allocation execution.
+    Applied transfers are logged as transaction type transfer_to_saving_plan.
+paths:
+  /api/internal/jobs/month-end-remainder-allocation:
+    get:
+      summary: Trigger month-end producer enqueue run (cron/internal)
+      description: >
+        Cron-controlled endpoint that enqueues per-user month allocation jobs to BullMQ.
+        Does not execute per-user allocation inline.
+      parameters:
+        - in: query
+          name: month
+          required: false
+          schema:
+            type: string
+            pattern: "^\\d{4}-\\d{2}$"
+      responses:
+        "200":
+          description: Queue producer completed enqueue pass.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BatchEnqueueResponse"
+        "401":
+          description: Unauthorized internal caller.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/internal/jobs/month-end-remainder-allocation/replay:
+    post:
+      summary: Replay queue job for one user and month
+      description: >
+        Enqueues one user/month allocation job for replay after failure investigation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReplayRequest"
+      responses:
+        "200":
+          description: Replay enqueue accepted.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplayResponse"
+        "400":
+          description: Invalid month/user payload.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized internal caller.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/savings/remainder-allocation:
+    get:
+      summary: Get month allocation eligibility and latest summary
+      description: >
+        Returns whether the feature is visible/available for a month based on
+        total category limits vs monthly cap, plus latest month summary when available.
+      parameters:
+        - in: query
+          name: month
+          required: false
+          schema:
+            type: string
+            pattern: "^\\d{4}-\\d{2}$"
+          description: Month key in YYYY-MM format. Defaults to current month.
+      responses:
+        "200":
+          description: Eligibility and optional summary returned.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EligibilityResponse"
+        "401":
+          description: Missing or invalid authenticated session.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "400":
+          description: Invalid month input.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    post:
+      summary: Execute end-of-month remainder allocation
+      description: >
+        Executes a month-end allocation run for the authenticated user context.
+        This route is intended for scheduler/orchestration usage; idempotent per user+month.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                month:
+                  type: string
+                  pattern: "^\\d{4}-\\d{2}$"
+                  description: Month key in YYYY-MM format; defaults to current month.
+      responses:
+        "200":
+          description: Allocation processed (applied or no-op).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AllocationRunResponse"
+        "401":
+          description: Missing or invalid authenticated session.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Duplicate non-idempotent attempt blocked.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "400":
+          description: Invalid input.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    EligibilityResponse:
+      type: object
+      required:
+        - month
+        - totalCap
+        - totalLimit
+        - isVisible
+        - reason
+      properties:
+        month:
+          type: string
+          pattern: "^\\d{4}-\\d{2}$"
+        totalCap:
+          type: number
+        totalLimit:
+          type: number
+        isVisible:
+          type: boolean
+          description: True only when totalLimit is lower than totalCap.
+        reason:
+          type: string
+        latestRun:
+          $ref: "#/components/schemas/AllocationRunResponse"
+
+    AllocationRunResponse:
+      type: object
+      required:
+        - month
+        - status
+        - sourceRemainder
+        - totalTransferred
+        - unallocatedRemainder
+        - transferTransactionType
+        - entries
+      properties:
+        month:
+          type: string
+          pattern: "^\\d{4}-\\d{2}$"
+        status:
+          type: string
+          enum:
+            - applied
+            - no_op_zero_remainder
+            - no_op_not_visible
+            - no_op_no_eligible_plans
+        sourceRemainder:
+          type: number
+        totalTransferred:
+          type: number
+        unallocatedRemainder:
+          type: number
+          description: Left unchanged when remainder exceeds total eligible savings need.
+        transferTransactionType:
+          type: string
+          enum: [transfer_to_saving_plan]
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/AllocationEntry"
+
+    AllocationEntry:
+      type: object
+      required:
+        - savingsPlanId
+        - priorityPercent
+        - plannedAmount
+        - appliedAmount
+        - result
+      properties:
+        savingsPlanId:
+          type: string
+        priorityPercent:
+          type: number
+        plannedAmount:
+          type: number
+        appliedAmount:
+          type: number
+        result:
+          type: string
+          enum: [applied, capped, skipped]
+        transactionId:
+          type: string
+          nullable: true
+
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+
+    BatchEnqueueResponse:
+      type: object
+      required:
+        - month
+        - queuedUsers
+      properties:
+        month:
+          type: string
+          pattern: "^\\d{4}-\\d{2}$"
+        queuedUsers:
+          type: integer
+          minimum: 0
+
+    ReplayRequest:
+      type: object
+      required: [userId, month]
+      properties:
+        userId:
+          type: string
+        month:
+          type: string
+          pattern: "^\\d{4}-\\d{2}$"
+        reason:
+          type: string
+
+    ReplayResponse:
+      type: object
+      required: [userId, month, enqueued]
+      properties:
+        userId:
+          type: string
+        month:
+          type: string
+          pattern: "^\\d{4}-\\d{2}$"
+        enqueued:
+          type: boolean

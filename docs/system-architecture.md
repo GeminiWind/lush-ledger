@@ -11,6 +11,7 @@ Main layers:
 - API routes (`src/app/api/*`)
 - domain services/utilities (`src/lib/*`)
 - data models (`prisma/schema.prisma`)
+- background queue layer (BullMQ + Redis in `src/lib/queue/*`)
 
 ## Request Flow
 
@@ -63,6 +64,19 @@ Notes:
 - Savings screen supports in-place "Add Contribution" dialog that writes income transactions linked by `Transaction.savingsPlanId`
 - `ledger/reports` includes client-rendered monthly cashflow trend (income vs expense) and expense-vs-budget charting via Recharts
 - Dedicated report/savings APIs are incomplete (see gaps below)
+- Month-end savings remainder allocation is queue-driven:
+  - cron/internal route enqueues per-user month jobs (`/api/internal/jobs/month-end-remainder-allocation`)
+  - BullMQ producer fans out one deterministic job per user (`allocation:{month}:{userId}`)
+  - worker processes each job via `executeSavingsRemainderAllocation`
+  - replay endpoint re-enqueues one user/month for failure recovery (`/api/internal/jobs/month-end-remainder-allocation/replay`)
+
+## Background Job Architecture
+
+- Redis connection factory: `src/lib/queue/connection.ts`
+- Queue/job contracts and defaults: `src/lib/queue/month-end-allocation-queue.ts`
+- Producer orchestration: `src/lib/queue/producer.ts`
+- Worker processor entrypoint: `src/lib/queue/worker.ts`
+- Cron gating helper: `src/lib/month-end-allocation-cron.ts`
 
 ## Data Architecture
 

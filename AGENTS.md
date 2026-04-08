@@ -57,3 +57,14 @@ For every external library/framework API usage:
 3. Direct user request for the current task.
 
 If two rules conflict, follow the higher-precedence source and mention assumptions briefly in the final response.
+
+## Active Technologies
+- TypeScript (Next.js App Router project, TypeScript ^5) + Next.js route handlers, Prisma, existing auth/session helpers, existing i18n utilities (001-export-transaction-csv)
+- SQLite via Prisma (read-only use for export generation); downloadable CSV file response (001-export-transaction-csv)
+- TypeScript (^5) in Next.js App Router application + Next.js route handlers, Prisma ORM, existing auth/session helpers, TanStack Query-driven client mutation patterns, existing i18n dictionaries (002-allocate-leftover-savings)
+- SQLite via Prisma (`UserMonthlyCap`, `CategoryMonthlyLimit`, `SavingsPlan`, `Transaction`) (002-allocate-leftover-savings)
+- TypeScript (^5), Next.js App Router, Node.js runtime + Next.js route handlers, Prisma ORM, BullMQ, Redis client (`ioredis`), existing auth/session helpers (002-allocate-leftover-savings)
+- SQLite (Prisma models) + Redis (BullMQ queue state) (002-allocate-leftover-savings)
+
+## Recent Changes
+- 001-export-transaction-csv: Added TypeScript (Next.js App Router project, TypeScript ^5) + Next.js route handlers, Prisma, existing auth/session helpers, existing i18n utilities

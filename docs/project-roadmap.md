@@ -17,7 +17,7 @@ Related plan source:
 
 ## Current Milestones
 
-Overall completion estimate: **92%**.
+Overall completion estimate: **94%**.
 
 1) Stabilize canonical route surface
 - keep `src/app/(dashboard)/app/*` as active surface
@@ -32,8 +32,13 @@ Overall completion estimate: **92%**.
 - category-by-month report view
 - account snapshot report block
 - transaction CSV export from ledger filters (implemented via `/api/ledger/export`)
-- savings plan create/edit/delete workflows
+- savings plan create/edit/cancel-refund workflows
 - active/archived plan lifecycle management and primary-plan switching UX
+
+4) Harden month-end savings automation (queue rollout)
+- cron -> producer -> per-user worker flow is implemented with BullMQ
+- per-user replay endpoint is implemented for failed month/user jobs
+- remaining work: production worker deployment/monitoring and operational dashboards
 
 ## Exit Criteria to Move Phases to Done
 

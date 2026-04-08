@@ -2,10 +2,14 @@
 
 import { localeDateLabel, monthKey, startOfMonthDate } from "@/lib/date";
 import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
-import { formatCurrency } from "@/lib/format";
 import AddCategoryModal from "@/features/atelier/dialogs/AddCategoryModal";
 import TotalCapCard from "@/features/atelier/components/TotalCapCard";
 import CategoryAtelierGrid from "@/features/atelier/components/CategoryAtelierGrid";
+import MonthlySavingsPlanCard from "@/features/atelier/components/MonthlySavingsPlanCard";
+import type {
+  MonthlyPrioritySetting,
+  SavingsRemainderAllocationEligibilitySummary,
+} from "@/lib/savings-remainder-allocation";
 
 const toNumber = (value: unknown) => Number(value ?? 0);
 
@@ -28,6 +32,8 @@ type Props = {
   savingsPlans: Array<{
     id: string;
     name: string;
+    status: string;
+    isPrimary: boolean;
     monthlyContribution: unknown;
   }>;
   monthlyCap: {
@@ -40,6 +46,8 @@ type Props = {
     warningEnabled: boolean;
     warnAt: number;
   }>;
+  remainderAllocationSummary: SavingsRemainderAllocationEligibilitySummary;
+  monthlyPrioritySettings: MonthlyPrioritySetting[];
 };
 
 const monthKeyOf = (value: Date) => monthKey(startOfMonthDate(value));
@@ -54,6 +62,8 @@ export default function AtelierPageView({
   savingsPlans,
   monthlyCap,
   monthLimits,
+  remainderAllocationSummary,
+  monthlyPrioritySettings,
 }: Props) {
   const t = useNamespacedTranslation("atelier", language);
   const monthLimitByCategoryId = new Map(monthLimits.map((item) => [item.categoryId, item]));
@@ -89,28 +99,7 @@ export default function AtelierPageView({
   const allocated = toNumber(monthlyCap.totalLimit);
   const remaining = Math.max(totalCap - allocated, 0);
   const capProgress = totalCap > 0 ? Math.min(allocated / totalCap, 1) : 0;
-
-  const savingsTarget = savingsPlans.reduce(
-    (sum, plan) => sum + toNumber(plan.monthlyContribution),
-    0,
-  );
-
-  const savingsByPlan = savingsPlans.map((plan) => {
-    const saved = monthTransactions
-      .filter((tx) => tx.savingsPlanId === plan.id)
-      .reduce((sum, tx) => sum + toNumber(tx.amount), 0);
-
-    return {
-      id: plan.id,
-      name: plan.name,
-      target: toNumber(plan.monthlyContribution),
-      saved,
-    };
-  });
-
-  const savingsSaved = savingsByPlan.reduce((sum, plan) => sum + plan.saved, 0);
-  const savingsCoverage =
-    savingsTarget > 0 ? Math.min((savingsSaved / savingsTarget) * 100, 100) : 0;
+  const isRemainderAllocationVisible = allocated < totalCap;
 
   const monthLabel = localeDateLabel(now, language, { month: "long", year: "numeric" });
 
@@ -142,59 +131,15 @@ export default function AtelierPageView({
               language={language}
             />
 
-            <article className="rounded-[2rem] bg-white p-8 shadow-[0_24px_48px_-12px_rgba(27,54,65,0.08)]">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h2 className="font-[var(--font-manrope)] text-xl font-bold">{t("atelierMonthlySavingsPlan")}</h2>
-                  <p className="text-xs text-[#49636f]">{t("atelierAutomaticVaultAllocation")}</p>
-                </div>
-                <div className="rounded-xl bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800">
-                  {t("atelierOn")}
-                </div>
-              </div>
-
-              <div className="mt-7 space-y-5">
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">{t("atelierSavingsTarget")}</p>
-                  <p className="mt-1 font-[var(--font-manrope)] text-3xl font-extrabold text-[#1b3641]">
-                    {formatCurrency(savingsTarget, currency)}
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  {savingsByPlan.length === 0 ? (
-                    <p className="text-sm text-[#6f8793]">{t("atelierNoSavingsPlansYet")}</p>
-                  ) : (
-                    savingsByPlan.slice(0, 3).map((plan) => (
-                      <div key={plan.id} className="flex items-center justify-between text-sm">
-                        <span className="text-[#49636f]">{plan.name}</span>
-                        <span className="font-semibold text-[#1b3641]">
-                          {formatCurrency(plan.target, currency)}
-                        </span>
-                      </div>
-                    ))
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-end justify-between">
-                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8aa2b0]">{t("atelierGoalCoverage")}</p>
-                    <p className="font-[var(--font-manrope)] text-sm font-bold text-[#2e7d32]">
-                      {Math.round(savingsCoverage)}% {t("atelierCovered")}
-                    </p>
-                  </div>
-                  <div className="h-3 overflow-hidden rounded-full bg-[#e4f1fa]">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-[#2e7d32] to-[#1f6f3a]"
-                      style={{ width: `${Math.round(savingsCoverage)}%` }}
-                    />
-                  </div>
-                  <p className="text-xs text-[#6f8793]">
-                    {t("atelierSavedThisMonth")} <span className="font-semibold text-[#1b3641]">{formatCurrency(savingsSaved, currency)}</span>
-                  </p>
-                </div>
-              </div>
-            </article>
+            <MonthlySavingsPlanCard
+              language={language}
+              currency={currency}
+              monthStart={monthStart}
+              isRemainderAllocationVisible={isRemainderAllocationVisible}
+              savingsPlans={savingsPlans}
+              monthlyPrioritySettings={monthlyPrioritySettings}
+              remainderAllocationSummary={remainderAllocationSummary}
+            />
           </div>
         </section>
 
