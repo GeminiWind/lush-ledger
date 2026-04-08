@@ -13,6 +13,10 @@ Required:
 - `DATABASE_URL` (example: `file:./dev.db`)
 - `JWT_SECRET` (long random secret in production)
 
+Optional (required for BullMQ worker/queue):
+- `REDIS_URL` (recommended, example: `redis://127.0.0.1:6379`)
+- or `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`
+
 Start from:
 - `.env.example`
 
@@ -42,6 +46,12 @@ npm run prisma:generate
 npm run dev
 ```
 
+If you use month-end auto-transfer queue locally, start Redis:
+
+```bash
+docker compose up -d redis
+```
+
 App URL:
 - `http://localhost:3000`
 
@@ -64,6 +74,7 @@ npm run start
 - Session cookie is marked `secure` in production mode.
 - Do not deploy with default `JWT_SECRET`.
 - Ensure the SQLite database path in `DATABASE_URL` is writable on the host.
+- If BullMQ worker is enabled, ensure Redis is reachable via `REDIS_URL` (or host/port/password fallback).
 
 ## Current Infrastructure Constraints
 

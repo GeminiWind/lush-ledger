@@ -8,6 +8,8 @@ Lush Ledger is a personal finance web app focused on day-to-day money tracking:
 
 This repository uses Next.js App Router, Prisma, SQLite, and cookie-based JWT sessions.
 
+For month-end auto-transfer queue processing, BullMQ is backed by Redis.
+
 ## Current Product Status
 
 The app is usable for core MVP flows, with a few API/CRUD surfaces still incomplete.
@@ -79,19 +81,29 @@ cp .env.example .env
 npx prisma migrate deploy
 ```
 
-4) Run the app
+4) Start Redis for BullMQ
+
+```bash
+docker compose up -d redis
+```
+
+5) Run the app
 
 ```bash
 npm run dev
 ```
 
-5) Open `http://localhost:3000`
+6) Open `http://localhost:3000`
 
 ## Environment Variables
 
 Required values (see `.env.example`):
 - `DATABASE_URL` (default local SQLite: `file:./dev.db`)
 - `JWT_SECRET` (set a strong random value outside local development)
+
+BullMQ/Redis values:
+- `REDIS_URL` (preferred, for example `redis://127.0.0.1:6379`)
+- `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD` (fallback when `REDIS_URL` is omitted)
 
 ## Development Commands
 
