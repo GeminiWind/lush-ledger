@@ -121,4 +121,22 @@ describe("savings remainder allocation integration behavior", () => {
     expect(parsed.triggerSource).toBe("replay");
     expect(parsed.replayReason).toBe("retry_after_fix");
   });
+
+  it("keeps replay metadata parseable for summary visibility", () => {
+    const note = buildAutoAllocationAuditMetadata({
+      noteTag: "AUTO_MONTH_END_ALLOCATION:2026-04",
+      runKey: "u1:2026-04",
+      month: "2026-04",
+      savingsPlanId: "plan-emergency",
+      priorityPercent: 45,
+      appliedAmount: 90,
+      triggerSource: "replay",
+      replayReason: "operator;manual_replay",
+    });
+
+    const parsed = parseAutoAllocationAuditMetadata(note);
+
+    expect(parsed.triggerSource).toBe("replay");
+    expect(parsed.replayReason).toBe("operator manual_replay");
+  });
 });

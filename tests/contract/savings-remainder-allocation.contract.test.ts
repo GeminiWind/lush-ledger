@@ -180,4 +180,93 @@ describe("savings remainder allocation contract", () => {
     expect(body.unallocatedReason).toBe("zero_remainder");
     expect(body.totalTransferred).toBe(0);
   });
+
+  it("returns active/funded capped redistribution payload for POST", async () => {
+    mockedExecute.mockResolvedValueOnce({
+      month: "2026-04",
+      status: "applied",
+      sourceRemainder: 300,
+      totalTransferred: 240,
+      unallocatedRemainder: 60,
+      unallocatedReason: "exceeds_eligible_need",
+      transferTransactionType: "transfer_to_saving_plan",
+      entries: [
+        {
+          savingsPlanId: "plan-active",
+          priorityPercent: 70,
+          plannedAmount: 210,
+          appliedAmount: 140,
+          result: "capped",
+          transactionId: "tx_active",
+          allocationRunKey: "u1:2026-04",
+          allocationTriggerSource: "cron",
+          allocationReplayReason: null,
+        },
+        {
+          savingsPlanId: "plan-funded",
+          priorityPercent: 30,
+          plannedAmount: 90,
+          appliedAmount: 100,
+          result: "applied",
+          transactionId: "tx_funded",
+          allocationRunKey: "u1:2026-04",
+          allocationTriggerSource: "cron",
+          allocationReplayReason: null,
+        },
+      ],
+    });
+
+    const response = await POST(
+      new NextRequest("http://localhost/api/savings/remainder-allocation", {
+        method: "POST",
+        body: JSON.stringify({ month: "2026-04" }),
+      }),
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.unallocatedReason).toBe("exceeds_eligible_need");
+    expect(body.entries).toHaveLength(2);
+    expect(body.entries[0]?.result).toBe("capped");
+    expect(body.entries[1]?.savingsPlanId).toBe("plan-funded");
+  });
+
+  it("returns replay trace metadata in latest summary payload for GET", async () => {
+    mockedSummary.mockResolvedValueOnce({
+      month: "2026-04",
+      totalCap: 1200,
+      totalLimit: 900,
+      isVisible: true,
+      reason: "eligible_cap_above_limits",
+      latestRun: {
+        month: "2026-04",
+        status: "applied",
+        sourceRemainder: 300,
+        totalTransferred: 300,
+        unallocatedRemainder: 0,
+        unallocatedReason: "none",
+        transferTransactionType: "transfer_to_saving_plan",
+        entries: [
+          {
+            savingsPlanId: "plan-home",
+            priorityPercent: 100,
+            plannedAmount: 300,
+            appliedAmount: 300,
+            result: "applied",
+            transactionId: "tx_replay",
+            allocationRunKey: "u1:2026-04",
+            allocationTriggerSource: "replay",
+            allocationReplayReason: "manual_replay",
+          },
+        ],
+      },
+    });
+
+    const response = await GET(new NextRequest("http://localhost/api/savings/remainder-allocation?month=2026-04"));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.latestRun?.entries?.[0]?.allocationTriggerSource).toBe("replay");
+    expect(body.latestRun?.entries?.[0]?.allocationReplayReason).toBe("manual_replay");
+  });
 });

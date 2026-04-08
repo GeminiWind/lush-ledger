@@ -83,7 +83,7 @@
 
 ### Tests for User Story 2
 
-- [ ] T021 [P] [US2] Extend allocation contract tests for active/funded eligibility and capped redistribution in `tests/contract/savings-remainder-allocation.contract.test.ts`
+- [X] T021 [P] [US2] Extend allocation contract tests for active/funded eligibility and capped redistribution in `tests/contract/savings-remainder-allocation.contract.test.ts`
 - [X] T022 [P] [US2] Extend queue integration tests for mixed-status and over-target cases in `tests/integration/savings-remainder-allocation.integration.test.ts`
 
 ### Implementation for User Story 2
@@ -106,7 +106,7 @@
 ### Tests for User Story 3
 
 - [X] T027 [P] [US3] Add contract tests for replay enqueue API and response payloads in `tests/contract/month-end-allocation-queue.contract.test.ts`
-- [ ] T028 [P] [US3] Add integration tests for monthly settings UI + replayed-run summary visibility in `tests/integration/savings-remainder-allocation.integration.test.ts`
+- [X] T028 [P] [US3] Add integration tests for monthly settings UI + replayed-run summary visibility in `tests/integration/savings-remainder-allocation.integration.test.ts`
 
 ### Implementation for User Story 3
 
