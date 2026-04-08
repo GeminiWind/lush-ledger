@@ -34,6 +34,7 @@ Overall completion estimate: **92%**.
 - transaction CSV export from ledger filters (implemented via `/api/ledger/export`)
 - savings plan create/edit/delete workflows
 - active/archived plan lifecycle management and primary-plan switching UX
+- month-end remainder auto-transfer configuration + execution (implemented: Atelier settings, ledger visibility, savings impact, auto-transfer APIs)
 
 ## Exit Criteria to Move Phases to Done
 

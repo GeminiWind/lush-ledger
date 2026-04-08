@@ -16,7 +16,7 @@ export default async function AtelierPage() {
   const now = nowDate();
   const { start, end } = getMonthRange(now);
 
-  const [categories, rawMonthTransactions, rawSavingsPlans, rawMonthlyCap, rawMonthLimits] = await Promise.all([
+  const [categories, rawMonthTransactions, rawMonthlyCap, rawMonthLimits] = await Promise.all([
     prisma.category.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: "desc" },
@@ -35,15 +35,6 @@ export default async function AtelierPage() {
         savingsPlanId: true,
       },
     }),
-    prisma.savingsPlan.findMany({
-      where: { userId: user.id },
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        name: true,
-        monthlyContribution: true,
-      },
-    }),
     ensureMonthlyCapSnapshot(user.id, start, 0),
     prisma.categoryMonthlyLimit.findMany({
       where: { userId: user.id, monthStart: start },
@@ -52,7 +43,6 @@ export default async function AtelierPage() {
   ]);
 
   const monthTransactions = serializeForClient(rawMonthTransactions);
-  const savingsPlans = serializeForClient(rawSavingsPlans);
   const monthlyCap = serializeForClient(rawMonthlyCap);
   const monthLimits = serializeForClient(rawMonthLimits);
 
@@ -64,7 +54,6 @@ export default async function AtelierPage() {
       monthStart={start}
       categories={categories}
       monthTransactions={monthTransactions}
-      savingsPlans={savingsPlans}
       monthlyCap={monthlyCap}
       monthLimits={monthLimits}
     />

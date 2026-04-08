@@ -356,12 +356,15 @@ export default function LedgerPageView({ language, currency, params, data }: Pro
                 <div className="space-y-2">
                   {group.items.map((tx) => {
                     const subject = tx.notes?.trim() || tx.category?.name || tx.account.name;
+                    const isAutoTransfer =
+                      tx.type === "transfer_to_saving_plan" &&
+                      String(tx.notes || "").includes("[AUTO_TRANSFER]");
                     const detailLabel =
                       tx.type === "transfer_to_saving_plan"
-                        ? `${t("ledgerTransferToSaving")} • ${tx.savingsPlan?.name || t("ledgerUncategorized")}`
+                        ? `${t("ledgerTransferToSaving")} • ${tx.savingsPlan?.name || t("ledgerUncategorized")}${isAutoTransfer ? ` • ${t("ledgerTypeAutoTransfer")}` : ""}`
                         : tx.type === "refund"
                           ? `Refund • ${tx.savingsPlan?.name || t("ledgerUncategorized")}`
-                        : tx.category?.name || t("ledgerUncategorized");
+                          : tx.category?.name || t("ledgerUncategorized");
                     const detail = `${detailLabel} • ${asTime(tx.date, language)}`;
                     const visual = txVisual(tx.type, subject, tx.category?.icon);
 

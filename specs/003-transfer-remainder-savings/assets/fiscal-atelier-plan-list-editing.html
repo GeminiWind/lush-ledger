@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lush Ledger - Fiscal Atelier</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-primary-fixed": "#00480f",
+                        "primary-fixed": "#91f78e",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-variant": "#cbe7f6",
+                        "error": "#a73b21",
+                        "surface-container": "#dcf1fd",
+                        "secondary": "#4d626c",
+                        "inverse-primary": "#91f78e",
+                        "error-container": "#fd795a",
+                        "on-secondary": "#f2faff",
+                        "surface-tint": "#006f1d",
+                        "surface-container-highest": "#cbe7f6",
+                        "on-secondary-container": "#40555f",
+                        "on-secondary-fixed": "#2d424c",
+                        "secondary-container": "#cfe6f2",
+                        "on-primary": "#eaffe2",
+                        "primary-container": "#91f78e",
+                        "background": "#f4faff",
+                        "outline-variant": "#9bb6c4",
+                        "outline": "#647e8c",
+                        "tertiary-dim": "#545622",
+                        "surface-container-low": "#e7f6ff",
+                        "on-error": "#fff7f6",
+                        "tertiary-fixed-dim": "#edefac",
+                        "on-primary-container": "#005e17",
+                        "inverse-on-surface": "#929fa6",
+                        "inverse-surface": "#041015",
+                        "on-tertiary-fixed-variant": "#6a6d37",
+                        "on-tertiary-fixed": "#4d501d",
+                        "tertiary-container": "#fcfeb9",
+                        "secondary-fixed-dim": "#c1d8e4",
+                        "secondary-fixed": "#cfe6f2",
+                        "on-background": "#1b3641",
+                        "primary-fixed-dim": "#83e881",
+                        "tertiary": "#60622d",
+                        "on-surface-variant": "#49636f",
+                        "surface-bright": "#f4faff",
+                        "secondary-dim": "#415660",
+                        "surface-container-high": "#d4ecf9",
+                        "on-error-container": "#6e1400",
+                        "surface-dim": "#c3deed",
+                        "surface": "#f4faff",
+                        "error-dim": "#791903",
+                        "primary-dim": "#006118",
+                        "on-surface": "#1b3641",
+                        "on-primary-fixed-variant": "#00691a",
+                        "primary": "#2E7D32", 
+                        "on-secondary-fixed-variant": "#495f69",
+                        "on-tertiary": "#fcfdb9",
+                        "tertiary-fixed": "#fcfeb9",
+                        "on-tertiary-container": "#60622d"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-headline { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .growth-glow {
+            box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.4);
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #9bb6c4; border-radius: 10px; }
+
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #2E7D32; 
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #2E7D32; 
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background selection:bg-primary-container">
+<div class="flex min-h-screen overflow-hidden">
+<!-- SideNavBar -->
+<aside class="flex flex-col h-screen w-60 p-4 bg-emerald-50 dark:bg-emerald-950 border-r-0 shadow-[20px_0_20px_-10px_rgba(27,54,65,0.04)] sticky top-0 z-50">
+<div class="flex items-center gap-2 mb-6 px-2">
+<div class="w-8 h-8 bg-[#006f1d] rounded-full flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-lg" data-icon="account_balance">account_balance</span>
+</div>
+<div>
+<h1 class="text-xl font-bold tracking-tighter text-emerald-900 dark:text-emerald-50 font-headline leading-tight">Lush Ledger</h1>
+<p class="text-[8px] uppercase tracking-widest text-on-surface-variant font-bold">The Fiscal Atelier</p>
+</div>
+</div>
+<nav class="space-y-0.5 flex-1">
+<a class="flex items-center gap-3 px-4 py-2 text-emerald-700/70 dark:text-emerald-400/70 hover:bg-white/40 dark:hover:bg-emerald-800/30 transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="dashboard">dashboard</span>
+<span class="font-manrope text-sm font-medium tracking-tight">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-emerald-900 dark:text-emerald-50 bg-white/80 dark:bg-emerald-800/50 backdrop-blur-md rounded-lg font-bold transition-all duration-300 scale-[0.98] active:scale-95" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="auto_awesome">auto_awesome</span>
+<span class="font-manrope text-sm font-medium tracking-tight">Atelier</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-emerald-700/70 dark:text-emerald-400/70 hover:bg-white/40 dark:hover:bg-emerald-800/30 transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-manrope text-sm font-medium tracking-tight">Ledger</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-emerald-700/70 dark:text-emerald-400/70 hover:bg-white/40 dark:hover:bg-emerald-800/30 transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="trending_up">trending_up</span>
+<span class="font-manrope text-sm font-medium tracking-tight">Savings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-emerald-700/70 dark:text-emerald-400/70 hover:bg-white/40 dark:hover:bg-emerald-800/30 transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="settings">settings</span>
+<span class="font-manrope text-sm font-medium tracking-tight">Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-4">
+<button class="w-full bg-[#006f1d] text-on-primary py-2.5 rounded-lg font-bold flex items-center justify-center gap-2 shadow-lg shadow-[#006f1d]/20 hover:opacity-90 transition-all active:scale-95">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                    New Entry
+                </button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 h-screen overflow-y-auto bg-surface">
+<!-- TopAppBar -->
+<header class="flex items-center justify-between px-10 w-full h-20 sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl shadow-[0_8px_32px_0_rgba(27,54,65,0.06)]">
+<div class="flex items-center gap-8 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low rounded-full border-none focus:ring-2 focus:ring-primary/20 text-sm font-body" placeholder="Search curator tools..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high border-2 border-emerald-100">
+<img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEJB5-Ahf8u0wQoTtNnWsHHwX6i7mIEQWWZdrG3I4jFdWDWW-X5B3wDA1TWfBQtxK_uS9DA-8RS6vwkvr36_FW_qi6Z0EEZkrdePTyzLoJ9MJH20JBLmKa7iXKxmOk5A-udCfOynA4wKbzJcPXFHGZeTMVvnKD0xXnqlBDKv8hLeI1fAdx1M21AIg6SVFtBuzEzv1YvY9Yukr8OVxn6W76G-C0LQ14Jkr7bhDvqNJDYfm0W-rHT6_A7_f95ivTdMAfPzczZR6X600"/>
+</div>
+</div>
+</div>
+</header>
+<div class="p-10 max-w-7xl mx-auto space-y-12">
+<!-- Section 1: Total Monthly Budget Allocation & Monthly Savings Plan -->
+<section class="space-y-6">
+<div class="flex items-end justify-between">
+<div>
+<p class="text-on-surface-variant font-medium tracking-tight mb-1">Fiscal Masterplan</p>
+<h2 class="text-4xl font-headline font-extrabold text-on-surface">Budget Allocation</h2>
+</div>
+<div class="text-right">
+<p class="text-xs font-bold text-outline uppercase tracking-widest mb-1">Period</p>
+<p class="text-lg font-headline font-bold text-emerald-900">October 2024</p>
+</div>
+</div>
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+<!-- Main Budget Allocation -->
+<div class="xl:col-span-2 bg-surface-container-lowest p-10 rounded-[2rem] shadow-[0_24px_48px_-12px_rgba(27,54,65,0.08)]">
+<div class="grid grid-cols-1 gap-16 items-center">
+<div class="space-y-8">
+<div>
+<label class="label-md text-on-surface-variant font-semibold mb-4 block">Total Monthly Cap</label>
+<div class="flex items-baseline gap-4 group items-center">
+<input class="text-6xl font-headline font-extrabold text-[#2E7D32] bg-transparent border-none p-0 focus:ring-0 w-full max-w-md tracking-tighter" spellcheck="false" type="text" value="50.000.000"/>
+<span class="text-4xl font-headline font-bold text-outline-variant">₫</span>
+<button class="p-2 text-outline-variant hover:text-[#2E7D32] transition-colors ml-2 self-center">
+<span class="material-symbols-outlined text-xl">edit_square</span>
+</button>
+</div>
+<div class="mt-8 relative h-4 bg-surface-container rounded-full overflow-hidden">
+<div class="absolute inset-y-0 left-0 bg-gradient-to-r from-[#2E7D32] to-emerald-900 w-3/4 rounded-full growth-glow"></div>
+</div>
+</div>
+<div class="flex gap-10 items-end justify-between">
+<div class="flex gap-10">
+<div>
+<p class="text-xs font-bold text-outline uppercase tracking-widest mb-1">Allocated</p>
+<p class="text-2xl font-headline font-bold text-on-surface">37.500.000 ₫</p>
+</div>
+<div>
+<p class="text-xs font-bold text-outline uppercase tracking-widest mb-1">Remaining</p>
+<p class="text-2xl font-headline font-bold text-[#2E7D32]">12.500.000 ₫</p>
+</div>
+</div>
+<div class="max-w-[240px] text-right">
+<div class="flex items-center justify-end gap-3 mb-2">
+<span class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Keep current cap for next month</span>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#2E7D32]"></div>
+</label>
+</div>
+<p class="text-[9px] leading-tight text-outline font-medium">If not enabled, the total cap will be reset to unlimited for the next fiscal cycle.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Monthly Savings Plan Card -->
+<div class="bg-surface-container-lowest p-8 rounded-[2rem] shadow-[0_24px_48px_-12px_rgba(27,54,65,0.08)] flex flex-col">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="text-xl font-headline font-bold text-on-surface">Monthly Savings Plan</h3>
+<p class="text-xs text-on-surface-variant font-medium">Automatic Vault Allocation</p>
+</div>
+<div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center">
+<span class="material-symbols-outlined" style='font-variation-settings: "FILL" 1;'>savings</span>
+</div>
+</div>
+<div class="space-y-8 flex-1">
+<div class="space-y-4">
+<div class="mb-6 pb-6 border-b border-outline-variant/10"><div class="flex items-center justify-between mb-4"><span class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Auto-Transfer Status</span><label class="relative inline-flex items-center cursor-pointer"><input checked="" class="sr-only peer" type="checkbox" value=""/><div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#2E7D32]"></div></label></div><p class="text-[9px] leading-relaxed text-outline font-medium italic"><span class="material-symbols-outlined text-[14px] inline-block align-middle mr-1">info</span>At the end of each month, any remaining unallocated funds will be automatically transferred to your savings plan based on this allocation breakdown.</p></div><label class="text-xs font-bold text-outline uppercase tracking-widest block">Allocation Breakdown</label>
+<ul class="space-y-4">
+<li class="flex justify-between items-center group">
+<span class="text-sm text-on-surface-variant font-medium">Atelier Expansion<span class="material-symbols-outlined text-[16px] align-middle ml-1 cursor-pointer hover:text-[#2E7D32] transition-colors" data-icon="expand_more">expand_more</span></span>
+<div class="flex items-center gap-3" title="5.000.000 ₫">
+<div class="flex items-center gap-1 cursor-help">
+<span class="text-sm font-bold text-on-surface">40%</span>
+<button class="text-outline-variant hover:text-[#2E7D32] transition-colors">
+<span class="material-symbols-outlined text-[14px]">edit</span>
+</button><button class="text-outline-variant hover:text-error transition-colors ml-1"><span class="material-symbols-outlined text-[14px]">delete</span></button>
+</div>
+</div>
+</li>
+<li class="flex justify-between items-center group">
+<span class="text-sm text-on-surface-variant font-medium">Emergency Fund</span>
+<div class="flex items-center gap-3" title="3.000.000 ₫">
+<div class="flex items-center gap-1 cursor-help">
+<span class="text-sm font-bold text-on-surface">24%</span>
+<button class="text-outline-variant hover:text-[#2E7D32] transition-colors">
+<span class="material-symbols-outlined text-[14px]">edit</span>
+</button><button class="text-outline-variant hover:text-error transition-colors ml-1"><span class="material-symbols-outlined text-[14px]">delete</span></button>
+</div>
+</div>
+</li>
+<li class="flex justify-between items-center group">
+<span class="text-sm text-on-surface-variant font-medium">Vacation</span>
+<div class="flex items-center gap-3" title="2.000.000 ₫">
+<div class="flex items-center gap-1 cursor-help">
+<span class="text-sm font-bold text-on-surface">16%</span>
+<button class="text-outline-variant hover:text-[#2E7D32] transition-colors">
+<span class="material-symbols-outlined text-[14px]">edit</span>
+</button><button class="text-outline-variant hover:text-error transition-colors ml-1"><span class="material-symbols-outlined text-[14px]">delete</span></button>
+</div>
+</div>
+</li>
+<li class="flex justify-between items-center pt-2 mt-2 border-t border-outline-variant/10 flex-row">
+<button class="flex items-center gap-2 text-sm font-bold text-[#2E7D32] hover:opacity-80 transition-all group">
+<span class="material-symbols-outlined text-[18px] bg-emerald-50 rounded-full p-1 group-hover:bg-emerald-100">add</span>
+<span>Add Saving Plan</span>
+</button><button class="flex items-center gap-2 text-sm font-bold text-[#2E7D32] hover:opacity-80 transition-all group">
+<span class="material-symbols-outlined text-[18px] bg-emerald-50 rounded-full p-1 group-hover:bg-emerald-100">edit</span>
+<span>Edit</span>
+</button>
+</li></ul><div class="flex items-start gap-2 mt-4 px-1 opacity-70">
+<span class="material-symbols-outlined text-[14px] text-outline mt-0.5">info</span>
+<p class="text-[10px] leading-tight text-outline font-medium">
+        Allocation amounts are dynamic and recalculate automatically based on your current remaining unallocated funds.
+    </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 2: Monthly Spending Limits -->
+<section class="space-y-8">
+<div class="flex items-center justify-between">
+<h3 class="text-2xl font-headline font-bold text-on-surface">Category Atelier</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Category Card 1 -->
+<div class="group bg-surface-container-lowest p-6 rounded-3xl hover:shadow-xl hover:shadow-emerald-900/5 transition-all duration-300 flex flex-col justify-between">
+<div>
+<div class="flex items-start justify-between mb-6">
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-800 flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
+<span class="material-symbols-outlined text-3xl" data-icon="restaurant">restaurant</span>
+</div>
+<div>
+<h4 class="font-headline font-bold text-lg text-on-surface">Dining &amp; Leisure</h4>
+<p class="text-xs text-on-surface-variant font-medium">Monthly Limit</p>
+</div>
+</div>
+<button class="p-2 text-outline-variant hover:text-[#2E7D32] transition-colors">
+<span class="material-symbols-outlined">edit_square</span>
+</button>
+</div>
+<div class="space-y-3 mb-6">
+<div class="flex justify-between items-end">
+<span class="text-2xl font-headline font-extrabold text-on-surface">8.000.000 ₫</span>
+<span class="text-xs font-bold text-[#2E7D32] px-2 py-1 rounded bg-emerald-50 growth-glow">+2.4% vs last mo.</span>
+</div>
+<div class="h-2 bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-[#2E7D32] rounded-full" style="width: 65%"></div>
+</div>
+<div class="flex justify-between text-[10px] font-bold uppercase tracking-widest text-outline">
+<span>Spent: 5.200.000 ₫</span>
+<span>65% Used</span>
+</div>
+</div>
+</div>
+<div class="mt-auto pt-4 flex items-center justify-between border-t border-outline-variant/5">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-emerald-800 text-lg">notifications</span>
+<span class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Over-expense Warning</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#2E7D32]"></div>
+</label>
+</div>
+</div>
+<!-- Category Card 2 -->
+<div class="group bg-surface-container-lowest p-6 rounded-3xl hover:shadow-xl hover:shadow-emerald-900/5 transition-all duration-300 flex flex-col justify-between">
+<div>
+<div class="flex items-start justify-between mb-6">
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-800 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+<span class="material-symbols-outlined text-3xl" data-icon="home">home</span>
+</div>
+<div>
+<h4 class="font-headline font-bold text-lg text-on-surface">Rent &amp; Utilities</h4>
+<p class="text-xs text-on-surface-variant font-medium">Monthly Limit</p>
+</div>
+</div>
+<button class="p-2 text-outline-variant hover:text-[#2E7D32] transition-colors">
+<span class="material-symbols-outlined">edit_square</span>
+</button>
+</div>
+<div class="space-y-3 mb-6">
+<div class="flex justify-between items-end">
+<span class="text-2xl font-headline font-extrabold text-on-surface">15.000.000 ₫</span>
+<span class="text-xs font-bold text-on-surface-variant px-2 py-1 rounded bg-surface-container-low">Static</span>
+</div>
+<div class="h-2 bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-emerald-900 rounded-full" style="width: 100%"></div>
+</div>
+<div class="flex justify-between text-[10px] font-bold uppercase tracking-widest text-outline">
+<span>Spent: 15.000.000 ₫</span>
+<span class="text-error font-extrabold">Fully Allocated</span>
+</div>
+</div>
+</div>
+<div class="mt-auto pt-4 flex items-center justify-between border-t border-outline-variant/5 opacity-60">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline text-lg">notifications_off</span>
+<span class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Over-expense Warning</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#2E7D32]"></div>
+</label>
+</div>
+</div>
+<!-- Category Card 3 -->
+<div class="group bg-surface-container-lowest p-6 rounded-3xl hover:shadow-xl hover:shadow-emerald-900/5 transition-all duration-300 flex flex-col justify-between">
+<div>
+<div class="flex items-start justify-between mb-6">
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 rounded-2xl bg-orange-50 text-orange-800 flex items-center justify-center group-hover:bg-orange-100 transition-colors">
+<span class="material-symbols-outlined text-3xl" data-icon="shopping_cart">shopping_cart</span>
+</div>
+<div>
+<h4 class="font-headline font-bold text-lg text-on-surface">Groceries</h4>
+<p class="text-xs text-on-surface-variant font-medium">Monthly Limit</p>
+</div>
+</div>
+<button class="p-2 text-outline-variant hover:text-[#2E7D32] transition-colors">
+<span class="material-symbols-outlined">edit_square</span>
+</button>
+</div>
+<div class="space-y-3 mb-6">
+<div class="flex justify-between items-end">
+<span class="text-2xl font-headline font-extrabold text-on-surface">6.500.000 ₫</span>
+<span class="text-xs font-bold text-error px-2 py-1 rounded bg-error/10">-1.2% vs last mo.</span>
+</div>
+<div class="h-2 bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-[#2E7D32] rounded-full" style="width: 42%"></div>
+</div>
+<div class="flex justify-between text-[10px] font-bold uppercase tracking-widest text-outline">
+<span>Spent: 2.730.000 ₫</span>
+<span>42% Used</span>
+</div>
+</div>
+</div>
+<div class="mt-auto pt-4 flex items-center justify-between border-t border-outline-variant/5">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-emerald-800 text-lg">notifications</span>
+<span class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Over-expense Warning</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#2E7D32]"></div>
+</label>
+</div>
+</div>
+<!-- Add Category Trigger -->
+<button class="group border-2 border-dashed border-outline-variant/30 rounded-3xl flex flex-col items-center justify-center p-6 hover:bg-emerald-50/50 hover:border-[#2E7D32]/40 transition-all duration-300 min-h-[220px]">
+<div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-outline-variant group-hover:bg-[#2E7D32] group-hover:text-on-primary transition-all mb-3">
+<span class="material-symbols-outlined text-2xl" data-icon="add">add</span>
+</div>
+<span class="font-headline font-bold text-on-surface-variant group-hover:text-[#2E7D32]">Add New Category</span>
+</button>
+</div>
+</section>
+</div>
+<!-- Bottom spacing -->
+<div class="h-20"></div>
+</main>
+</div>
+</body></html>

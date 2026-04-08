@@ -167,6 +167,19 @@ export default function SavingsPageView({
     ? savingsTransactions.filter((tx) => tx.savingsPlanId === primaryPlan.id)
     : [];
 
+  const autoTransferByPlan = savingsTransactions.reduce((map, tx) => {
+    if (tx.type !== "transfer_to_saving_plan" || !tx.savingsPlanId) {
+      return map;
+    }
+
+    const value = map.get(tx.savingsPlanId) || 0;
+    map.set(tx.savingsPlanId, value + toNumber(tx.amount));
+    return map;
+  }, new Map<string, number>());
+
+  const primaryAutoTransferAmount = primaryPlan ? autoTransferByPlan.get(primaryPlan.id) || 0 : 0;
+  const totalAutoTransferAmount = Array.from(autoTransferByPlan.values()).reduce((sum, value) => sum + value, 0);
+
   const now = nowDate();
   const growthPoints = Array.from({ length: 12 }, (_, index) => {
     const offset = 11 - index;
@@ -287,6 +300,11 @@ export default function SavingsPageView({
                 {t("savingsPrimaryDesc")}
               </p>
 
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#cbe7f6] bg-white/70 px-4 py-2 text-xs font-bold text-[#1b3641]">
+                <span className="material-symbols-outlined text-base text-[#006f1d]">sync_alt</span>
+                {t("savingsAutoTransferImpact")} {formatCurrency(primaryAutoTransferAmount, currency)}
+              </div>
+
               <div className="grid gap-6 pt-2 sm:grid-cols-3">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#647e8c]">{t("savingsSaved")}</p>
@@ -333,6 +351,9 @@ export default function SavingsPageView({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 className="font-[var(--font-manrope)] text-3xl font-extrabold tracking-[-0.02em] text-[#1b3641]">{t("savingsOtherAmbitions")}</h3>
           <div className="flex items-center gap-2">
+            <p className="rounded-full bg-[#e7f6ff] px-3 py-1 text-[11px] font-bold text-[#1b3641]">
+              {t("savingsAutoTransferTotal")} {formatCurrency(totalAutoTransferAmount, currency)}
+            </p>
             {archivedPlans.length ? (
               <p className="rounded-full bg-[#d4ecf9] px-3 py-1 text-[11px] font-bold text-[#40555f]">{t("savingsArchivedCount").replace("{count}", String(archivedPlans.length))}</p>
             ) : null}

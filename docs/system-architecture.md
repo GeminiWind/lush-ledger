@@ -54,6 +54,13 @@ Notes:
 - Recurring generation and schedule logic: `src/lib/recurring.ts`
 - Transaction model stores template and schedule fields
 
+### Month-End Auto Transfer
+- APIs: `/api/savings/auto-transfer`, `/api/savings/auto-transfer/latest-run`
+- Rule persistence: `AutoTransferRule` (single rule per user, multiple destination allocations)
+- Run persistence: `AutoTransferRun` (single run per `userId + monthStart`, per-plan outcomes)
+- Orchestration: `node-cron` scheduler (`src/lib/savings-auto-transfer-scheduler.ts`) enqueues due users, BullMQ worker (`src/lib/savings-auto-transfer-queue.ts`) executes one user/month job with deterministic `jobId`
+- Execution logic: `src/lib/savings-auto-transfer.ts` computes remainder, caps transfer by remaining target, writes `transfer_to_saving_plan` transactions, and records applied/skipped plan results
+
 ### Savings and Reports
 - UI exists for savings and report views
 - Savings screen now supports active-plan selection driven by `SavingsPlan.status` (`active`/`cancelled`/`archive`) and `isPrimary`
@@ -70,6 +77,7 @@ Primary entities:
 - `User`, `UserSettings`
 - `Account`, `Category`, `Transaction`
 - `SavingsPlan` (`status`, `isPrimary`, target + contribution + due date)
+- `AutoTransferRule`, `AutoTransferRun`
 - `UserMonthlyCap`, `CategoryMonthlyLimit`
 
 Design patterns:
