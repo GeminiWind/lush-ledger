@@ -7,43 +7,61 @@
 - **Updated By**: [NAME/ROLE]
 - **Version**: [e.g., v1.0.0]
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
+**Branch**: `[###-feature-name]`  
+**Date**: [DATE]  
+**Spec**: [link to spec.md]
 
-**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/plan-template.md` for the execution workflow.
+---
 
 ## Summary
 
-[Extract from feature spec: primary requirement + technical approach from research]
+[Short summary of feature + technical approach derived from spec]
+
+---
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
+**Frontend**: [React / Next.js / etc]  
+**Backend**: [FastAPI / Node / etc]  
+**Database**: [PostgreSQL / MongoDB / etc]  
+**Auth**: [JWT / Session / etc]  
 
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [e.g., library/cli/web-service/mobile-app/compiler/desktop-app or NEEDS CLARIFICATION]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Testing**:
+- FE: [Vitest / Jest]
+- BE: [pytest / etc]
+- E2E: [Playwright / Cypress]
 
-## Constitution Check
+**Target Platform**: [Web / Mobile / etc]  
+**Performance Goals**: [e.g., <200ms response time]  
+**Constraints**: [e.g., must support 10k users]  
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+---
 
-- [ ] Code quality gate defined (lint/build/type safety and reuse strategy)
-- [ ] Testing strategy defined (automated coverage for changed behavior)
-- [ ] UX consistency gate defined (design-guidelines and canonical route alignment)
-- [ ] Performance budget defined (p95 target and validation method)
-- [ ] Documentation impact captured (`docs/codebase-summary.md`,
-      `docs/system-architecture.md`, `docs/project-roadmap.md`)
+## Architecture Overview
+
+- Frontend handles UI and user interaction
+- Frontend communicates with backend via API
+- Backend validates input (FR rules)
+- Backend processes business logic
+- Backend persists data
+- Backend returns structured response
+- Frontend updates UI based on response
+
+---
+
+## Architecture Flow (Frontend ↔ Backend)
+
+- User interacts with UI (page / modal / form)
+- Frontend triggers API request
+- Backend validates request (FR-xxx)
+- Backend processes and persists data
+- Backend returns response
+- Frontend updates UI:
+  - loading
+  - error
+  - success
+
+---
 
 ## Project Structure
 
@@ -56,6 +74,8 @@ specs/[###-feature]/
 ├── data-model.md        # Phase 1 output (/speckit.plan command)
 ├── quickstart.md        # Phase 1 output (/speckit.plan command)
 ├── contracts/           # Phase 1 output (/speckit.plan command)
+│   ├── [endpoint-name].md
+│   └── [endpoint-name].md          
 └── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
 ```
 
@@ -66,57 +86,292 @@ specs/[###-feature]/
   real paths (e.g., apps/admin, packages/something). The delivered plan must
   not include Option labels.
 -->
-
 ```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+frontend/
+  src/
+    features/
+      [feature-name]/
+        components/
+        pages/
+        hooks/
+        services/
 
+backend/
+  src/
+    features/
+      [feature-name]/
+        routes/
+        services/
+        models/
+        schemas/
 tests/
 ├── contract/
 ├── integration/
 └── unit/
-
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
-
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
 ```
 
 **Structure Decision**: [Document the selected structure and reference the real
 directories captured above]
 
-## Complexity Tracking
+---
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
+## Data Model
+Detailed data definitions live in `data-model.md`.
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+Primary entities:
+- <Entity A>
+- <Entity B>
+
+
+## Data Model Output Format
+
+The data model must be generated in `data-model.md` using the following structure:
+
+```txt
+# Data Model: <Feature Name>
+
+## <Entity Name>
+
+### Purpose
+
+### Fields
+- <field>: <type> - <description>
+
+### Constraints
+- <rule>
+
+### Relationships
+- <relation if any>
+
+### Lifecycle (optional)
+- <state transitions if any>
+```
+
+## Contracts
+Detailed API contracts live in `contracts/`.
+
+Primary contracts:
+- [METHOD] /api/<resource>
+- [METHOD] /api/<resource>/<id>
+
+
+## API Contracts Output Format
+
+Each API contract must be generated as a separate file in `contracts/` using the following structure:
+
+File naming:
+- <method>-<resource>.md (e.g., post-products.md)
+
+Template:
+
+`````txt
+# <METHOD> /api/<resource>
+
+## Purpose
+<What this endpoint does>
+
+## Triggered By
+<UI action>
+
+## Request
+```json
+{
+  ...
+} 
+
+## Success Response
+
+```json
+{
+  "id": "uuid",
+  "name": "Product A",
+  "price": 100,
+  "status": "draft",
+  "created_at": "timestamp"
+}
+```
+
+## Error Response
+
+```json
+{
+  "errors": {
+    "name": "Required",
+    "price": "Must be greater than 0"
+  }
+}
+```
+
+## Related Functional Requirements
+
+* FR-001
+* FR-002
+* FR-004
+
+`````
+
+## UI Implementation Plan
+
+### Pages
+
+* [Page A]
+
+### Components
+
+* [Component A]
+* [Component B]
+
+### State Management
+
+* local state / global store
+
+### User Interaction Flow
+
+* User clicks [action]
+* UI shows [component]
+* User inputs data
+* Submit triggers [API call] (e.g POST /api/products)
+* Handle loading / error / success
+
+### UI States
+
+* loading: disable interaction / show spinner
+* error: display message
+* success: update UI / close modal / redirect
+
+### Data Fetching
+
+* Initial load
+* Refresh after mutation
+
+---
+
+## Backend Implementation Plan
+
+* Define API routes
+* Implement validation (FR-xxx)
+* Implement business rules
+* Implement permission checks
+* Persist data to database
+* Return structured responses
+* Handle errors consistently
+
+---
+## UI ↔ API Mapping
+
+### Page Load
+
+- Product Dashboard load
+  → GET /api/products  
+  → Purpose: fetch product list  
+  → UI update: render ProductList  
+
+---
+
+### Create Product Flow
+
+- Click "Create Product" button  
+  → No API call  
+  → UI update: open ProductFormModal  
+
+- Submit Create Product form  
+  → POST /api/products  
+  → Payload: { name, price, status }  
+  → Success:
+    - close modal
+    - refresh product list (GET /api/products)
+  → Error:
+    - show validation errors inline  
+
+---
+
+### Update Product (if applicable)
+
+- Click "Edit Product"  
+  → No API call  
+  → UI update: open edit form  
+
+- Submit update form  
+  → PUT /api/products/:id  
+  → Success:
+    - update item in list
+  → Error:
+    - show error message  
+
+---
+
+### Delete Product (if applicable)
+
+- Click "Delete Product"  
+  → DELETE /api/products/:id  
+  → Success:
+    - remove item from list  
+  → Error:
+    - show error notification  
+
+---
+
+### Error Handling Mapping
+
+- Validation errors  
+  → map to form fields  
+
+- System errors  
+  → show toast / alert  
+
+---
+
+### Loading States
+
+- API request pending  
+  → disable submit button  
+  → show spinner  
+
+---
+
+### Notes
+
+- All API responses must follow defined contract format  
+- All mutations must trigger UI update or data refetch  
+
+---
+
+## Testing Strategy
+
+### Frontend
+
+* Component rendering
+* Form validation
+* Interaction flow
+
+### Backend
+
+* API validation
+* Business logic
+* Data persistence
+
+### E2E
+
+* Full user flow (UI → API → DB → UI)
+
+## Constitution Check
+
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+- [ ] Code quality gate defined (lint/build/type safety and reuse strategy)
+- [ ] Testing strategy defined (automated coverage for changed behavior)
+- [ ] UX consistency gate defined (design-guidelines and canonical route alignment)
+- [ ] Performance budget defined (p95 target and validation method)
+- [ ] Documentation impact captured (`docs/codebase-summary.md`,
+      `docs/system-architecture.md`, `docs/project-roadmap.md`)
+
+## Risks / Trade-offs
+- [Risk]
+- [Decision]
 
 ## Changelog
 
 | Version | Date | Updated By | Change Summary |
 |---------|------|------------|----------------|
 | v1.0.0 | [DATE] | [NAME/ROLE] | Initial implementation plan generated from template. |
+

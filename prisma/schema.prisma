@@ -21,6 +21,8 @@ model User {
   categories   Category[]
   transactions Transaction[]
   savingsPlans SavingsPlan[]
+  autoTransferRule AutoTransferRule?
+  autoTransferRuns AutoTransferRun[]
   monthlyCaps  UserMonthlyCap[]
   categoryMonthlyLimits CategoryMonthlyLimit[]
 }
@@ -30,10 +32,41 @@ model UserSettings {
   userId    String   @unique
   currency  String   @default("VND")
   language  String   @default("en-US")
+  timezone  String   @default("UTC")
   theme     String   @default("light")
   unallocatedBackup Decimal @default(0)
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id])
+}
+
+model AutoTransferRule {
+  id                        String   @id @default(cuid())
+  userId                    String   @unique
+  enabled                   Boolean  @default(false)
+  allocations               String
+  allocationTotalPercentage Int      @default(0)
+  updatedAt                 DateTime @updatedAt
+  user                      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model AutoTransferRun {
+  id                        String   @id @default(cuid())
+  userId                    String
+  monthStart                DateTime
+  timezone                  String
+  remainderAmount           Decimal  @default(0)
+  allocationTotalPercentage Int      @default(0)
+  planResults               String
+  status                    String
+  skipReason                String?
+  createdAt                 DateTime @default(now())
+  user                      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, monthStart])
+  @@index([userId, createdAt])
+  @@index([monthStart])
 }
 
 model UserMonthlyCap {

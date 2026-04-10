@@ -46,6 +46,9 @@ Implemented:
 - `PATCH /api/atelier/cap`
 - `POST /api/savings/plans`
 - `PATCH /api/savings/plans/[id]`
+- `GET /api/savings/auto-transfer`
+- `PUT /api/savings/auto-transfer`
+- `GET /api/savings/auto-transfer/latest-run`
 
 Missing or partial:
 - missing `/api/reports`
@@ -63,6 +66,8 @@ Core models in `prisma/schema.prisma`:
 - `Category` (`monthlyLimit`)
 - `Transaction` (includes recurring fields and template metadata)
 - `SavingsPlan` (`icon`, `status`, `isPrimary`, `targetAmount`, `monthlyContribution`, `targetDate`)
+- `AutoTransferRule` (`enabled`, allocation rows serialized as JSON text)
+- `AutoTransferRun` (month-end remainder snapshot + per-plan result rows serialized as JSON text)
 - `UserMonthlyCap` (monthly cap snapshot)
 - `CategoryMonthlyLimit` (monthly category snapshot)
 
@@ -71,6 +76,7 @@ Core models in `prisma/schema.prisma`:
 - Auth/session: `src/lib/auth.ts`, `src/middleware.ts`
 - Monthly snapshot strategy: `src/lib/monthly-cap.ts`
 - Recurring generation: `src/lib/recurring.ts`
+- Savings auto-transfer processing: `src/lib/savings-auto-transfer.ts`, `src/lib/savings-auto-transfer-queue.ts`, `src/lib/savings-auto-transfer-scheduler.ts`
 - Domain calculations: `src/lib/dashboard.ts`, `src/lib/ledger.ts`, `src/lib/atelier.ts`, `src/lib/wallet.ts`
 - Client query/mutation cache: `src/app/QueryProvider.tsx` (`@tanstack/react-query`)
 
@@ -101,6 +107,9 @@ Savings UX notes:
 - archived list cards now deep-link cancelled plans to a dedicated detail view (`/app/savings/cancelled/:id`)
 - API now rejects contribution writes if `savingsPlanId` is provided with any type other than `transfer_to_saving_plan`
 - `PATCH /api/savings/plans/[id]` supports partial updates including state-only transitions
+- Atelier includes month-end auto-transfer configuration with required `(*)` field markers and latest-run status
+- Ledger marks system-generated month-end transfers with explicit auto-transfer labels
+- Savings highlights progress impact from auto-transfer entries
 - full lifecycle reference: `docs/savings-plan-status-flow.md`
 
 Ledger CSV export notes:
