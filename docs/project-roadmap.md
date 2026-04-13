@@ -9,7 +9,7 @@ Related plan source:
 
 | Phase | Name | Status | Why still in progress |
 |---|---|---|---|
-| 01 | Foundation + Auth | completed | settings API/page parity and auth rate limiting are implemented |
+| 01 | Foundation + Auth | completed | settings API/page parity, auth rate limiting, password policy enforcement, and structured auth error responses are implemented |
 | 02 | Accounts + Transactions | completed | account + ledger CRUD (including update/delete) is implemented |
 | 03 | Budgets | completed | category lifecycle + monthly cap snapshot workflow are implemented; warnings are consistent in current MVP flow |
 | 04 | Reports | in_progress | report UI is mature (`/app/ledger/reports`) and CSV export from ledger is now implemented; remaining gap is a dedicated `/api/reports` contract |
@@ -43,6 +43,11 @@ Overall completion estimate: **92%**.
 - Phase 03 done: category lifecycle is complete and budget warnings are consistent.
 - Phase 04 done when reports are API-backed and requirement-complete.
 - Phase 05 done when savings plan CRUD, archive lifecycle, and primary-plan management UX are shipped.
+
+## Auth Follow-up Notes
+
+- Login and registration contract coverage is in place.
+- Login page integration scenarios remain in scaffold state and should be completed to remove auth TODO tests.
 
 ## Documentation Maintenance Rule
 

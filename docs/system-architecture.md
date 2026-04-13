@@ -33,8 +33,12 @@ Client mutation flow:
 - Edge protection: `src/middleware.ts`
 
 Notes:
-- auth rate limiting is not implemented yet
+- auth login/register endpoints use in-memory exponential backoff keyed by `scope + client IP + normalized identity` via `src/lib/rate-limit.ts`
 - logout route is explicitly exempted in middleware pre-check
+
+Validation and error flow:
+- registration and login validation share normalization/policy helpers in `src/features/auth/validation.ts`
+- auth handlers return structured validation payloads (`error` + optional field `errors`) for client-side form mapping
 
 ## Domain Architecture
 
