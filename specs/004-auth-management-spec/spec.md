@@ -22,13 +22,13 @@ Define a complete authentication management experience for new and returning use
 - **Design Source**: Stitch
 - **Project**: Expense Analytics & Limits (ID: 5432030685985881682)
 - **Primary Screen(s)**:
-  - Login - Lush Ledger (ID: 9559f511828b40b6a8db64d8e96a2ae6)
-  - Register - Lush Ledger (ID: 9889197579784c55ad74a587e941e6dc)
+  - Login screen reference: `specs/004-auth-management-spec/assets/login.png`
+  - Register screen reference: `specs/004-auth-management-spec/assets/register.png`
 - **Design Assets**:
-  - Login screenshot: `https://lh3.googleusercontent.com/aida/ADBb0uhWoO5G-0t8saN0Uw9yxWms4GoAQkmip5OEDRtp6wNdzIMC0qWkwEyIyjohv60dmxCGu7ZYNGXoee2nhYThLFcz2d4r9pvPiWCojMrFmFy6f4zkq5Z03cyki1wwANWZWO0-nOQv1JTDLX3PkSUzvyQbK_0GmFoPVCedhiCwPpjgXJAqpB3cQ2rVXzcyazdg1eG4xIRlnQDqqXf0c0DkWveROiSH1hkO0ZskMnaHR12v-JpiLi7HBFYLXP4`
-  - Login HTML export: `https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sXzFkOTZhNDRlNTVjYjRlMmY4OTZmZTRiNWE1MDQwNTI4EgsSBxCNgN6_yhYYAZIBIwoKcHJvamVjdF9pZBIVQhM1NDMyMDMwNjg1OTg1ODgxNjgy&filename=&opi=89354086`
-  - Register screenshot: `https://lh3.googleusercontent.com/aida/ADBb0uheMXwZrqTgGwV3cuG7Ga0t1su6GlaHfffbsFKBSl7rM34bFmaGGHoP8en5qfflqAwx00yIvBqMBCklMaDgh6mXvfR6l50vcZv04ft2thtjv2vQgVuUWPIbjh6fd0mL4NnmSpGIdKYnWo4211qw3teCEh_uchPAXEEvnbwV3bl_tM0rtLllqutaf_uNqGREjX44cE69qkkf4ybyTA2oDNi4qrkgDR-qF9MUNjYbJb3uAR9oj5Vet6w-bjc`
-  - Register HTML export: `https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sXzM0MDZkNjJkMDY1MzRjOTlhM2FmNjVmNTM4ZGQwMWM4EgsSBxCNgN6_yhYYAZIBIwoKcHJvamVjdF9pZBIVQhM1NDMyMDMwNjg1OTg1ODgxNjgy&filename=&opi=89354086`
+  - Login screenshot: `specs/004-auth-management-spec/assets/login.png`
+  - Login HTML export: `specs/004-auth-management-spec/assets/login.html`
+  - Register screenshot: `specs/004-auth-management-spec/assets/register.png`
+  - Register HTML export: `specs/004-auth-management-spec/assets/register.html`
 
 ### UI Flow Summary
 - User opens the login page or registration page from a public entry point.
