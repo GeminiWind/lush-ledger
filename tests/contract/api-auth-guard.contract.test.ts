@@ -17,6 +17,7 @@ import * as atelierCapRoute from "@/app/api/atelier/cap/route";
 import * as settingsRoute from "@/app/api/settings/route";
 import * as savingsPlansRoute from "@/app/api/savings/plans/route";
 import * as savingsPlanIdRoute from "@/app/api/savings/plans/[id]/route";
+import { middleware } from "@/middleware";
 
 const mockedSession = vi.mocked(getSessionFromRequest);
 
@@ -57,5 +58,21 @@ describe("API auth guard contract", () => {
 
     expect(response.status).toBe(401);
     expect(payload).toEqual({ error: "Unauthorized" });
+  });
+
+  it("redirects unauthenticated users from protected /app routes", async () => {
+    const response = await middleware(req("GET", "/app/ledger"));
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe("http://localhost/login");
+  });
+
+  it("allows authenticated users to access protected /app routes", async () => {
+    mockedSession.mockResolvedValueOnce({ userId: "u1" } as never);
+
+    const response = await middleware(req("GET", "/app/ledger"));
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
   });
 });

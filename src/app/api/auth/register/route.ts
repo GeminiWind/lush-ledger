@@ -8,12 +8,17 @@ import {
   getRemainingBackoffMs,
   registerBackoffFailure,
 } from "@/lib/rate-limit";
+import {
+  getPasswordPolicyIssues,
+  isValidEmailFormat,
+  normalizeEmail,
+} from "@/features/auth/validation";
 
 export const POST = async (request: NextRequest) => {
   try {
     const body = await request.json();
     const fullName = String(body.fullName || "").trim();
-    const email = String(body.email || "").trim().toLowerCase();
+    const email = normalizeEmail(String(body.email || ""));
     const password = String(body.password || "");
     const acceptedTerms = Boolean(body.acceptedTerms);
     const backoffKey = getAuthBackoffKey(request, "register", email);
@@ -29,28 +34,39 @@ export const POST = async (request: NextRequest) => {
       );
     }
 
-    if (
-      fullName.length < 2 ||
-      !email ||
-      !password ||
-      password.length < 8 ||
-      !acceptedTerms
-    ) {
+    const errors: Record<string, string> = {};
+
+    if (fullName.length < 2) {
+      errors.fullName = "Full name must be at least 2 characters.";
+    }
+
+    if (!email) {
+      errors.email = "Email is required.";
+    } else if (!isValidEmailFormat(email)) {
+      errors.email = "Email format is invalid.";
+    }
+
+    if (!password) {
+      errors.password = "Password is required.";
+    } else {
+      const passwordIssues = getPasswordPolicyIssues(password);
+      if (passwordIssues.length > 0) {
+        errors.password = `Password must include ${passwordIssues.join(", ")}.`;
+      }
+    }
+
+    if (!acceptedTerms) {
+      errors.acceptedTerms = "You must accept terms.";
+    }
+
+    if (Object.keys(errors).length > 0) {
       const waitMs = registerBackoffFailure(backoffKey);
       return NextResponse.json(
         {
-          error:
-            "Full name, email, password (8+ chars), and terms agreement are required.",
+          error: "Please correct highlighted fields.",
+          errors,
           retryAfterMs: waitMs,
         },
-        { status: 400 }
-      );
-    }
-
-    if (password.length > 72) {
-      const waitMs = registerBackoffFailure(backoffKey);
-      return NextResponse.json(
-        { error: "Password must be 72 characters or less.", retryAfterMs: waitMs },
         { status: 400 }
       );
     }
