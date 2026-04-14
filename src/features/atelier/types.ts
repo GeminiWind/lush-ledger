@@ -3,6 +3,28 @@ export type AtelierCategoryWarning = {
   warnAt: number;
 };
 
+export type AtelierListRiskStatus = "healthy" | "warning" | "overspent" | "pending";
+
+export type AtelierListRiskLabels = Record<AtelierListRiskStatus, string>;
+
+export type AtelierListRow = {
+  id: string;
+  name: string;
+  icon: string;
+  limit: number;
+  spent: number;
+  usagePercent: number;
+  warningEnabled: boolean;
+  warnAt: number;
+  carryNextMonth: boolean;
+  status: AtelierListRiskStatus;
+};
+
+export type AtelierListViewModel = {
+  month: string;
+  categories: AtelierListRow[];
+};
+
 export type AtelierJsonRecord = Record<string, unknown>;
 
 export type AtelierCategoryStat = {
@@ -17,9 +39,11 @@ export type AtelierCategoryStat = {
 };
 
 export type CategoryAtelierGridProps = {
-  categories: AtelierCategoryStat[];
+  categories: AtelierListRow[];
   currency: string;
   language: string;
+  riskLabels: AtelierListRiskLabels;
+  pendingLabel: string;
 };
 
 export type TotalCapCardProps = {

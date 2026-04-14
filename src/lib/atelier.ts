@@ -1,10 +1,209 @@
 import { prisma } from "@/lib/db";
-import { dayOfMonth, daysUntil, getMonthRange, nowDate } from "@/lib/date";
+import { DEFAULT_TIMEZONE, dayOfMonth, daysUntil, getMonthRange, nowDate, resolveMonthRangeFromQuery } from "@/lib/date";
 import { ensureMonthlyCapSnapshot } from "@/lib/monthly-cap";
+import type { AtelierListRiskStatus, AtelierListRow } from "@/features/atelier/types";
 
 const toNumber = (value: unknown) => Number(value ?? 0);
 
 const sum = (items: number[]) => items.reduce((total, value) => total + value, 0);
+
+const DEFAULT_WARN_AT_PERCENT = 80;
+const DEFAULT_WARNING_ENABLED = true;
+const DEFAULT_ICON = "category";
+
+const clampPercent = (value: number) => Math.min(Math.max(value, 0), 100);
+
+const normalizeWarnAt = (value: unknown) => {
+  const parsed = Number(value ?? DEFAULT_WARN_AT_PERCENT);
+  if (!Number.isFinite(parsed)) {
+    return DEFAULT_WARN_AT_PERCENT;
+  }
+  return Math.min(Math.max(Math.round(parsed), 1), 100);
+};
+
+export type AtelierListRowMapperInput = {
+  id: string;
+  name: string;
+  icon?: string | null;
+  limit?: unknown;
+  spent?: unknown;
+  warningEnabled?: boolean;
+  warnAt?: number;
+  carryNextMonth?: boolean;
+  status?: AtelierListRiskStatus;
+  hasCompleteData?: boolean;
+};
+
+export const evaluateAtelierListRowStatus = ({
+  limit,
+  spent,
+  warningEnabled,
+  warnAt,
+  hasCompleteData,
+}: {
+  limit: number;
+  spent: number;
+  warningEnabled: boolean;
+  warnAt: number;
+  hasCompleteData: boolean;
+}): AtelierListRiskStatus => {
+  if (!hasCompleteData) {
+    return "pending";
+  }
+
+  if (spent > limit) {
+    return "overspent";
+  }
+
+  if (warningEnabled && limit > 0 && spent >= (limit * warnAt) / 100) {
+    return "warning";
+  }
+
+  return "healthy";
+};
+
+export const mapAtelierListRow = (input: AtelierListRowMapperInput): AtelierListRow => {
+  const limit = Math.max(0, toNumber(input.limit));
+  const spent = Math.max(0, toNumber(input.spent));
+  const warningEnabled = input.warningEnabled ?? DEFAULT_WARNING_ENABLED;
+  const warnAt = normalizeWarnAt(input.warnAt);
+  const usagePercent = limit > 0 ? clampPercent((spent / limit) * 100) : spent > 0 ? 100 : 0;
+
+  return {
+    id: input.id,
+    name: input.name,
+    icon: input.icon || DEFAULT_ICON,
+    limit,
+    spent,
+    usagePercent,
+    warningEnabled,
+    warnAt,
+    carryNextMonth: input.carryNextMonth ?? false,
+    status:
+      input.status ||
+      evaluateAtelierListRowStatus({
+        limit,
+        spent,
+        warningEnabled,
+        warnAt,
+        hasCompleteData: input.hasCompleteData ?? true,
+      }),
+  };
+};
+
+type GetAtelierListDataInput = {
+  month?: string | null;
+};
+
+export const getAtelierListData = async (userId: string, input: GetAtelierListDataInput = {}) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      settings: {
+        select: {
+          timezone: true,
+        },
+      },
+    },
+  });
+
+  const resolvedMonth = resolveMonthRangeFromQuery({
+    month: input.month,
+    timezone: user?.settings?.timezone,
+    fallbackTimezone: DEFAULT_TIMEZONE,
+  });
+
+  if (!resolvedMonth.ok) {
+    throw new Error(resolvedMonth.errors.month);
+  }
+
+  const [categories, currentMonthLimits, nextMonthLimits, monthTransactions] = await Promise.all([
+    prisma.category.findMany({
+      where: { userId },
+      orderBy: [{ name: "asc" }, { id: "asc" }],
+      select: { id: true, name: true, icon: true },
+    }),
+    prisma.categoryMonthlyLimit.findMany({
+      where: { userId, monthStart: resolvedMonth.start },
+      select: {
+        categoryId: true,
+        limit: true,
+        warningEnabled: true,
+        warnAt: true,
+      },
+    }),
+    prisma.categoryMonthlyLimit.findMany({
+      where: { userId, monthStart: resolvedMonth.nextMonthStart },
+      select: {
+        categoryId: true,
+        limit: true,
+      },
+    }),
+    prisma.transaction.findMany({
+      where: {
+        userId,
+        type: "expense",
+        date: {
+          gte: resolvedMonth.start,
+          lte: resolvedMonth.end,
+        },
+      },
+      select: {
+        categoryId: true,
+        amount: true,
+      },
+    }),
+  ]);
+
+  const currentLimitByCategoryId = new Map(currentMonthLimits.map((item) => [item.categoryId, item]));
+  const nextLimitByCategoryId = new Map(
+    nextMonthLimits.map((item) => [item.categoryId, toNumber(item.limit)]),
+  );
+
+  const spentByCategoryId = new Map<string, number>();
+  for (const transaction of monthTransactions) {
+    if (!transaction.categoryId) {
+      continue;
+    }
+    spentByCategoryId.set(
+      transaction.categoryId,
+      (spentByCategoryId.get(transaction.categoryId) || 0) + toNumber(transaction.amount),
+    );
+  }
+
+  const categoriesRows = categories.map((category) => {
+    const currentLimit = currentLimitByCategoryId.get(category.id);
+    const selectedLimit = currentLimit ? toNumber(currentLimit.limit) : 0;
+    const hasIncompleteSnapshot =
+      Boolean(currentLimit) &&
+      (typeof currentLimit?.warningEnabled !== "boolean" ||
+        !Number.isFinite(Number(currentLimit?.warnAt)) ||
+        Number(currentLimit?.warnAt) < 1 ||
+        Number(currentLimit?.warnAt) > 100 ||
+        !Number.isFinite(Number(currentLimit?.limit)));
+
+    const carryNextMonth = currentLimit
+      ? nextLimitByCategoryId.has(category.id) && nextLimitByCategoryId.get(category.id) === selectedLimit
+      : false;
+
+    return mapAtelierListRow({
+      id: category.id,
+      name: category.name,
+      icon: category.icon,
+      limit: selectedLimit,
+      spent: spentByCategoryId.get(category.id) || 0,
+      warningEnabled: currentLimit?.warningEnabled ?? true,
+      warnAt: currentLimit?.warnAt ?? DEFAULT_WARN_AT_PERCENT,
+      carryNextMonth,
+      hasCompleteData: !hasIncompleteSnapshot,
+    });
+  });
+
+  return {
+    month: resolvedMonth.month,
+    categories: categoriesRows,
+  };
+};
 
 export const getAtelierData = async (userId: string) => {
   const now = nowDate();

@@ -53,6 +53,10 @@ Validation and error flow:
 - API: `/api/atelier`, `/api/atelier/cap`, `/api/categories`
 - Monthly snapshot strategy lives in `src/lib/monthly-cap.ts`
 - Category monthly limits are snapshotted for historical consistency
+- `GET /api/atelier` accepts optional `month=YYYY-MM` and returns month-scoped list rows for all user categories
+- Atelier list rows include per-category warning controls (`warningEnabled`, `warnAt`) from `CategoryMonthlyLimit` snapshots
+- Carry-next-month visibility is derived by comparing selected-month and next-month limit snapshots per category
+- Risk status precedence is deterministic: `overspent > warning > healthy`, with `pending` for partial snapshot data
 
 ### Recurring Transactions
 - Recurring generation and schedule logic: `src/lib/recurring.ts`

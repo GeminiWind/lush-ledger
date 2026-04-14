@@ -2,6 +2,9 @@
 
 Roadmap status is aligned with the current implementation review: phases 01-03 are `completed`, phases 04-05 remain `in_progress` and are near completion.
 
+Feature delivery update:
+- `005-atelier-list` is implemented for month-scoped read-only category listing, per-category warning-threshold context, and risk-state signaling (`healthy | warning | overspent | pending`).
+
 Related plan source:
 - `docs/plans/personal-finance-mvp/plan.md`
 

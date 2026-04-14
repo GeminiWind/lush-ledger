@@ -1,0 +1,70 @@
+import { describe, expect, it } from "vitest";
+import {
+  buildAtelierMonthHref,
+  mapAtelierListRows,
+  parseAtelierMonthParam,
+} from "@/features/atelier/list-view-model";
+
+describe("atelier list integration", () => {
+  it("maps month-scoped payload rows with required attributes", () => {
+    const rows = mapAtelierListRows({
+      categories: [
+        { id: "cat_food", name: "Food", icon: "restaurant" },
+        { id: "cat_misc", name: "Misc", icon: null },
+      ],
+      monthTransactions: [
+        { type: "expense", amount: 4200000, categoryId: "cat_food" },
+        { type: "income", amount: 5000000, categoryId: null },
+      ],
+      monthLimits: [
+        { categoryId: "cat_food", limit: 5000000, warningEnabled: true, warnAt: 80 },
+      ],
+      nextMonthLimits: [
+        { categoryId: "cat_food", limit: 5000000 },
+      ],
+    });
+
+    expect(rows).toHaveLength(2);
+
+    expect(rows[0]).toEqual({
+      id: "cat_food",
+      name: "Food",
+      icon: "restaurant",
+      limit: 5000000,
+      spent: 4200000,
+      usagePercent: 84,
+      warningEnabled: true,
+      warnAt: 80,
+      carryNextMonth: true,
+      status: "warning",
+    });
+
+    expect(rows[1]).toEqual({
+      id: "cat_misc",
+      name: "Misc",
+      icon: "category",
+      limit: 0,
+      spent: 0,
+      usagePercent: 0,
+      warningEnabled: true,
+      warnAt: 80,
+      carryNextMonth: false,
+      status: "pending",
+    });
+  });
+
+  it("builds month-switch href while preserving existing query params", () => {
+    const href = buildAtelierMonthHref("/app/atelier", "tab=overview&foo=bar", "2026-05");
+    const parsed = new URL(`https://example.com${href}`);
+
+    expect(parsed.pathname).toBe("/app/atelier");
+    expect(parsed.searchParams.get("tab")).toBe("overview");
+    expect(parsed.searchParams.get("foo")).toBe("bar");
+    expect(parsed.searchParams.get("month")).toBe("2026-05");
+  });
+
+  it("validates month query using YYYY-MM", () => {
+    expect(parseAtelierMonthParam("2026-04", "UTC")?.toFormat("yyyy-MM")).toBe("2026-04");
+    expect(parseAtelierMonthParam("2026-4", "UTC")).toBeNull();
+  });
+});

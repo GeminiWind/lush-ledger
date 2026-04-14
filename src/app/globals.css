@@ -14,6 +14,46 @@
   --foreground: #f8fafc;
   --accent: #f59e0b;
   --surface: #0f172a;
+
+  --color-primary: #006f1d;
+  --color-primary-dim: #006118;
+  --color-on-primary: #ffffff;
+  --color-secondary-container: #e7f6ff;
+  --color-on-secondary-container: #1b3641;
+  --color-surface: #f4faff;
+  --color-surface-container-low: #e7f6ff;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-highest: #cbe7f6;
+  --color-on-surface: #1b3641;
+  --color-on-surface-variant: #6b8a99;
+  --color-outline-variant: #9bb6c4;
+  --color-success: var(--color-primary);
+  --color-error: #ef4444;
+
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-10: 40px;
+
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+
+  --font-display: "Manrope", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-display-lg: 40px;
+  --font-headline-md: 28px;
+  --font-body-md: 16px;
+  --font-label-md: 14px;
+  --font-label-sm: 12px;
+
+  --shadow-ambient: 0px 8px 32px rgba(27, 54, 65, 0.06);
+
+  --card-radius: var(--radius-xl);
+  --card-bg: var(--color-surface-container-lowest);
 }
 
 @theme inline {
