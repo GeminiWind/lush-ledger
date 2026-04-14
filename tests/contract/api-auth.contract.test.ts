@@ -90,7 +90,11 @@ describe("Auth API contract", () => {
     const payload = await response.json();
 
     expect(response.status).toBe(400);
-    expect(payload.error).toContain("Email and password are required");
+    expect(payload.error).toContain("Please correct highlighted fields");
+    expect(payload.errors).toMatchObject({
+      email: "Email is required.",
+      password: "Password is required.",
+    });
     expect(payload.retryAfterMs).toBe(1200);
   });
 
@@ -138,7 +142,45 @@ describe("Auth API contract", () => {
     const payload = await response.json();
 
     expect(response.status).toBe(400);
-    expect(payload.error).toContain("Full name, email, password");
+    expect(payload.error).toContain("Please correct highlighted fields");
+    expect(payload.errors.fullName).toContain("at least 2");
+    expect(payload.errors.email).toContain("required");
+    expect(payload.errors.password).toContain("uppercase letter");
+    expect(payload.errors.acceptedTerms).toContain("accept terms");
+  });
+
+  it("POST /api/auth/register returns 429 when backoff is active", async () => {
+    mockedRemaining.mockReturnValue(5000);
+
+    const response = await registerPOST(
+      jsonReq("http://localhost/api/auth/register", {
+        fullName: "New User",
+        email: "new@example.com",
+        password: "ValidPass1!",
+        acceptedTerms: true,
+      }),
+    );
+    const payload = await response.json();
+
+    expect(response.status).toBe(429);
+    expect(payload.error).toContain("Too many attempts");
+    expect(payload.retryAfterMs).toBe(5000);
+  });
+
+  it("POST /api/auth/register returns 400 with password policy details", async () => {
+    const response = await registerPOST(
+      jsonReq("http://localhost/api/auth/register", {
+        fullName: "User Name",
+        email: "user@example.com",
+        password: "alllowercase1",
+        acceptedTerms: true,
+      }),
+    );
+    const payload = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(payload.errors.password).toContain("uppercase letter");
+    expect(payload.errors.password).toContain("special character");
   });
 
   it("POST /api/auth/register returns 409 when email exists", async () => {
@@ -148,7 +190,7 @@ describe("Auth API contract", () => {
       jsonReq("http://localhost/api/auth/register", {
         fullName: "User Name",
         email: "user@example.com",
-        password: "12345678",
+        password: "ValidPass1!",
         acceptedTerms: true,
       }),
     );
@@ -166,7 +208,7 @@ describe("Auth API contract", () => {
       jsonReq("http://localhost/api/auth/register", {
         fullName: "New User",
         email: "new@example.com",
-        password: "12345678",
+        password: "ValidPass1!",
         acceptedTerms: true,
       }),
     );
@@ -174,8 +216,26 @@ describe("Auth API contract", () => {
 
     expect(response.status).toBe(200);
     expect(payload).toEqual({ ok: true });
-    expect(mockedHashPassword).toHaveBeenCalledWith("12345678");
+    expect(mockedHashPassword).toHaveBeenCalledWith("ValidPass1!");
     expect(mockedSetSessionCookie).toHaveBeenCalled();
+  });
+
+  it("POST /api/auth/register returns 500 for unexpected errors", async () => {
+    userFindUniqueMock.mockResolvedValue(null);
+    userCreateMock.mockRejectedValue(new Error("db down"));
+
+    const response = await registerPOST(
+      jsonReq("http://localhost/api/auth/register", {
+        fullName: "New User",
+        email: "new@example.com",
+        password: "ValidPass1!",
+        acceptedTerms: true,
+      }),
+    );
+    const payload = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(payload.error).toBe("Unable to register account.");
   });
 
   it("POST /api/auth/logout clears session and redirects", async () => {

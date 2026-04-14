@@ -3,7 +3,12 @@
 import { createContext, useContext, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
-import { fetchAuthUser, login as loginRequest, register as registerRequest } from "@/features/auth/services/auth-client";
+import {
+  AuthRequestError,
+  fetchAuthUser,
+  login as loginRequest,
+  register as registerRequest,
+} from "@/features/auth/services/auth-client";
 import { isAuthRoute, isPrivateRoute, resolvePostAuthRedirect, resolvePrivateRedirect } from "@/features/auth/routes";
 import type { AuthContextValue, LoginInput, RegisterInput } from "@/features/auth/types";
 
@@ -45,7 +50,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const registerMutation = useMutation({
     mutationFn: async (values: RegisterInput) => {
-      await registerRequest(values);
+      try {
+        await registerRequest(values);
+      } catch (error) {
+        if (error instanceof AuthRequestError) {
+          if (error.status === 409) {
+            const mapped = {
+              ...error.fieldErrors,
+              email:
+                error.fieldErrors?.email ||
+                "Email already exists. Please sign in with this email.",
+            };
+
+            throw new AuthRequestError(
+              "Email already exists. Please sign in with this email.",
+              error.status,
+              mapped
+            );
+          }
+
+          if (error.fieldErrors?.password) {
+            throw new AuthRequestError(
+              error.fieldErrors.password,
+              error.status,
+              error.fieldErrors
+            );
+          }
+        }
+
+        throw error;
+      }
+
       const user = await fetchAuthUser();
       queryClient.setQueryData(["auth-user"], user);
       return user;

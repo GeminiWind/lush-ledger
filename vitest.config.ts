@@ -10,7 +10,7 @@ export default defineConfig({
     environment: "node",
     globals: true,
     setupFiles: ["./tests/setup/vitest.setup.ts"],
-    include: ["tests/**/*.{test,spec}.ts"],
+    include: ["tests/**/*.{test,spec}.{ts,tsx}"],
     exclude: ["**/node_modules/**", "**/.next/**", "**/dist/**", "**/build/**"],
   },
 });

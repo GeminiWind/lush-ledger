@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { useFormik } from "formik";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { validateLoginForm } from "@/features/auth/login-form-validation";
 
 const heroImage =
   "https://www.figma.com/api/mcp/asset/11fd5c6c-d5a1-45e3-b3c9-c49f24eda584";
@@ -49,16 +50,7 @@ export default function LoginPage() {
       password: "",
       remember: false,
     },
-    validate: (values) => {
-      const errors: { email?: string; password?: string } = {};
-      if (!values.email.trim()) {
-        errors.email = "Email is required.";
-      }
-      if (!values.password) {
-        errors.password = "Password is required.";
-      }
-      return errors;
-    },
+    validate: validateLoginForm,
     onSubmit: async (values) => {
       setError(null);
       try {

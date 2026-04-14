@@ -23,6 +23,14 @@ export type AuthSettingsPayload = {
   };
 };
 
+export type AuthFieldErrors = Record<string, string>;
+
+export type AuthErrorPayload = {
+  error?: string;
+  errors?: AuthFieldErrors;
+  retryAfterMs?: number;
+};
+
 export type AuthContextValue = {
   user: AuthUser | null;
   isAuthenticated: boolean;

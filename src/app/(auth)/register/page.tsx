@@ -5,6 +5,10 @@ import Link from "next/link";
 import { useState } from "react";
 import { useFormik } from "formik";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import {
+  AuthRequestError,
+} from "@/features/auth/services/auth-client";
+import { validateRegisterForm } from "@/features/auth/register-form-validation";
 
 const visualTextureImage = "/images/auth/register-visual-texture.png";
 
@@ -40,35 +44,7 @@ export default function RegisterPage() {
       confirmPassword: "",
       acceptedTerms: false,
     },
-    validate: (values) => {
-      const errors: {
-        fullName?: string;
-        email?: string;
-        password?: string;
-        confirmPassword?: string;
-        acceptedTerms?: string;
-      } = {};
-
-      if (!values.fullName.trim() || values.fullName.trim().length < 2) {
-        errors.fullName = "Full name is required.";
-      }
-      if (!values.email.trim()) {
-        errors.email = "Email is required.";
-      }
-      if (!values.password || values.password.length < 8) {
-        errors.password = "Password must be at least 8 characters.";
-      }
-      if (!values.confirmPassword || values.confirmPassword.length < 8) {
-        errors.confirmPassword = "Confirm password is required.";
-      } else if (values.password !== values.confirmPassword) {
-        errors.confirmPassword = "Passwords do not match.";
-      }
-      if (!values.acceptedTerms) {
-        errors.acceptedTerms = "You must accept terms.";
-      }
-
-      return errors;
-    },
+    validate: validateRegisterForm,
     onSubmit: async (values) => {
       setError(null);
       try {
@@ -79,6 +55,14 @@ export default function RegisterPage() {
           acceptedTerms: values.acceptedTerms,
         });
       } catch (mutationError) {
+        if (mutationError instanceof AuthRequestError) {
+          if (mutationError.fieldErrors) {
+            formik.setErrors(mutationError.fieldErrors);
+          }
+          setError(mutationError.message);
+          return;
+        }
+
         setError(mutationError instanceof Error ? mutationError.message : "Registration failed.");
       }
     },
@@ -189,6 +173,9 @@ export default function RegisterPage() {
                 </button>
               </div>
               {formik.touched.password && formik.errors.password ? <p className="ml-1 text-xs text-[#a73b21]">{formik.errors.password}</p> : null}
+              <p className="ml-1 text-xs text-[#647e8c]">
+                Use 8-72 characters with uppercase, lowercase, number, and symbol.
+              </p>
             </div>
 
             <div className="space-y-2">

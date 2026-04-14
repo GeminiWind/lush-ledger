@@ -7,10 +7,11 @@ import {
   getRemainingBackoffMs,
   registerBackoffFailure,
 } from "@/lib/rate-limit";
+import { isValidEmailFormat, normalizeEmail } from "@/features/auth/validation";
 
 export const POST = async (request: NextRequest) => {
   const body = await request.json();
-  const email = String(body.email || "").trim().toLowerCase();
+  const email = normalizeEmail(String(body.email || ""));
   const password = String(body.password || "");
   const remember = Boolean(body.remember);
   const backoffKey = getAuthBackoffKey(request, "login", email);
@@ -26,10 +27,26 @@ export const POST = async (request: NextRequest) => {
     );
   }
 
-  if (!email || !password) {
+  const errors: Record<string, string> = {};
+
+  if (!email) {
+    errors.email = "Email is required.";
+  } else if (!isValidEmailFormat(email)) {
+    errors.email = "Email format is invalid.";
+  }
+
+  if (!password) {
+    errors.password = "Password is required.";
+  }
+
+  if (Object.keys(errors).length > 0) {
     const waitMs = registerBackoffFailure(backoffKey);
     return NextResponse.json(
-      { error: "Email and password are required.", retryAfterMs: waitMs },
+      {
+        error: "Please correct highlighted fields.",
+        errors,
+        retryAfterMs: waitMs,
+      },
       { status: 400 }
     );
   }

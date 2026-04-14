@@ -1,4 +1,23 @@
-import type { AuthSettingsPayload, AuthUser, LoginInput, RegisterInput } from "@/features/auth/types";
+import type {
+  AuthErrorPayload,
+  AuthFieldErrors,
+  AuthSettingsPayload,
+  AuthUser,
+  LoginInput,
+  RegisterInput,
+} from "@/features/auth/types";
+
+export class AuthRequestError extends Error {
+  status: number;
+  fieldErrors?: AuthFieldErrors;
+
+  constructor(message: string, status: number, fieldErrors?: AuthFieldErrors) {
+    super(message);
+    this.name = "AuthRequestError";
+    this.status = status;
+    this.fieldErrors = fieldErrors;
+  }
+}
 
 const toAuthUser = (payload: AuthSettingsPayload): AuthUser | null => {
   if (!payload.settings?.email) {
@@ -31,10 +50,15 @@ export const fetchAuthUser = async (): Promise<AuthUser | null> => {
 
 const extractError = async (response: Response, fallback: string) => {
   try {
-    const data = (await response.json()) as { error?: string };
-    return data.error || fallback;
+    const data = (await response.json()) as AuthErrorPayload;
+    const firstFieldError = data.errors ? Object.values(data.errors)[0] : undefined;
+
+    return {
+      message: data.error || firstFieldError || fallback,
+      fieldErrors: data.errors,
+    };
   } catch {
-    return fallback;
+    return { message: fallback, fieldErrors: undefined };
   }
 };
 
@@ -46,7 +70,8 @@ export const login = async (values: LoginInput) => {
   });
 
   if (!response.ok) {
-    throw new Error(await extractError(response, "Login failed."));
+    const parsed = await extractError(response, "Login failed.");
+    throw new AuthRequestError(parsed.message, response.status, parsed.fieldErrors);
   }
 };
 
@@ -58,6 +83,7 @@ export const register = async (values: RegisterInput) => {
   });
 
   if (!response.ok) {
-    throw new Error(await extractError(response, "Registration failed."));
+    const parsed = await extractError(response, "Registration failed.");
+    throw new AuthRequestError(parsed.message, response.status, parsed.fieldErrors);
   }
 };

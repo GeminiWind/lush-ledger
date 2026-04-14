@@ -28,6 +28,12 @@ Auth routes:
 - `src/app/(auth)/login/page.tsx` -> `/login`
 - `src/app/(auth)/register/page.tsx` -> `/register`
 
+Auth flow notes:
+- auth request/response validation helpers live in `src/features/auth/validation.ts`
+- registration enforces password composition (uppercase, lowercase, number, special char) and keeps 8..72 character bounds
+- auth client now parses structured error payloads (`error` + optional `errors`) via `src/features/auth/services/auth-client.ts`
+- auth form validation coverage includes `tests/integration/auth-register-page.integration.test.tsx`
+
 ## API Inventory
 
 Implemented:
@@ -125,3 +131,4 @@ Charts:
 
 - API surface is uneven across domains (create/list strong, update/delete weaker)
 - roadmap references and implementation naming differ in a few areas (`reports` vs `ledger/reports`)
+- login page integration tests are still scaffolded as TODOs in `tests/integration/auth-login-page.integration.test.tsx`
