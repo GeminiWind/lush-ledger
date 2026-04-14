@@ -57,3 +57,16 @@ For every external library/framework API usage:
 3. Direct user request for the current task.
 
 If two rules conflict, follow the higher-precedence source and mention assumptions briefly in the final response.
+
+
+## Frontend Design Enforcement
+
+For all frontend work:
+
+- The design source of truth is `specs/shared/design-tokens.md`.
+- The screen-level source of truth is the relevant feature spec and design assets under `specs/<feature>/assets/`.
+- Always use tokens from `design-tokens.md`.
+- Never invent colors, spacing, typography, corner radius, shadow, opacity, blur, or gradient values.
+- Never hardcode visual values when a token exists.
+- If Stitch assets and tokens conflict, follow the spec first, then tokens, and report the mismatch.
+- If implementation requires a new visual value not present in tokens, stop and request a token addition instead of inventing one.

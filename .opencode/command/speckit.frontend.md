@@ -31,6 +31,10 @@ Rules:
 - Do NOT change API
 - Only implement FE files
 - Do NOT implement backend tasks.
+- Use only tokens defined in `specs/shared/design-tokens.md`
+- Do not hardcode visual values
+- If a token is missing, report it instead of inventing a new value
+
 
 
 Return:
