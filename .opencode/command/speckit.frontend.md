@@ -12,7 +12,8 @@ Read:
 - specs/$1/plan.md
 - specs/$1/tasks.md
 - specs/$1/contracts/
-- specs/$1/assets/
+- specs/$1/assets/<screen>.png
+- specs/shared/design-tokens.md
 
 Execute:
 - FE-$2-*
@@ -35,7 +36,30 @@ Rules:
 - Do not hardcode visual values
 - If a token is missing, report it instead of inventing a new value
 
+Visual Fidelity Rules
 
+For frontend work, functional correctness is not enough.
+
+The implementation must visually match the referenced asset in:
+- layout hierarchy
+- spacing rhythm
+- section grouping
+- relative emphasis
+- token usage
+
+Do not invent a cleaner or simpler layout.
+Do not flatten the design into generic cards and grids.
+If the result is correct but visually less refined than the asset, revise it before returning.
+
+After implementation, self-review the result against the provided asset.
+
+Check:
+- Is the layout hierarchy visually similar?
+- Are spacing and grouping close to the asset?
+- Are primary and secondary elements emphasized correctly?
+- Does the page feel too boxy, too cramped, or too flat compared to the asset?
+
+If yes, revise before returning.
 
 Return:
 - files changed

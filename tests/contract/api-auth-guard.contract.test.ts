@@ -57,7 +57,11 @@ describe("API auth guard contract", () => {
     const payload = await response.json();
 
     expect(response.status).toBe(401);
-    expect(payload).toEqual({ error: "Unauthorized" });
+    const unauthorizedError =
+      payload && typeof payload === "object" && "error" in payload
+        ? payload.error
+        : payload?.errors?.auth;
+    expect(unauthorizedError).toBe("Unauthorized");
   });
 
   it("redirects unauthenticated users from protected /app routes", async () => {

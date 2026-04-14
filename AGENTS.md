@@ -65,8 +65,15 @@ For all frontend work:
 
 - The design source of truth is `specs/shared/design-tokens.md`.
 - The screen-level source of truth is the relevant feature spec and design assets under `specs/<feature>/assets/`.
-- Always use tokens from `design-tokens.md`.
+- Always use tokens from `specs/shared/design-tokens.md`.
 - Never invent colors, spacing, typography, corner radius, shadow, opacity, blur, or gradient values.
 - Never hardcode visual values when a token exists.
 - If Stitch assets and tokens conflict, follow the spec first, then tokens, and report the mismatch.
 - If implementation requires a new visual value not present in tokens, stop and request a token addition instead of inventing one.
+
+## Active Technologies
+- TypeScript (project standard) + Next.js App Router, React, Prisma, TanStack Query (existing), Vites (005-atelier-list)
+- Prisma models on current project database (SQLite for local development) (005-atelier-list)
+
+## Recent Changes
+- 005-atelier-list: Added TypeScript (project standard) + Next.js App Router, React, Prisma, TanStack Query (existing), Vites
