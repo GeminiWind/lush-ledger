@@ -144,27 +144,44 @@ Every task MUST strictly follow this format:
 **Format Components**:
 
 1. **Checkbox**: ALWAYS start with `- [ ]` (markdown checkbox)
-2. **Task ID**: Sequential number (T001, T002, T003...) in execution order
+2. **Task ID**: REQUIRED. Must use category-prefixed sequential task IDs:
+   - Shared tasks: `SHARED-T001`, `SHARED-T002`, ...
+   - Foundational backend tasks: `BE-FOUND-T001`, `BE-FOUND-T002`, ...
+   - Foundational frontend tasks: `FE-FOUND-T001`, `FE-FOUND-T002`, ...
+   - Frontend story tasks: `FE-US1-T001`, `FE-US1-T002`, ...
+   - Backend story tasks: `BE-US1-T001`, `BE-US1-T002`, ...
+   - Integration story tasks: `INT-US1-T001`, `INT-US1-T002`, ...
+   - Frontend tests: `TEST-FE-US1-T001`, ...
+   - Backend tests: `TEST-BE-US1-T001`, ...
+   - E2E tests: `TEST-E2E-US1-T001`, ...
 3. **[P] marker**: Include ONLY if task is parallelizable (different files, no dependencies on incomplete tasks)
-4. **[Story] label**: REQUIRED for user story phase tasks only
-   - Format: [US1], [US2], [US3], etc. (maps to user stories from spec.md)
+4. **[Story] label**:
    - Setup phase: NO story label
-   - Foundational phase: NO story label  
-   - User Story phases: MUST have story label
+   - Foundational phase: NO story label
+   - User Story phases: REQUIRED (`[US1]`, `[US2]`, `[US3]`, etc.)
    - Polish phase: NO story label
 5. **Description**: Clear action with exact file path
+6. **References**:
+   - Include related functional requirements when applicable, e.g. `(FR-001, FR-004)`
+   - Include related contract files when applicable, e.g. ``(`contracts/post-products.md`)``
 
 **Examples**:
 
-- ✅ CORRECT: `- [ ] T001 Create project structure per implementation plan`
-- ✅ CORRECT: `- [ ] T005 [P] Implement authentication middleware in src/middleware/auth.py`
-- ✅ CORRECT: `- [ ] T012 [P] [US1] Create User model in src/models/user.py`
-- ✅ CORRECT: `- [ ] T014 [US1] Implement UserService in src/services/user_service.py`
-- ❌ WRONG: `- [ ] Create User model` (missing ID and Story label)
-- ❌ WRONG: `T001 [US1] Create model` (missing checkbox)
-- ❌ WRONG: `- [ ] [US1] Create User model` (missing Task ID)
-- ❌ WRONG: `- [ ] T001 [US1] Create model` (missing file path)
+**Examples**:
 
+- ✅ CORRECT: `- [ ] FE-US1-T001 [P] [US1] Build LoginPage in frontend/src/features/auth-login/pages/LoginPage.tsx`
+- ✅ CORRECT: `- [ ] FE-US1-T002 [US1] Implement login form validation in frontend/src/features/auth-login/components/LoginForm.tsx (FR-001, FR-002)`
+- ✅ CORRECT: `- [ ] BE-US1-T003 [US1] Implement POST /auth/login endpoint in backend/src/features/auth-login/routes/auth.py (`contracts/post-auth-login.md`)`
+- ✅ CORRECT: `- [ ] BE-US1-T004 [US1] Implement authentication service in backend/src/features/auth-login/services/auth_service.py`
+- ✅ CORRECT: `- [ ] INT-US1-T005 [US1] Map login success response to redirect in frontend/src/features/auth-login/pages/LoginPage.tsx`
+- ✅ CORRECT: `- [ ] TEST-FE-US1-T006 [P] [US1] Add login form interaction test in frontend/tests/integration/test_login_flow.tsx`
+- ✅ CORRECT: `- [ ] TEST-BE-US1-T007 [P] [US1] Add contract test for POST /auth/login in backend/tests/contract/test_post_auth_login.py`
+- ✅ CORRECT: `- [ ] TEST-E2E-US1-T008 [P] [US1] Add login E2E test in tests/e2e/test_auth_login.spec.ts`
+
+- ❌ WRONG: `- [ ] FE-US1-T001 [P] [US1] Build [Page/View] in frontend/src/features/[feature-name]/pages/[Page].tsx`
+- ❌ WRONG: `- [ ] BE-US1-T002 [US1] Implement [METHOD] [endpoint] in backend/src/features/[feature-name]/routes/[route].py`
+- ❌ WRONG: `- [ ] TEST-FE-US1-T003 [P] [US1] Add test for [user flow] in frontend/tests/integration/test_[name].tsx`
+- ❌ WRONG: `# Tasks: [FEATURE NAME]`
 ### Task Organization
 
 1. **From User Stories (spec.md)** - PRIMARY ORGANIZATION:
