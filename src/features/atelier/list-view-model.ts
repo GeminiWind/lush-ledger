@@ -29,14 +29,26 @@ export const buildAtelierMonthHref = (pathname: string, currentSearch: string, m
   return `${pathname}?${params.toString()}`;
 };
 
-export const createAtelierMonthOptions = (selectedMonth: DateTime, count = 12) => {
-  const options: string[] = [];
+export const createAtelierMonthOptions = ({
+  currentMonth,
+  selectedMonth,
+  count = 12,
+}: {
+  currentMonth: DateTime;
+  selectedMonth?: DateTime;
+  count?: number;
+}) => {
+  const options = new Set<string>();
 
   for (let index = 0; index < count; index += 1) {
-    options.push(monthParamFromDate(selectedMonth.minus({ months: index })));
+    options.add(monthParamFromDate(currentMonth.minus({ months: index })));
   }
 
-  return options;
+  if (selectedMonth) {
+    options.add(monthParamFromDate(selectedMonth));
+  }
+
+  return [...options].sort((a, b) => b.localeCompare(a));
 };
 
 const resolveRiskStatus = ({

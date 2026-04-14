@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   buildAtelierMonthHref,
+  createAtelierMonthOptions,
   mapAtelierListRows,
   parseAtelierMonthParam,
 } from "@/features/atelier/list-view-model";
+import { DateTime } from "luxon";
 
 describe("atelier list integration", () => {
   it("maps month-scoped payload rows with required attributes", () => {
@@ -66,5 +68,24 @@ describe("atelier list integration", () => {
   it("validates month query using YYYY-MM", () => {
     expect(parseAtelierMonthParam("2026-04", "UTC")?.toFormat("yyyy-MM")).toBe("2026-04");
     expect(parseAtelierMonthParam("2026-4", "UTC")).toBeNull();
+  });
+
+  it("keeps current month selectable after selecting older month", () => {
+    const options = createAtelierMonthOptions({
+      currentMonth: DateTime.fromISO("2026-04-01", { zone: "UTC" }),
+      selectedMonth: DateTime.fromISO("2026-01-01", { zone: "UTC" }),
+    });
+
+    expect(options[0]).toBe("2026-04");
+    expect(options).toContain("2026-01");
+  });
+
+  it("includes selected month even when outside default window", () => {
+    const options = createAtelierMonthOptions({
+      currentMonth: DateTime.fromISO("2026-04-01", { zone: "UTC" }),
+      selectedMonth: DateTime.fromISO("2024-01-01", { zone: "UTC" }),
+    });
+
+    expect(options).toContain("2024-01");
   });
 });

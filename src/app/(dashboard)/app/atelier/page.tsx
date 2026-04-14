@@ -42,7 +42,10 @@ export default async function AtelierPage({
   const { start, end } = getMonthRange(monthRangeDate);
   const nextMonthStart = selectedMonthDate.plus({ months: 1 }).startOf("month").toJSDate();
 
-  const monthOptions = createAtelierMonthOptions(selectedMonthDate);
+  const monthOptions = createAtelierMonthOptions({
+    currentMonth: fallbackMonthDate,
+    selectedMonth: selectedMonthDate,
+  });
 
   let listLoadError: string | null = null;
 
