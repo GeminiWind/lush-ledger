@@ -57,10 +57,11 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Project initialization and base structure required by all stories
 
-- [ ] T001 Create feature directories per `plan.md`
-- [ ] T002 Initialize or update frontend/backend dependencies required for this feature
-- [ ] T003 [P] Configure linting, formatting, and type-checking tools if changed by this feature
-- [ ] T004 [P] Create base test directories and test runner configuration for FE, BE, and E2E if needed
+### Shared
+- [ ] SHARED-T001 Create feature directories per `plan.md`
+- [ ] SHARED-T002 Initialize or update frontend/backend dependencies required for this feature
+- [ ] SHARED-T003 [P] Configure linting, formatting, and type-checking tools if changed by this feature
+- [ ] SHARED-T004 [P] Create base test directories and test runner configuration for FE, BE, and E2E if needed
 
 **Checkpoint**: Base structure is ready for foundational work
 
@@ -74,13 +75,19 @@ description: "Task list template for feature implementation"
 
 Examples of foundational tasks (adjust based on actual feature scope):
 
-- [ ] T005 Setup or update shared data models referenced in `data-model.md`
-- [ ] T006 [P] Setup or extend authentication / authorization framework required by the feature
-- [ ] T007 [P] Setup or extend API routing, middleware, and shared error handling
-- [ ] T008 [P] Setup shared frontend data-fetching, API client, or query utilities
-- [ ] T009 Configure environment variables / runtime configuration required by the feature
-- [ ] T010 Create shared contract helpers / validation schema foundations if required
-- [ ] T011 Configure logging / monitoring hooks used across user stories
+### Backend
+- [ ] BE-FOUND-T005 Setup or update shared data models referenced in `data-model.md`
+- [ ] BE-FOUND-T006 [P] Setup or extend authentication / authorization framework required by the feature
+- [ ] BE-FOUND-T007 [P] Setup or extend API routing, middleware, and shared error handling
+- [ ] BE-FOUND-T008 Create shared contract helpers / validation schema foundations if required
+
+
+### Frontend
+- [ ] FE-FOUND-T009 [P] Setup shared frontend data-fetching, API client, or query utilities
+
+### Shared
+- [ ] SHARED-T010 Configure environment variables / runtime configuration required by the feature
+- [ ] SHARED-T011 Configure logging / monitoring hooks used across user stories
 
 **Checkpoint**: Foundation ready — user story implementation can now begin
 
@@ -97,39 +104,39 @@ Examples of foundational tasks (adjust based on actual feature scope):
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 #### Frontend Tests
-- [ ] T012 [P] [US1] Add component / interaction test for [user flow] in `frontend/tests/integration/test_[name].tsx`
-- [ ] T013 [P] [US1] Add frontend validation / state test for [form/component] in `frontend/tests/unit/test_[name].tsx` (FR-001, FR-002)
+- [ ] TEST-FE-US1-T012 [P] Add component / interaction test for [user flow] in `frontend/tests/integration/test_[name].tsx`
+- [ ] TEST-FE-US1-T013 [P] Add frontend validation / state test for [form/component] in `frontend/tests/unit/test_[name].tsx` (FR-001, FR-002)
 
 #### Backend Tests
-- [ ] T014 [P] [US1] Add contract test for [METHOD] [endpoint] in `backend/tests/contract/test_[name].py` (`contracts/[file].md`)
-- [ ] T015 [P] [US1] Add backend integration test for [user journey] in `backend/tests/integration/test_[name].py`
+- [ ] TEST-BE-US1-T014 [P] Add contract test for [METHOD] [endpoint] in `backend/tests/contract/test_[name].py` (`contracts/[file].md`)
+- [ ] TEST-BE-US1-T015 [P] Add backend integration test for [user journey] in `backend/tests/integration/test_[name].py`
 
 #### End-to-End Test
-- [ ] T016 [P] [US1] Add E2E test for [story flow] in `tests/e2e/test_[name].spec.ts`
+- [ ] TEST-E2E-US1-T016 [P] Add E2E test for [story flow] in `tests/e2e/test_[name].spec.ts`
 
 ### Implementation for User Story 1
 
 #### Frontend
-- [ ] T017 [P] [US1] Build [Page/View] in `frontend/src/features/[feature-name]/pages/[Page].tsx`
-- [ ] T018 [P] [US1] Build [Component A] in `frontend/src/features/[feature-name]/components/[ComponentA].tsx`
-- [ ] T019 [US1] Implement form / interaction validation in `frontend/src/features/[feature-name]/components/[Component].tsx` (FR-001, FR-002)
-- [ ] T020 [US1] Implement UI state handling (loading / error / success) in `frontend/src/features/[feature-name]/hooks/[hook].ts`
-- [ ] T021 [US1] Wire UI action to API client in `frontend/src/features/[feature-name]/services/[service].ts` (see `UI ↔ API Mapping` in `plan.md`, `contracts/[file].md`)
+- [ ] FE-US1-T017 [P] Build [Page/View] in `frontend/src/features/[feature-name]/pages/[Page].tsx`
+- [ ] FE-US1-T018 [P]  Build [Component A] in `frontend/src/features/[feature-name]/components/[ComponentA].tsx`
+- [ ] FE-US1-T019 Implement form / interaction validation in `frontend/src/features/[feature-name]/components/[Component].tsx` (FR-001, FR-002)
+- [ ] FE-US1-T020 Implement UI state handling (loading / error / success) in `frontend/src/features/[feature-name]/hooks/[hook].ts`
+- [ ] FE-US1-T021  Wire UI action to API client in `frontend/src/features/[feature-name]/services/[service].ts` (see `UI ↔ API Mapping` in `plan.md`, `contracts/[file].md`)
 
 #### Backend
-- [ ] T022 [P] [US1] Create / update [Entity] model in `backend/src/features/[feature-name]/models/[entity].py` (`data-model.md`)
-- [ ] T023 [P] [US1] Create / update request / response schema in `backend/src/features/[feature-name]/schemas/[schema].py` (`contracts/[file].md`)
-- [ ] T024 [US1] Implement validation rules in `backend/src/features/[feature-name]/services/[service].py` (FR-001, FR-002)
-- [ ] T025 [US1] Implement business rules in `backend/src/features/[feature-name]/services/[service].py` (FR-003, FR-004)
-- [ ] T026 [US1] Implement permission checks in `backend/src/features/[feature-name]/services/[service].py` (FR-005)
-- [ ] T027 [US1] Implement [METHOD] [endpoint] in `backend/src/features/[feature-name]/routes/[route].py` (`contracts/[file].md`)
-- [ ] T028 [US1] Persist and retrieve data in `backend/src/features/[feature-name]/services/[service].py` (FR-006, FR-007)
+- [ ] BE-US1-T022 [P]  Create / update [Entity] model in `backend/src/features/[feature-name]/models/[entity].py` (`data-model.md`)
+- [ ] BE-US1-T023 [P]  Create / update request / response schema in `backend/src/features/[feature-name]/schemas/[schema].py` (`contracts/[file].md`)
+- [ ] BE-US1-T024  Implement validation rules in `backend/src/features/[feature-name]/services/[service].py` (FR-001, FR-002)
+- [ ] BE-US1-T025 Implement business rules in `backend/src/features/[feature-name]/services/[service].py` (FR-003, FR-004)
+- [ ] BE-US1-T026 Implement permission checks in `backend/src/features/[feature-name]/services/[service].py` (FR-005)
+- [ ] BE-US1-T027 Implement [METHOD] [endpoint] in `backend/src/features/[feature-name]/routes/[route].py` (`contracts/[file].md`)
+- [ ] BE-US1-T028 Persist and retrieve data in `backend/src/features/[feature-name]/services/[service].py` (FR-006, FR-007)
 
 #### Integration
-- [ ] T029 [US1] Connect frontend submission flow to [METHOD] [endpoint] via `frontend/src/features/[feature-name]/services/[service].ts` (`contracts/[file].md`)
-- [ ] T030 [US1] Map API success response to UI update in `frontend/src/features/[feature-name]/pages/[Page].tsx`
-- [ ] T031 [US1] Map structured API errors to UI field / global error states in `frontend/src/features/[feature-name]/components/[Component].tsx`
-- [ ] T032 [US1] Verify data returned by backend matches UI expectations from `plan.md` and `contracts/[file].md`
+- [ ] INT-US1-T029  Connect frontend submission flow to [METHOD] [endpoint] via `frontend/src/features/[feature-name]/services/[service].ts` (`contracts/[file].md`) (FE-owned)
+- [ ] INT-US1-T030  Map API success response to UI update in `frontend/src/features/[feature-name]/pages/[Page].tsx` (FE-owned)
+- [ ] INT-US1-T031  Map structured API errors to UI field / global error states in `frontend/src/features/[feature-name]/components/[Component].tsx`  (FE-owned)
+- [ ] INT-US1-T032  Verify data returned by backend matches UI expectations from `plan.md` and `contracts/[file].md` (shared validation)
 
 ### Done Criteria for User Story 1
 - [ ] All FE, BE, and E2E tests for US1 pass
@@ -150,33 +157,33 @@ Examples of foundational tasks (adjust based on actual feature scope):
 ### Tests for User Story 2 (REQUIRED) ⚠️
 
 #### Frontend Tests
-- [ ] T033 [P] [US2] Add component / interaction test for [user flow] in `frontend/tests/integration/test_[name].tsx`
-- [ ] T034 [P] [US2] Add frontend validation / state test in `frontend/tests/unit/test_[name].tsx`
+- [ ] TEST-FE-US2-T033 [P]  Add component / interaction test for [user flow] in `frontend/tests/integration/test_[name].tsx`
+- [ ] TEST-FE-US2-T034 [P]  Add frontend validation / state test in `frontend/tests/unit/test_[name].tsx`
 
 #### Backend Tests
-- [ ] T035 [P] [US2] Add contract test for [METHOD] [endpoint] in `backend/tests/contract/test_[name].py` (`contracts/[file].md`)
-- [ ] T036 [P] [US2] Add backend integration test in `backend/tests/integration/test_[name].py`
+- [ ] TEST-BE-US2-T035 [P]  Add contract test for [METHOD] [endpoint] in `backend/tests/contract/test_[name].py` (`contracts/[file].md`)
+- [ ] TEST-BE-US2-T036 [P]  Add backend integration test in `backend/tests/integration/test_[name].py`
 
 #### End-to-End Test
-- [ ] T037 [P] [US2] Add E2E test for [story flow] in `tests/e2e/test_[name].spec.ts`
+- [ ] TEST-E2E-US2-T037 [P]  Add E2E test for [story flow] in `tests/e2e/test_[name].spec.ts`
 
 ### Implementation for User Story 2
 
 #### Frontend
-- [ ] T038 [P] [US2] Build / update [Page/View] in `frontend/src/features/[feature-name]/pages/[Page].tsx`
-- [ ] T039 [P] [US2] Build / update [Component] in `frontend/src/features/[feature-name]/components/[Component].tsx`
-- [ ] T040 [US2] Implement frontend validation / state handling (FR-xxx)
-- [ ] T041 [US2] Wire UI action to API client (`contracts/[file].md`)
+- [ ] FE-US2-T038 [P]  Build / update [Page/View] in `frontend/src/features/[feature-name]/pages/[Page].tsx`
+- [ ] FE-US2-T039 [P]  Build / update [Component] in `frontend/src/features/[feature-name]/components/[Component].tsx`
+- [ ] FE-US2-T040  Implement frontend validation / state handling (FR-xxx)
+- [ ] FE-US2-T041  Wire UI action to API client (`contracts/[file].md`)
 
 #### Backend
-- [ ] T042 [P] [US2] Create / update model or schema in `backend/src/features/[feature-name]/models/[entity].py`
-- [ ] T043 [US2] Implement service logic in `backend/src/features/[feature-name]/services/[service].py` (FR-xxx)
-- [ ] T044 [US2] Implement endpoint in `backend/src/features/[feature-name]/routes/[route].py` (`contracts/[file].md`)
+- [ ] BE-US2-T042 [P]  Create / update model or schema in `backend/src/features/[feature-name]/models/[entity].py`
+- [ ] BE-US2-T043  Implement service logic in `backend/src/features/[feature-name]/services/[service].py` (FR-xxx)
+- [ ] BE-US2-T044  Implement endpoint in `backend/src/features/[feature-name]/routes/[route].py` (`contracts/[file].md`)
 
 #### Integration
-- [ ] T045 [US2] Connect frontend with backend contract (`contracts/[file].md`)
-- [ ] T046 [US2] Map response and error states to UI
-- [ ] T047 [US2] Verify this story remains independently testable
+- [ ] INT-US2-T045  Connect frontend with backend contract (`contracts/[file].md`)
+- [ ] INT-US2-T046  Map response and error states to UI
+- [ ] INT-US2-T047  Verify this story remains independently testable
 
 ### Done Criteria for User Story 2
 - [ ] All FE, BE, and E2E tests for US2 pass
@@ -197,33 +204,33 @@ Examples of foundational tasks (adjust based on actual feature scope):
 ### Tests for User Story 3 (REQUIRED) ⚠️
 
 #### Frontend Tests
-- [ ] T048 [P] [US3] Add component / interaction test for [user flow] in `frontend/tests/integration/test_[name].tsx`
-- [ ] T049 [P] [US3] Add frontend validation / state test in `frontend/tests/unit/test_[name].tsx`
+- [ ] TEST-FE-US3-T048 [P]  Add component / interaction test for [user flow] in `frontend/tests/integration/test_[name].tsx`
+- [ ] TEST-FE-US3-T049 [P]  Add frontend validation / state test in `frontend/tests/unit/test_[name].tsx`
 
 #### Backend Tests
-- [ ] T050 [P] [US3] Add contract test for [METHOD] [endpoint] in `backend/tests/contract/test_[name].py` (`contracts/[file].md`)
-- [ ] T051 [P] [US3] Add backend integration test in `backend/tests/integration/test_[name].py`
+- [ ] TEST-BE-US3-T050 [P]  Add contract test for [METHOD] [endpoint] in `backend/tests/contract/test_[name].py` (`contracts/[file].md`)
+- [ ] TEST-BE-US3-T051 [P]  Add backend integration test in `backend/tests/integration/test_[name].py`
 
 #### End-to-End Test
-- [ ] T052 [P] [US3] Add E2E test for [story flow] in `tests/e2e/test_[name].spec.ts`
+- [ ] TEST-E2E-US3-T052 [P]  Add E2E test for [story flow] in `tests/e2e/test_[name].spec.ts`
 
 ### Implementation for User Story 3
 
 #### Frontend
-- [ ] T053 [P] [US3] Build / update [Page/View] in `frontend/src/features/[feature-name]/pages/[Page].tsx`
-- [ ] T054 [P] [US3] Build / update [Component] in `frontend/src/features/[feature-name]/components/[Component].tsx`
-- [ ] T055 [US3] Implement frontend validation / state handling (FR-xxx)
-- [ ] T056 [US3] Wire UI action to API client (`contracts/[file].md`)
+- [ ] FE-US3-T053 [P] Build / update [Page/View] in `frontend/src/features/[feature-name]/pages/[Page].tsx`
+- [ ] FE-US3-T054 [P]  Build / update [Component] in `frontend/src/features/[feature-name]/components/[Component].tsx`
+- [ ] FE-US3-T055  Implement frontend validation / state handling (FR-xxx)
+- [ ] FE-US3-T056  Wire UI action to API client (`contracts/[file].md`)
 
 #### Backend
-- [ ] T057 [P] [US3] Create / update model or schema in `backend/src/features/[feature-name]/models/[entity].py`
-- [ ] T058 [US3] Implement service logic in `backend/src/features/[feature-name]/services/[service].py` (FR-xxx)
-- [ ] T059 [US3] Implement endpoint in `backend/src/features/[feature-name]/routes/[route].py` (`contracts/[file].md`)
+- [ ] BE-US3-T057 [P]  Create / update model or schema in `backend/src/features/[feature-name]/models/[entity].py`
+- [ ] BE-US3-T058  Implement service logic in `backend/src/features/[feature-name]/services/[service].py` (FR-xxx)
+- [ ] BE-US3-T059  Implement endpoint in `backend/src/features/[feature-name]/routes/[route].py` (`contracts/[file].md`)
 
 #### Integration
-- [ ] T060 [US3] Connect frontend with backend contract (`contracts/[file].md`)
-- [ ] T061 [US3] Map response and error states to UI
-- [ ] T062 [US3] Verify this story remains independently testable
+- [ ] INT-US3-T060  Connect frontend with backend contract (`contracts/[file].md`)
+- [ ] INT-US3-T061  Map response and error states to UI
+- [ ] INT-US3-T062  Verify this story remains independently testable
 
 ### Done Criteria for User Story 3
 - [ ] All FE, BE, and E2E tests for US3 pass
@@ -239,12 +246,27 @@ Examples of foundational tasks (adjust based on actual feature scope):
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T063 [P] Update shared documentation in `docs/` and feature docs in `specs/[###-feature-name]/`
-- [ ] T064 Refactor duplicated FE / BE logic without changing feature behavior
-- [ ] T065 [P] Add regression tests for shared behavior in `frontend/tests/`, `backend/tests/`, or `tests/e2e/`
-- [ ] T066 Apply performance optimization across affected stories
-- [ ] T067 Apply security hardening for changed routes, inputs, and permissions
-- [ ] T068 Run `quickstart.md` validation and update if required
+### Shared
+- [ ] SHARED-T063 [P] Update shared documentation
+- [ ] SHARED-T064 Refactor duplicated FE / BE logic
+- [ ] TEST-REGRESSION-T065 [P] Add regression tests
+- [ ] SHARED-T066 Apply performance optimization
+- [ ] SHARED-T067 Apply security hardening
+- [ ] SHARED-T068 Run quickstart validation
+
+---
+
+## Execution Rules
+
+- Frontend agent:
+  - Execute FE-* and TEST-FE-* tasks
+  - Then execute FE-owned INT-* tasks
+
+- Backend agent:
+  - Execute BE-* and TEST-BE-* tasks
+
+- Integration tasks:
+  - Executed after FE and BE are complete
 
 ---
 

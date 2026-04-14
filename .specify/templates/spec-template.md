@@ -1,6 +1,7 @@
 # Feature Specification: [FEATURE NAME]
 
 ## Metadata
+
 - **Name**: [FEATURE NAME]
 - **Last Updated**: [DATE]
 - **Updated By**: [NAME/ROLE]
@@ -11,65 +12,150 @@
 **Status**: Draft  
 **Input**: User description: "$ARGUMENTS"
 
+---
+
 ## Summary
-[1-3 sentences describing the feature and its value]
+
+[1–3 sentences describing the feature, its user value, and why it matters]
+
+---
 
 ## System Scope
-- This is a fullstack feature including frontend UI and backend API.
 
-## UI Scope & Design References *(mandatory when UI is in scope)*
+- **Feature Type**: [Fullstack / Frontend-only / Backend-only]
 - **UI Required**: [Yes/No]
-- **Design Source**: [Figma/Stitch/Other]
+- **Backend Required**: [Yes/No]
+- **Primary Users**: [Admin / End user / Internal ops / etc.]
+
+---
+
+## Design References *(mandatory when UI is in scope)*
+
+- **Design Source**: [Stitch / Figma / Other]
 - **Project**: [Name + ID]
-- **Primary Screen(s)**:
-  - [Screen name] (ID: [screen-id])
-- **Design Assets**:
-  - Screenshot: `[path-or-url]`
-  - HTML/Spec export: `[path-or-url]`
+- **Design Assets Root**: `specs/[###-feature-name]/assets/`
 
-### UI Flow Summary
-- User opens [page]
-- User sees [state/data]
-- User clicks [action]
-- System shows [modal/page transition]
-- User inputs [fields]
-- User submits
-- System shows [loading/error/success]
-- UI updates by [refreshing list / redirecting / inline update]
+### Screen Catalog
 
-### UI / UX Requirements
+#### Screen 1: [Screen Name]
 
-#### Screens / Pages
-- Page A
-- Page B
+**Design Reference**
+- Source: [Stitch / Figma / Other]
+- Screen ID: [screen-id]
+- Screenshot: `./assets/[screen-1].png`
+- HTML Export: `./assets/[screen-1].html`
+- Notes: [Optional notes about fidelity / known limitations]
 
-#### Components
-- [List / Table / Form / Modal]
+**Purpose**
+- [What this screen is for]
 
-#### User Interactions
-- click / submit / navigate / select
+**Description**
+- [What the user sees on this screen]
+- [Important layout/interaction notes]
 
-#### UI States
+---
+
+#### Screen 2: [Screen Name]
+
+**Design Reference**
+- Source: [Stitch / Figma / Other]
+- Screen ID: [screen-id]
+- Screenshot: `./assets/[screen-2].png`
+- HTML Export: `./assets/[screen-2].html`
+- Notes: [Optional notes about fidelity / known limitations]
+
+**Purpose**
+- [What this screen is for]
+
+**Description**
+- [What the user sees on this screen]
+- [Important layout/interaction notes]
+
+---
+
+[Add more screens as needed]
+
+### Design Rules
+- UI implementation MUST follow the provided design assets for layout and component structure.
+- Do NOT invent new layouts or interactions unless explicitly required by a functional requirement.
+- If the design asset conflicts with functional requirements, the functional requirements win and the mismatch must be documented.
+
+---
+
+## UI Flow Summary *(mandatory when UI is in scope)*
+
+[Describe the main end-to-end user flow in sequence]
+
+Example:
+User opens Product Dashboard  
+→ sees list of products  
+→ clicks "Create Product"  
+→ Create Product Modal opens  
+→ user fills form  
+→ submits  
+→ system shows loading  
+→ on success: modal closes and dashboard refreshes  
+→ on error: validation messages are shown inline
+
+---
+
+## UI / UX Requirements *(mandatory when UI is in scope)*
+
+### Screens / Pages
+- [Screen 1 name]
+- [Screen 2 name]
+
+### Components
+- [List / Table / Form / Modal / Drawer / Tabs / Toast / etc.]
+
+### User Interactions
+- click
+- submit
+- navigate
+- select
+- search
+- filter
+- confirm / cancel
+
+### UI States
 - loading
 - error
 - empty
 - success
+- disabled
+- no-permission (if applicable)
 
-#### Transitions
-- modal open/close
-- page navigation
-- UI update after action
+### Transitions
+- [Screen 1] → [Screen 2]:
+  - Trigger: [click / submit / route change]
+  - Type: [navigate / modal open / drawer open / inline expand]
+
+- [Screen 2] → [Screen 1]:
+  - Trigger: [success / cancel / close]
+  - Type: [navigate back / modal close / UI refresh]
+
+---
 
 ## User Scenarios & Testing *(mandatory)*
 
+<!--
+  User stories should be prioritized as independently testable slices.
+  A single implemented story should still deliver usable value.
+-->
+
 ### User Story 1 - [Brief Title] (Priority: P1)
+
 [Describe this user journey in plain language]
 
-**Why this priority**: [Explain the value and why it has this priority level]
+**Why this priority**: [Explain why this is critical]
 
-**Independent Test**: [Describe how this can be tested independently]
+**Independent Test**: [Explain how this story can be tested on its own]
 
-**UI Flow**: [Describe the screen-level interaction flow]
+**UI Flow**: [Describe the screen-level flow for this story]
+
+**Related Screens**:
+- [Screen 1]
+- [Screen 2]
 
 **Acceptance Scenarios**:
 1. **Given** [initial state], **When** [action], **Then** [expected outcome]
@@ -78,20 +164,52 @@
 ---
 
 ### User Story 2 - [Brief Title] (Priority: P2)
+
 [Describe this user journey in plain language]
 
-**Why this priority**: [Explain the value and why it has this priority level]
+**Why this priority**: [Explain why this matters after P1]
 
-**Independent Test**: [Describe how this can be tested independently]
+**Independent Test**: [How to test independently]
 
-**UI Flow**: [Describe the screen-level interaction flow]
+**UI Flow**: [Describe the screen-level flow for this story]
+
+**Related Screens**:
+- [Screen name]
 
 **Acceptance Scenarios**:
 1. **Given** [initial state], **When** [action], **Then** [expected outcome]
 
+---
+
+### User Story 3 - [Brief Title] (Priority: P3)
+
+[Describe this user journey in plain language]
+
+**Why this priority**: [Explain why this matters after P1/P2]
+
+**Independent Test**: [How to test independently]
+
+**UI Flow**: [Describe the screen-level flow for this story]
+
+**Related Screens**:
+- [Screen name]
+
+**Acceptance Scenarios**:
+1. **Given** [initial state], **When** [action], **Then** [expected outcome]
+
+---
+
+[Add more user stories as needed]
+
 ## Edge Cases
+
 - What happens when [boundary condition]?
-- How does system handle [error scenario]?
+- How does the system handle [error scenario]?
+- What happens when the user closes or leaves the screen mid-flow?
+- What happens when the backend returns partial / delayed / empty data?
+- What happens when permissions are insufficient?
+
+---
 
 ## Requirements *(mandatory)*
 
@@ -119,34 +237,67 @@
 - **FR-011**: System must return structured error responses for invalid input
 - **FR-012**: System must provide clear error messages for UI display
 
-### Non-Functional Requirements *(mandatory)*
-- **NFR-001 (Code Quality)**: Change must pass lint and build gates and follow existing repository patterns.
-- **NFR-002 (Testing)**: Change must define automated test coverage for all new or changed behavior.
-- **NFR-003 (UX Consistency)**: UI behavior must align with design guidelines and canonical route conventions.
+*Example of marking unclear requirements:*
+- **FR-013**: System must authenticate users via [NEEDS CLARIFICATION: auth method not specified]
+- **FR-014**: System must retain user data for [NEEDS CLARIFICATION: retention period not specified]
 
-### Key Entities *(include if feature involves data)*
-- **[Entity 1]**: [What it represents, key attributes without implementation]
-- **[Entity 2]**: [Relationships / constraints]
+---
 
 ## API-Relevant Behaviors
-- UI sends [request]
-- Backend returns [response]
-- Errors are returned in [structured format]
-- Successful mutations update [UI area]
+
+- UI sends [request] when [user action]
+- Backend returns [response] for [successful action]
+- Validation errors must follow structured field-level format
+- Successful mutations must update the relevant screen state
+- Failed mutations must preserve user-entered form data where appropriate
+
+---
+
+## Non-Functional Requirements *(mandatory)*
+
+- **NFR-001 (Code Quality)**: Change MUST pass lint and build gates and follow existing repository patterns.
+- **NFR-002 (Testing)**: Change MUST define automated test coverage for all new or changed behavior.
+- **NFR-003 (UX Consistency)**: UI behavior MUST align with design assets and canonical route conventions.
+- **NFR-004 (Performance)**: Primary user actions should complete within [target threshold].
+- **NFR-005 (Accessibility)**: UI must preserve keyboard navigation, focus visibility, and semantic structure where applicable.
+
+---
+
+## Key Entities *(include if feature involves data)*
+
+- **[Entity 1]**: [What it represents, key attributes without implementation]
+- **[Entity 2]**: [What it represents, relationships to other entities]
+
+---
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
+
 - **SC-001**: [Primary user task can be completed successfully]
 - **SC-002**: [Validation and errors are clearly surfaced]
-- **SC-003**: [Updated data appears correctly in UI]
+- **SC-003**: [Updated data appears correctly in UI after successful mutation]
 - **SC-004**: [Business or usability metric]
 
+---
+
 ## Assumptions
+
 - [Assumption about target users]
 - [Assumption about scope boundaries]
 - [Assumption about environment/data]
 - [Dependency on existing systems/services]
+- [Assumption about design asset completeness]
+
+---
+
+## Out of Scope *(optional but recommended)*
+
+- [Explicitly excluded functionality]
+- [Future enhancements not in this feature]
+- [Cross-platform support not included in v1]
+
+---
 
 ## Changelog
 

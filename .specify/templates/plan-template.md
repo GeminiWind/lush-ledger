@@ -1,3 +1,4 @@
+
 # Implementation Plan: [FEATURE]
 
 ## Metadata
@@ -69,23 +70,18 @@
 
 ```text
 specs/[###-feature]/
-├── plan.md              # This file (/speckit.plan command output)
-├── research.md          # Phase 0 output (/speckit.plan command)
-├── data-model.md        # Phase 1 output (/speckit.plan command)
-├── quickstart.md        # Phase 1 output (/speckit.plan command)
-├── contracts/           # Phase 1 output (/speckit.plan command)
-│   ├── [endpoint-name].md
-│   └── [endpoint-name].md          
-└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
-```
+├── assets/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   ├── [method-resource].md
+└── tasks.md
+````
 
 ### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
+
 ```text
 frontend/
   src/
@@ -104,30 +100,38 @@ backend/
         services/
         models/
         schemas/
+
+frontend/tests/
+  unit/
+  integration/
+
+backend/tests/
+  unit/
+  integration/
+  contract/
+
 tests/
-├── contract/
-├── integration/
-└── unit/
+  e2e/
 ```
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+**Structure Decision**: [Explain why this structure is chosen]
 
 ---
 
-## Data Model
+## Data Model Summary
+
 Detailed data definitions live in `data-model.md`.
 
 Primary entities:
-- <Entity A>
-- <Entity B>
 
+* <Entity A>
+* <Entity B>
+
+---
 
 ## Data Model Output Format
 
-The data model must be generated in `data-model.md` using the following structure:
-
-```txt
+```md
 # Data Model: <Feature Name>
 
 ## <Entity Name>
@@ -141,30 +145,34 @@ The data model must be generated in `data-model.md` using the following structur
 - <rule>
 
 ### Relationships
-- <relation if any>
+- <relation>
 
 ### Lifecycle (optional)
-- <state transitions if any>
+- <state transitions>
 ```
 
-## Contracts
+---
+
+## API Contracts Summary
+
 Detailed API contracts live in `contracts/`.
 
 Primary contracts:
-- [METHOD] /api/<resource>
-- [METHOD] /api/<resource>/<id>
 
+* [METHOD] /api/<resource>
+* [METHOD] /api/<resource>/<id>
+
+---
 
 ## API Contracts Output Format
 
-Each API contract must be generated as a separate file in `contracts/` using the following structure:
+Each API contract must be generated as a separate file:
 
 File naming:
-- <method>-<resource>.md (e.g., post-products.md)
 
-Template:
+* `<method>-<resource>.md` (e.g., `post-products.md`)
 
-`````txt
+````md
 # <METHOD> /api/<resource>
 
 ## Purpose
@@ -177,17 +185,14 @@ Template:
 ```json
 {
   ...
-} 
+}
+````
 
 ## Success Response
 
 ```json
 {
-  "id": "uuid",
-  "name": "Product A",
-  "price": 100,
-  "status": "draft",
-  "created_at": "timestamp"
+  ...
 }
 ```
 
@@ -196,8 +201,7 @@ Template:
 ```json
 {
   "errors": {
-    "name": "Required",
-    "price": "Must be greater than 0"
+    "field": "message"
   }
 }
 ```
@@ -206,133 +210,95 @@ Template:
 
 * FR-001
 * FR-002
-* FR-004
 
-`````
+````
+
+---
 
 ## UI Implementation Plan
 
 ### Pages
-
-* [Page A]
+- [Page A]
 
 ### Components
-
-* [Component A]
-* [Component B]
+- [Component A]
+- [Component B]
 
 ### State Management
-
-* local state / global store
+- local state / global store
 
 ### User Interaction Flow
-
-* User clicks [action]
-* UI shows [component]
-* User inputs data
-* Submit triggers [API call] (e.g POST /api/products)
-* Handle loading / error / success
+- User performs [action]
+- UI updates [component]
+- Submit triggers [API call] (see contracts)
+- Handle loading / error / success
 
 ### UI States
-
-* loading: disable interaction / show spinner
-* error: display message
-* success: update UI / close modal / redirect
+- loading: disable interaction / show spinner
+- error: display message
+- success: update UI / close modal / redirect
 
 ### Data Fetching
-
-* Initial load
-* Refresh after mutation
+- Initial load
+- Refresh after mutation
 
 ---
 
 ## Backend Implementation Plan
 
-* Define API routes
-* Implement validation (FR-xxx)
-* Implement business rules
-* Implement permission checks
-* Persist data to database
-* Return structured responses
-* Handle errors consistently
+- Define API routes
+- Implement validation (FR-xxx)
+- Implement business rules
+- Implement permission checks
+- Persist data to database
+- Return structured responses
+- Handle errors consistently
 
 ---
+
 ## UI ↔ API Mapping
 
-### Page Load
+### [Flow Name]
 
-- Product Dashboard load
-  → GET /api/products  
-  → Purpose: fetch product list  
-  → UI update: render ProductList  
-
----
-
-### Create Product Flow
-
-- Click "Create Product" button  
-  → No API call  
-  → UI update: open ProductFormModal  
-
-- Submit Create Product form  
-  → POST /api/products  
-  → Payload: { name, price, status }  
-  → Success:
-    - close modal
-    - refresh product list (GET /api/products)
-  → Error:
-    - show validation errors inline  
+- [User Action]
+  → [API Call]  
+  → Purpose: [...]  
+  → UI update: [...]  
 
 ---
 
-### Update Product (if applicable)
+## Error Handling Strategy
 
-- Click "Edit Product"  
-  → No API call  
-  → UI update: open edit form  
+- Validation errors:
+  ```json
+  { "errors": { "field": "message" } }
+````
 
-- Submit update form  
-  → PUT /api/products/:id  
-  → Success:
-    - update item in list
-  → Error:
-    - show error message  
+* System errors:
 
----
+  * return generic message
+  * log internally
 
-### Delete Product (if applicable)
+* UI handling:
 
-- Click "Delete Product"  
-  → DELETE /api/products/:id  
-  → Success:
-    - remove item from list  
-  → Error:
-    - show error notification  
+  * field errors → inline
+  * system errors → toast/alert
 
 ---
 
-### Error Handling Mapping
+## Data Ownership
 
-- Validation errors  
-  → map to form fields  
-
-- System errors  
-  → show toast / alert  
+* Source of truth: Backend API
+* Frontend state: derived from API
+* Cache strategy: [optional]
 
 ---
 
-### Loading States
+## Performance Considerations
 
-- API request pending  
-  → disable submit button  
-  → show spinner  
-
----
-
-### Notes
-
-- All API responses must follow defined contract format  
-- All mutations must trigger UI update or data refetch  
+* API response target: <200ms
+* Avoid unnecessary full reloads
+* Use pagination / lazy loading where needed
 
 ---
 
@@ -354,6 +320,8 @@ Template:
 
 * Full user flow (UI → API → DB → UI)
 
+---
+
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
@@ -364,14 +332,19 @@ Template:
 - [ ] Performance budget defined (p95 target and validation method)
 - [ ] Documentation impact captured (`docs/codebase-summary.md`,
       `docs/system-architecture.md`, `docs/project-roadmap.md`)
+---
 
 ## Risks / Trade-offs
-- [Risk]
-- [Decision]
+
+* [Risk]
+* [Decision]
+
+---
 
 ## Changelog
 
-| Version | Date | Updated By | Change Summary |
-|---------|------|------------|----------------|
-| v1.0.0 | [DATE] | [NAME/ROLE] | Initial implementation plan generated from template. |
+| Version | Date   | Updated By  | Change Summary              |
+| ------- | ------ | ----------- | --------------------------- |
+| v1.0.0  | [DATE] | [NAME/ROLE] | Initial implementation plan |
 
+---
