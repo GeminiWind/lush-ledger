@@ -47,6 +47,7 @@ export type CategoryAtelierGridProps = {
   riskLabels: AtelierListRiskLabels;
   pendingLabel: string;
   addCategoryTrigger?: ReactNode;
+  onEditCategory?: (category: EditableCategory) => void;
 };
 
 export type TotalCapCardProps = {
@@ -73,12 +74,25 @@ export type EditableCategory = {
   limit: number;
   warningEnabled: boolean;
   warnAt: number;
+  carryNextMonth: boolean;
 };
 
 export type EditCategoryModalProps = {
-  category: EditableCategory;
+  category: EditableCategory | null;
   currency: string;
   language: string;
+  activeMonth: string;
+  isOpen: boolean;
+  onClose: () => void;
+};
+
+export type UpdateCategoryPayload = {
+  name: string;
+  icon: string;
+  monthlyLimit: number;
+  warningEnabled: boolean;
+  warnAt: number;
+  keepLimitNextMonth: boolean;
 };
 
 export type DeleteCategoryTarget = {

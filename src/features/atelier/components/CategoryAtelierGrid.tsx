@@ -44,6 +44,7 @@ export default function CategoryAtelierGrid({
   riskLabels,
   pendingLabel,
   addCategoryTrigger,
+  onEditCategory,
 }: CategoryAtelierGridProps) {
   const t = useNamespacedTranslation("atelier", language);
 
@@ -79,7 +80,28 @@ export default function CategoryAtelierGrid({
                       </p>
                     </div>
                   </div>
-                  <span className="material-symbols-outlined text-[var(--color-outline-variant)]">edit_square</span>
+                  {onEditCategory ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onEditCategory({
+                          id: category.id,
+                          name: category.name,
+                          icon: category.icon,
+                          limit: category.limit,
+                          warningEnabled: category.warningEnabled,
+                          warnAt: category.warnAt,
+                          carryNextMonth: category.carryNextMonth,
+                        })
+                      }
+                      className="p-[var(--spacing-2)] text-[var(--color-outline-variant)] outline-none transition-colors hover:text-[var(--color-primary)] focus:outline-none focus-visible:outline-none focus-visible:ring-0"
+                      aria-label={`${t("atelierActionEdit")} ${category.name}`}
+                    >
+                      <span className="material-symbols-outlined text-xl">edit_square</span>
+                    </button>
+                  ) : (
+                    <span className="material-symbols-outlined text-xl text-[var(--color-outline-variant)]">edit_square</span>
+                  )}
                 </div>
 
                 <div className="mb-[var(--spacing-6)] space-y-[var(--spacing-3)]">

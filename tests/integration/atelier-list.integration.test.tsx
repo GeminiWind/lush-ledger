@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   buildAtelierMonthHref,
   createAtelierMonthOptions,
@@ -6,6 +6,8 @@ import {
   parseAtelierMonthParam,
 } from "@/features/atelier/list-view-model";
 import { DateTime } from "luxon";
+import { dismissEditModalFromBackdrop } from "@/features/atelier/dialogs/EditCategoryModal";
+import { updateCategoryWithParsedError } from "@/features/atelier/services";
 
 describe("atelier list integration", () => {
   it("maps month-scoped payload rows with required attributes", () => {
@@ -87,5 +89,20 @@ describe("atelier list integration", () => {
     });
 
     expect(options).toContain("2024-01");
+  });
+
+  it("does not send PATCH when edit flow is dismissed from backdrop", () => {
+    const closeModal = vi.fn();
+    const updateCategoryMutationMock = vi.spyOn(
+      { updateCategoryWithParsedError },
+      "updateCategoryWithParsedError",
+    );
+
+    dismissEditModalFromBackdrop(closeModal);
+
+    expect(closeModal).toHaveBeenCalledTimes(1);
+    expect(updateCategoryMutationMock).not.toHaveBeenCalled();
+
+    updateCategoryMutationMock.mockRestore();
   });
 });

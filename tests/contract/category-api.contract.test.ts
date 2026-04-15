@@ -6,8 +6,25 @@ vi.mock("@/lib/auth", () => ({
 }));
 
 vi.mock("@/lib/date", () => ({
+  DEFAULT_TIMEZONE: "UTC",
   nowDate: vi.fn(() => new Date("2026-04-06T00:00:00.000Z")),
   addMonthsDate: vi.fn(() => new Date("2026-05-01T00:00:00.000Z")),
+  resolveMonthRangeFromQuery: vi.fn(({ month, now }: { month?: string | null; now: Date }) => {
+    const baseMonth = typeof month === "string" && month.trim() ? month : "2026-04";
+
+    const monthStart = new Date(`${baseMonth}-01T00:00:00.000Z`);
+    const nextMonthStart = new Date(monthStart);
+    nextMonthStart.setUTCMonth(nextMonthStart.getUTCMonth() + 1);
+
+    return {
+      ok: true,
+      month: baseMonth,
+      timezone: "UTC",
+      start: monthStart,
+      end: now,
+      nextMonthStart,
+    };
+  }),
 }));
 
 vi.mock("@/lib/monthly-cap", () => ({
@@ -22,6 +39,9 @@ vi.mock("@/lib/monthly-cap", () => ({
 
 vi.mock("@/lib/db", () => ({
   prisma: {
+    user: {
+      findUnique: vi.fn(),
+    },
     category: {
       findMany: vi.fn(),
       create: vi.fn(),
@@ -54,6 +74,7 @@ const mockedSession = vi.mocked(getSessionFromRequest);
 const mockedSnapshot = vi.mocked(ensureMonthlyCapSnapshot);
 const mockedNowDate = vi.mocked(nowDate);
 const mockedAddMonthsDate = vi.mocked(addMonthsDate);
+const userFindUnique = prisma.user.findUnique as unknown as ReturnType<typeof vi.fn>;
 const categoryFindMany = prisma.category.findMany as unknown as ReturnType<typeof vi.fn>;
 const categoryFindFirst = prisma.category.findFirst as unknown as ReturnType<typeof vi.fn>;
 const categoryUpdate = prisma.category.update as unknown as ReturnType<typeof vi.fn>;
@@ -66,16 +87,27 @@ const limitDeleteMany = prisma.categoryMonthlyLimit.deleteMany as unknown as Ret
 const txUpdateMany = prisma.transaction.updateMany as unknown as ReturnType<typeof vi.fn>;
 const transactionMock = prisma.$transaction as unknown as ReturnType<typeof vi.fn>;
 
+const buildPatchPayload = (overrides?: Record<string, unknown>) => ({
+  name: "Dining",
+  icon: "restaurant",
+  monthlyLimit: 120,
+  warningEnabled: true,
+  warnAt: 80,
+  keepLimitNextMonth: true,
+  ...overrides,
+});
+
 describe("Category API contract", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockedSession.mockResolvedValue({ sub: "u1", email: "u1@example.com" });
     mockedSnapshot.mockResolvedValue({ totalCap: 1000, totalLimit: 0 } as never);
+    userFindUnique.mockResolvedValue({ settings: { timezone: "UTC" } });
     categoryFindMany.mockResolvedValue([{ id: "c1", name: "Food" }]);
     limitFindMany.mockResolvedValue([]);
-    limitFindUnique.mockResolvedValue({ limit: 0 });
-    categoryFindFirst.mockResolvedValue({ id: "c1" });
-    categoryUpdate.mockResolvedValue({ id: "c1", name: "Dining" });
+    limitFindUnique.mockResolvedValue({ limit: 0, warningEnabled: true, warnAt: 80 });
+    categoryFindFirst.mockResolvedValue({ id: "c1", name: "Food", icon: "restaurant" });
+    categoryUpdate.mockResolvedValue({ id: "c1", name: "Dining", icon: "restaurant" });
     categoryDelete.mockResolvedValue({ id: "c1" });
     limitCreate.mockResolvedValue({});
     limitUpsert.mockResolvedValue({});
@@ -249,7 +281,7 @@ describe("Category API contract", () => {
     const response = await PATCH(
       new NextRequest("http://localhost/api/categories/c-missing", {
         method: "PATCH",
-        body: JSON.stringify({ name: "X", monthlyLimit: 10, warnAt: 80 }),
+        body: JSON.stringify(buildPatchPayload({ name: "X", monthlyLimit: 10 })),
       }),
       { params: Promise.resolve({ id: "c-missing" }) },
     );
@@ -263,16 +295,205 @@ describe("Category API contract", () => {
     const response = await PATCH(
       new NextRequest("http://localhost/api/categories/c1", {
         method: "PATCH",
-        body: JSON.stringify({ name: "Dining", monthlyLimit: 120, warnAt: 80 }),
+        body: JSON.stringify(buildPatchPayload()),
       }),
       { params: Promise.resolve({ id: "c1" }) },
     );
     const body = await response.json();
 
     expect(response.status).toBe(200);
+    expect(categoryFindFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          id: "c1",
+          userId: "u1",
+        },
+      }),
+    );
     expect(categoryUpdate).toHaveBeenCalled();
     expect(limitUpsert).toHaveBeenCalled();
-    expect(body.category).toEqual({ id: "c1", name: "Dining" });
+    expect(body.category).toEqual({ id: "c1", name: "Dining", icon: "restaurant" });
+  });
+
+  it("PATCH /api/categories/[id] rejects non-positive monthlyLimit", async () => {
+    const response = await PATCH(
+      new NextRequest("http://localhost/api/categories/c1", {
+        method: "PATCH",
+        body: JSON.stringify(
+          buildPatchPayload({
+            monthlyLimit: 0,
+          }),
+        ),
+      }),
+      { params: Promise.resolve({ id: "c1" }) },
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body).toEqual({
+      error: "Monthly limit must be greater than zero.",
+      errors: {
+        monthlyLimit: "Monthly limit must be greater than zero.",
+      },
+    });
+  });
+
+  it("PATCH /api/categories/[id] returns structured monthlyLimit error when current cap would overflow", async () => {
+    limitFindMany
+      .mockResolvedValueOnce([{ categoryId: "c2", limit: 1000 }])
+      .mockResolvedValueOnce([]);
+
+    const response = await PATCH(
+      new NextRequest("http://localhost/api/categories/c1", {
+        method: "PATCH",
+        body: JSON.stringify(buildPatchPayload()),
+      }),
+      { params: Promise.resolve({ id: "c1" }) },
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body).toEqual({
+      error: "Category limits exceed monthly cap by 120. Increase monthly cap or lower category limit.",
+      errors: {
+        monthlyLimit: "Category limits exceed monthly cap by 120. Increase monthly cap or lower category limit.",
+      },
+    });
+  });
+
+  it("PATCH /api/categories/[id] validates warnAt when warning is enabled", async () => {
+    const response = await PATCH(
+      new NextRequest("http://localhost/api/categories/c1", {
+        method: "PATCH",
+        body: JSON.stringify(
+          buildPatchPayload({
+            warningEnabled: true,
+            warnAt: 101,
+          }),
+        ),
+      }),
+      { params: Promise.resolve({ id: "c1" }) },
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body).toEqual({
+      error: "Warn threshold must be an integer from 1 to 100.",
+      errors: {
+        warnAt: "Warn threshold must be an integer from 1 to 100.",
+      },
+    });
+  });
+
+  it("PATCH /api/categories/[id] preserves persisted warnAt when warning is disabled", async () => {
+    limitFindUnique.mockResolvedValue({ limit: 0, warningEnabled: true, warnAt: 65 });
+
+    const response = await PATCH(
+      new NextRequest("http://localhost/api/categories/c1", {
+        method: "PATCH",
+        body: JSON.stringify(
+          buildPatchPayload({
+            warningEnabled: false,
+            warnAt: 999,
+          }),
+        ),
+      }),
+      { params: Promise.resolve({ id: "c1" }) },
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(limitUpsert).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        create: expect.objectContaining({
+          warningEnabled: false,
+          warnAt: 65,
+        }),
+        update: expect.objectContaining({
+          warningEnabled: false,
+          warnAt: 65,
+        }),
+      }),
+    );
+    expect(limitUpsert).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        create: expect.objectContaining({
+          warningEnabled: false,
+          warnAt: 65,
+        }),
+        update: expect.objectContaining({
+          warningEnabled: false,
+          warnAt: 65,
+        }),
+      }),
+    );
+    expect(body.category).toEqual({ id: "c1", name: "Dining", icon: "restaurant" });
+  });
+
+  it("PATCH /api/categories/[id] enforces case-insensitive uniqueness excluding current category", async () => {
+    categoryFindMany.mockResolvedValueOnce([
+      { id: "c1", name: "Food" },
+      { id: "c2", name: "  DINING  " },
+    ]);
+
+    const response = await PATCH(
+      new NextRequest("http://localhost/api/categories/c1", {
+        method: "PATCH",
+        body: JSON.stringify(
+          buildPatchPayload({
+            name: "dining",
+          }),
+        ),
+      }),
+      { params: Promise.resolve({ id: "c1" }) },
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body).toEqual({
+      error: "Category name already exists.",
+      errors: {
+        name: "Category name already exists.",
+      },
+    });
+  });
+
+  it("PATCH /api/categories/[id] applies keep-next-month updates for selected month context", async () => {
+    const response = await PATCH(
+      new NextRequest("http://localhost/api/categories/c1?month=2026-02", {
+        method: "PATCH",
+        body: JSON.stringify(buildPatchPayload()),
+      }),
+      { params: Promise.resolve({ id: "c1" }) },
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(limitUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          userId_categoryId_monthStart: {
+            userId: "u1",
+            categoryId: "c1",
+            monthStart: new Date("2026-02-01T00:00:00.000Z"),
+          },
+        },
+      }),
+    );
+    expect(limitUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          userId_categoryId_monthStart: {
+            userId: "u1",
+            categoryId: "c1",
+            monthStart: new Date("2026-03-01T00:00:00.000Z"),
+          },
+        },
+      }),
+    );
+    expect(body.category).toEqual({ id: "c1", name: "Dining", icon: "restaurant" });
   });
 
   it("DELETE /api/categories/[id] returns 404 when category missing", async () => {

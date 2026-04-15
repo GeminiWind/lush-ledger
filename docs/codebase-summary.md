@@ -45,6 +45,8 @@ Implemented:
 - `PATCH /api/accounts/[id]` (balance-oriented partial update)
 - `GET /api/categories`
 - `POST /api/categories`
+- `PATCH /api/categories/[id]`
+- `DELETE /api/categories/[id]`
 - `GET /api/ledger`
 - `GET /api/ledger/export`
 - `POST /api/ledger`
@@ -116,6 +118,9 @@ Savings UX notes:
 - Atelier includes month-end auto-transfer configuration with required `(*)` field markers and latest-run status
 - Atelier list supports month-scoped read-only rows via `month=YYYY-MM` query context with per-category `warningEnabled` and `warnAt` threshold fields
 - Atelier row risk states are normalized as `healthy | warning | overspent | pending` and include explicit non-color status text
+- Atelier category edit flow is wired from list row action to modal update submit with prefilled values and query-refresh success path
+- `PATCH /api/categories/[id]` enforces case-insensitive per-user name uniqueness, stale-edit conflict protection (`409`), and structured field errors (`error` + `errors`)
+- Warning-threshold behavior preserves persisted `warnAt` when warnings are disabled while treating threshold input as inactive validation
 - Ledger marks system-generated month-end transfers with explicit auto-transfer labels
 - Savings highlights progress impact from auto-transfer entries
 - full lifecycle reference: `docs/savings-plan-status-flow.md`

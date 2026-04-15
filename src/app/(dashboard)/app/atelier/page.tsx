@@ -6,7 +6,7 @@ import {
   parseAtelierMonthParam,
 } from "@/features/atelier/list-view-model";
 import { prisma } from "@/lib/db";
-import { getMonthRange, nowDate } from "@/lib/date";
+import { nowDate } from "@/lib/date";
 import { materializeRecurringTransactions } from "@/lib/recurring";
 import { serializeForClient } from "@/lib/serialize-for-client";
 import { requireUser } from "@/lib/user";
@@ -38,8 +38,8 @@ export default async function AtelierPage({
 
   const invalidMonth = Boolean(params.month) && !parsedMonth;
 
-  const monthRangeDate = selectedMonthDate.toJSDate();
-  const { start, end } = getMonthRange(monthRangeDate);
+  const start = selectedMonthDate.startOf("month").toUTC().toJSDate();
+  const end = selectedMonthDate.endOf("month").toUTC().toJSDate();
   const nextMonthStart = selectedMonthDate.plus({ months: 1 }).startOf("month").toJSDate();
 
   const monthOptions = createAtelierMonthOptions({
