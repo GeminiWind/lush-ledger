@@ -50,13 +50,16 @@ Validation and error flow:
 - Ledger export path (`src/lib/ledger-export.ts`) applies authenticated user scoping, validates filter input, and serializes RFC-4180-safe CSV output for spreadsheet compatibility
 
 ### Budgets (Atelier)
-- API: `/api/atelier`, `/api/atelier/cap`, `/api/categories`
+- API: `/api/atelier`, `/api/atelier/cap`, `/api/categories`, `/api/categories/[id]`
 - Monthly snapshot strategy lives in `src/lib/monthly-cap.ts`
 - Category monthly limits are snapshotted for historical consistency
 - `GET /api/atelier` accepts optional `month=YYYY-MM` and returns month-scoped list rows for all user categories
 - Atelier list rows include per-category warning controls (`warningEnabled`, `warnAt`) from `CategoryMonthlyLimit` snapshots
 - Carry-next-month visibility is derived by comparing selected-month and next-month limit snapshots per category
 - Risk status precedence is deterministic: `overspent > warning > healthy`, with `pending` for partial snapshot data
+- `PATCH /api/categories/[id]` validates positive limits and enforces case-insensitive duplicate-name rejection
+- Category update validation and business failures return structured payloads (`error` + field `errors`) for dialog field mapping
+- When warning toggle is disabled in category update, persisted `warnAt` is preserved and not actively validated until warning is re-enabled
 
 ### Recurring Transactions
 - Recurring generation and schedule logic: `src/lib/recurring.ts`
@@ -98,7 +101,7 @@ Design patterns:
 - no `/api/reports`
 - no `/api/savings` CRUD
 - no `/api/settings`
-- no update/delete for accounts/categories/ledger transactions
+- no update/delete for ledger transactions
 
 ## Canonical Architecture Decision
 

@@ -4,6 +4,7 @@ Roadmap status is aligned with the current implementation review: phases 01-03 a
 
 Feature delivery update:
 - `005-atelier-list` is implemented for month-scoped read-only category listing, per-category warning-threshold context, and risk-state signaling (`healthy | warning | overspent | pending`).
+- `007-update-category-dialog` is implemented for edit-from-list flow with prefilled values, structured validation responses, stale-edit conflict handling (`409`), and warning-threshold preservation when warnings are disabled.
 
 Related plan source:
 - `docs/plans/personal-finance-mvp/plan.md`
@@ -20,7 +21,7 @@ Related plan source:
 
 ## Current Milestones
 
-Overall completion estimate: **92%**.
+Overall completion estimate: **94%**.
 
 1) Stabilize canonical route surface
 - keep `src/app/(dashboard)/app/*` as active surface
@@ -29,6 +30,7 @@ Overall completion estimate: **92%**.
 2) Complete API CRUD baseline
 - reports: add `/api/reports`
 - savings: add `/api/savings` CRUD
+- ledger: add transaction update/delete endpoints
 
 3) Close reporting and savings UX gaps
 - explicit income-vs-expense time-series (implemented on `ledger/reports`)
