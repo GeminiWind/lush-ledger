@@ -74,6 +74,8 @@ For all frontend work:
 ## Active Technologies
 - TypeScript (project standard) + Next.js App Router, React, Prisma, TanStack Query (existing), Vites (005-atelier-list)
 - Prisma models on current project database (SQLite for local development) (005-atelier-list)
+- TypeScript (project standard) + Next.js App Router, React 18, Prisma, TanStack Query, Formik, Vites (006-atelier-create-category)
+- Prisma models on project database (SQLite local; `Category`, `CategoryMonthlyLimit`, `UserMonthlyCap`) (006-atelier-create-category)
 
 ## Recent Changes
 - 005-atelier-list: Added TypeScript (project standard) + Next.js App Router, React, Prisma, TanStack Query (existing), Vites
