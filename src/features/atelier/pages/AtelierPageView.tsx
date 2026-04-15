@@ -5,11 +5,12 @@ import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslati
 import TotalCapCard from "@/features/atelier/components/TotalCapCard";
 import CategoryAtelierGrid from "@/features/atelier/components/CategoryAtelierGrid";
 import AddCategoryModal from "@/features/atelier/dialogs/AddCategoryModal";
+import EditCategoryModal from "@/features/atelier/dialogs/EditCategoryModal";
 import AutoTransferSettings from "@/features/savings/components/auto-transfer-settings";
 import { buildAtelierMonthHref } from "@/features/atelier/list-view-model";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useTransition } from "react";
-import type { AtelierListViewModel } from "@/features/atelier/types";
+import { useMemo, useState, useTransition } from "react";
+import type { AtelierListViewModel, EditableCategory } from "@/features/atelier/types";
 
 const toNumber = (value: unknown) => Number(value ?? 0);
 
@@ -49,6 +50,7 @@ export default function AtelierPageView({
   monthlyCap,
 }: AtelierPageViewProps) {
   const [isPending, startTransition] = useTransition();
+  const [editingCategory, setEditingCategory] = useState<EditableCategory | null>(null);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -172,6 +174,7 @@ export default function AtelierPageView({
                 riskLabels={riskLabels}
                 pendingLabel={t("atelierListStatusPending")}
                 addCategoryTrigger={<AddCategoryModal currency={currency} language={language} />}
+                onEditCategory={setEditingCategory}
               />
             </div>
           ) : (
@@ -182,6 +185,7 @@ export default function AtelierPageView({
               riskLabels={riskLabels}
               pendingLabel={t("atelierListStatusPending")}
               addCategoryTrigger={<AddCategoryModal currency={currency} language={language} />}
+              onEditCategory={setEditingCategory}
             />
           )}
 
@@ -189,6 +193,16 @@ export default function AtelierPageView({
             <p className="text-[var(--font-label-sm)] font-semibold uppercase text-[var(--color-on-surface-variant)]">{monthLabel}</p>
           ) : null}
         </section>
+
+      <EditCategoryModal
+        key={editingCategory?.id ?? "closed"}
+        category={editingCategory}
+        currency={currency}
+        language={language}
+        activeMonth={activeMonth}
+        isOpen={Boolean(editingCategory)}
+        onClose={() => setEditingCategory(null)}
+      />
     </div>
   );
 }

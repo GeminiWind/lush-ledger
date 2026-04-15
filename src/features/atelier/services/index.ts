@@ -1,4 +1,4 @@
-import type { AtelierJsonRecord } from "@/features/atelier/types";
+import type { AtelierJsonRecord, UpdateCategoryPayload } from "@/features/atelier/types";
 
 type FieldErrors = Record<string, string>;
 
@@ -15,6 +15,24 @@ export type CreateCategoryError = {
   message: string;
   fieldErrors: FieldErrors;
   status: number;
+};
+
+export type UpdateCategorySuccess = {
+  category: {
+    id: string;
+    name: string;
+    icon: string;
+  };
+};
+
+export type UpdateCategoryError = {
+  message: string;
+  fieldErrors: FieldErrors;
+  status: number;
+};
+
+type UpdateCategoryRequestOptions = {
+  month?: string | null;
 };
 
 const normalizeFieldErrors = (errors: unknown): FieldErrors => {
@@ -34,6 +52,32 @@ export const parseCreateCategoryError = async (
   response: Response,
   fallbackMessage: string,
 ): Promise<CreateCategoryError> => {
+  let payload: { error?: unknown; errors?: unknown } = {};
+
+  try {
+    payload = (await response.json()) as { error?: unknown; errors?: unknown };
+  } catch {
+    payload = {};
+  }
+
+  const fieldErrors = normalizeFieldErrors(payload.errors);
+  const firstFieldMessage = Object.values(fieldErrors)[0];
+  const message =
+    (typeof payload.error === "string" && payload.error) ||
+    firstFieldMessage ||
+    fallbackMessage;
+
+  return {
+    message,
+    fieldErrors,
+    status: response.status,
+  };
+};
+
+export const parseUpdateCategoryError = async (
+  response: Response,
+  fallbackMessage: string,
+): Promise<UpdateCategoryError> => {
   let payload: { error?: unknown; errors?: unknown } = {};
 
   try {
@@ -108,8 +152,44 @@ export const createCategoryWithParsedError = async (
   return (await response.json()) as CreateCategorySuccess;
 };
 
-export const updateCategory = (id: string, payload: AtelierJsonRecord) => {
-  return request(`/api/categories/${id}`, { method: "PATCH", body: JSON.stringify(payload) }, "Could not update category.");
+const buildUpdateCategoryPath = (id: string, options?: UpdateCategoryRequestOptions) => {
+  const params = new URLSearchParams();
+
+  if (options?.month) {
+    params.set("month", options.month);
+  }
+
+  const query = params.toString();
+  return query ? `/api/categories/${id}?${query}` : `/api/categories/${id}`;
+};
+
+export const updateCategory = (id: string, payload: AtelierJsonRecord, options?: UpdateCategoryRequestOptions) => {
+  return request(
+    buildUpdateCategoryPath(id, options),
+    { method: "PATCH", body: JSON.stringify(payload) },
+    "Could not update category.",
+  );
+};
+
+export const updateCategoryWithParsedError = async (
+  id: string,
+  payload: UpdateCategoryPayload,
+  fallbackMessage: string,
+  options?: UpdateCategoryRequestOptions,
+): Promise<UpdateCategorySuccess> => {
+  const response = await fetch(buildUpdateCategoryPath(id, options), {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw await parseUpdateCategoryError(response, fallbackMessage);
+  }
+
+  return (await response.json()) as UpdateCategorySuccess;
 };
 
 export const deleteCategory = (id: string) => {

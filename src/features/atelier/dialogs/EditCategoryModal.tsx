@@ -4,185 +4,316 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useFormik } from "formik";
-import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
-import { formatCurrencyInput, getCurrencyInputSuggestions, parseCurrencyInput } from "@/lib/format";
-import type { EditCategoryModalProps } from "@/features/atelier/types";
-import toast from "react-hot-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
+import { formatCurrencyInput, parseCurrencyInput } from "@/lib/format";
+import {
+  updateCategoryWithParsedError,
+  type UpdateCategoryError,
+} from "@/features/atelier/services";
+import type {
+  EditCategoryModalProps,
+  UpdateCategoryPayload,
+} from "@/features/atelier/types";
 
-const allIconChoices = [
+const iconChoices = [
   "restaurant",
   "shopping_bag",
   "commute",
   "fitness_center",
-  "medical_services",
+  "work",
   "home",
   "payments",
   "celebration",
-  "local_cafe",
-  "local_bar",
-  "local_dining",
-  "lunch_dining",
-  "breakfast_dining",
-  "bakery_dining",
-  "fastfood",
-  "icecream",
-  "hotel",
-  "flight",
-  "train",
-  "directions_car",
-  "two_wheeler",
-  "local_taxi",
-  "directions_bus",
-  "directions_subway",
-  "movie",
-  "sports_esports",
-  "music_note",
-  "headphones",
-  "palette",
-  "brush",
   "school",
-  "book",
-  "menu_book",
-  "subscriptions",
-  "devices",
-  "phone_iphone",
-  "laptop_mac",
-  "tv",
-  "home_work",
-  "apartment",
-  "chair",
-  "construction",
-  "electric_bolt",
-  "water_drop",
-  "shield",
-  "health_and_safety",
-  "medication",
-  "spa",
-  "pets",
-  "child_care",
-  "family_restroom",
-  "redeem",
-  "card_giftcard",
-  "savings",
-  "account_balance",
-  "trending_up",
-  "volunteer_activism",
-  "public",
-  "language",
-  "work",
-  "business_center",
-  "inventory_2",
-  "auto_awesome",
-  "rocket_launch",
-  "event",
-  "calendar_month",
-  "receipt_long",
-  "category",
-];
+  "flight",
+] as const;
 
-export default function EditCategoryModal({ category, currency, language }: EditCategoryModalProps) {
+type EditCategoryFormValues = {
+  name: string;
+  monthlyLimit: string;
+};
+
+type ErrorPresentation = {
+  topLevelError: string | null;
+  nameError: string | null;
+  monthlyLimitError: string | null;
+  warnAtError: string | null;
+};
+
+const isUpdateCategoryError = (value: unknown): value is UpdateCategoryError => {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      "message" in value &&
+      "fieldErrors" in value &&
+      "status" in value,
+  );
+};
+
+const normalizeDuplicateNameError = (value: string, duplicateLabel: string) => {
+  return value.toLowerCase().includes("already exists") ? duplicateLabel : value;
+};
+
+export const mapUpdateCategoryErrorToPresentation = (
+  error: UpdateCategoryError,
+  t: (key: string) => string,
+): ErrorPresentation => {
+  const nameError = error.fieldErrors.name
+    ? normalizeDuplicateNameError(error.fieldErrors.name, t("atelierCategoryNameDuplicate"))
+    : null;
+  const monthlyLimitError = error.fieldErrors.monthlyLimit || null;
+  const warnAtError = error.fieldErrors.warnAt || null;
+
+  if (error.status >= 500 && !nameError && !monthlyLimitError && !warnAtError) {
+    return {
+      topLevelError: t("atelierEditCategoryRecoverable"),
+      nameError,
+      monthlyLimitError,
+      warnAtError,
+    };
+  }
+
+  return {
+    topLevelError: error.message,
+    nameError,
+    monthlyLimitError,
+    warnAtError,
+  };
+};
+
+export const validateWarnAtForUpdate = (
+  warningEnabled: boolean,
+  warnAt: string,
+  t: (key: string) => string,
+) => {
+  if (!warningEnabled) {
+    return null;
+  }
+
+  const warnAtValue = Number(warnAt);
+  if (!Number.isInteger(warnAtValue) || warnAtValue < 1 || warnAtValue > 100) {
+    return t("atelierWarnAtValidation");
+  }
+
+  return null;
+};
+
+export const runUpdateCategoryErrorEffects = ({
+  mutationError,
+  t,
+  setFieldError,
+  setFieldTouched,
+  setWarnAtFieldError,
+  setTopLevelError,
+}: {
+  mutationError: unknown;
+  t: (key: string) => string;
+  setFieldError: (field: "name" | "monthlyLimit", value: string) => void;
+  setFieldTouched: (field: "name" | "monthlyLimit", touched?: boolean, shouldValidate?: boolean) => unknown;
+  setWarnAtFieldError: (value: string | null) => void;
+  setTopLevelError: (value: string | null) => void;
+}) => {
+  if (!isUpdateCategoryError(mutationError)) {
+    setTopLevelError(t("atelierEditCategoryRecoverable"));
+    return;
+  }
+
+  const presentation = mapUpdateCategoryErrorToPresentation(mutationError, t);
+
+  if (presentation.nameError) {
+    setFieldError("name", presentation.nameError);
+    setFieldTouched("name", true, false);
+  }
+
+  if (presentation.monthlyLimitError) {
+    setFieldError("monthlyLimit", presentation.monthlyLimitError);
+    setFieldTouched("monthlyLimit", true, false);
+  }
+
+  setWarnAtFieldError(presentation.warnAtError);
+  setTopLevelError(presentation.topLevelError);
+};
+
+export const shouldDismissModalOnKey = (key: string) => key === "Escape";
+
+export const dismissEditModalFromBackdrop = (closeModal: () => void) => {
+  closeModal();
+};
+
+export const runDismissEditModalEffects = ({
+  close,
+  resetForm,
+  clearTopLevelError,
+  clearWarnAtFieldError,
+  resetLocalState,
+}: {
+  close: () => void;
+  resetForm: () => void;
+  clearTopLevelError: () => void;
+  clearWarnAtFieldError: () => void;
+  resetLocalState: () => void;
+}) => {
+  clearTopLevelError();
+  clearWarnAtFieldError();
+  resetForm();
+  resetLocalState();
+  close();
+};
+
+export const runUpdateCategorySuccessEffects = async ({
+  notifySuccess,
+  invalidateAtelier,
+  refresh,
+  close,
+}: {
+  notifySuccess: () => void;
+  invalidateAtelier: () => Promise<unknown>;
+  refresh: () => void;
+  close: () => void;
+}) => {
+  notifySuccess();
+  await invalidateAtelier();
+  refresh();
+  close();
+};
+
+const localStateFromCategory = (category: EditCategoryModalProps["category"]) => ({
+  keepNextMonth: category?.carryNextMonth ?? true,
+  warningEnabled: category?.warningEnabled ?? true,
+  warnAt: String(category?.warnAt ?? 80),
+  selectedIcon: ((category?.icon as (typeof iconChoices)[number]) || iconChoices[0]) as (typeof iconChoices)[number],
+});
+
+export default function EditCategoryModal({
+  category,
+  currency,
+  language,
+  activeMonth,
+  isOpen,
+  onClose,
+}: EditCategoryModalProps) {
   const router = useRouter();
-  const t = useNamespacedTranslation("atelier", language);
-  const [isOpen, setIsOpen] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [keepNextMonth, setKeepNextMonth] = useState(true);
-  const [warningEnabled, setWarningEnabled] = useState(category.warningEnabled);
-  const [warnAt, setWarnAt] = useState(String(category.warnAt || 80));
-  const [selectedIcon, setSelectedIcon] = useState(category.icon || "category");
-  const [iconDialogOpen, setIconDialogOpen] = useState(false);
-  const [iconSearch, setIconSearch] = useState("");
   const queryClient = useQueryClient();
+  const t = useNamespacedTranslation("atelier", language);
+
+  const [error, setError] = useState<string | null>(null);
+  const [warnAtFieldError, setWarnAtFieldError] = useState<string | null>(null);
+  const [keepNextMonth, setKeepNextMonth] = useState(category?.carryNextMonth ?? true);
+  const [warningEnabled, setWarningEnabled] = useState(category?.warningEnabled ?? true);
+  const [warnAt, setWarnAt] = useState(String(category?.warnAt ?? 80));
+  const [selectedIcon, setSelectedIcon] = useState<(typeof iconChoices)[number]>(
+    (category?.icon as (typeof iconChoices)[number]) || iconChoices[0],
+  );
 
   const currencyHint = useMemo(() => {
     if (currency === "VND") {
-      return t("atelier.atelierCurrencyHintVnd");
+      return t("atelierCurrencyHintVnd");
     }
-    return t("atelier.atelierCurrencyHintTemplate").replace("{currency}", currency);
+    return t("atelierCurrencyHintTemplate").replace("{currency}", currency);
   }, [currency, t]);
 
-  const updateCategoryMutation = useMutation({
-    mutationFn: async (values: { name: string; monthlyLimit: string }) => {
-      const response = await fetch(`/api/categories/${category.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: values.name.trim(),
-          icon: selectedIcon,
-          monthlyLimit: parseCurrencyInput(values.monthlyLimit),
-          warningEnabled,
-          warnAt: Number(warnAt || 80),
-          keepLimitNextMonth: keepNextMonth,
-        }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || t("atelier.atelierEditCategoryFailed"));
-      }
-    },
-    onSuccess: async () => {
-      setIsOpen(false);
-      toast.success(t("atelier.atelierEditCategorySuccess"));
-      await queryClient.invalidateQueries({ queryKey: ["atelier"] });
-      router.refresh();
-    },
-    onError: (mutationError: unknown) => {
-      setError(mutationError instanceof Error ? mutationError.message : t("atelier.atelierEditCategoryFailed"));
-    },
-  });
-
-  const formik = useFormik({
+  const formik = useFormik<EditCategoryFormValues>({
     initialValues: {
-      name: category.name,
-      monthlyLimit: formatCurrencyInput(String(category.limit), currency),
+      name: category?.name ?? "",
+      monthlyLimit: formatCurrencyInput(String(category?.limit ?? 0), currency),
     },
     enableReinitialize: true,
     validate: (values) => {
-      const errors: { name?: string; monthlyLimit?: string } = {};
-      if (!values.name.trim()) {
-        errors.name = t("atelier.atelierCategoryNameRequired");
+      const fieldErrors: { name?: string; monthlyLimit?: string } = {};
+      const trimmedName = values.name.trim();
+
+      if (!trimmedName) {
+        fieldErrors.name = t("atelierCategoryNameRequired");
+      } else if (trimmedName.length > 50) {
+        fieldErrors.name = t("atelierCategoryNameTooLong");
       }
-      if (parseCurrencyInput(values.monthlyLimit) < 0) {
-        errors.monthlyLimit = t("atelier.atelierMonthlyLimitNonNegative");
+
+      if (!values.monthlyLimit.trim()) {
+        fieldErrors.monthlyLimit = t("atelierMonthlyLimitRequired");
+      } else {
+        const monthlyLimit = parseCurrencyInput(values.monthlyLimit);
+        if (!Number.isFinite(monthlyLimit) || monthlyLimit <= 0) {
+          fieldErrors.monthlyLimit = t("atelierMonthlyLimitPositive");
+        }
       }
-      return errors;
+
+      return fieldErrors;
     },
     onSubmit: async (values) => {
+      if (!category) {
+        return;
+      }
+
+      const warnAtError = validateWarnAtForUpdate(warningEnabled, warnAt, t);
+      if (warnAtError) {
+        setWarnAtFieldError(warnAtError);
+        return;
+      }
+
+      setWarnAtFieldError(null);
       setError(null);
-      updateCategoryMutation.mutate(values);
+
+      const payload: UpdateCategoryPayload = {
+        name: values.name.trim(),
+        icon: selectedIcon,
+        monthlyLimit: parseCurrencyInput(values.monthlyLimit),
+        warningEnabled,
+        warnAt: Number(warnAt || 80),
+        keepLimitNextMonth: keepNextMonth,
+      };
+
+      updateCategoryMutation.mutate(payload);
     },
   });
 
-  const openModal = useCallback(() => {
-    setError(null);
-    setKeepNextMonth(true);
-    setWarningEnabled(category.warningEnabled);
-    setWarnAt(String(category.warnAt || 80));
-    setSelectedIcon(category.icon || "category");
-    setIconSearch("");
-    setIconDialogOpen(false);
-    formik.setValues({ name: category.name, monthlyLimit: formatCurrencyInput(String(category.limit), currency) });
-    setIsOpen(true);
-  }, [category.icon, category.limit, category.name, category.warnAt, category.warningEnabled, currency, formik]);
+  const updateCategoryMutation = useMutation({
+    mutationFn: async (payload: UpdateCategoryPayload) => {
+      if (!category) {
+        throw new Error(t("atelierEditCategoryFailed"));
+      }
+
+      return updateCategoryWithParsedError(category.id, payload, t("atelierEditCategoryFailed"), {
+        month: activeMonth,
+      });
+    },
+    onSuccess: async () => {
+      await runUpdateCategorySuccessEffects({
+        notifySuccess: () => toast.success(t("atelierEditCategorySuccess")),
+        invalidateAtelier: () => queryClient.invalidateQueries({ queryKey: ["atelier"] }),
+        refresh: router.refresh,
+        close: onClose,
+      });
+    },
+    onError: (mutationError: unknown) => {
+      runUpdateCategoryErrorEffects({
+        mutationError,
+        t,
+        setFieldError: formik.setFieldError,
+        setFieldTouched: formik.setFieldTouched,
+        setWarnAtFieldError,
+        setTopLevelError: setError,
+      });
+    },
+  });
 
   const closeModal = useCallback(() => {
-    setIsOpen(false);
-    setError(null);
-    setIconDialogOpen(false);
-  }, []);
+    const nextLocalState = localStateFromCategory(category);
 
-  const filteredIcons = useMemo(() => {
-    const query = iconSearch.trim().toLowerCase();
-    if (!query) {
-      return allIconChoices;
-    }
-    return allIconChoices.filter((icon) => icon.toLowerCase().includes(query));
-  }, [iconSearch]);
-
-  const monthlyLimitSuggestions = useMemo(() => {
-    return getCurrencyInputSuggestions(formik.values.monthlyLimit, currency);
-  }, [currency, formik.values.monthlyLimit]);
+    runDismissEditModalEffects({
+      close: onClose,
+      resetForm: formik.resetForm,
+      clearTopLevelError: () => setError(null),
+      clearWarnAtFieldError: () => setWarnAtFieldError(null),
+      resetLocalState: () => {
+        setKeepNextMonth(nextLocalState.keepNextMonth);
+        setWarningEnabled(nextLocalState.warningEnabled);
+        setWarnAt(nextLocalState.warnAt);
+        setSelectedIcon(nextLocalState.selectedIcon);
+      },
+    });
+  }, [category, formik.resetForm, onClose]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -190,265 +321,228 @@ export default function EditCategoryModal({ category, currency, language }: Edit
     }
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
+      if (shouldDismissModalOnKey(event.key)) {
         closeModal();
       }
     };
 
     window.addEventListener("keydown", onKeyDown);
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-    };
+    return () => window.removeEventListener("keydown", onKeyDown);
   }, [closeModal, isOpen]);
 
-  return (
-    <>
-      <button
-        type="button"
-        onClick={openModal}
-        className="rounded-full bg-[#eef7ff] p-2 text-[#49636f] transition hover:bg-[#dbeefb]"
-        aria-label={`${t("atelier.atelierActionEdit")} ${category.name}`}
+  if (!isOpen || !category) {
+    return null;
+  }
+
+  const modalBody = (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[color:rgba(27,54,65,var(--opacity-ghost-border))] p-[var(--spacing-4)] backdrop-blur-[var(--blur-glass)]"
+      onMouseDown={() => dismissEditModalFromBackdrop(closeModal)}
+    >
+      <div
+        className="w-full max-w-lg overflow-hidden rounded-[var(--card-radius)] border border-[color:rgba(155,182,196,var(--opacity-ghost-border))] bg-[color:rgba(255,255,255,var(--opacity-glass))] shadow-[var(--shadow-ambient)]"
+        onMouseDown={(event) => event.stopPropagation()}
       >
-        <span className="material-symbols-outlined text-base">edit</span>
-      </button>
-
-      {isOpen && typeof window !== "undefined"
-        ? createPortal(
-            <div
-              className="fixed inset-0 z-50 flex items-center justify-center bg-[#1b3641]/30 p-4 backdrop-blur-[2px]"
-              onMouseDown={closeModal}
-            >
-              <div
-                className="relative w-full max-w-2xl overflow-hidden rounded-[2rem] border border-white/60 bg-white shadow-[0_32px_64px_-12px_rgba(27,54,65,0.2)]"
-                onMouseDown={(event) => event.stopPropagation()}
+        <div className="p-[var(--spacing-8)]">
+          <div className="mb-[var(--spacing-6)]">
+            <div className="mb-[var(--spacing-2)] flex items-center justify-between">
+              <span className="font-[var(--font-display)] text-[length:var(--font-label-sm)] font-bold uppercase tracking-[0.2em] text-[var(--color-primary)]">
+                Lush Ledger
+              </span>
+              <button
+                type="button"
+                onClick={closeModal}
+                className="grid h-10 w-10 place-items-center rounded-full text-[var(--color-on-surface)] transition hover:bg-[var(--color-surface-container-low)]"
+                aria-label={t("atelierActionCancel")}
               >
-                <div className="px-8 pt-9 pb-6 sm:px-10">
-                  <div className="mb-2 flex items-center justify-between">
-                    <span className="font-[var(--font-manrope)] text-xs font-bold uppercase tracking-[0.2em] text-[#2e7d32]">
-                      Lush Ledger
-                    </span>
-                    <button
-                      type="button"
-                      onClick={closeModal}
-                      className="grid h-10 w-10 place-items-center rounded-full text-[#647e8c] transition hover:bg-[#eef7ff]"
-                      aria-label={t("atelier.atelierActionCancel")}
-                    >
-                      <span className="material-symbols-outlined">close</span>
-                    </button>
-                  </div>
-                  <h2 className="font-[var(--font-manrope)] text-3xl font-extrabold tracking-[-0.02em] text-[#1b3641]">
-                    {t("atelier.atelierEditCategoryTitleTemplate").replace("{name}", category.name)}
-                  </h2>
-                  <p className="mt-2 text-sm text-[#49636f]">{t("atelier.atelierEditCategorySubtitle")}</p>
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <h2 className="font-[var(--font-display)] text-[length:var(--font-headline-md)] font-extrabold text-[var(--color-on-surface)]">
+              {t("atelierUpdateCategory")}
+            </h2>
+            <p className="mt-[var(--spacing-2)] text-[length:var(--font-label-md)] text-[var(--color-on-surface)]">
+              {t("atelierEditCategorySubtitle")}
+            </p>
+          </div>
+
+          <form onSubmit={formik.handleSubmit} className="space-y-[var(--spacing-6)]">
+            <div className="space-y-[var(--spacing-2)]">
+              <label className="block text-[length:var(--font-label-sm)] font-bold text-[var(--color-on-surface)]">
+                {t("atelierCategoryNameLabel")} <span className="text-[var(--color-error)]">(*)</span>
+              </label>
+              <input
+                name="name"
+                value={formik.values.name}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                placeholder={t("atelierCategoryNamePlaceholder")}
+                className="w-full rounded-[var(--input-radius)] bg-[var(--input-bg)] px-[var(--spacing-4)] py-[var(--spacing-4)] text-[length:var(--font-body-md)] text-[var(--color-on-surface)] outline-none ring-2 ring-transparent transition focus:[--tw-ring-color:var(--input-focus-border)]"
+              />
+              {formik.touched.name && formik.errors.name ? (
+                <p className="text-[length:var(--font-label-sm)] text-[var(--color-error)]">{formik.errors.name}</p>
+              ) : null}
+            </div>
+
+            <div className="space-y-[var(--spacing-2)]">
+              <label className="block text-[length:var(--font-label-sm)] font-bold text-[var(--color-on-surface)]">
+                {t("atelierIconography")} <span className="text-[var(--color-error)]">(*)</span>
+              </label>
+              <div className="rounded-[var(--radius-xl)] bg-[color:rgba(231,246,255,0.5)] p-[var(--spacing-4)]">
+                <div className="grid grid-cols-5 gap-[var(--spacing-2)]">
+                  {iconChoices.map((icon) => {
+                    const selected = selectedIcon === icon;
+                    return (
+                      <button
+                        key={icon}
+                        type="button"
+                        onClick={() => setSelectedIcon(icon)}
+                        className={`aspect-square rounded-[var(--radius-md)] transition hover:scale-105 active:scale-95 ${
+                          selected
+                            ? "bg-[var(--color-primary)] text-[var(--color-on-primary)]"
+                            : "bg-[color:rgba(255,255,255,var(--opacity-glass))] text-[var(--color-on-surface)] hover:bg-[var(--color-surface-container-lowest)]"
+                        }`}
+                        aria-label={t("atelierSelectIconAriaTemplate").replace("{icon}", icon)}
+                      >
+                        <span className="material-symbols-outlined text-2xl">{icon}</span>
+                      </button>
+                    );
+                  })}
                 </div>
-
-                <form onSubmit={formik.handleSubmit} className="space-y-7 px-8 pb-10 sm:px-10">
-                  <div className="space-y-2">
-                    <label className="ml-1 block text-xs font-bold uppercase tracking-[0.2em] text-[#647e8c]">
-                      {t("atelier.atelierCategoryNameLabel")}
-                    </label>
-                    <div className="relative">
-                      <input
-                        name="name"
-                        value={formik.values.name}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        className="w-full rounded-2xl border-none bg-[#e7f6ff] px-5 py-4 text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#2e7d32]/40"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setIconDialogOpen(true)}
-                        className="absolute right-3 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-xl bg-white text-[#2e7d32] shadow-sm transition hover:bg-[#edf8f0]"
-                        title={t("atelier.atelierEditIconAria")}
-                        aria-label={t("atelier.atelierEditIconAria")}
-                      >
-                        <span className="material-symbols-outlined text-[20px]">{selectedIcon}</span>
-                      </button>
-                    </div>
-                    {formik.touched.name && formik.errors.name ? (
-                      <p className="ml-1 text-xs text-[#a73b21]">{formik.errors.name}</p>
-                    ) : null}
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="ml-1 block text-xs font-bold uppercase tracking-[0.2em] text-[#647e8c]">
-                      {t("atelier.atelierMonthlySpendingLimit")}
-                    </label>
-                    <input
-                      name="monthlyLimit"
-                      value={formik.values.monthlyLimit}
-                      onChange={(event) => {
-                        formik.setFieldValue("monthlyLimit", formatCurrencyInput(event.target.value, currency));
-                      }}
-                      onBlur={formik.handleBlur}
-                      className="w-full rounded-2xl border-none bg-[#e7f6ff] px-5 py-4 text-xl font-bold text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#2e7d32]/40"
-                    />
-                    {monthlyLimitSuggestions.length ? (
-                      <div className="ml-1 mt-2 flex flex-wrap items-center gap-2">
-                        {monthlyLimitSuggestions.map((suggestion) => (
-                          <button
-                            key={suggestion.value}
-                            type="button"
-                            onClick={() => formik.setFieldValue("monthlyLimit", formatCurrencyInput(String(suggestion.value), currency))}
-                            className="rounded-full border border-[#cce4ef] bg-[#f5fcff] px-3 py-1 text-xs font-bold text-[#1b3641] transition hover:border-[#8dc4da] hover:bg-[#ebf8ff]"
-                          >
-                            {suggestion.label}
-                          </button>
-                        ))}
-                      </div>
-                    ) : null}
-                    {formik.touched.monthlyLimit && formik.errors.monthlyLimit ? (
-                      <p className="ml-1 text-xs text-[#a73b21]">{formik.errors.monthlyLimit}</p>
-                    ) : null}
-                    <p className="ml-1 text-[11px] italic text-[#6f8793]">{currencyHint}</p>
-                  </div>
-
-                  <div className="space-y-3 rounded-2xl border border-[#d7e8f3] bg-[#f7fcff] p-5">
-                    <div className="flex items-center justify-between gap-4">
-                      <label className="text-sm font-bold text-[#49636f]">{t("atelier.atelierKeepLimitNextMonth")}</label>
-                      <button
-                        type="button"
-                        onClick={() => setKeepNextMonth((value) => !value)}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-                          keepNextMonth ? "bg-[#2e7d32]" : "bg-[#9bb6c4]"
-                        }`}
-                        aria-pressed={keepNextMonth}
-                      >
-                        <span
-                          className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${
-                            keepNextMonth ? "translate-x-5" : "translate-x-0.5"
-                          }`}
-                        />
-                      </button>
-                    </div>
-                    <p className="text-[11px] leading-relaxed text-[#6f8793]">{t("atelier.atelierKeepLimitNextMonthHint")}</p>
-                  </div>
-
-                  <div className="rounded-2xl border border-[#d7e8f3] bg-[#f7fcff] p-5">
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-3">
-                        <div className="grid h-10 w-10 place-items-center rounded-full bg-[#2e7d32]/10 text-[#2e7d32]">
-                          <span className="material-symbols-outlined">notifications_active</span>
-                        </div>
-                        <div>
-                          <h3 className="text-sm font-bold text-[#1b3641]">{t("atelier.atelierOverExpenseWarning")}</h3>
-                          <p className="text-xs text-[#6f8793]">{t("atelier.atelierWarningHint")}</p>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setWarningEnabled((value) => !value)}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-                          warningEnabled ? "bg-[#2e7d32]" : "bg-[#9bb6c4]"
-                        }`}
-                        aria-pressed={warningEnabled}
-                      >
-                        <span
-                          className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${
-                            warningEnabled ? "translate-x-5" : "translate-x-0.5"
-                          }`}
-                        />
-                      </button>
-                    </div>
-
-                    <div className="mt-5 flex items-center gap-4">
-                      <div className="h-1 flex-1 overflow-hidden rounded-full bg-[#d6e8f3]">
-                        <div
-                          className="h-full rounded-full bg-[#2e7d32]"
-                          style={{ width: `${Math.min(Math.max(Number(warnAt || 0), 0), 100)}%` }}
-                        />
-                      </div>
-                      <input
-                        value={`${warnAt}%`}
-                        onChange={(event) => setWarnAt(event.target.value.replace(/[^0-9]/g, "").slice(0, 3))}
-                        className="w-20 rounded-xl border border-[#d7e8f3] bg-white px-3 py-2 text-center text-sm font-bold text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#2e7d32]/30"
-                      />
-                    </div>
-                  </div>
-
-                  {error ? (
-                    <div className="rounded-xl border border-[#f5c8bf] bg-[#fff3ef] px-4 py-3 text-sm text-[#a73b21]">
-                      {error}
-                    </div>
-                  ) : null}
-
-                  <div className="flex flex-wrap items-center gap-4 pt-1">
-                    <button
-                      type="submit"
-                      disabled={updateCategoryMutation.isPending}
-                      className="flex h-14 min-w-[220px] flex-1 items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(145deg,#2e7d32_0%,#006118_100%)] px-6 text-sm font-bold text-[#eaffe2] shadow-[0_12px_28px_-12px_rgba(0,111,29,0.45)] transition hover:brightness-105 disabled:opacity-70"
-                    >
-                      <span className="material-symbols-outlined text-lg">done_all</span>
-                      {updateCategoryMutation.isPending ? t("atelier.atelierActionSaving") : t("atelier.atelierSaveChanges")}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={closeModal}
-                      className="px-2 text-sm font-bold text-[#6f8793] transition hover:text-[#a73b21]"
-                    >
-                      {t("atelier.atelierDiscard")}
-                    </button>
-                  </div>
-                </form>
-
-                {iconDialogOpen ? (
-                  <div className="absolute inset-0 bg-white/95 p-6 sm:p-8">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-[var(--font-manrope)] text-xl font-bold text-[#1b3641]">{t("atelier.atelierChooseIcon")}</h3>
-                      <button
-                        type="button"
-                        onClick={() => setIconDialogOpen(false)}
-                        className="grid h-9 w-9 place-items-center rounded-full text-[#647e8c] hover:bg-[#eef7ff]"
-                        aria-label={t("atelier.atelierCloseIconPickerAria")}
-                      >
-                        <span className="material-symbols-outlined">close</span>
-                      </button>
-                    </div>
-
-                    <div className="relative mt-4">
-                      <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#647e8c]">
-                        search
-                      </span>
-                      <input
-                        value={iconSearch}
-                        onChange={(event) => setIconSearch(event.target.value)}
-                        placeholder={t("atelier.atelierSearchIconsPlaceholder")}
-                        className="w-full rounded-xl border border-[#d7e8f3] bg-white py-2.5 pl-10 pr-3 text-sm text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#2e7d32]/30"
-                      />
-                    </div>
-
-                    <div className="mt-4 max-h-[360px] overflow-y-auto rounded-2xl border border-[#d7e8f3] bg-[#f8fcff] p-3">
-                      <div className="grid grid-cols-5 gap-2 sm:grid-cols-7 md:grid-cols-8">
-                        {filteredIcons.map((icon) => {
-                          const selected = icon === selectedIcon;
-                          return (
-                            <button
-                              key={icon}
-                              type="button"
-                              onClick={() => {
-                                setSelectedIcon(icon);
-                                setIconDialogOpen(false);
-                              }}
-                              className={`grid h-10 w-10 place-items-center rounded-lg transition ${
-                                selected
-                                  ? "bg-[#2e7d32] text-[#eaffe2]"
-                                  : "bg-white text-[#49636f] hover:bg-[#dff2e6] hover:text-[#2e7d32]"
-                              }`}
-                              title={icon}
-                            >
-                              <span className="material-symbols-outlined text-[19px]">{icon}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                ) : null}
               </div>
-            </div>,
-            document.body,
-          )
-        : null}
-    </>
+            </div>
+
+            <div className="space-y-[var(--spacing-2)]">
+              <label className="block text-[length:var(--font-label-sm)] font-bold text-[var(--color-on-surface)]">
+                {t("atelierMonthlySpendingLimit")} <span className="text-[var(--color-error)]">(*)</span>
+              </label>
+              <input
+                name="monthlyLimit"
+                value={formik.values.monthlyLimit}
+                onChange={(event) => {
+                  formik.setFieldValue("monthlyLimit", formatCurrencyInput(event.target.value, currency));
+                }}
+                onBlur={formik.handleBlur}
+                className="w-full rounded-[var(--input-radius)] bg-[var(--input-bg)] px-[var(--spacing-4)] py-[var(--spacing-4)] text-[length:var(--font-body-md)] font-bold text-[var(--color-on-surface)] outline-none ring-2 ring-transparent transition focus:[--tw-ring-color:var(--input-focus-border)]"
+              />
+              {formik.touched.monthlyLimit && formik.errors.monthlyLimit ? (
+                <p className="text-[length:var(--font-label-sm)] text-[var(--color-error)]">{formik.errors.monthlyLimit}</p>
+              ) : null}
+              <p className="text-[length:var(--font-label-sm)] italic text-[var(--color-on-surface)]">{currencyHint}</p>
+            </div>
+
+            <div className="space-y-[var(--spacing-2)] rounded-[var(--radius-xl)] bg-[var(--color-surface-container-low)] p-[var(--spacing-4)]">
+              <div className="flex items-center justify-between gap-[var(--spacing-4)]">
+                <span className="text-[length:var(--font-label-md)] font-bold text-[var(--color-on-surface)]">
+                  {t("atelierKeepLimitNextMonth")}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setKeepNextMonth((value) => !value)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
+                    keepNextMonth ? "bg-[var(--color-primary)]" : "bg-[var(--color-outline-variant)]"
+                  }`}
+                  aria-pressed={keepNextMonth}
+                >
+                  <span
+                    className={`inline-block h-5 w-5 transform rounded-full bg-[var(--color-surface-container-lowest)] transition ${
+                      keepNextMonth ? "translate-x-5" : "translate-x-0.5"
+                    }`}
+                  />
+                </button>
+              </div>
+              <p className="text-[length:var(--font-label-sm)] text-[var(--color-on-surface)]">
+                {t("atelierKeepLimitNextMonthHint")}
+              </p>
+            </div>
+
+            <div className="space-y-[var(--spacing-3)] rounded-[var(--radius-xl)] bg-[color:rgba(231,246,255,0.5)] p-[var(--spacing-4)]">
+              <div className="flex items-center justify-between gap-[var(--spacing-4)]">
+                <div>
+                  <p className="text-[length:var(--font-label-md)] font-bold text-[var(--color-on-surface)]">
+                    {t("atelierOverExpenseWarning")}
+                  </p>
+                  <p className="text-[length:var(--font-label-sm)] text-[var(--color-on-surface)]">
+                    {t("atelierWarningHint")}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setWarningEnabled((value) => !value);
+                    setWarnAtFieldError(null);
+                  }}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
+                    warningEnabled ? "bg-[var(--color-primary)]" : "bg-[var(--color-outline-variant)]"
+                  }`}
+                  aria-pressed={warningEnabled}
+                >
+                  <span
+                    className={`inline-block h-5 w-5 transform rounded-full bg-[var(--color-surface-container-lowest)] transition ${
+                      warningEnabled ? "translate-x-5" : "translate-x-0.5"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              <div className="flex items-center gap-[var(--spacing-3)]">
+                <div className="h-[var(--spacing-1)] flex-1 rounded-full bg-[var(--color-surface-container-highest)]">
+                  <div
+                    className="h-[var(--spacing-1)] rounded-full bg-[var(--color-primary)]"
+                    style={{ width: `${Math.max(0, Math.min(100, Number(warnAt || 0)))}%` }}
+                  />
+                </div>
+                <input
+                  value={`${warnAt}%`}
+                  onChange={(event) => {
+                    setWarnAt(event.target.value.replace(/[^0-9]/g, "").slice(0, 3));
+                    setWarnAtFieldError(null);
+                  }}
+                  disabled={!warningEnabled}
+                  className="w-20 rounded-[var(--input-radius)] bg-[var(--color-surface-container-lowest)] px-[var(--spacing-2)] py-[var(--spacing-2)] text-center text-[length:var(--font-label-md)] font-bold text-[var(--color-on-surface)] outline-none ring-2 ring-transparent transition focus:[--tw-ring-color:var(--input-focus-border)] disabled:opacity-[var(--opacity-glass)]"
+                />
+                <span className="text-[length:var(--font-label-sm)] font-bold uppercase text-[var(--color-on-surface)]">
+                  {t("atelierWarnAt")}
+                </span>
+              </div>
+
+              {warnAtFieldError ? (
+                <p className="text-[length:var(--font-label-sm)] text-[var(--color-error)]">{warnAtFieldError}</p>
+              ) : null}
+            </div>
+
+            {error ? (
+              <div className="rounded-[var(--radius-md)] bg-[var(--color-surface-container-low)] px-[var(--spacing-4)] py-[var(--spacing-3)] text-[length:var(--font-label-md)] text-[var(--color-error)]">
+                {error}
+              </div>
+            ) : null}
+
+            <div className="flex items-center gap-[var(--spacing-4)]">
+              <button
+                type="submit"
+                disabled={updateCategoryMutation.isPending}
+                className="flex-1 rounded-[var(--btn-radius)] bg-[image:var(--gradient-primary)] px-[var(--btn-padding-x)] py-[var(--btn-padding-y)] font-[var(--font-display)] text-[length:var(--font-label-md)] font-bold text-[var(--color-on-primary)] shadow-[var(--shadow-ambient)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-[var(--opacity-glass)]"
+              >
+                {updateCategoryMutation.isPending ? t("atelierActionSaving") : t("atelierUpdateCategory")}
+              </button>
+              <button
+                type="button"
+                onClick={closeModal}
+                className="px-[var(--spacing-2)] py-[var(--spacing-2)] text-[length:var(--font-label-md)] font-bold text-[var(--color-on-surface-variant)] transition hover:text-[var(--color-error)]"
+              >
+                {t("atelierDiscard")}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   );
+
+  if (typeof document === "undefined") {
+    return modalBody;
+  }
+
+  return createPortal(modalBody, document.body);
 }
