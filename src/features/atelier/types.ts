@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 export type AtelierCategoryWarning = {
   enabled: boolean;
   warnAt: number;
@@ -44,6 +46,7 @@ export type CategoryAtelierGridProps = {
   language: string;
   riskLabels: AtelierListRiskLabels;
   pendingLabel: string;
+  addCategoryTrigger?: ReactNode;
 };
 
 export type TotalCapCardProps = {
@@ -60,6 +63,7 @@ export type TotalCapCardProps = {
 export type AddCategoryModalProps = {
   currency: string;
   language: string;
+  initialOpen?: boolean;
 };
 
 export type EditableCategory = {

@@ -12,7 +12,12 @@ vi.mock("@/lib/date", () => ({
 
 vi.mock("@/lib/monthly-cap", () => ({
   ensureMonthlyCapSnapshot: vi.fn(),
-  monthStartOf: vi.fn((date: Date) => new Date(date)),
+  monthStartOf: vi.fn((date: Date) => {
+    const monthStart = new Date(date);
+    monthStart.setUTCDate(1);
+    monthStart.setUTCHours(0, 0, 0, 0);
+    return monthStart;
+  }),
 }));
 
 vi.mock("@/lib/db", () => ({
@@ -41,11 +46,14 @@ vi.mock("@/lib/db", () => ({
 import { getSessionFromRequest } from "@/lib/auth";
 import { ensureMonthlyCapSnapshot } from "@/lib/monthly-cap";
 import { prisma } from "@/lib/db";
+import { addMonthsDate, nowDate } from "@/lib/date";
 import { GET, POST } from "@/app/api/categories/route";
 import { PATCH, DELETE } from "@/app/api/categories/[id]/route";
 
 const mockedSession = vi.mocked(getSessionFromRequest);
 const mockedSnapshot = vi.mocked(ensureMonthlyCapSnapshot);
+const mockedNowDate = vi.mocked(nowDate);
+const mockedAddMonthsDate = vi.mocked(addMonthsDate);
 const categoryFindMany = prisma.category.findMany as unknown as ReturnType<typeof vi.fn>;
 const categoryFindFirst = prisma.category.findFirst as unknown as ReturnType<typeof vi.fn>;
 const categoryUpdate = prisma.category.update as unknown as ReturnType<typeof vi.fn>;
@@ -94,7 +102,26 @@ describe("Category API contract", () => {
     const body = await response.json();
 
     expect(response.status).toBe(400);
-    expect(body).toEqual({ error: "Name is required." });
+    expect(body).toEqual({
+      error: "Name is required.",
+      errors: { name: "Name is required." },
+    });
+  });
+
+  it("POST /api/categories validates non-negative monthlyLimit", async () => {
+    const response = await POST(
+      new NextRequest("http://localhost/api/categories", {
+        method: "POST",
+        body: JSON.stringify({ name: "Food", monthlyLimit: -1, warnAt: 80 }),
+      }),
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body).toEqual({
+      error: "Monthly limit must be zero or greater.",
+      errors: { monthlyLimit: "Monthly limit must be zero or greater." },
+    });
   });
 
   it("POST /api/categories validates warnAt range", async () => {
@@ -107,7 +134,28 @@ describe("Category API contract", () => {
     const body = await response.json();
 
     expect(response.status).toBe(400);
-    expect(body.error).toContain("Warn threshold must be between 1 and 100");
+    expect(body).toEqual({
+      error: "Warn threshold must be between 1 and 100.",
+      errors: { warnAt: "Warn threshold must be between 1 and 100." },
+    });
+  });
+
+  it("POST /api/categories rejects duplicate name using normalized comparison", async () => {
+    categoryFindMany.mockResolvedValueOnce([{ name: "  FOOD  " }]);
+
+    const response = await POST(
+      new NextRequest("http://localhost/api/categories", {
+        method: "POST",
+        body: JSON.stringify({ name: "food", monthlyLimit: 10, warnAt: 80 }),
+      }),
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body).toEqual({
+      error: "Category name already exists.",
+      errors: { name: "Category name already exists." },
+    });
   });
 
   it("POST /api/categories checks monthly cap overflow", async () => {
@@ -117,7 +165,7 @@ describe("Category API contract", () => {
     const response = await POST(
       new NextRequest("http://localhost/api/categories", {
         method: "POST",
-        body: JSON.stringify({ name: "Food", monthlyLimit: 20, warnAt: 80 }),
+        body: JSON.stringify({ name: "Groceries", monthlyLimit: 20, warnAt: 80 }),
       }),
     );
     const body = await response.json();
@@ -138,9 +186,61 @@ describe("Category API contract", () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
+    expect(transactionMock).toHaveBeenCalledTimes(1);
     expect(limitCreate).toHaveBeenCalled();
     expect(limitUpsert).toHaveBeenCalled();
+    expect(limitCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          categoryId: "c2",
+          limit: 100,
+        }),
+      }),
+    );
+    expect(limitUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        create: expect.objectContaining({
+          categoryId: "c2",
+          limit: 100,
+        }),
+        update: expect.objectContaining({
+          limit: 100,
+        }),
+      }),
+    );
     expect(body.category).toEqual({ id: "c2", name: "Travel" });
+  });
+
+  it("POST /api/categories writes current and next month snapshots from calendar now", async () => {
+    const currentMonth = new Date("2026-04-01T00:00:00.000Z");
+    const nextMonth = new Date("2026-05-01T00:00:00.000Z");
+
+    mockedNowDate.mockReturnValueOnce(new Date("2026-04-14T12:00:00.000Z") as never);
+    mockedAddMonthsDate.mockReturnValueOnce(nextMonth as never);
+    (prisma.category.create as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ id: "c3", name: "Utilities" });
+
+    const response = await POST(
+      new NextRequest("http://localhost/api/categories", {
+        method: "POST",
+        body: JSON.stringify({ name: "Utilities", monthlyLimit: 200, warnAt: 80 }),
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(mockedSnapshot).toHaveBeenCalledWith("u1", currentMonth);
+    expect(mockedSnapshot).toHaveBeenCalledWith("u1", nextMonth);
+    expect(limitCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ monthStart: currentMonth }),
+      }),
+    );
+    expect(limitUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          userId_categoryId_monthStart: expect.objectContaining({ monthStart: nextMonth }),
+        }),
+      }),
+    );
   });
 
   it("PATCH /api/categories/[id] returns 404 when category does not exist", async () => {

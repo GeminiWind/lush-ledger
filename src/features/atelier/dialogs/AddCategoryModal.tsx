@@ -7,6 +7,10 @@ import { useFormik } from "formik";
 import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import { formatCurrencyInput, getCurrencyInputSuggestions, parseCurrencyInput } from "@/lib/format";
 import type { AddCategoryModalProps } from "@/features/atelier/types";
+import {
+  createCategoryWithParsedError,
+  type CreateCategoryError,
+} from "@/features/atelier/services";
 import toast from "react-hot-toast";
 import { useMutation } from "@tanstack/react-query";
 
@@ -15,77 +19,149 @@ const allIconChoices = [
   "shopping_bag",
   "commute",
   "fitness_center",
-  "medical_services",
+  "work",
   "home",
   "payments",
   "celebration",
-  "local_cafe",
-  "local_bar",
-  "local_dining",
-  "lunch_dining",
-  "breakfast_dining",
-  "bakery_dining",
-  "fastfood",
-  "icecream",
-  "hotel",
-  "flight",
-  "train",
-  "directions_car",
-  "two_wheeler",
-  "local_taxi",
-  "directions_bus",
-  "directions_subway",
-  "movie",
-  "sports_esports",
-  "music_note",
-  "headphones",
-  "palette",
-  "brush",
   "school",
-  "book",
-  "menu_book",
-  "subscriptions",
-  "devices",
-  "phone_iphone",
-  "laptop_mac",
-  "tv",
-  "home_work",
-  "apartment",
-  "chair",
-  "construction",
-  "electric_bolt",
-  "water_drop",
-  "shield",
-  "health_and_safety",
-  "medication",
-  "spa",
-  "pets",
-  "child_care",
-  "family_restroom",
-  "redeem",
-  "card_giftcard",
-  "savings",
-  "account_balance",
-  "trending_up",
-  "volunteer_activism",
-  "public",
-  "language",
-  "work",
-  "business_center",
-  "inventory_2",
-  "auto_awesome",
-  "rocket_launch",
-  "event",
-  "calendar_month",
-  "receipt_long",
-  "category",
+  "flight",
 ];
 
-export default function AddCategoryModal({ currency, language }: AddCategoryModalProps) {
+type AddCategoryFormValues = {
+  name: string;
+  monthlyLimit: string;
+};
+
+type ValidationResult = {
+  fieldErrors: {
+    name?: string;
+    monthlyLimit?: string;
+  };
+  warnAtError: string | null;
+};
+
+type ErrorPresentation = {
+  topLevelError: string | null;
+  nameError: string | null;
+  monthlyLimitError: string | null;
+  warnAtError: string | null;
+};
+
+const isCreateCategoryError = (value: unknown): value is CreateCategoryError => {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      "message" in value &&
+      "fieldErrors" in value &&
+      "status" in value,
+  );
+};
+
+const normalizeDuplicateNameError = (value: string, duplicateLabel: string) => {
+  return value.toLowerCase().includes("already exists") ? duplicateLabel : value;
+};
+
+export const validateAddCategoryForm = (
+  values: AddCategoryFormValues,
+  warningEnabled: boolean,
+  warnAt: string,
+  t: (key: string) => string,
+): ValidationResult => {
+  const fieldErrors: ValidationResult["fieldErrors"] = {};
+  const trimmedName = values.name.trim();
+
+  if (!trimmedName) {
+    fieldErrors.name = t("atelierCategoryNameRequired");
+  } else if (trimmedName.length > 50) {
+    fieldErrors.name = t("atelierCategoryNameTooLong");
+  }
+
+  if (!values.monthlyLimit.trim()) {
+    fieldErrors.monthlyLimit = t("atelierMonthlyLimitRequired");
+  } else {
+    const monthlyLimit = parseCurrencyInput(values.monthlyLimit);
+    if (!Number.isFinite(monthlyLimit) || monthlyLimit < 0) {
+      fieldErrors.monthlyLimit = t("atelierMonthlyLimitNonNegative");
+    }
+  }
+
+  if (!warningEnabled) {
+    return { fieldErrors, warnAtError: null };
+  }
+
+  const warnAtValue = Number(warnAt);
+  if (!Number.isInteger(warnAtValue) || warnAtValue < 1 || warnAtValue > 100) {
+    return {
+      fieldErrors,
+      warnAtError: t("atelierWarnAtValidation"),
+    };
+  }
+
+  return { fieldErrors, warnAtError: null };
+};
+
+export const shouldDismissModalOnKey = (key: string) => key === "Escape";
+
+export const dismissModalFromBackdrop = (closeModal: () => void) => {
+  closeModal();
+};
+
+export const runCreateCategorySuccessEffects = ({
+  resetUiState,
+  resetForm,
+  setIsOpen,
+  notifySuccess,
+  refresh,
+}: {
+  resetUiState: () => void;
+  resetForm: () => void;
+  setIsOpen: (value: boolean) => void;
+  notifySuccess: () => void;
+  refresh: () => void;
+}) => {
+  resetUiState();
+  resetForm();
+  setIsOpen(false);
+  notifySuccess();
+  startTransition(() => {
+    refresh();
+  });
+};
+
+export const mapCreateCategoryErrorToPresentation = (
+  error: CreateCategoryError,
+  t: (key: string) => string,
+): ErrorPresentation => {
+  const nameError = error.fieldErrors.name
+    ? normalizeDuplicateNameError(error.fieldErrors.name, t("atelierCategoryNameDuplicate"))
+    : null;
+
+  const monthlyLimitError = error.fieldErrors.monthlyLimit || null;
+  const warnAtError = error.fieldErrors.warnAt || null;
+
+  if (error.status >= 500 && !nameError && !monthlyLimitError && !warnAtError) {
+    return {
+      topLevelError: t("atelierCreateCategoryRecoverable"),
+      nameError,
+      monthlyLimitError,
+      warnAtError,
+    };
+  }
+
+  return {
+    topLevelError: error.message,
+    nameError,
+    monthlyLimitError,
+    warnAtError,
+  };
+};
+
+export default function AddCategoryModal({ currency, language, initialOpen = false }: AddCategoryModalProps) {
   const router = useRouter();
   const t = useNamespacedTranslation("atelier", language);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(initialOpen);
   const [error, setError] = useState<string | null>(null);
+  const [warnAtFieldError, setWarnAtFieldError] = useState<string | null>(null);
   const [keepNextMonth, setKeepNextMonth] = useState(true);
   const [warningEnabled, setWarningEnabled] = useState(true);
   const [warnAt, setWarnAt] = useState("80");
@@ -93,71 +169,85 @@ export default function AddCategoryModal({ currency, language }: AddCategoryModa
 
   const currencyHint = useMemo(() => {
     if (currency === "VND") {
-      return t("atelier.atelierCurrencyHintVnd");
+      return t("atelierCurrencyHintVnd");
     }
-    return t("atelier.atelierCurrencyHintTemplate").replace("{currency}", currency);
+    return t("atelierCurrencyHintTemplate").replace("{currency}", currency);
   }, [currency, t]);
 
   const resetUiState = useCallback(() => {
     setError(null);
+    setWarnAtFieldError(null);
     setKeepNextMonth(true);
     setWarningEnabled(true);
     setWarnAt("80");
     setSelectedIcon(allIconChoices[0]);
   }, []);
 
+  const formik = useFormik<AddCategoryFormValues>({
+    initialValues: {
+      name: "",
+      monthlyLimit: "0",
+    },
+    validate: (values) => {
+      const validation = validateAddCategoryForm(values, warningEnabled, warnAt, t);
+      return validation.fieldErrors;
+    },
+    onSubmit: async (values) => {
+      const validation = validateAddCategoryForm(values, warningEnabled, warnAt, t);
+      if (validation.warnAtError) {
+        setWarnAtFieldError(validation.warnAtError);
+        return;
+      }
+
+      setWarnAtFieldError(null);
+      setError(null);
+      createCategoryMutation.mutate(values);
+    },
+  });
+
   const createCategoryMutation = useMutation({
-    mutationFn: async (values: { name: string; monthlyLimit: string }) => {
-      const response = await fetch("/api/categories", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+    mutationFn: async (values: AddCategoryFormValues) => {
+      return createCategoryWithParsedError(
+        {
           name: values.name.trim(),
           icon: selectedIcon,
           monthlyLimit: parseCurrencyInput(values.monthlyLimit),
           keepLimitNextMonth: keepNextMonth,
           warningEnabled,
           warnAt: Number(warnAt || 80),
-        }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || t("atelier.atelierCreateCategoryFailed"));
-      }
+        },
+        t("atelierCreateCategoryFailed"),
+      );
     },
     onSuccess: () => {
-      resetUiState();
-      formik.resetForm();
-      setIsOpen(false);
-      toast.success(t("atelier.atelierCreateCategorySuccess"));
-      startTransition(() => {
-        router.refresh();
+      runCreateCategorySuccessEffects({
+        resetUiState,
+        resetForm: formik.resetForm,
+        setIsOpen,
+        notifySuccess: () => toast.success(t("atelierCreateCategorySuccess")),
+        refresh: router.refresh,
       });
     },
     onError: (mutationError: unknown) => {
-      setError(mutationError instanceof Error ? mutationError.message : t("atelier.atelierCreateCategoryFailed"));
-    },
-  });
+      if (!isCreateCategoryError(mutationError)) {
+        setError(t("atelierCreateCategoryRecoverable"));
+        return;
+      }
 
-  const formik = useFormik({
-    initialValues: {
-      name: "",
-      monthlyLimit: "0",
-    },
-    validate: (values) => {
-      const errors: { name?: string; monthlyLimit?: string } = {};
-      if (!values.name.trim()) {
-        errors.name = t("atelier.atelierCategoryNameRequired");
+      const presentation = mapCreateCategoryErrorToPresentation(mutationError, t);
+
+      if (presentation.nameError) {
+        formik.setFieldError("name", presentation.nameError);
+        formik.setFieldTouched("name", true, false);
       }
-      if (parseCurrencyInput(values.monthlyLimit) < 0) {
-        errors.monthlyLimit = t("atelier.atelierMonthlyLimitNonNegative");
+
+      if (presentation.monthlyLimitError) {
+        formik.setFieldError("monthlyLimit", presentation.monthlyLimitError);
+        formik.setFieldTouched("monthlyLimit", true, false);
       }
-      return errors;
-    },
-    onSubmit: async (values) => {
-      setError(null);
-      createCategoryMutation.mutate(values);
+
+      setWarnAtFieldError(presentation.warnAtError);
+      setError(presentation.topLevelError);
     },
   });
 
@@ -177,234 +267,277 @@ export default function AddCategoryModal({ currency, language }: AddCategoryModa
     }
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
+      if (shouldDismissModalOnKey(event.key)) {
         closeModal();
       }
     };
 
     window.addEventListener("keydown", onKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-    };
+    return () => window.removeEventListener("keydown", onKeyDown);
   }, [isOpen, closeModal]);
+
+  const modalBody = (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[color:rgba(27,54,65,var(--opacity-ghost-border))] p-[var(--spacing-4)] backdrop-blur-[var(--blur-glass)]"
+      onMouseDown={() => dismissModalFromBackdrop(closeModal)}
+    >
+      <div
+        className="w-full max-w-lg overflow-hidden rounded-[var(--card-radius)] border border-[color:rgba(155,182,196,var(--opacity-ghost-border))] bg-[color:rgba(255,255,255,var(--opacity-glass))] shadow-[0_32px_64px_-12px_rgba(27,54,65,0.12)]"
+        onMouseDown={(event) => event.stopPropagation()}
+      >
+        <div className="p-[var(--spacing-8)]">
+          <div className="mb-[var(--spacing-6)]">
+            <div className="mb-[var(--spacing-2)] flex items-center justify-between">
+              <span className="font-[var(--font-display)] text-[length:var(--font-label-sm)] font-bold uppercase tracking-[0.2em] text-[var(--color-primary)]">
+                Lush Ledger
+              </span>
+              <button
+                type="button"
+                onClick={closeModal}
+                className="grid h-10 w-10 place-items-center rounded-full text-[var(--color-on-surface)] transition hover:bg-[var(--color-surface-container-low)]"
+                aria-label={t("atelierDiscard")}
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <h2 className="font-[var(--font-display)] text-[length:var(--font-headline-md)] font-extrabold text-[var(--color-on-surface)]">
+              {t("atelierCreateNewCategory")}
+            </h2>
+            <p className="mt-[var(--spacing-2)] text-[length:var(--font-label-md)] text-[var(--color-on-surface)]">
+              {t("atelierCategorySegment")}
+            </p>
+          </div>
+
+          <form onSubmit={formik.handleSubmit} className="space-y-[var(--spacing-6)]">
+            <div className="space-y-[var(--spacing-2)]">
+              <label className="block text-[length:var(--font-label-sm)] font-bold text-[var(--color-on-surface)]">
+                {t("atelierCategoryNameLabel")} <span className="text-[var(--color-error)]">(*)</span>
+              </label>
+              <div className="relative">
+                <input
+                  name="name"
+                  value={formik.values.name}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  placeholder={t("atelierCategoryNamePlaceholder")}
+                  className="w-full rounded-[var(--input-radius)] bg-[var(--input-bg)] px-[var(--spacing-4)] py-[var(--spacing-4)] pr-16 text-[length:var(--font-body-md)] text-[var(--color-on-surface)] outline-none ring-2 ring-transparent transition focus:[--tw-ring-color:var(--input-focus-border)]"
+                />
+                <div className="pointer-events-none absolute right-[var(--spacing-4)] top-1/2 -translate-y-1/2 text-[var(--color-primary)]">
+                  <span className="material-symbols-outlined">{selectedIcon}</span>
+                </div>
+              </div>
+              {formik.touched.name && formik.errors.name ? (
+                <p className="text-[length:var(--font-label-sm)] text-[var(--color-error)]">{formik.errors.name}</p>
+              ) : null}
+            </div>
+
+            <div className="space-y-[var(--spacing-2)]">
+              <label className="block text-[length:var(--font-label-sm)] font-bold text-[var(--color-on-surface)]">
+                {t("atelierIconography")} <span className="text-[var(--color-error)]">(*)</span>
+              </label>
+              <div className="max-h-56 overflow-y-auto rounded-[var(--radius-xl)] border border-[color:rgba(155,182,196,var(--opacity-ghost-border))] bg-[color:rgba(231,246,255,0.5)] p-[var(--spacing-4)]">
+                <div className="grid grid-cols-5 gap-[var(--spacing-2)]">
+                  {allIconChoices.map((icon) => {
+                    const selected = selectedIcon === icon;
+
+                    return (
+                      <button
+                        key={icon}
+                        type="button"
+                        onClick={() => setSelectedIcon(icon)}
+                        className={`aspect-square rounded-[var(--radius-md)] transition hover:scale-105 active:scale-95 ${
+                          selected
+                            ? "bg-[var(--color-primary)] text-[var(--color-on-primary)] shadow-[0_4px_12px_rgba(0,111,29,0.2)]"
+                            : "bg-[color:rgba(255,255,255,var(--opacity-glass))] text-[var(--color-on-surface)] hover:bg-[var(--color-surface-container-lowest)]"
+                        }`}
+                        title={icon}
+                        aria-label={t("atelierSelectIconAriaTemplate").replace("{icon}", icon)}
+                      >
+                        <span className="material-symbols-outlined text-2xl">{icon}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-[var(--spacing-2)]">
+              <label className="block text-[length:var(--font-label-sm)] font-bold text-[var(--color-on-surface)]">
+                {t("atelierMonthlySpendingLimit")} <span className="text-[var(--color-error)]">(*)</span>
+              </label>
+              <div className="relative">
+                <span className="absolute left-[var(--spacing-4)] top-1/2 -translate-y-1/2 text-[length:var(--font-label-md)] font-bold text-[var(--color-on-surface)]">
+                  {currency === "VND" ? "VND" : currency}
+                </span>
+                <input
+                  name="monthlyLimit"
+                  type="text"
+                  value={formik.values.monthlyLimit}
+                  onChange={(event) => {
+                    formik.setFieldValue("monthlyLimit", formatCurrencyInput(event.target.value, currency));
+                  }}
+                  onBlur={formik.handleBlur}
+                  className="w-full rounded-[var(--input-radius)] bg-[var(--input-bg)] py-[var(--spacing-4)] pl-20 pr-[var(--spacing-4)] text-[length:var(--font-body-md)] font-bold text-[var(--color-on-surface)] outline-none ring-2 ring-transparent transition focus:[--tw-ring-color:var(--input-focus-border)]"
+                />
+              </div>
+
+              {monthlyLimitSuggestions.length ? (
+                <div className="flex flex-wrap items-center gap-[var(--spacing-2)]">
+                  {monthlyLimitSuggestions.map((suggestion) => (
+                    <button
+                      key={suggestion.value}
+                      type="button"
+                      onClick={() => {
+                        formik.setFieldValue("monthlyLimit", formatCurrencyInput(String(suggestion.value), currency));
+                      }}
+                      className="rounded-full bg-[var(--color-surface-container-low)] px-[var(--spacing-3)] py-[var(--spacing-1)] text-[length:var(--font-label-sm)] font-bold text-[var(--color-on-surface)] transition hover:bg-[var(--color-surface-container-highest)]"
+                    >
+                      {suggestion.label}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+
+              {formik.touched.monthlyLimit && formik.errors.monthlyLimit ? (
+                <p className="text-[length:var(--font-label-sm)] text-[var(--color-error)]">{formik.errors.monthlyLimit}</p>
+              ) : null}
+
+              <p className="text-[length:var(--font-label-sm)] italic text-[var(--color-on-surface)]">{currencyHint}</p>
+            </div>
+
+            <div className="space-y-[var(--spacing-2)] rounded-[var(--radius-xl)] bg-[var(--color-surface-container-low)] p-[var(--spacing-4)]">
+              <div className="flex items-center justify-between gap-[var(--spacing-4)]">
+                <span className="text-[length:var(--font-label-md)] font-bold text-[var(--color-on-surface)]">
+                  {t("atelierKeepLimitNextMonth")}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setKeepNextMonth((value) => !value)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
+                    keepNextMonth ? "bg-[var(--color-primary)]" : "bg-[var(--color-outline-variant)]"
+                  }`}
+                  aria-pressed={keepNextMonth}
+                >
+                  <span
+                    className={`inline-block h-5 w-5 transform rounded-full bg-[var(--color-surface-container-lowest)] transition ${
+                      keepNextMonth ? "translate-x-5" : "translate-x-0.5"
+                    }`}
+                  />
+                </button>
+              </div>
+              <p className="text-[length:var(--font-label-sm)] text-[var(--color-on-surface)]">
+                {t("atelierKeepLimitNextMonthHint")}
+              </p>
+            </div>
+
+            <div className="space-y-[var(--spacing-3)] rounded-[var(--radius-xl)] border border-[color:rgba(155,182,196,var(--opacity-ghost-border))] bg-[color:rgba(231,246,255,0.5)] p-[var(--spacing-4)]">
+              <div className="flex items-center justify-between gap-[var(--spacing-4)]">
+                <div>
+                  <p className="text-[length:var(--font-label-md)] font-bold text-[var(--color-on-surface)]">
+                    {t("atelierOverExpenseWarning")}
+                  </p>
+                  <p className="text-[length:var(--font-label-sm)] text-[var(--color-on-surface)]">
+                    {t("atelierWarningHint")}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setWarningEnabled((value) => !value);
+                    setWarnAtFieldError(null);
+                  }}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
+                    warningEnabled ? "bg-[var(--color-primary)]" : "bg-[var(--color-outline-variant)]"
+                  }`}
+                  aria-pressed={warningEnabled}
+                >
+                  <span
+                    className={`inline-block h-5 w-5 transform rounded-full bg-[var(--color-surface-container-lowest)] transition ${
+                      warningEnabled ? "translate-x-5" : "translate-x-0.5"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              <div className="flex items-center gap-[var(--spacing-3)]">
+                <div className="h-[4px] flex-1 rounded-full bg-[var(--color-surface-container-highest)]">
+                  <div
+                    className="h-[4px] rounded-full bg-[var(--color-primary)]"
+                    style={{ width: `${Math.max(0, Math.min(100, Number(warnAt || 0)))}%` }}
+                  />
+                </div>
+                <input
+                  value={`${warnAt}%`}
+                  onChange={(event) => {
+                    setWarnAt(event.target.value.replace(/[^0-9]/g, "").slice(0, 3));
+                    setWarnAtFieldError(null);
+                  }}
+                  disabled={!warningEnabled}
+                  className="w-20 rounded-[var(--input-radius)] bg-[var(--color-surface-container-lowest)] px-[var(--spacing-2)] py-[var(--spacing-2)] text-center text-[length:var(--font-label-md)] font-bold text-[var(--color-on-surface)] outline-none ring-2 ring-transparent transition focus:[--tw-ring-color:var(--input-focus-border)] disabled:opacity-[var(--opacity-glass)]"
+                />
+                <span className="text-[length:var(--font-label-sm)] font-bold uppercase text-[var(--color-on-surface)]">
+                  {t("atelierWarnAt")}
+                </span>
+              </div>
+
+              {warnAtFieldError ? (
+                <p className="text-[length:var(--font-label-sm)] text-[var(--color-error)]">{warnAtFieldError}</p>
+              ) : null}
+            </div>
+
+            {error ? (
+              <div className="rounded-[var(--radius-md)] bg-[var(--color-surface-container-low)] px-[var(--spacing-4)] py-[var(--spacing-3)] text-[length:var(--font-label-md)] text-[var(--color-error)]">
+                {error}
+              </div>
+            ) : null}
+
+            <div className="flex items-center gap-[var(--spacing-4)]">
+                <button
+                  type="submit"
+                  disabled={createCategoryMutation.isPending}
+                  className="flex-1 rounded-[var(--btn-radius)] bg-[image:var(--gradient-primary)] px-[var(--btn-padding-x)] py-[var(--btn-padding-y)] font-[var(--font-display)] text-[length:var(--font-label-md)] font-bold text-[var(--color-on-primary)] shadow-[0_8px_24px_rgba(0,111,29,0.25)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-[var(--opacity-glass)]"
+                >
+                {createCategoryMutation.isPending ? t("atelierAddingCategory") : t("atelierAddCategory")}
+              </button>
+              <button
+                type="button"
+                onClick={closeModal}
+                className="px-[var(--spacing-2)] py-[var(--spacing-2)] text-[length:var(--font-label-md)] font-bold text-[var(--color-on-surface-variant)] transition hover:text-[var(--color-error)]"
+              >
+                {t("atelierDiscard")}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div className="h-[4px] w-full bg-[image:var(--gradient-primary)]" />
+      </div>
+    </div>
+  );
+
+  const modalNode = !isOpen
+    ? null
+    : typeof document === "undefined"
+      ? modalBody
+      : createPortal(modalBody, document.body);
 
   return (
     <>
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="group flex w-full min-h-[220px] flex-col items-center justify-center rounded-3xl border-2 border-dashed border-[#c7dce9] bg-white p-6 transition-all duration-300 hover:border-[#2e7d32]/40 hover:bg-[#edf8f0]"
+        className="group flex h-full w-full min-h-[220px] flex-col items-center justify-center rounded-[var(--card-radius)] bg-[var(--card-bg)] p-[var(--spacing-6)] shadow-[var(--shadow-ambient)] transition duration-300 hover:bg-[var(--color-surface-container-low)]"
       >
-        <div className="mb-3 grid h-12 w-12 place-items-center rounded-full bg-[#eef7ff] text-[#6f8793] transition-all group-hover:bg-[#2e7d32] group-hover:text-[#eaffe2]">
+        <div className="mb-[var(--spacing-3)] grid h-12 w-12 place-items-center rounded-full bg-[var(--color-surface-container-low)] text-[var(--color-on-surface)] transition group-hover:bg-[var(--color-primary)] group-hover:text-[var(--color-on-primary)]">
           <span className="material-symbols-outlined text-2xl">add</span>
         </div>
-        <span className="font-[var(--font-manrope)] text-base font-bold text-[#49636f] group-hover:text-[#2e7d32]">
-          {t("atelier.atelierAddNewCategory")}
+        <span className="font-[var(--font-display)] text-[length:var(--font-body-md)] font-bold text-[var(--color-on-surface)] group-hover:text-[var(--color-primary)]">
+          {t("atelierAddNewCategory")}
         </span>
       </button>
 
-      {isOpen && typeof window !== "undefined"
-        ? createPortal(
-            <div
-              className="fixed inset-0 z-50 flex items-center justify-center bg-[#1b3641]/60 p-6 backdrop-blur-sm"
-              onMouseDown={closeModal}
-            >
-          <div
-            className="w-full max-w-2xl overflow-hidden rounded-[2rem] bg-white shadow-[0_30px_80px_-22px_rgba(27,54,65,0.55)]"
-            onMouseDown={(event) => event.stopPropagation()}
-          >
-            <div className="p-8 sm:p-10">
-              <div className="mb-8 text-center">
-                <h2 className="font-[var(--font-manrope)] text-3xl font-extrabold tracking-[-0.02em] text-[#1b3641]">
-                  {t("atelier.atelierCreateNewCategory")}
-                </h2>
-                <p className="mt-2 text-[#49636f]">{t("atelier.atelierCategorySegment")}</p>
-              </div>
-
-              <form onSubmit={formik.handleSubmit} className="space-y-6">
-                <div className="space-y-2">
-                  <label className="ml-2 block text-xs font-bold uppercase tracking-[0.2em] text-[#6f8793]">
-                    {t("atelier.atelierCategoryNameLabel")} <span className="text-[#a73b21]">*</span>
-                  </label>
-                  <div className="relative">
-                    <input
-                      name="name"
-                      value={formik.values.name}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      placeholder={t("atelier.atelierCategoryNamePlaceholder")}
-                      className="w-full rounded-2xl border-none bg-[#e7f6ff] px-6 py-4 pr-16 text-base text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#2e7d32]/40"
-                    />
-                    <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#2e7d32]/55">
-                      <span className="material-symbols-outlined text-[20px]">{selectedIcon}</span>
-                    </div>
-                  </div>
-                  {formik.touched.name && formik.errors.name ? (
-                    <p className="ml-2 text-xs text-[#a73b21]">{formik.errors.name}</p>
-                  ) : null}
-                </div>
-
-                <div className="space-y-3 pt-1">
-                  <label className="ml-2 block text-xs font-bold uppercase tracking-[0.2em] text-[#6f8793]">
-                    {t("atelier.atelierIconography")}
-                  </label>
-                  <div className="max-h-56 overflow-y-auto rounded-2xl bg-[#e7f6ff]/60 p-4 pr-3">
-                    <div className="grid grid-cols-5 gap-3 sm:grid-cols-7">
-                      {allIconChoices.map((icon) => {
-                        const selected = selectedIcon === icon;
-                        return (
-                          <button
-                            key={icon}
-                            type="button"
-                            onClick={() => setSelectedIcon(icon)}
-                            className={`aspect-square rounded-xl transition-all hover:scale-105 active:scale-95 ${
-                              selected
-                                ? "bg-[#2e7d32] text-[#eaffe2] shadow-[0_4px_12px_rgba(0,111,29,0.2)]"
-                                : "bg-white/70 text-[#49636f] hover:bg-white"
-                            }`}
-                            title={icon}
-                            aria-label={t("atelier.atelierSelectIconAriaTemplate").replace("{icon}", icon)}
-                          >
-                            <span className="material-symbols-outlined text-2xl">{icon}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="ml-2 block text-xs font-bold uppercase tracking-[0.2em] text-[#6f8793]">
-                    {t("atelier.atelierMonthlySpendingLimit")}
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-6 top-1/2 -translate-y-1/2 text-xl font-bold text-[#647e8c]">
-                      {currency === "VND" ? "VND" : currency}
-                    </span>
-                    <input
-                      name="monthlyLimit"
-                      type="text"
-                      value={formik.values.monthlyLimit}
-                      onChange={(event) => {
-                        formik.setFieldValue("monthlyLimit", formatCurrencyInput(event.target.value, currency));
-                      }}
-                      onBlur={formik.handleBlur}
-                      className="w-full rounded-2xl border-none bg-[#e7f6ff] py-4 pl-20 pr-6 text-base font-bold text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#2e7d32]/40"
-                    />
-                  </div>
-                  {monthlyLimitSuggestions.length ? (
-                    <div className="ml-2 flex flex-wrap items-center gap-2">
-                      {monthlyLimitSuggestions.map((suggestion) => (
-                        <button
-                          key={suggestion.value}
-                          type="button"
-                          onClick={() => formik.setFieldValue("monthlyLimit", formatCurrencyInput(String(suggestion.value), currency))}
-                          className="rounded-full border border-[#cce4ef] bg-[#f5fcff] px-3 py-1 text-xs font-bold text-[#1b3641] transition hover:border-[#8dc4da] hover:bg-[#ebf8ff]"
-                        >
-                          {suggestion.label}
-                        </button>
-                      ))}
-                    </div>
-                  ) : null}
-                  {formik.touched.monthlyLimit && formik.errors.monthlyLimit ? (
-                    <p className="ml-2 text-xs text-[#a73b21]">{formik.errors.monthlyLimit}</p>
-                  ) : null}
-                  <p className="ml-2 text-[11px] italic text-[#6f8793]">{currencyHint}</p>
-                </div>
-
-                <div className="space-y-3 rounded-2xl border border-[#d7e8f3] bg-[#f7fcff] p-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="text-sm font-bold text-[#1b3641]">{t("atelier.atelierKeepLimitNextMonth")}</span>
-                    <button
-                      type="button"
-                      onClick={() => setKeepNextMonth((value) => !value)}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-                        keepNextMonth ? "bg-[#2e7d32]" : "bg-[#9bb6c4]"
-                      }`}
-                      aria-pressed={keepNextMonth}
-                    >
-                      <span
-                        className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${
-                          keepNextMonth ? "translate-x-5" : "translate-x-0.5"
-                        }`}
-                      />
-                    </button>
-                  </div>
-                  <p className="text-[11px] leading-relaxed text-[#6f8793]">{t("atelier.atelierKeepLimitNextMonthHint")}</p>
-                </div>
-
-                <div className="space-y-3">
-                  <div className="flex flex-wrap items-end justify-between gap-4 rounded-2xl bg-[#e7f6ff] px-4 py-3">
-                    <div>
-                      <label className="ml-1 block text-xs font-bold uppercase tracking-[0.2em] text-[#6f8793]">
-                        {t("atelier.atelierOverExpenseWarning")}
-                      </label>
-                      <div className="mt-2 flex items-center gap-3">
-                        <button
-                          type="button"
-                          onClick={() => setWarningEnabled((value) => !value)}
-                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-                            warningEnabled ? "bg-[#2e7d32]" : "bg-[#9bb6c4]"
-                          }`}
-                          aria-pressed={warningEnabled}
-                        >
-                          <span
-                            className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${
-                              warningEnabled ? "translate-x-5" : "translate-x-0.5"
-                            }`}
-                          />
-                        </button>
-                        <span className="text-sm font-semibold text-[#1b3641]">
-                          {warningEnabled ? t("atelier.atelierEnabled") : t("atelier.atelierDisabled")}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="w-24">
-                      <label className="ml-1 block text-xs font-bold uppercase tracking-[0.2em] text-[#6f8793]">
-                        {t("atelier.atelierWarnAt")}
-                      </label>
-                      <input
-                        value={`${warnAt}%`}
-                        onChange={(event) => setWarnAt(event.target.value.replace(/[^0-9]/g, "").slice(0, 3))}
-                        className="mt-2 w-full rounded-xl border-none bg-white px-3 py-2 text-center font-bold text-[#1b3641] outline-none ring-2 ring-transparent transition focus:ring-[#2e7d32]/40"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {error ? (
-                  <div className="rounded-xl border border-[#f5c8bf] bg-[#fff3ef] px-4 py-3 text-sm text-[#a73b21]">
-                    {error}
-                  </div>
-                ) : null}
-
-                <div className="flex flex-col gap-3 pt-3 sm:flex-row">
-                  <button
-                    type="button"
-                    onClick={closeModal}
-                    className="flex-1 rounded-2xl bg-[#d4ecf9] px-6 py-4 font-bold text-[#1b3641] transition hover:bg-[#c7e3f3]"
-                  >
-                    {t("atelier.atelierActionCancel")}
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={createCategoryMutation.isPending}
-                    className="flex-[1.4] rounded-2xl bg-[linear-gradient(145deg,#2e7d32_0%,#006118_100%)] px-6 py-4 font-bold text-[#eaffe2] shadow-[0_16px_28px_-12px_rgba(0,111,29,0.4)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-70"
-                  >
-                    {createCategoryMutation.isPending ? t("atelier.atelierAddingCategory") : t("atelier.atelierAddCategory")}
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            <div className="h-2 w-full bg-gradient-to-r from-[#2e7d32] via-[#83e881] to-[#4d626c]" />
-          </div>
-        </div>,
-            document.body,
-          )
-        : null}
+      {modalNode}
     </>
   );
 }

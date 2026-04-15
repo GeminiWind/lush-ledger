@@ -4,6 +4,7 @@ import { localeDateLabel, monthKey, startOfMonthDate } from "@/lib/date";
 import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import TotalCapCard from "@/features/atelier/components/TotalCapCard";
 import CategoryAtelierGrid from "@/features/atelier/components/CategoryAtelierGrid";
+import AddCategoryModal from "@/features/atelier/dialogs/AddCategoryModal";
 import AutoTransferSettings from "@/features/savings/components/auto-transfer-settings";
 import { buildAtelierMonthHref } from "@/features/atelier/list-view-model";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -164,6 +165,14 @@ export default function AtelierPageView({
               <div className="rounded-[var(--card-radius)] bg-[var(--card-bg)] p-[var(--spacing-10)] text-center text-[var(--color-on-surface-variant)] shadow-[var(--shadow-ambient)]">
                 {t("atelierAddCategoriesHint")}
               </div>
+              <CategoryAtelierGrid
+                categories={[]}
+                currency={currency}
+                language={language}
+                riskLabels={riskLabels}
+                pendingLabel={t("atelierListStatusPending")}
+                addCategoryTrigger={<AddCategoryModal currency={currency} language={language} />}
+              />
             </div>
           ) : (
             <CategoryAtelierGrid
@@ -172,6 +181,7 @@ export default function AtelierPageView({
               language={language}
               riskLabels={riskLabels}
               pendingLabel={t("atelierListStatusPending")}
+              addCategoryTrigger={<AddCategoryModal currency={currency} language={language} />}
             />
           )}
 
