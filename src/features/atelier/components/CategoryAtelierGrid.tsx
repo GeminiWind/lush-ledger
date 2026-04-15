@@ -43,6 +43,7 @@ export default function CategoryAtelierGrid({
   language,
   riskLabels,
   pendingLabel,
+  addCategoryTrigger,
 }: CategoryAtelierGridProps) {
   const t = useNamespacedTranslation("atelier", language);
 
@@ -139,6 +140,8 @@ export default function CategoryAtelierGrid({
             </article>
           );
         })}
+
+        {addCategoryTrigger ? <div className="h-full">{addCategoryTrigger}</div> : null}
       </div>
     </div>
   );

@@ -30,6 +30,11 @@
   --color-success: var(--color-primary);
   --color-error: #ef4444;
 
+  --opacity-glass: 0.8;
+  --opacity-shadow: 0.06;
+  --opacity-ghost-border: 0.15;
+  --opacity-focus-border: 0.4;
+
   --spacing-1: 4px;
   --spacing-2: 8px;
   --spacing-3: 12px;
@@ -51,9 +56,18 @@
   --font-label-sm: 12px;
 
   --shadow-ambient: 0px 8px 32px rgba(27, 54, 65, 0.06);
+  --blur-glass: 20px;
+  --gradient-primary: linear-gradient(135deg, #006f1d, #006118);
+  --easing-standard: cubic-bezier(0.2, 0, 0, 1);
 
   --card-radius: var(--radius-xl);
   --card-bg: var(--color-surface-container-lowest);
+  --btn-radius: var(--radius-xl);
+  --btn-padding-x: var(--spacing-4);
+  --btn-padding-y: var(--spacing-2);
+  --input-bg: var(--color-surface-container-low);
+  --input-radius: var(--radius-md);
+  --input-focus-border: 2px solid rgba(0, 111, 29, var(--opacity-focus-border));
 }
 
 @theme inline {
