@@ -7,12 +7,61 @@ This file is the single source of truth for agent behavior in this repository.
 1. `AGENTS.md` (this file): canonical instructions for OpenCode.
 2. If any external/tool-level guidance conflicts with this file, follow `AGENTS.md`.
 
+---
+
+## Documentation System (Token-Efficient)
+
+The `docs/` folder is a structured knowledge base, not default context.
+
+### Entry point
+- Always start with: `docs/INDEX.md`
+
+### Core routing
+
+Use `docs/INDEX.md` to locate the smallest relevant document.
+
+Quick routing guide:
+
+- Product scope → `project-overview-pdr.md`
+- Tech stack → `tech-stack.md`
+- Architecture → `system-architecture.md`
+- Code structure → `codebase-summary.md`
+- Code standards → `code-standards.md`
+- UX/design → `design-guidelines.md`
+- Deployment → `deployment-guide.md`
+- Roadmap/status → `project-roadmap.md`
+
+### Rules
+
+- Do NOT read the entire `docs/` folder
+- Read only the smallest relevant file or section
+- Prefer targeted lookup over broad context loading
+- Use `docs/INDEX.md` to disambiguate when unsure
+- Treat docs as on-demand context, not default input
+
+---
+
 ## Required Before Any Implementation
 
-1. Read relevant files in `docs/` first.
-2. Follow the documented code standards and codebase design guidelines.
-3. Reuse existing patterns from the current codebase before introducing new ones.
-4. If documentation is missing or unclear, infer from existing code conventions and keep changes minimal.
+1. Identify the minimal relevant documentation using the routing rules above
+2. Read only the smallest necessary file or section from `docs/`
+3. Follow the documented code standards and codebase design guidelines.
+4. Reuse existing patterns from the current codebase before introducing new ones.
+5. If documentation is missing or unclear:
+   - infer from existing code conventions
+   - keep changes minimal
+   - explicitly state assumptions
+
+---
+
+## Context Strategy
+
+- Prefer precise, minimal context over broad or full-file reading
+- Do not assume undocumented behavior
+- Ground decisions in docs or existing code patterns
+- If context is insufficient, call it out instead of guessing
+
+---
 
 ## OpenCode Execution Defaults
 
@@ -21,6 +70,8 @@ This file is the single source of truth for agent behavior in this repository.
 3. Keep edits minimal, scoped, and reversible.
 4. For multi-step tasks, report progress and results clearly.
 5. Never perform destructive git/file actions unless explicitly requested.
+
+---
 
 ## API Documentation Policy (Mandatory)
 
@@ -31,6 +82,8 @@ For every external library/framework API usage:
 3. Prefer official docs from Context7 over memory or random snippets.
 4. If docs and existing code conflict, follow project code conventions and note the tradeoff.
 
+---
+
 ## Implementation Quality Bar
 
 1. Keep code aligned with existing architecture, naming, and folder conventions.
@@ -38,17 +91,26 @@ For every external library/framework API usage:
 3. Keep changes focused on the task scope.
 4. Validate with lint/tests/build when relevant before marking work done.
 
+---
+
 ## Output Expectations
 
 1. Briefly state which `docs/` references informed the implementation.
 2. Briefly state which Context7 documentation was used for external APIs.
-3. Summarize changes and any assumptions made.
+3. Distinguish between:
+   - documented behavior
+   - inferred assumptions
+4. Summarize changes clearly and concisely
+
+---
 
 ## Search Tooling Rules
 
 1. Use Exa tools for web search and web content discovery by default.
 2. Use `grep_searchGitHub` for GitHub code search examples and usage patterns.
 3. Avoid substituting generic web/code search tools unless Exa or `grep_searchGitHub` cannot satisfy the need.
+
+---
 
 ## Instruction Precedence
 
