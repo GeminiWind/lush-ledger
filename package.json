@@ -9,6 +9,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
     "prisma:generate": "prisma generate",
     "postinstall": "prisma generate"
   },
@@ -19,8 +21,8 @@
     "bcryptjs": "^3.0.3",
     "bullmq": "^5.58.4",
     "formik": "^2.4.9",
-    "ioredis": "^5.8.1",
     "i18next": "^26.0.3",
+    "ioredis": "^5.8.1",
     "jose": "^6.2.2",
     "luxon": "^3.7.2",
     "next": "16.2.1",
@@ -35,6 +37,7 @@
     "recharts": "^3.8.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4",
     "@types/luxon": "^3.7.1",
     "@types/node": "^20",
