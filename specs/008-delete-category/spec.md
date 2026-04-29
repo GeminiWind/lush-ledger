@@ -27,6 +27,7 @@ This feature allows users to delete an existing category from the Atelier catego
 - Q: How should historical transactions be handled after category deletion? → A: Reassign transactions to a system "Uncategorized" category.
 - Q: Should category deletion be soft or hard delete? → A: Soft delete with `deletedAt`, hidden from active list.
 - Q: What response should be returned when deleting an already deleted or non-existent category? → A: Return `404 Not Found`.
+- Q: Can users delete system fallback category `Uncategorized`? → A: No, `Uncategorized` is system-managed and cannot be deleted.
 
 ---
 
@@ -222,6 +223,7 @@ As an end user, I need existing transactions to remain usable after category del
 - **FR-003**: Deleting a category must soft-delete it by setting `deletedAt` and removing it from the user's active category list.
 - **FR-004**: If the deleted category is referenced by existing transactions, those transactions must remain retained and must be reassigned to a system "Uncategorized" category.
 - **FR-005**: Deleting one category must not modify unrelated categories.
+- **FR-005A**: System fallback category `Uncategorized` must not expose delete affordances and must reject delete attempts.
 
 #### Permissions
 - **FR-006**: Only authenticated users can delete categories.
@@ -237,6 +239,7 @@ As an end user, I need existing transactions to remain usable after category del
 - **FR-012**: If the category does not exist at delete time (including already soft-deleted), the system must return `404 Not Found` and keep the UI consistent.
 - **FR-013**: If deletion fails due to temporary issues, the user must see a clear retryable error message without unintended data changes.
 - **FR-014**: Validation and business rule failures must return structured error information that can be displayed in the dialog.
+- **FR-015**: Attempting to delete `Uncategorized` must return a clear non-success message and keep list data unchanged.
 
 ---
 

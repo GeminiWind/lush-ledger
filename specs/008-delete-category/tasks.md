@@ -56,15 +56,18 @@
 ### Tests for User Story 1 (REQUIRED)
 
 - [x] TEST-BE-US1-T001 [P] [US1] Add contract test for successful `DELETE /api/categories/{id}` in `tests/contract/category-api.contract.test.ts` (`contracts/delete-categories-id.md`)
+- [x] TEST-BE-US1-T002 [P] [US1] Add contract test that deleting system `Uncategorized` category is rejected in `tests/contract/category-api.contract.test.ts` (FR-005A, FR-015)
 - [x] TEST-FE-US1-T001 [P] [US1] Add integration test for confirm-delete success flow in `tests/integration/atelier-delete-category-dialog.integration.test.tsx` (FR-001, FR-010)
 - [x] TEST-E2E-US1-T001 [P] [US1] Add/extend E2E success delete flow in `tests/e2e/delete-category.spec.ts`
 
 ### Implementation for User Story 1
 
 - [x] FE-US1-T001 [US1] Implement delete trigger action on category row in `src/features/atelier/components/CategoryAtelierGrid.tsx` (FR-008)
+- [x] FE-US1-T004 [US1] Hide/disable delete affordance for system `Uncategorized` row in `src/features/atelier/components/CategoryAtelierGrid.tsx` (FR-005A)
 - [x] FE-US1-T002 [US1] Implement Stitch-aligned delete confirmation modal shell in `src/features/atelier/dialogs/DeleteCategoryDialog.tsx`
 - [x] FE-US1-T003 [US1] Wire confirm action to delete mutation and success-close refresh behavior in `src/features/atelier/dialogs/DeleteCategoryDialog.tsx` and related query invalidation hooks (FR-010)
 - [x] BE-US1-T001 [US1] Implement successful delete route transaction flow in `src/app/api/categories/[id]/route.ts` (`contracts/delete-categories-id.md`) (FR-003, FR-005)
+- [x] BE-US1-T002 [US1] Reject DELETE requests targeting system `Uncategorized` category in `src/app/api/categories/[id]/route.ts` (FR-005A, FR-015)
 - [x] INT-US1-T001 [US1] Map backend success payload to frontend list refresh/update behavior in `src/features/atelier/components/CategoryAtelierGrid.tsx` and `src/features/atelier/dialogs/DeleteCategoryDialog.tsx`
 
 ### Done Criteria for User Story 1
