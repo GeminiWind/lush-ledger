@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Fiscal Atelier - Delete Category</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary-fixed": "#cfe6f2",
+                        "surface-container-high": "#d4ecf9",
+                        "surface-container-low": "#e7f6ff",
+                        "error-container": "#fd795a",
+                        "on-surface": "#1b3641",
+                        "on-primary": "#eaffe2",
+                        "primary-dim": "#006118",
+                        "on-tertiary-fixed-variant": "#6a6d37",
+                        "tertiary-dim": "#545622",
+                        "on-error-container": "#6e1400",
+                        "tertiary-fixed": "#fcfeb9",
+                        "on-secondary-container": "#40555f",
+                        "on-primary-fixed": "#00480f",
+                        "error": "#a73b21",
+                        "primary-container": "#91f78e",
+                        "secondary-container": "#cfe6f2",
+                        "background": "#f4faff",
+                        "outline": "#647e8c",
+                        "secondary-fixed-dim": "#c1d8e4",
+                        "on-secondary": "#f2faff",
+                        "surface": "#f4faff",
+                        "on-error": "#fff7f6",
+                        "inverse-surface": "#041015",
+                        "inverse-on-surface": "#929fa6",
+                        "primary": "#006f1d",
+                        "tertiary-container": "#fcfeb9",
+                        "secondary-dim": "#415660",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#cbe7f6",
+                        "error-dim": "#791903",
+                        "surface-variant": "#cbe7f6",
+                        "surface-tint": "#006f1d",
+                        "on-primary-container": "#005e17",
+                        "surface-bright": "#f4faff",
+                        "secondary": "#4d626c",
+                        "on-background": "#1b3641",
+                        "tertiary": "#60622d",
+                        "on-tertiary-container": "#60622d",
+                        "outline-variant": "#9bb6c4",
+                        "on-tertiary-fixed": "#4d501d",
+                        "on-secondary-fixed": "#2d424c",
+                        "on-tertiary": "#fcfdb9",
+                        "on-secondary-fixed-variant": "#495f69",
+                        "surface-dim": "#c3deed",
+                        "primary-fixed-dim": "#83e881",
+                        "inverse-primary": "#91f78e",
+                        "on-surface-variant": "#49636f",
+                        "on-primary-fixed-variant": "#00691a",
+                        "surface-container": "#dcf1fd",
+                        "primary-fixed": "#91f78e",
+                        "tertiary-fixed-dim": "#edefac"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-headline { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-primary-container">
+<!-- App Shell Container -->
+<div class="flex min-h-screen relative overflow-hidden">
+<!-- SideNavBar (Shared Component) -->
+<aside class="bg-green-50 dark:bg-green-950/30 h-screen w-64 fixed left-0 top-0 flex flex-col h-full p-6 space-y-2 z-40">
+<div class="text-xl font-black text-green-900 dark:text-green-50 mb-8 font-headline tracking-tighter">
+                Fiscal Atelier
+            </div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-4 text-green-700/70 dark:text-green-400/60 px-4 py-3 hover:bg-green-100 dark:hover:bg-green-900/50 transition-all rounded-xl" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-manrope text-sm font-semibold tracking-wide">Overview</span>
+</a>
+<a class="flex items-center gap-4 bg-white/80 dark:bg-green-900/40 text-green-900 dark:text-green-100 rounded-xl px-4 py-3 shadow-sm font-manrope text-sm font-semibold tracking-wide" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="font-manrope text-sm font-semibold tracking-wide">Budgets</span>
+</a>
+<a class="flex items-center gap-4 text-green-700/70 dark:text-green-400/60 px-4 py-3 hover:bg-green-100 dark:hover:bg-green-900/50 transition-all rounded-xl" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-manrope text-sm font-semibold tracking-wide">Transactions</span>
+</a>
+<a class="flex items-center gap-4 text-green-700/70 dark:text-green-400/60 px-4 py-3 hover:bg-green-100 dark:hover:bg-green-900/50 transition-all rounded-xl" href="#">
+<span class="material-symbols-outlined">insert_chart</span>
+<span class="font-manrope text-sm font-semibold tracking-wide">Reports</span>
+</a>
+<a class="flex items-center gap-4 text-green-700/70 dark:text-green-400/60 px-4 py-3 hover:bg-green-100 dark:hover:bg-green-900/50 transition-all rounded-xl" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-manrope text-sm font-semibold tracking-wide">Settings</span>
+</a>
+</nav>
+<div class="pt-6 border-t border-outline-variant/10 space-y-1">
+<a class="flex items-center gap-4 text-green-700/70 dark:text-green-400/60 px-4 py-3 hover:bg-green-100 dark:hover:bg-green-900/50 transition-all rounded-xl" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-manrope text-sm font-semibold tracking-wide">Support</span>
+</a>
+<a class="flex items-center gap-4 text-green-700/70 dark:text-green-400/60 px-4 py-3 hover:bg-green-100 dark:hover:bg-green-900/50 transition-all rounded-xl" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-manrope text-sm font-semibold tracking-wide">Log out</span>
+</a>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="flex-1 ml-64 min-h-screen bg-surface flex flex-col">
+<!-- TopNavBar (Shared Component - Contextual) -->
+<header class="bg-slate-50/80 dark:bg-slate-950/80 backdrop-blur-xl flex justify-end items-center w-full px-10 py-4 max-w-full z-30 sticky top-0 shadow-[0_8px_32px_rgba(27,54,65,0.06)]">
+<div class="flex items-center gap-4">
+<button class="p-1 rounded-full hover:bg-green-50/50 dark:hover:bg-green-900/20 transition-colors">
+<span class="material-symbols-outlined text-green-800 dark:text-green-400">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Dashboard Content (Background) -->
+<section class="p-10 space-y-10">
+<div class="flex justify-between items-end">
+<div class="space-y-1">
+<p class="text-label-md text-on-surface-variant font-medium tracking-wider">LUSH LEDGER DASHBOARD</p>
+<h1 class="text-display-lg font-headline font-extrabold text-on-surface tracking-tighter">Budget Allocation</h1>
+</div>
+<div class="text-right">
+<p class="text-label-md text-on-surface-variant">Available Liquidity</p>
+<p class="text-headline-md font-headline font-bold text-primary italic">₫450.200.000</p>
+</div>
+</div>
+<!-- Bento Grid Content -->
+<div class="grid grid-cols-12 gap-8">
+<!-- Main Category Card -->
+<div class="col-span-8 bg-surface-container-lowest p-8 rounded-xl shadow-sm border border-outline-variant/5">
+<div class="flex justify-between items-start mb-12">
+<h2 class="text-headline-md font-headline font-bold">Category Distribution</h2>
+<button class="text-primary font-bold text-sm">View Full Audit</button>
+</div>
+<div class="space-y-6">
+<div class="flex items-center justify-between p-4 bg-surface-container-low rounded-xl">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-primary-container rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container">restaurant</span>
+</div>
+<div>
+<p class="font-headline font-bold text-lg">Dining &amp; Leisure</p>
+<p class="text-sm text-on-surface-variant">142 Transactions</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline font-bold">₫12.450.000</p>
+<p class="text-xs text-error font-medium">85% of budget</p>
+</div>
+</div>
+<!-- Mock items for depth -->
+<div class="flex items-center justify-between p-4 rounded-xl opacity-40">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-secondary-container rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">home</span>
+</div>
+<p class="font-headline font-bold text-lg text-on-surface">Household</p>
+</div>
+<p class="font-headline font-bold">₫45.000.000</p>
+</div>
+</div>
+</div>
+<!-- Side Stats -->
+<div class="col-span-4 space-y-8">
+<div class="bg-surface-container-low p-8 rounded-xl flex flex-col justify-between h-48">
+<p class="text-sm font-bold tracking-widest text-on-surface-variant">SAVINGS RATE</p>
+<p class="text-4xl font-headline font-black text-on-surface">+24.5%</p>
+</div>
+<div class="bg-primary p-8 rounded-xl text-on-primary flex flex-col justify-between h-48">
+<p class="text-sm font-bold tracking-widest opacity-80">FISCAL SCORE</p>
+<p class="text-4xl font-headline font-black">842</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- DELETE CATEGORY MODAL OVERLAY -->
+<div class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-on-surface/40 backdrop-blur-md">
+<!-- Modal Content -->
+<div class="bg-surface-container-lowest w-full max-w-lg rounded-xl shadow-[0_24px_64px_rgba(27,54,65,0.2)] overflow-hidden">
+<!-- Visual Header -->
+<div class="h-2 bg-error"></div>
+<div class="p-10 space-y-8">
+<!-- Icon & Title -->
+<div class="space-y-4">
+<div class="w-16 h-16 bg-error-container/20 rounded-full flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-error scale-125" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+<h2 class="text-3xl font-headline font-extrabold text-on-surface tracking-tight leading-tight">
+                            Delete Category: Dining &amp; Leisure?
+                        </h2>
+</div>
+<!-- Message Body -->
+<div class="space-y-4">
+<p class="text-body-md text-on-surface-variant leading-relaxed">
+                            This action will unassign <span class="font-bold text-on-surface">142 transactions</span> from this category. 
+                        </p>
+<p class="text-body-md text-on-surface-variant leading-relaxed">
+                            You will need to re-categorize them to maintain your <span class="italic font-medium">Fiscal Atelier</span> record. Unassigned data will not be reflected in your quarterly reports.
+                        </p>
+</div>
+<!-- Summary Card (Tonal Layering) -->
+<div class="bg-surface-container-low p-5 rounded-xl flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant">history</span>
+<span class="text-sm font-semibold text-on-surface-variant">Accumulated Value</span>
+</div>
+<span class="font-headline font-bold text-on-surface">₫12.450.000</span>
+</div>
+<!-- Actions -->
+<div class="flex flex-col gap-3 pt-4">
+<button class="w-full py-4 bg-error text-on-error font-headline font-extrabold text-lg rounded-xl shadow-[0_4px_12px_rgba(167,59,33,0.3)] hover:brightness-110 active:scale-98 transition-all">
+                            Delete Category
+                        </button>
+<button class="w-full py-4 bg-transparent text-on-surface-variant font-headline font-bold text-lg rounded-xl hover:bg-surface-container-high transition-colors">
+                            Keep Category
+                        </button>
+</div>
+</div>
+<!-- Subtle Footer Decoration -->
+<div class="px-10 py-6 bg-surface-container-low border-t border-outline-variant/10 flex justify-center">
+<p class="text-xs font-bold text-outline uppercase tracking-[0.2em]">Fiscal Atelier Security Protocol</p>
+</div>
+</div>
+</div>
+</div>
+</body></html>
