@@ -27,6 +27,11 @@ test("update category from atelier", async ({ page }) => {
   await page.goto("/app/atelier");
   await expect(page.getByRole("heading", { name: "Budget Allocation" })).toBeVisible();
 
+  await page.getByRole("button", { name: "Edit total monthly cap" }).click();
+  const totalCapInput = page.locator("main input").first();
+  await totalCapInput.fill("1");
+  await page.getByRole("button", { name: "Save" }).click();
+
   await page.getByRole("button", { name: new RegExp(`Edit\\s+${createdCategory.name}`) }).click();
   await expect(page.getByRole("heading", { name: "Update Category" })).toBeVisible();
 

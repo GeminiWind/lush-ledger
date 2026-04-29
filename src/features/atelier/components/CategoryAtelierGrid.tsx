@@ -3,6 +3,7 @@
 import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import { formatCurrency } from "@/lib/format";
 import type { CategoryAtelierGridProps } from "@/features/atelier/types";
+import DeleteCategoryDialog from "@/features/atelier/dialogs/DeleteCategoryDialog";
 
 const iconToneByIndex = [
   "bg-emerald-50 text-emerald-800",
@@ -80,28 +81,41 @@ export default function CategoryAtelierGrid({
                       </p>
                     </div>
                   </div>
-                  {onEditCategory ? (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        onEditCategory({
-                          id: category.id,
-                          name: category.name,
-                          icon: category.icon,
-                          limit: category.limit,
-                          warningEnabled: category.warningEnabled,
-                          warnAt: category.warnAt,
-                          carryNextMonth: category.carryNextMonth,
-                        })
-                      }
-                      className="p-[var(--spacing-2)] text-[var(--color-outline-variant)] outline-none transition-colors hover:text-[var(--color-primary)] focus:outline-none focus-visible:outline-none focus-visible:ring-0"
-                      aria-label={`${t("atelierActionEdit")} ${category.name}`}
-                    >
-                      <span className="material-symbols-outlined text-xl">edit_square</span>
-                    </button>
-                  ) : (
-                    <span className="material-symbols-outlined text-xl text-[var(--color-outline-variant)]">edit_square</span>
-                  )}
+                  <div className="flex items-center gap-[var(--spacing-2)] opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100">
+                    {onEditCategory ? (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          onEditCategory({
+                            id: category.id,
+                            name: category.name,
+                            icon: category.icon,
+                            limit: category.limit,
+                            warningEnabled: category.warningEnabled,
+                            warnAt: category.warnAt,
+                            carryNextMonth: category.carryNextMonth,
+                          })
+                        }
+                        className="grid h-10 w-10 place-items-center rounded-full text-[var(--color-outline-variant)] outline-none transition-colors hover:bg-[var(--color-surface-container-low)] hover:text-[var(--color-primary)] focus:outline-none focus-visible:outline-none focus-visible:ring-0"
+                        aria-label={`${t("atelierActionEdit")} ${category.name}`}
+                      >
+                        <span className="material-symbols-outlined text-xl">edit_square</span>
+                      </button>
+                    ) : (
+                      <span className="material-symbols-outlined text-xl text-[var(--color-outline-variant)]">edit_square</span>
+                    )}
+                    <DeleteCategoryDialog
+                      category={{
+                        id: category.id,
+                        name: category.name,
+                        icon: category.icon,
+                        limit: category.limit,
+                        spent: category.spent,
+                      }}
+                      currency={currency}
+                      language={language}
+                    />
+                  </div>
                 </div>
 
                 <div className="mb-[var(--spacing-6)] space-y-[var(--spacing-3)]">

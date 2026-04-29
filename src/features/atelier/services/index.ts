@@ -31,6 +31,18 @@ export type UpdateCategoryError = {
   status: number;
 };
 
+export type DeleteCategorySuccess = {
+  ok: true;
+  deletedCategoryId: string;
+  reassignedToCategoryId: string;
+};
+
+export type DeleteCategoryError = {
+  message: string;
+  fieldErrors: FieldErrors;
+  status: number;
+};
+
 type UpdateCategoryRequestOptions = {
   month?: string | null;
 };
@@ -78,6 +90,32 @@ export const parseUpdateCategoryError = async (
   response: Response,
   fallbackMessage: string,
 ): Promise<UpdateCategoryError> => {
+  let payload: { error?: unknown; errors?: unknown } = {};
+
+  try {
+    payload = (await response.json()) as { error?: unknown; errors?: unknown };
+  } catch {
+    payload = {};
+  }
+
+  const fieldErrors = normalizeFieldErrors(payload.errors);
+  const firstFieldMessage = Object.values(fieldErrors)[0];
+  const message =
+    (typeof payload.error === "string" && payload.error) ||
+    firstFieldMessage ||
+    fallbackMessage;
+
+  return {
+    message,
+    fieldErrors,
+    status: response.status,
+  };
+};
+
+export const parseDeleteCategoryError = async (
+  response: Response,
+  fallbackMessage: string,
+): Promise<DeleteCategoryError> => {
   let payload: { error?: unknown; errors?: unknown } = {};
 
   try {
@@ -194,6 +232,24 @@ export const updateCategoryWithParsedError = async (
 
 export const deleteCategory = (id: string) => {
   return request(`/api/categories/${id}`, { method: "DELETE" }, "Could not delete category.");
+};
+
+export const deleteCategoryWithParsedError = async (
+  id: string,
+  fallbackMessage: string,
+): Promise<DeleteCategorySuccess> => {
+  const response = await fetch(`/api/categories/${id}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw await parseDeleteCategoryError(response, fallbackMessage);
+  }
+
+  return (await response.json()) as DeleteCategorySuccess;
 };
 
 export const updateMonthlyCap = (payload: AtelierJsonRecord) => {

@@ -119,7 +119,7 @@ export const getAtelierListData = async (userId: string, input: GetAtelierListDa
 
   const [categories, currentMonthLimits, nextMonthLimits, monthTransactions] = await Promise.all([
     prisma.category.findMany({
-      where: { userId },
+      where: { userId, deletedAt: null },
       orderBy: [{ name: "asc" }, { id: "asc" }],
       select: { id: true, name: true, icon: true },
     }),
@@ -211,7 +211,7 @@ export const getAtelierData = async (userId: string) => {
 
   const [accounts, categories, savingsPlans, monthTransactions, monthCategoryLimits] = await Promise.all([
     prisma.account.findMany({ where: { userId } }),
-    prisma.category.findMany({ where: { userId } }),
+    prisma.category.findMany({ where: { userId, deletedAt: null } }),
     prisma.savingsPlan.findMany({ where: { userId }, orderBy: { targetDate: "asc" } }),
     prisma.transaction.findMany({
       where: { userId, date: { gte: start, lte: end } },

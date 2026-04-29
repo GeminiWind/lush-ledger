@@ -77,8 +77,8 @@ const mockedAddMonthsDate = vi.mocked(addMonthsDate);
 const userFindUnique = prisma.user.findUnique as unknown as ReturnType<typeof vi.fn>;
 const categoryFindMany = prisma.category.findMany as unknown as ReturnType<typeof vi.fn>;
 const categoryFindFirst = prisma.category.findFirst as unknown as ReturnType<typeof vi.fn>;
+const categoryCreate = prisma.category.create as unknown as ReturnType<typeof vi.fn>;
 const categoryUpdate = prisma.category.update as unknown as ReturnType<typeof vi.fn>;
-const categoryDelete = prisma.category.delete as unknown as ReturnType<typeof vi.fn>;
 const limitFindMany = prisma.categoryMonthlyLimit.findMany as unknown as ReturnType<typeof vi.fn>;
 const limitFindUnique = prisma.categoryMonthlyLimit.findUnique as unknown as ReturnType<typeof vi.fn>;
 const limitCreate = prisma.categoryMonthlyLimit.create as unknown as ReturnType<typeof vi.fn>;
@@ -108,7 +108,7 @@ describe("Category API contract", () => {
     limitFindUnique.mockResolvedValue({ limit: 0, warningEnabled: true, warnAt: 80 });
     categoryFindFirst.mockResolvedValue({ id: "c1", name: "Food", icon: "restaurant" });
     categoryUpdate.mockResolvedValue({ id: "c1", name: "Dining", icon: "restaurant" });
-    categoryDelete.mockResolvedValue({ id: "c1" });
+    categoryCreate.mockResolvedValue({ id: "c2", name: "Travel" });
     limitCreate.mockResolvedValue({});
     limitUpsert.mockResolvedValue({});
     limitDeleteMany.mockResolvedValue({});
@@ -207,7 +207,7 @@ describe("Category API contract", () => {
   });
 
   it("POST /api/categories creates category and month limits", async () => {
-    (prisma.category.create as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ id: "c2", name: "Travel" });
+    categoryCreate.mockResolvedValue({ id: "c2", name: "Travel" });
 
     const response = await POST(
       new NextRequest("http://localhost/api/categories", {
@@ -249,7 +249,7 @@ describe("Category API contract", () => {
 
     mockedNowDate.mockReturnValueOnce(new Date("2026-04-14T12:00:00.000Z") as never);
     mockedAddMonthsDate.mockReturnValueOnce(nextMonth as never);
-    (prisma.category.create as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ id: "c3", name: "Utilities" });
+    categoryCreate.mockResolvedValue({ id: "c3", name: "Utilities" });
 
     const response = await POST(
       new NextRequest("http://localhost/api/categories", {
@@ -307,6 +307,7 @@ describe("Category API contract", () => {
         where: {
           id: "c1",
           userId: "u1",
+          deletedAt: null,
         },
       }),
     );
@@ -506,18 +507,75 @@ describe("Category API contract", () => {
 
     expect(response.status).toBe(404);
     expect(body).toEqual({ error: "Category not found." });
+    expect(categoryFindFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          id: "missing",
+          userId: "u1",
+          deletedAt: null,
+        },
+      }),
+    );
   });
 
-  it("DELETE /api/categories/[id] unlinks tx and deletes category", async () => {
+  it("DELETE /api/categories/[id] returns 401 when unauthenticated", async () => {
+    mockedSession.mockResolvedValueOnce(null);
+
+    const response = await DELETE(new NextRequest("http://localhost/api/categories/c1", { method: "DELETE" }), {
+      params: Promise.resolve({ id: "c1" }),
+    });
+    const body = await response.json();
+
+    expect(response.status).toBe(401);
+    expect(body).toEqual({ error: "Unauthorized" });
+    expect(categoryFindFirst).not.toHaveBeenCalled();
+  });
+
+  it("DELETE /api/categories/[id] treats already soft-deleted category as not found", async () => {
+    categoryFindFirst.mockResolvedValueOnce(null);
+
+    const response = await DELETE(new NextRequest("http://localhost/api/categories/c1", { method: "DELETE" }), {
+      params: Promise.resolve({ id: "c1" }),
+    });
+    const body = await response.json();
+
+    expect(response.status).toBe(404);
+    expect(body).toEqual({ error: "Category not found." });
+    expect(categoryFindFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          id: "c1",
+          userId: "u1",
+          deletedAt: null,
+        },
+      }),
+    );
+  });
+
+  it("DELETE /api/categories/[id] reassigns tx and soft deletes category", async () => {
+    categoryFindFirst
+      .mockResolvedValueOnce({ id: "c1" })
+      .mockResolvedValueOnce({ id: "uncat1" });
+
     const response = await DELETE(new NextRequest("http://localhost/api/categories/c1", { method: "DELETE" }), {
       params: Promise.resolve({ id: "c1" }),
     });
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(txUpdateMany).toHaveBeenCalled();
+    expect(txUpdateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { userId: "u1", categoryId: "c1" },
+        data: { categoryId: "uncat1" },
+      }),
+    );
     expect(limitDeleteMany).toHaveBeenCalled();
-    expect(categoryDelete).toHaveBeenCalled();
-    expect(body).toEqual({ ok: true });
+    expect(categoryUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: "c1" },
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      }),
+    );
+    expect(body).toEqual({ ok: true, deletedCategoryId: "c1", reassignedToCategoryId: "uncat1" });
   });
 });

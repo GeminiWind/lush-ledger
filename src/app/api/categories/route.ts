@@ -19,7 +19,7 @@ export const GET = async (request: NextRequest) => {
   }
 
   const categories = await prisma.category.findMany({
-    where: { userId: session.sub },
+    where: { userId: session.sub, deletedAt: null },
     orderBy: { createdAt: "desc" },
   });
 
@@ -75,7 +75,7 @@ export const POST = async (request: NextRequest) => {
       select: { limit: true },
     }),
     prisma.category.findMany({
-      where: { userId },
+      where: { userId, deletedAt: null },
       select: { name: true },
     }),
   ]);
