@@ -106,7 +106,7 @@ describe("Category API contract", () => {
     categoryFindMany.mockResolvedValue([{ id: "c1", name: "Food" }]);
     limitFindMany.mockResolvedValue([]);
     limitFindUnique.mockResolvedValue({ limit: 0, warningEnabled: true, warnAt: 80 });
-    categoryFindFirst.mockResolvedValue({ id: "c1", name: "Food", icon: "restaurant" });
+    categoryFindFirst.mockResolvedValue({ id: "c1", name: "Food", icon: "restaurant", isSystem: false });
     categoryUpdate.mockResolvedValue({ id: "c1", name: "Dining", icon: "restaurant" });
     categoryCreate.mockResolvedValue({ id: "c2", name: "Travel" });
     limitCreate.mockResolvedValue({});
@@ -314,6 +314,26 @@ describe("Category API contract", () => {
     expect(categoryUpdate).toHaveBeenCalled();
     expect(limitUpsert).toHaveBeenCalled();
     expect(body.category).toEqual({ id: "c1", name: "Dining", icon: "restaurant" });
+  });
+
+  it("PATCH /api/categories/[id] rejects system category", async () => {
+    categoryFindFirst.mockResolvedValueOnce({ id: "c1", name: "Uncategorized", icon: "category", isSystem: true });
+
+    const response = await PATCH(
+      new NextRequest("http://localhost/api/categories/c1", {
+        method: "PATCH",
+        body: JSON.stringify(buildPatchPayload({ monthlyLimit: 10 })),
+      }),
+      { params: Promise.resolve({ id: "c1" }) },
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body).toEqual({
+      error: "System category cannot be edited.",
+      errors: { name: "System category cannot be edited." },
+    });
+    expect(categoryUpdate).not.toHaveBeenCalled();
   });
 
   it("PATCH /api/categories/[id] rejects non-positive monthlyLimit", async () => {
@@ -577,5 +597,19 @@ describe("Category API contract", () => {
       }),
     );
     expect(body).toEqual({ ok: true, deletedCategoryId: "c1", reassignedToCategoryId: "uncat1" });
+  });
+
+  it("DELETE /api/categories/[id] rejects system Uncategorized category", async () => {
+    categoryFindFirst.mockResolvedValueOnce({ id: "uncat1", isSystem: true });
+
+    const response = await DELETE(new NextRequest("http://localhost/api/categories/uncat1", { method: "DELETE" }), {
+      params: Promise.resolve({ id: "uncat1" }),
+    });
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body).toEqual({ error: "System category cannot be deleted." });
+    expect(txUpdateMany).not.toHaveBeenCalled();
+    expect(categoryUpdate).not.toHaveBeenCalled();
   });
 });

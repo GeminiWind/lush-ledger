@@ -92,6 +92,7 @@ export const mapAtelierListRows = ({
     id: string;
     name: string;
     icon: string | null;
+    isSystem: boolean;
   }>;
   monthLimits: Array<{
     categoryId: string;
@@ -131,6 +132,7 @@ export const mapAtelierListRows = ({
       id: category.id,
       name: category.name,
       icon: category.icon || "category",
+      isSystem: category.isSystem,
       limit,
       spent,
       usagePercent,

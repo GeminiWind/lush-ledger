@@ -142,7 +142,7 @@ export default function DeleteCategoryDialog({ category, currency, language }: D
           setOpen(true);
           setError(null);
         }}
-        className="grid h-10 w-10 place-items-center rounded-full bg-[var(--color-surface-container-low)] text-[var(--color-error)] transition hover:bg-[var(--color-surface-container-highest)]"
+        className="grid h-10 w-10 place-items-center rounded-full text-[var(--color-error)] transition hover:bg-[var(--color-surface-container-highest)]"
       >
         <span className="material-symbols-outlined text-[18px]">delete</span>
       </button>

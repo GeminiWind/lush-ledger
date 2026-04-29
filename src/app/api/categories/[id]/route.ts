@@ -185,11 +185,15 @@ export const PATCH = async (request: NextRequest, context: RouteContext) => {
   const category = await prisma.$transaction(async (tx) => {
     const existing = await tx.category.findFirst({
       where: { id, userId, deletedAt: null },
-      select: { id: true, name: true, icon: true },
+      select: { id: true, name: true, icon: true, isSystem: true },
     });
 
     if (!existing) {
       throw new Error("CATEGORY_NOT_FOUND");
+    }
+
+    if (existing.isSystem) {
+      throw new Error("CATEGORY_SYSTEM_LOCKED");
     }
 
     const duplicateCategory = await findCategoryNameConflict(tx, userId, existing.id, normalizedName);
@@ -259,6 +263,10 @@ export const PATCH = async (request: NextRequest, context: RouteContext) => {
       return "CATEGORY_DUPLICATE_NAME";
     }
 
+    if (error instanceof Error && error.message === "CATEGORY_SYSTEM_LOCKED") {
+      return "CATEGORY_SYSTEM_LOCKED";
+    }
+
     throw error;
   });
 
@@ -268,6 +276,10 @@ export const PATCH = async (request: NextRequest, context: RouteContext) => {
 
   if (category === "CATEGORY_DUPLICATE_NAME") {
     return patchFieldErrorResponse({ name: "Category name already exists." });
+  }
+
+  if (category === "CATEGORY_SYSTEM_LOCKED") {
+    return patchFieldErrorResponse({ name: "System category cannot be edited." });
   }
 
   await Promise.all([
@@ -295,11 +307,15 @@ export const DELETE = async (request: NextRequest, context: RouteContext) => {
     const deleted = await prisma.$transaction(async (tx) => {
       const existing = await tx.category.findFirst({
         where: { id, userId, deletedAt: null },
-        select: { id: true },
+        select: { id: true, isSystem: true },
       });
 
       if (!existing) {
         return null;
+      }
+
+      if (existing.isSystem) {
+        return "SYSTEM_CATEGORY" as const;
       }
 
       const reassignedToCategoryId = await ensureUncategorizedCategory(tx, userId);
@@ -326,6 +342,10 @@ export const DELETE = async (request: NextRequest, context: RouteContext) => {
 
     if (!deleted) {
       return NextResponse.json({ error: "Category not found." }, { status: 404 });
+    }
+
+    if (deleted === "SYSTEM_CATEGORY") {
+      return NextResponse.json({ error: "System category cannot be deleted." }, { status: 400 });
     }
 
     await ensureMonthlyCapSnapshot(userId, nowDate());

@@ -122,6 +122,7 @@ model Category {
   userId        String
   name          String
   icon          String        @default("category")
+  isSystem      Boolean       @default(false)
   deletedAt     DateTime?
   createdAt     DateTime      @default(now())
   user          User          @relation(fields: [userId], references: [id])

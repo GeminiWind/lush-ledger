@@ -13,6 +13,7 @@ export type AtelierListRow = {
   id: string;
   name: string;
   icon: string;
+  isSystem: boolean;
   limit: number;
   spent: number;
   usagePercent: number;
@@ -71,6 +72,7 @@ export type EditableCategory = {
   id: string;
   name: string;
   icon: string;
+  isSystem?: boolean;
   limit: number;
   warningEnabled: boolean;
   warnAt: number;

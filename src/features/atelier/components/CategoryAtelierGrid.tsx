@@ -62,6 +62,7 @@ export default function CategoryAtelierGrid({
           const toneClass = iconToneByIndex[index % iconToneByIndex.length];
           const usedPercent = Math.max(0, Math.min(100, Math.round(category.usagePercent)));
           const warningToggleClass = category.warningEnabled ? "bg-[#2E7D32]" : "bg-gray-300";
+          const isSystemUncategorized = category.isSystem;
 
           return (
             <article
@@ -82,7 +83,7 @@ export default function CategoryAtelierGrid({
                     </div>
                   </div>
                   <div className="flex items-center gap-[var(--spacing-2)] opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100">
-                    {onEditCategory ? (
+                    {onEditCategory && !isSystemUncategorized ? (
                       <button
                         type="button"
                         onClick={() =>
@@ -90,6 +91,7 @@ export default function CategoryAtelierGrid({
                             id: category.id,
                             name: category.name,
                             icon: category.icon,
+                            isSystem: category.isSystem,
                             limit: category.limit,
                             warningEnabled: category.warningEnabled,
                             warnAt: category.warnAt,
@@ -104,17 +106,19 @@ export default function CategoryAtelierGrid({
                     ) : (
                       <span className="material-symbols-outlined text-xl text-[var(--color-outline-variant)]">edit_square</span>
                     )}
-                    <DeleteCategoryDialog
-                      category={{
-                        id: category.id,
-                        name: category.name,
-                        icon: category.icon,
-                        limit: category.limit,
-                        spent: category.spent,
-                      }}
-                      currency={currency}
-                      language={language}
-                    />
+                    {!isSystemUncategorized ? (
+                      <DeleteCategoryDialog
+                        category={{
+                          id: category.id,
+                          name: category.name,
+                          icon: category.icon,
+                          limit: category.limit,
+                          spent: category.spent,
+                        }}
+                        currency={currency}
+                        language={language}
+                      />
+                    ) : null}
                   </div>
                 </div>
 
