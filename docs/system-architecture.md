@@ -58,6 +58,10 @@ Validation and error flow:
 - Carry-next-month visibility is derived by comparing selected-month and next-month limit snapshots per category
 - Risk status precedence is deterministic: `overspent > warning > healthy`, with `pending` for partial snapshot data
 - `PATCH /api/categories/[id]` validates positive limits and enforces case-insensitive duplicate-name rejection
+- `DELETE /api/categories/[id]` applies user-scoped soft-delete (`deletedAt`) and excludes soft-deleted categories from active Atelier reads
+- delete flow enforces auth + ownership and returns `404` for missing/already soft-deleted categories
+- delete flow blocks removal of the system `Uncategorized` category
+- when deleting in-use categories, linked `Transaction` rows are reassigned in the same mutation flow to the user system `Uncategorized` category
 - Category update validation and business failures return structured payloads (`error` + field `errors`) for dialog field mapping
 - When warning toggle is disabled in category update, persisted `warnAt` is preserved and not actively validated until warning is re-enabled
 

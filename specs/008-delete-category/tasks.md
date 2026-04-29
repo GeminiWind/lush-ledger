@@ -141,10 +141,11 @@
 
 **Purpose**: Final hardening, docs, and quality gates.
 
-- [ ] SHARED-T005 [P] Update `docs/codebase-summary.md` with delete-category behavior and new flow
-- [ ] SHARED-T006 [P] Update `docs/system-architecture.md` with soft-delete + reassignment semantics
-- [ ] SHARED-T007 [P] Update `docs/project-roadmap.md` with feature status and delivered scope
-- [ ] SHARED-T008 Run full quality gates in repo root: `npm run lint`, `npm run build`, and targeted tests from `specs/008-delete-category/quickstart.md`
+- [x] SHARED-T005 [P] Update `docs/codebase-summary.md` with delete-category behavior and new flow
+- [x] SHARED-T006 [P] Update `docs/system-architecture.md` with soft-delete + reassignment semantics
+- [x] SHARED-T007 [P] Update `docs/project-roadmap.md` with feature status and delivered scope
+- [x] SHARED-T008 Run full quality gates in repo root: `npm run lint`, `npm run build`, and targeted tests from `specs/008-delete-category/quickstart.md`
+  - Executed gates; lint/build/targeted Vitest and Playwright register/login/delete-category flows passed.
 
 ---
 
