@@ -10,6 +10,7 @@ const loginWithStoredCredentials = async (page: Page) => {
   await page.goto("/login");
   await page.locator('input[name="email"]').fill(credentials.email);
   await page.locator('input[name="password"]').fill(credentials.password);
+  await expect(page.locator('form[data-client-ready="true"]')).toBeVisible();
   await page.getByRole("button", { name: "Sign In" }).click();
   await expect(page).toHaveURL(/\/app(?:\?.*)?$/, { timeout: 20_000 });
 };

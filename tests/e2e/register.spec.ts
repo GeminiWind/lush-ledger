@@ -19,6 +19,7 @@ test("register redirects to app and stores credentials", async ({ page }) => {
 
   await expect(page.locator('input[name="email"]')).toHaveValue(email);
   await expect(page.locator('input[name="acceptedTerms"]')).toBeChecked();
+  await expect(page.locator('form[data-client-ready="true"]')).toBeVisible();
 
   await page.getByRole("button", { name: "Join the Atelier" }).click();
   await expect(page).toHaveURL(/\/app(?:\?.*)?$/, { timeout: 20_000 });
