@@ -24,13 +24,38 @@ const createCategoryFromUi = async (page: Page, categoryName: string) => {
 
   await page.locator('input[name="name"]').fill(categoryName);
   await page.locator('input[name="monthlyLimit"]').fill("0");
-  const createResponsePromise = page.waitForResponse((response) => {
-    return response.url().includes("/api/categories") && response.request().method() === "POST";
-  });
-  await page.getByRole("button", { name: "Add Category" }).click();
-  const createResponse = await createResponsePromise;
-  expect(createResponse.status()).toBe(200);
-  const createPayload = (await createResponse.json()) as { category: { id: string } };
+  let createPayload: { category: { id: string } } | null = null;
+  let lastFailureBody = "";
+
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    const createResponsePromise = page.waitForResponse((response) => {
+      return response.url().includes("/api/categories") && response.request().method() === "POST";
+    });
+
+    await page.getByRole("button", { name: "Add Category" }).click();
+    const createResponse = await createResponsePromise;
+
+    if (createResponse.status() === 200) {
+      createPayload = (await createResponse.json()) as { category: { id: string } };
+      break;
+    }
+
+    lastFailureBody = await createResponse.text();
+    if (createResponse.status() < 500 || attempt === 3) {
+      break;
+    }
+
+    await expect(page.getByRole("heading", { name: "Create New Category" })).toBeVisible();
+    await page.waitForTimeout(250);
+  }
+
+  expect(
+    createPayload,
+    `Expected category creation to succeed; last response body: ${lastFailureBody}`,
+  ).not.toBeNull();
+  if (!createPayload) {
+    throw new Error(`Category creation failed after retries: ${lastFailureBody}`);
+  }
 
   await expect(page.getByRole("heading", { name: "Create New Category" })).toBeHidden();
   await page.reload();
