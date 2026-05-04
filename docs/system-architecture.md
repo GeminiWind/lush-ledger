@@ -46,6 +46,7 @@ Validation and error flow:
 - API: `/api/accounts`, `/api/accounts/[id]`, `/api/ledger`, `/api/ledger/export`
 - Supports list/create plus partial balance update for accounts
 - Ledger supports list/create and recurring metadata capture
+- Ledger activity UI groups transactions by derived day sections in this order: `Today`, `Yesterday`, then older locale-formatted calendar dates (frontend-only grouping; API remains flat list)
 - Savings contributions are stored as ledger transactions with `type = transfer_to_saving_plan` and linked via `savingsPlanId`
 - Ledger export path (`src/lib/ledger-export.ts`) applies authenticated user scoping, validates filter input, and serializes RFC-4180-safe CSV output for spreadsheet compatibility
 

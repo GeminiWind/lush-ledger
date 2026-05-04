@@ -136,6 +136,10 @@ Ledger CSV export notes:
 - export supports `query`, `type`, `accountId`, `categoryId`, `startDate`, `endDate`
 - export is designed to mirror the active filter state from `/app/ledger`
 
+Ledger display notes:
+- `/app/ledger` transaction headers are grouped as a flat list by day: `Today`, `Yesterday`, then older locale-formatted dates
+- groups must remain non-nested and hide empty day sections after filter/search updates
+
 Charts:
 - Recharts used in reports/savings/top-categories style visualizations
 - `ledger/reports` includes dedicated monthly cashflow trend (income vs expense) and monthly expense vs budget chart
