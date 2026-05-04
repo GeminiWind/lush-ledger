@@ -3,6 +3,7 @@
 import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import { formatCurrency } from "@/lib/format";
 import type { CategoryAtelierGridProps } from "@/features/atelier/types";
+import DeleteCategoryDialog from "@/features/atelier/dialogs/DeleteCategoryDialog";
 
 const iconToneByIndex = [
   "bg-emerald-50 text-emerald-800",
@@ -61,6 +62,7 @@ export default function CategoryAtelierGrid({
           const toneClass = iconToneByIndex[index % iconToneByIndex.length];
           const usedPercent = Math.max(0, Math.min(100, Math.round(category.usagePercent)));
           const warningToggleClass = category.warningEnabled ? "bg-[#2E7D32]" : "bg-gray-300";
+          const isSystemUncategorized = category.isSystem;
 
           return (
             <article
@@ -80,28 +82,44 @@ export default function CategoryAtelierGrid({
                       </p>
                     </div>
                   </div>
-                  {onEditCategory ? (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        onEditCategory({
+                  <div className="flex items-center gap-[var(--spacing-2)] opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100">
+                    {onEditCategory && !isSystemUncategorized ? (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          onEditCategory({
+                            id: category.id,
+                            name: category.name,
+                            icon: category.icon,
+                            isSystem: category.isSystem,
+                            limit: category.limit,
+                            warningEnabled: category.warningEnabled,
+                            warnAt: category.warnAt,
+                            carryNextMonth: category.carryNextMonth,
+                          })
+                        }
+                        className="grid h-10 w-10 place-items-center rounded-full text-[var(--color-outline-variant)] outline-none transition-colors hover:bg-[var(--color-surface-container-low)] hover:text-[var(--color-primary)] focus:outline-none focus-visible:outline-none focus-visible:ring-0"
+                        aria-label={`${t("atelierActionEdit")} ${category.name}`}
+                      >
+                        <span className="material-symbols-outlined text-xl">edit_square</span>
+                      </button>
+                    ) : (
+                      <span className="material-symbols-outlined text-xl text-[var(--color-outline-variant)]">edit_square</span>
+                    )}
+                    {!isSystemUncategorized ? (
+                      <DeleteCategoryDialog
+                        category={{
                           id: category.id,
                           name: category.name,
                           icon: category.icon,
                           limit: category.limit,
-                          warningEnabled: category.warningEnabled,
-                          warnAt: category.warnAt,
-                          carryNextMonth: category.carryNextMonth,
-                        })
-                      }
-                      className="p-[var(--spacing-2)] text-[var(--color-outline-variant)] outline-none transition-colors hover:text-[var(--color-primary)] focus:outline-none focus-visible:outline-none focus-visible:ring-0"
-                      aria-label={`${t("atelierActionEdit")} ${category.name}`}
-                    >
-                      <span className="material-symbols-outlined text-xl">edit_square</span>
-                    </button>
-                  ) : (
-                    <span className="material-symbols-outlined text-xl text-[var(--color-outline-variant)]">edit_square</span>
-                  )}
+                          spent: category.spent,
+                        }}
+                        currency={currency}
+                        language={language}
+                      />
+                    ) : null}
+                  </div>
                 </div>
 
                 <div className="mb-[var(--spacing-6)] space-y-[var(--spacing-3)]">

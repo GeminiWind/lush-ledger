@@ -74,15 +74,15 @@ Implementation note for UI work: use Stitch screen `3115724136774fe4a1b628580d8d
 ### Tests for User Story 1
 
 - [x] TEST-BE-US1-T001 [P] [US1] Add contract test for `GET /api/atelier?month=YYYY-MM` auth + response shape in `tests/contract/atelier-list-api.contract.test.ts` (`contracts/get-api-atelier.md`)
-- [x] TEST-BE-US1-T002 [P] [US1] Add backend integration test for month switching and canonical row ordering in `tests/integration/atelier-list-month-switch.integration.test.ts` (FR-001, FR-002, FR-006, FR-007, FR-009)
-- [x] TEST-FE-US1-T001 [P] [US1] Add Atelier list rendering test for required row fields in `tests/integration/atelier-list.integration.test.tsx` (FR-001, FR-002)
+- [x] TEST-BE-US1-T002 [P] [US1] Add backend integration test for month switching, canonical row ordering, and `Uncategorized` exclusion in `tests/integration/atelier-list-month-switch.integration.test.ts` (FR-001, FR-002, FR-006, FR-007, FR-009)
+- [x] TEST-FE-US1-T001 [P] [US1] Add Atelier list rendering test for required row fields and hidden `Uncategorized` row in `tests/integration/atelier-list.integration.test.tsx` (FR-001, FR-002)
 - [x] TEST-FE-US1-T002 [P] [US1] Add month-selector refresh behavior test in `tests/integration/atelier-list.integration.test.tsx` (FR-007)
 
 ### Implementation for User Story 1
 
 #### Backend
-- [x] BE-US1-T001 [US1] Update `GET /api/atelier` to accept optional `month` query and validate errors in `src/app/api/atelier/route.ts` (`contracts/get-api-atelier.md`)
-- [x] BE-US1-T002 [US1] Implement month-scoped category snapshot loading (selected month + next month carry comparison) in `src/lib/atelier.ts` (FR-002, FR-005, FR-007)
+- [x] BE-US1-T001 [US1] Update `GET /api/atelier` to accept optional `month` query, validate errors, and serve list data excluding `Uncategorized` in `src/app/api/atelier/route.ts` (`contracts/get-api-atelier.md`)
+- [x] BE-US1-T002 [US1] Implement month-scoped category snapshot loading (selected month + next month carry comparison) with `Uncategorized` exclusion in `src/lib/atelier.ts` (FR-001, FR-002, FR-005, FR-007)
 - [x] BE-US1-T003 [US1] Enforce user-scoped category ordering by name A-Z and id tie-break in `src/lib/atelier.ts` (FR-006, FR-009)
 - [x] BE-US1-T004 [US1] Return default row values when selected-month snapshot is missing in `src/lib/atelier.ts` (FR-008)
 

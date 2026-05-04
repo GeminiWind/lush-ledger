@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import {
@@ -34,7 +34,12 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isClientReady, setIsClientReady] = useState(false);
   const { register, isRegistering } = useAuth();
+
+  useEffect(() => {
+    setIsClientReady(true);
+  }, []);
 
   const formik = useFormik({
     initialValues: {
@@ -113,7 +118,12 @@ export default function RegisterPage() {
             <p className="mt-2 text-[#49636f]">Enter your details to register your private vault.</p>
           </div>
 
-          <form onSubmit={formik.handleSubmit} className="space-y-5">
+          <form
+            onSubmit={formik.handleSubmit}
+            method="post"
+            data-client-ready={isClientReady ? "true" : "false"}
+            className="space-y-5"
+          >
             <div className="space-y-2">
               <label htmlFor="fullName" className="ml-1 block text-xs font-semibold uppercase tracking-[0.18em] text-[#49636f]">
                 Full Name <span className="text-[#a73b21]">*</span>
@@ -235,11 +245,11 @@ export default function RegisterPage() {
               <div className="rounded-xl border border-[#f5c8bf] bg-[#fff3ef] px-4 py-3 text-sm text-[#a73b21]">{error}</div>
             ) : null}
 
-            <button
-              type="submit"
-              disabled={isRegistering}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2e7d32] px-6 py-4 font-[var(--font-manrope)] text-lg font-bold text-[#eaffe2] shadow-[0_10px_28px_-8px_rgba(46,125,50,0.48)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-70"
-            >
+              <button
+                type="submit"
+                disabled={isRegistering}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2e7d32] px-6 py-4 font-[var(--font-manrope)] text-lg font-bold text-[#eaffe2] shadow-[0_10px_28px_-8px_rgba(46,125,50,0.48)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-70"
+              >
               {isRegistering ? "Creating Account..." : "Join the Atelier"}
               <span aria-hidden="true">→</span>
             </button>

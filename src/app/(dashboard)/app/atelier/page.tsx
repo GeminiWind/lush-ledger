@@ -67,12 +67,13 @@ export default async function AtelierPage({
   try {
     const [categories, rawMonthTransactions, rawMonthlyCap, rawMonthLimits, rawNextMonthLimits] = await Promise.all([
       prisma.category.findMany({
-        where: { userId: user.id },
+        where: { userId: user.id, deletedAt: null, isSystem: false },
         orderBy: [{ name: "asc" }, { id: "asc" }],
         select: {
           id: true,
           name: true,
           icon: true,
+          isSystem: true,
         },
       }),
       prisma.transaction.findMany({

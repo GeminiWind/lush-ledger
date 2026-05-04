@@ -16,7 +16,7 @@
 
 ## Summary
 
-This feature defines a read-focused Atelier category list that shows every category with its key monthly control settings: name, icon, limit, next-month carry-forward behavior, and warning threshold. It helps users review budget controls quickly for the selected month and catch at-risk categories before overspending. The goal is to make budget governance visible and actionable in one place without including category create or update flows.
+This feature defines a read-focused Atelier category list that shows user-manageable categories with key monthly control settings: name, icon, limit, next-month carry-forward behavior, and warning threshold. It helps users review budget controls quickly for the selected month and catch at-risk categories before overspending. The goal is to make budget governance visible and actionable in one place without including category create or update flows.
 
 ## Clarifications
 
@@ -27,6 +27,7 @@ This feature defines a read-focused Atelier category list that shows every categ
 - Q: Which timezone defines selected month boundaries? -> A: Use user profile timezone, with app default fallback when missing.
 - Q: What is the canonical row ordering for list stability? -> A: Sort by category name A-Z, tie-break by category ID.
 - Q: How should pending status be presented in-row? -> A: Show explicit text label "Pending data" and keep row visible.
+- Q: Should system fallback category be shown in list rows? -> A: No, exclude system fallback category `Uncategorized` from Atelier list display.
 
 ---
 
@@ -57,10 +58,10 @@ This feature defines a read-focused Atelier category list that shows every categ
 - Notes: Screen title in Stitch is "Fiscal Atelier (Period Dropdown)" and this screen is the source of truth for list layout.
 
 **Purpose**
-- Present all categories with monthly limit configuration and spend-risk status in one scannable list.
+- Present all user-manageable categories with monthly limit configuration and spend-risk status in one scannable list.
 
 **Description**
-- User sees all categories with category name, icon, selected-month limit, carry-forward flag, warning percentage, and current spend status.
+- User sees all user-manageable categories with category name, icon, selected-month limit, carry-forward flag, warning percentage, and current spend status.
 - User can change month context and immediately see month-specific values and statuses.
 
 ---
@@ -121,7 +122,7 @@ As a budget-conscious user, I want one Atelier list showing all categories and t
 
 **Why this priority**: The core request is visibility of all category limit settings in a single view.
 
-**Independent Test**: Seed multiple categories and verify each category row includes name, icon, selected-month limit, carry-forward flag, and warning percentage.
+**Independent Test**: Seed multiple categories (including system `Uncategorized`) and verify each visible row includes name, icon, selected-month limit, carry-forward flag, and warning percentage, while `Uncategorized` is excluded.
 
 **UI Flow**: Open Atelier page -> view category list -> scan category rows -> change month -> verify displayed values update.
 
@@ -129,7 +130,7 @@ As a budget-conscious user, I want one Atelier list showing all categories and t
 - Atelier Category List
 
 **Acceptance Scenarios**:
-1. **Given** categories exist for the user, **When** the user opens Atelier list, **Then** all categories appear with name, icon, monthly limit, carry-forward setting, and warning percentage.
+1. **Given** categories exist for the user, **When** the user opens Atelier list, **Then** all user-manageable categories appear with name, icon, monthly limit, carry-forward setting, and warning percentage, and `Uncategorized` does not appear.
 2. **Given** the user changes month context, **When** the list reloads, **Then** each category row reflects values for the selected month.
 
 ---
@@ -179,6 +180,7 @@ As a user, I want warning states when spending approaches or exceeds category li
 - Warning percentage is set to boundary values (1% and 100%).
 - Category data exists but one row is missing warning threshold value for the selected month.
 - Partial data load occurs where category metadata loads but spend totals are delayed.
+- System fallback category `Uncategorized` exists for continuity but must be excluded from list display.
 
 ---
 
@@ -187,7 +189,7 @@ As a user, I want warning states when spending approaches or exceeds category li
 ### Functional Requirements
 
 #### Business Rules
-- **FR-001**: Atelier list must display all categories owned by the current user.
+- **FR-001**: Atelier list must display all user-manageable categories owned by the current user and must exclude system fallback category `Uncategorized`.
 - **FR-002**: Each listed category must show name, icon, selected-month limit, carry-forward setting, and warning percentage.
 - **FR-003**: Warning state must trigger when spend reaches or exceeds the configured warning percentage of the selected-month limit.
 - **FR-004**: Overspent state must trigger when spend is greater than the selected-month limit.
@@ -241,7 +243,7 @@ As a user, I want warning states when spending approaches or exceeds category li
 
 ### Measurable Outcomes
 
-- **SC-001**: 100% of categories visible to a user are shown in Atelier list with all required attributes (name, icon, monthly limit, carry-forward setting, warning percentage).
+- **SC-001**: 100% of user-manageable categories visible to a user are shown in Atelier list with all required attributes (name, icon, monthly limit, carry-forward setting, warning percentage), while system fallback category `Uncategorized` is excluded.
 - **SC-002**: At least 95% of users can locate and verify a category's monthly limit settings within 30 seconds during usability testing.
 - **SC-003**: 100% of category rows in the selected month show either a computed spend status or explicit text `Pending data` when status inputs are incomplete.
 - **SC-004**: 100% of categories whose spending crosses configured warning or overspend thresholds show the correct status in the selected month view.

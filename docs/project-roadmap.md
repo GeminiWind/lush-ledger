@@ -5,6 +5,7 @@ Roadmap status is aligned with the current implementation review: phases 01-03 a
 Feature delivery update:
 - `005-atelier-list` is implemented for month-scoped read-only category listing, per-category warning-threshold context, and risk-state signaling (`healthy | warning | overspent | pending`).
 - `007-update-category-dialog` is implemented for edit-from-list flow with prefilled values, structured validation responses, stale-edit conflict handling (`409`), and warning-threshold preservation when warnings are disabled.
+- `008-delete-category` is implemented for guarded category deletion with confirmation UX, soft-delete semantics, system `Uncategorized` protection, and transaction reassignment continuity.
 
 Related plan source:
 - `docs/plans/personal-finance-mvp/plan.md`
@@ -15,13 +16,13 @@ Related plan source:
 |---|---|---|---|
 | 01 | Foundation + Auth | completed | settings API/page parity, auth rate limiting, password policy enforcement, and structured auth error responses are implemented |
 | 02 | Accounts + Transactions | completed | account + ledger CRUD (including update/delete) is implemented |
-| 03 | Budgets | completed | category lifecycle + monthly cap snapshot workflow are implemented; warnings are consistent in current MVP flow |
+| 03 | Budgets | completed | category create/update/delete lifecycle + monthly cap snapshot workflow are implemented; warnings are consistent in current MVP flow |
 | 04 | Reports | in_progress | report UI is mature (`/app/ledger/reports`) and CSV export from ledger is now implemented; remaining gap is a dedicated `/api/reports` contract |
 | 05 | Savings Plans | in_progress | create/edit/contribution/cancel/refund flow is implemented with cancelled list+detail pages; remaining work is full lifecycle API hardening (delete/archive endpoint strategy) |
 
 ## Current Milestones
 
-Overall completion estimate: **94%**.
+Overall completion estimate: **96%**.
 
 1) Stabilize canonical route surface
 - keep `src/app/(dashboard)/app/*` as active surface

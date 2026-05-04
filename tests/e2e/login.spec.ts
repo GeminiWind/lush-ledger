@@ -17,6 +17,7 @@ test("login redirects to app", async ({ page }) => {
 
   await expect(page.locator('input[name="email"]')).toHaveValue(credentials.email);
   await expect(page.locator('input[name="remember"]')).toBeChecked();
+  await expect(page.locator('form[data-client-ready="true"]')).toBeVisible();
 
   await page.getByRole("button", { name: "Sign In" }).click();
   await expect(page).toHaveURL(/\/app(?:\?.*)?$/, { timeout: 20_000 });

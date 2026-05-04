@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getSessionFromRequest } from "@/lib/auth";
 import { DEFAULT_TIMEZONE, nowDate, resolveMonthRangeFromQuery } from "@/lib/date";
 import { ensureMonthlyCapSnapshot } from "@/lib/monthly-cap";
+import { ensureUncategorizedCategory } from "@/lib/uncategorized-category";
 
 const toNumber = (value: unknown) => Number(value ?? 0);
 const normalizeCategoryName = (value: string) => value.trim().toLocaleLowerCase();
@@ -12,6 +13,15 @@ type PatchFieldErrors = Partial<Record<"name" | "monthlyLimit" | "warnAt" | "mon
 const patchFieldErrorResponse = (errors: PatchFieldErrors, status = 400) => {
   const firstError = Object.values(errors)[0] || "Validation failed.";
   return NextResponse.json({ error: firstError, errors }, { status });
+};
+
+const deleteFieldErrorResponse = (errors: Record<string, string>, status = 400) => {
+  const firstError = Object.values(errors)[0] || "Validation failed.";
+  return NextResponse.json({ error: firstError, errors }, { status });
+};
+
+const deleteServerErrorResponse = () => {
+  return NextResponse.json({ error: "Unable to delete category. Please try again." }, { status: 500 });
 };
 
 type CategoryLookupClient = {
@@ -27,7 +37,7 @@ const findCategoryNameConflict = async (
   normalizedName: string,
 ) => {
   const categories = await client.category.findMany({
-    where: { userId },
+    where: { userId, deletedAt: null },
     select: { id: true, name: true },
   });
 
@@ -174,12 +184,16 @@ export const PATCH = async (request: NextRequest, context: RouteContext) => {
 
   const category = await prisma.$transaction(async (tx) => {
     const existing = await tx.category.findFirst({
-      where: { id, userId },
-      select: { id: true, name: true, icon: true },
+      where: { id, userId, deletedAt: null },
+      select: { id: true, name: true, icon: true, isSystem: true },
     });
 
     if (!existing) {
       throw new Error("CATEGORY_NOT_FOUND");
+    }
+
+    if (existing.isSystem) {
+      throw new Error("CATEGORY_SYSTEM_LOCKED");
     }
 
     const duplicateCategory = await findCategoryNameConflict(tx, userId, existing.id, normalizedName);
@@ -249,6 +263,10 @@ export const PATCH = async (request: NextRequest, context: RouteContext) => {
       return "CATEGORY_DUPLICATE_NAME";
     }
 
+    if (error instanceof Error && error.message === "CATEGORY_SYSTEM_LOCKED") {
+      return "CATEGORY_SYSTEM_LOCKED";
+    }
+
     throw error;
   });
 
@@ -258,6 +276,10 @@ export const PATCH = async (request: NextRequest, context: RouteContext) => {
 
   if (category === "CATEGORY_DUPLICATE_NAME") {
     return patchFieldErrorResponse({ name: "Category name already exists." });
+  }
+
+  if (category === "CATEGORY_SYSTEM_LOCKED") {
+    return patchFieldErrorResponse({ name: "System category cannot be edited." });
   }
 
   await Promise.all([
@@ -277,37 +299,63 @@ export const DELETE = async (request: NextRequest, context: RouteContext) => {
   const userId = session.sub;
   const { id } = await context.params;
 
-  const deleted = await prisma.$transaction(async (tx) => {
-    const existing = await tx.category.findFirst({
-      where: { id, userId },
-      select: { id: true },
-    });
-
-    if (!existing) {
-      return null;
-    }
-
-    await tx.transaction.updateMany({
-      where: { userId, categoryId: existing.id },
-      data: { categoryId: null },
-    });
-
-    await tx.categoryMonthlyLimit.deleteMany({
-      where: { userId, categoryId: existing.id },
-    });
-
-    await tx.category.delete({
-      where: { id: existing.id },
-    });
-
-    return existing.id;
-  });
-
-  if (!deleted) {
-    return NextResponse.json({ error: "Category not found." }, { status: 404 });
+  if (!id?.trim()) {
+    return deleteFieldErrorResponse({ id: "Invalid category id." }, 400);
   }
 
-  await ensureMonthlyCapSnapshot(userId, nowDate());
+  try {
+    const deleted = await prisma.$transaction(async (tx) => {
+      const existing = await tx.category.findFirst({
+        where: { id, userId, deletedAt: null },
+        select: { id: true, isSystem: true },
+      });
 
-  return NextResponse.json({ ok: true });
+      if (!existing) {
+        return null;
+      }
+
+      if (existing.isSystem) {
+        return "SYSTEM_CATEGORY" as const;
+      }
+
+      const reassignedToCategoryId = await ensureUncategorizedCategory(tx, userId);
+
+      await tx.transaction.updateMany({
+        where: { userId, categoryId: existing.id },
+        data: { categoryId: reassignedToCategoryId },
+      });
+
+      await tx.categoryMonthlyLimit.deleteMany({
+        where: { userId, categoryId: existing.id },
+      });
+
+      await tx.category.update({
+        where: { id: existing.id },
+        data: { deletedAt: nowDate() },
+      });
+
+      return {
+        deletedCategoryId: existing.id,
+        reassignedToCategoryId,
+      };
+    });
+
+    if (!deleted) {
+      return NextResponse.json({ error: "Category not found." }, { status: 404 });
+    }
+
+    if (deleted === "SYSTEM_CATEGORY") {
+      return NextResponse.json({ error: "System category cannot be deleted." }, { status: 400 });
+    }
+
+    await ensureMonthlyCapSnapshot(userId, nowDate());
+
+    return NextResponse.json({
+      ok: true,
+      deletedCategoryId: deleted.deletedCategoryId,
+      reassignedToCategoryId: deleted.reassignedToCategoryId,
+    });
+  } catch {
+    return deleteServerErrorResponse();
+  }
 };

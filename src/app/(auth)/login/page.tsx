@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { validateLoginForm } from "@/features/auth/login-form-validation";
@@ -42,7 +42,12 @@ function EyeIcon({ hidden }: { hidden: boolean }) {
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [isClientReady, setIsClientReady] = useState(false);
   const { login, isLoggingIn } = useAuth();
+
+  useEffect(() => {
+    setIsClientReady(true);
+  }, []);
 
   const formik = useFormik({
     initialValues: {
@@ -126,7 +131,12 @@ export default function LoginPage() {
               <p className="text-2xl text-[#49636f]">Secure Login</p>
             </div>
 
-            <form onSubmit={formik.handleSubmit} className="mt-10 space-y-8">
+            <form
+              onSubmit={formik.handleSubmit}
+              method="post"
+              data-client-ready={isClientReady ? "true" : "false"}
+              className="mt-10 space-y-8"
+            >
               <div>
                 <label htmlFor="email" className="mb-2 block px-1 text-sm font-semibold text-[#49636f]">
                   Email Address <span className="text-[#a73b21]">*</span>

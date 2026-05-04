@@ -73,11 +73,13 @@
 
 #### Backend Tests
 - [x] TEST-BE-US1-T001 [P] [US1] Add PATCH success-path contract coverage in `tests/contract/category-api.contract.test.ts` (`contracts/patch-categories-id.md`) (FR-006, FR-007)
+- [x] TEST-BE-US1-T002 [P] [US1] Add PATCH rejection test for system `Uncategorized` category in `tests/contract/category-api.contract.test.ts` (FR-009A, FR-021)
 
 ### Implementation for User Story 1
 
 #### Frontend
 - [x] FE-US1-T001 [US1] Wire category row edit action to open edit dialog in `src/features/atelier/components/CategoryAtelierGrid.tsx` and `src/features/atelier/pages/AtelierPageView.tsx` (FR-012)
+- [x] FE-US1-T005 [US1] Hide/disable edit affordance for system `Uncategorized` row in `src/features/atelier/components/CategoryAtelierGrid.tsx` (FR-009A)
 - [x] FE-US1-T002 [US1] Update edit dialog title/action copy to explicit update semantics in `src/features/atelier/dialogs/EditCategoryModal.tsx` (FR-013)
 - [x] FE-US1-T003 [US1] Ensure dialog prefill/reset behavior uses selected category data on open in `src/features/atelier/dialogs/EditCategoryModal.tsx` (FR-005)
 - [x] FE-US1-T004 [US1] Keep loading/disable submit behavior and success close flow on valid update in `src/features/atelier/dialogs/EditCategoryModal.tsx` (FR-015)
@@ -85,6 +87,7 @@
 #### Backend
 - [x] BE-US1-T002 [US1] Enforce positive monthly limit for PATCH and keep existing ownership checks in `src/app/api/categories/[id]/route.ts` (FR-002, FR-010, FR-011)
 - [x] BE-US1-T003 [US1] Return updated category payload contract for successful PATCH in `src/app/api/categories/[id]/route.ts` (`contracts/patch-categories-id.md`) (FR-007)
+- [x] BE-US1-T004 [US1] Reject PATCH updates targeting system `Uncategorized` category in `src/app/api/categories/[id]/route.ts` (FR-009A, FR-021)
 
 #### Integration
 - [x] INT-US1-T001 [US1] Submit typed update payload via service helper in `src/features/atelier/dialogs/EditCategoryModal.tsx` and `src/features/atelier/services/index.ts` (`contracts/patch-categories-id.md`)

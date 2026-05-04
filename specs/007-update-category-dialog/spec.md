@@ -26,6 +26,7 @@ This feature allows users to update an existing spending category directly from 
 
 - Q: Should updated category names be unique per user, and if so how should case sensitivity be handled? -> A: Unique per user, case-insensitive, excluding the currently edited category.
 - Q: When over-expense warning is disabled, what should happen to the existing warning threshold value? -> A: Preserve the threshold value but ignore it while warning is disabled.
+- Q: Can users edit system fallback category `Uncategorized`? -> A: No, `Uncategorized` is system-managed and cannot be edited.
 
 ---
 
@@ -212,6 +213,7 @@ As a budget owner, I can cancel or close editing without changing category data.
 - **FR-007**: Updated category values (name, icon, monthly limit, warning settings) must be reflected in the Atelier list after a successful save.
 - **FR-008**: Category names must be unique per user in a case-insensitive comparison, excluding the currently edited category when its normalized name is unchanged.
 - **FR-009**: When warning is turned off, the last saved warning threshold value must be preserved for future reuse if warning is re-enabled.
+- **FR-009A**: System fallback category `Uncategorized` must not expose edit affordances and must reject update attempts.
 
 #### Permissions
 - **FR-010**: Only authenticated users can update categories.
@@ -229,6 +231,7 @@ As a budget owner, I can cancel or close editing without changing category data.
 - **FR-018**: Save failures must show a clear message and keep user-edited data in the dialog for retry.
 - **FR-019**: If the category no longer exists or is inaccessible at submit time, the user must receive a clear non-success message and the list must remain unchanged.
 - **FR-020**: Duplicate-name rejection must show a specific actionable message while preserving user-edited inputs for correction and retry.
+- **FR-021**: Attempting to update `Uncategorized` must return a clear non-success message and keep list data unchanged.
 
 ---
 

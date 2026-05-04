@@ -62,8 +62,13 @@ Missing or partial:
 - missing `/api/reports`
 - savings plan delete/archive endpoints are still partial
 - accounts missing full update/delete
-- categories missing update/delete
 - ledger transactions missing update/delete
+
+Delete-category notes:
+- `DELETE /api/categories/[id]` uses soft-delete semantics (`deletedAt`) rather than hard delete
+- deleting a category with linked transactions reassigns those rows to the user-scoped system `Uncategorized` category
+- deleting a missing or already soft-deleted category returns `404` with structured error payload
+- deleting the system `Uncategorized` category is explicitly rejected
 
 ## Data Model Snapshot
 
@@ -120,6 +125,7 @@ Savings UX notes:
 - Atelier row risk states are normalized as `healthy | warning | overspent | pending` and include explicit non-color status text
 - Atelier category edit flow is wired from list row action to modal update submit with prefilled values and query-refresh success path
 - `PATCH /api/categories/[id]` enforces case-insensitive per-user name uniqueness, stale-edit conflict protection (`409`), and structured field errors (`error` + `errors`)
+- `DELETE /api/categories/[id]` enforces auth + ownership, blocks system-category deletion, and returns reassignment metadata for continuity-aware UX
 - Warning-threshold behavior preserves persisted `warnAt` when warnings are disabled while treating threshold input as inactive validation
 - Ledger marks system-generated month-end transfers with explicit auto-transfer labels
 - Savings highlights progress impact from auto-transfer entries

@@ -25,6 +25,7 @@ export type AtelierListRowMapperInput = {
   id: string;
   name: string;
   icon?: string | null;
+  isSystem?: boolean;
   limit?: unknown;
   spent?: unknown;
   warningEnabled?: boolean;
@@ -73,6 +74,7 @@ export const mapAtelierListRow = (input: AtelierListRowMapperInput): AtelierList
     id: input.id,
     name: input.name,
     icon: input.icon || DEFAULT_ICON,
+    isSystem: input.isSystem ?? false,
     limit,
     spent,
     usagePercent,
@@ -119,9 +121,9 @@ export const getAtelierListData = async (userId: string, input: GetAtelierListDa
 
   const [categories, currentMonthLimits, nextMonthLimits, monthTransactions] = await Promise.all([
     prisma.category.findMany({
-      where: { userId },
+      where: { userId, deletedAt: null, isSystem: false },
       orderBy: [{ name: "asc" }, { id: "asc" }],
-      select: { id: true, name: true, icon: true },
+      select: { id: true, name: true, icon: true, isSystem: true },
     }),
     prisma.categoryMonthlyLimit.findMany({
       where: { userId, monthStart: resolvedMonth.start },
@@ -190,6 +192,7 @@ export const getAtelierListData = async (userId: string, input: GetAtelierListDa
       id: category.id,
       name: category.name,
       icon: category.icon,
+      isSystem: category.isSystem,
       limit: selectedLimit,
       spent: spentByCategoryId.get(category.id) || 0,
       warningEnabled: currentLimit?.warningEnabled ?? true,
@@ -211,7 +214,7 @@ export const getAtelierData = async (userId: string) => {
 
   const [accounts, categories, savingsPlans, monthTransactions, monthCategoryLimits] = await Promise.all([
     prisma.account.findMany({ where: { userId } }),
-    prisma.category.findMany({ where: { userId } }),
+    prisma.category.findMany({ where: { userId, deletedAt: null } }),
     prisma.savingsPlan.findMany({ where: { userId }, orderBy: { targetDate: "asc" } }),
     prisma.transaction.findMany({
       where: { userId, date: { gte: start, lte: end } },
