@@ -1,15 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { addDaysDate, localeDateLabel, localeTimeLabel, nowDate, sameDay, toISODate } from "@/lib/date";
+import { localeTimeLabel, toISODate } from "@/lib/date";
 import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import type { getLedgerData } from "@/lib/ledger";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import DeleteTransactionDialog from "@/features/ledger/dialogs/DeleteTransactionDialog";
 import { exportTransactionsCsv } from "@/features/ledger/services";
-
-type Translator = ((key: string) => string) & Record<string, string>;
+import { groupLedgerTransactions, ledgerLocale } from "@/features/ledger/date-grouping";
 
 type SearchParams = {
   query?: string;
@@ -36,25 +35,8 @@ const asCurrency = (value: number, currency: string) => {
   }).format(value);
 };
 
-const asDayLabel = (value: Date, language: string, t: Translator) => {
-  const today = nowDate();
-  const yesterday = addDaysDate(today, -1);
-
-  if (sameDay(value, today)) {
-    return t("ledgerToday");
-  }
-  if (sameDay(value, yesterday)) {
-    return t("ledgerYesterday");
-  }
-
-  return localeDateLabel(value, language === "vi-VN" ? "vi-VN" : "en-US", {
-    month: "long",
-    day: "2-digit",
-  });
-};
-
 const asTime = (value: Date, language: string) => {
-  return localeTimeLabel(value, language === "vi-VN" ? "vi-VN" : "en-US", {
+  return localeTimeLabel(value, ledgerLocale(language), {
     hour: "2-digit",
     minute: "2-digit",
   });
@@ -159,26 +141,7 @@ export default function LedgerPageView({ language, currency, params, data }: Pro
     }
   };
 
-  type LedgerTransaction = (typeof data.transactions)[number];
-  const groupedTransactions = data.transactions.reduce(
-    (groups: Array<{ key: string; label: string; items: LedgerTransaction[] }>, transaction) => {
-      const key = toISODate(transaction.date);
-      const currentGroup = groups[groups.length - 1];
-
-      if (currentGroup && currentGroup.key === key) {
-        currentGroup.items.push(transaction);
-        return groups;
-      }
-
-      groups.push({
-        key,
-        label: asDayLabel(transaction.date, language, t),
-        items: [transaction],
-      });
-      return groups;
-    },
-    [],
-  );
+  const groupedTransactions = groupLedgerTransactions(data.transactions, language, t);
 
   const renderedCount = groupedTransactions.reduce((sum, group) => sum + group.items.length, 0);
 

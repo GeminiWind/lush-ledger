@@ -20,6 +20,9 @@ Execute:
 - TEST-FE-$2-*
 - FE-owned INT-US1-*
 
+Then
+- Update task status in specs/$1/tasks.md
+
 
 Priority:
 1. Follow design assets EXACTLY

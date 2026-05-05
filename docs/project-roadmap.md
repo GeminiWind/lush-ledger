@@ -3,6 +3,7 @@
 Roadmap status is aligned with the current implementation review: phases 01-03 are `completed`, phases 04-05 remain `in_progress` and are near completion.
 
 Feature delivery update:
+- `009-group-transactions-date` is implemented for ledger activity date-group presentation with flat sections (`Today`, `Yesterday`, then locale-formatted older dates) while preserving existing filter/search/export/edit/delete flows.
 - `005-atelier-list` is implemented for month-scoped read-only category listing, per-category warning-threshold context, and risk-state signaling (`healthy | warning | overspent | pending`).
 - `007-update-category-dialog` is implemented for edit-from-list flow with prefilled values, structured validation responses, stale-edit conflict handling (`409`), and warning-threshold preservation when warnings are disabled.
 - `008-delete-category` is implemented for guarded category deletion with confirmation UX, soft-delete semantics, system `Uncategorized` protection, and transaction reassignment continuity.

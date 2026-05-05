@@ -20,6 +20,9 @@ Execute:
 - BE-$2-*
 - TEST-BE-$2-*
 
+Then
+- Update task status in specs/$1/tasks.md
+
 Rules:
 - follow contracts exactly
 - enforce FR rules
