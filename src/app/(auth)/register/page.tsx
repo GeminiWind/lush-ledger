@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useFormik } from "formik";
+import { Checkbox, Text } from "@/components/ui";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import {
   AuthRequestError,
@@ -83,14 +84,14 @@ export default function RegisterPage() {
           <div className="space-y-10">
             <div className="flex items-center gap-3">
               <div className="grid h-9 w-9 place-items-center rounded-full bg-[#006f1d] text-sm font-bold text-white">L</div>
-              <p className="font-[var(--font-manrope)] text-2xl font-extrabold tracking-[-0.02em]">Lush Ledger</p>
+              <p className="text-2xl font-extrabold text-[#1b3641]">Lush Ledger</p>
             </div>
 
             <div className="space-y-5">
-              <h1 className="max-w-xs font-[var(--font-manrope)] text-4xl font-extrabold leading-[1.1] tracking-[-0.03em] text-[#1b3641] lg:text-5xl">
+              <h1 className="max-w-xs text-4xl font-extrabold text-[#1b3641] lg:text-5xl">
                 Begin Your Fiscal Journey
               </h1>
-              <p className="max-w-sm text-base leading-relaxed text-[#49636f] lg:text-lg">
+              <p className="max-w-sm text-base text-[#49636f] lg:text-lg">
                 Step into a curated environment where wealth management meets editorial elegance. Your private atelier for
                 financial growth awaits.
               </p>
@@ -100,7 +101,7 @@ export default function RegisterPage() {
           <div className="space-y-6">
             <div className="flex items-start gap-4">
               <div className="mt-3 h-px w-12 bg-[#9bb6c4]/40" />
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#49636f]">
+              <p className="text-xs text-[#49636f]">
                 Crafted for the
                 <br />
                 Discerning Investor
@@ -114,7 +115,7 @@ export default function RegisterPage() {
 
         <section className="flex flex-col justify-center p-8 sm:p-10 lg:p-14">
           <div className="mb-8 text-center md:text-left">
-            <h2 className="font-[var(--font-manrope)] text-3xl font-bold text-[#1b3641]">Create Your Atelier Account</h2>
+            <h2 className="text-3xl font-bold text-[#1b3641]">Create Your Atelier Account</h2>
             <p className="mt-2 text-[#49636f]">Enter your details to register your private vault.</p>
           </div>
 
@@ -125,105 +126,100 @@ export default function RegisterPage() {
             className="space-y-5"
           >
             <div className="space-y-2">
-              <label htmlFor="fullName" className="ml-1 block text-xs font-semibold uppercase tracking-[0.18em] text-[#49636f]">
-                Full Name <span className="text-[#a73b21]">*</span>
-              </label>
-              <input
+              <Text
                 id="fullName"
                 name="fullName"
                 type="text"
+                label="Full Name"
+                isRequired
                 value={formik.values.fullName}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 placeholder="Eleanor Vance"
-                className="w-full rounded-xl border-none bg-[#e7f6ff] px-5 py-4 text-[#1b3641] placeholder:text-[#9bb6c4] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/35"
+                error={formik.touched.fullName ? formik.errors.fullName : undefined}
+                className="px-5 py-4"
               />
-              {formik.touched.fullName && formik.errors.fullName ? <p className="ml-1 text-xs text-[#a73b21]">{formik.errors.fullName}</p> : null}
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="email" className="ml-1 block text-xs font-semibold uppercase tracking-[0.18em] text-[#49636f]">
-                Email Address <span className="text-[#a73b21]">*</span>
-              </label>
-              <input
+              <Text
                 id="email"
                 name="email"
                 type="email"
+                label="Email Address"
+                isRequired
                 value={formik.values.email}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 placeholder="atelier@lushledger.com"
-                className="w-full rounded-xl border-none bg-[#e7f6ff] px-5 py-4 text-[#1b3641] placeholder:text-[#9bb6c4] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/35"
+                error={formik.touched.email ? formik.errors.email : undefined}
+                className="px-5 py-4"
               />
-              {formik.touched.email && formik.errors.email ? <p className="ml-1 text-xs text-[#a73b21]">{formik.errors.email}</p> : null}
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="password" className="ml-1 block text-xs font-semibold uppercase tracking-[0.18em] text-[#49636f]">
-                Secure Password <span className="text-[#a73b21]">*</span>
-              </label>
-              <div className="relative">
-                <input
+              <Text
                   id="password"
                   name="password"
                   type={showPassword ? "text" : "password"}
+                  label="Secure Password"
+                  isRequired
                   value={formik.values.password}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   placeholder="••••••••••••"
-                  className="w-full rounded-xl border-none bg-[#e7f6ff] px-5 py-4 pr-12 text-[#1b3641] placeholder:text-[#9bb6c4] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/35"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((value) => !value)}
-                  className="absolute inset-y-0 right-4 flex items-center"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  <EyeIcon hidden={!showPassword} />
-                </button>
-              </div>
-              {formik.touched.password && formik.errors.password ? <p className="ml-1 text-xs text-[#a73b21]">{formik.errors.password}</p> : null}
-              <p className="ml-1 text-xs text-[#647e8c]">
+                  endAdornment={
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((value) => !value)}
+                      className="flex items-center"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      <EyeIcon hidden={!showPassword} />
+                    </button>
+                  }
+                  error={formik.touched.password ? formik.errors.password : undefined}
+                  className="px-5 py-4"
+              />
+              <p className="ml-1 text-[#647e8c]">
                 Use 8-72 characters with uppercase, lowercase, number, and symbol.
               </p>
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="confirmPassword" className="ml-1 block text-xs font-semibold uppercase tracking-[0.18em] text-[#49636f]">
-                Confirm Password <span className="text-[#a73b21]">*</span>
-              </label>
-              <div className="relative">
-                <input
+              <Text
                   id="confirmPassword"
                   name="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
+                  label="Confirm Password"
+                  isRequired
                   value={formik.values.confirmPassword}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   placeholder="••••••••••••"
-                  className="w-full rounded-xl border-none bg-[#e7f6ff] px-5 py-4 pr-12 text-[#1b3641] placeholder:text-[#9bb6c4] outline-none ring-2 ring-transparent transition focus:ring-[#006f1d]/35"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword((value) => !value)}
-                  className="absolute inset-y-0 right-4 flex items-center"
-                  aria-label={showConfirmPassword ? "Hide password" : "Show password"}
-                >
-                  <EyeIcon hidden={!showConfirmPassword} />
-                </button>
-              </div>
-              {formik.touched.confirmPassword && formik.errors.confirmPassword ? <p className="ml-1 text-xs text-[#a73b21]">{formik.errors.confirmPassword}</p> : null}
+                  endAdornment={
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword((value) => !value)}
+                      className="flex items-center"
+                      aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                    >
+                      <EyeIcon hidden={!showConfirmPassword} />
+                    </button>
+                  }
+                  error={formik.touched.confirmPassword ? formik.errors.confirmPassword : undefined}
+                  className="px-5 py-4"
+              />
             </div>
 
-            <label className="flex items-start gap-3 pt-1 text-sm text-[#49636f]">
-              <input
-                id="acceptedTerms"
-                name="acceptedTerms"
-                type="checkbox"
+            <div className="flex items-start gap-3 pt-1 text-sm text-[#49636f]">
+              <Checkbox
                 checked={formik.values.acceptedTerms}
-                onChange={(event) => formik.setFieldValue("acceptedTerms", event.target.checked)}
+                onCheckedChange={(nextValue) => formik.setFieldValue("acceptedTerms", nextValue)}
                 onBlur={() => formik.setFieldTouched("acceptedTerms", true)}
-                className="mt-0.5 h-5 w-5 rounded border-none bg-[#e7f6ff] accent-[#006f1d]"
+                className="pt-0.5"
+                aria-label="Accept terms"
+                isRequired
               />
               <span>
                 I agree to the{" "}
@@ -234,15 +230,17 @@ export default function RegisterPage() {
                 <Link href="#" className="font-medium text-[#006f1d] hover:underline">
                   Privacy Policy
                 </Link>
-                . <span className="text-[#a73b21]">*</span>
+                .
               </span>
-            </label>
+            </div>
             {formik.touched.acceptedTerms && formik.errors.acceptedTerms ? (
-              <p className="ml-1 text-xs text-[#a73b21]">{formik.errors.acceptedTerms}</p>
+              <p className="ml-1 text-[#a73b21]">{formik.errors.acceptedTerms}</p>
             ) : null}
 
             {error ? (
-              <div className="rounded-xl border border-[#f5c8bf] bg-[#fff3ef] px-4 py-3 text-sm text-[#a73b21]">{error}</div>
+              <div className="rounded-xl border border-[#f5c8bf] bg-[#fff3ef] px-4 py-3 text-sm text-[#a73b21]">
+                <p className="text-[#a73b21]">{error}</p>
+              </div>
             ) : null}
 
               <button
@@ -250,9 +248,9 @@ export default function RegisterPage() {
                 disabled={isRegistering}
                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2e7d32] px-6 py-4 font-[var(--font-manrope)] text-lg font-bold text-[#eaffe2] shadow-[0_10px_28px_-8px_rgba(46,125,50,0.48)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-70"
               >
-              {isRegistering ? "Creating Account..." : "Join the Atelier"}
-              <span aria-hidden="true">→</span>
-            </button>
+                {isRegistering ? "Creating Account..." : "Join the Atelier"}
+                <span aria-hidden="true">→</span>
+              </button>
           </form>
 
           <p className="mt-8 text-center text-[#49636f] md:text-left">

@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { Avatar } from "@/components/ui";
 import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import OnboardingTourProvider from "@/features/onboarding/components/OnboardingTourProvider";
 
@@ -84,8 +84,12 @@ export default function AppChrome({ userEmail, language, children }: Props) {
               <span className="material-symbols-outlined text-lg">account_balance</span>
             </div>
             <div>
-              <p className="font-[var(--font-manrope)] text-xl font-extrabold tracking-tight text-[#1b3641]">Lush Ledger</p>
-              <p className="text-[9px] font-bold uppercase tracking-[0.24em] text-[#647e8c]">The Fiscal Atelier</p>
+              <p className="text-xl font-extrabold text-[#1b3641]">
+                Lush Ledger
+              </p>
+              <p className="text-[9px] text-[#647e8c]">
+                The Fiscal Atelier
+              </p>
             </div>
           </div>
 
@@ -96,14 +100,16 @@ export default function AppChrome({ userEmail, language, children }: Props) {
                 <Link
                   key={`${item.href}-${item.key}`}
                   href={item.href}
-                  className={`flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-semibold transition ${tourClassByHref[item.href] || ""} ${
+                  className={`flex items-center gap-3 rounded-lg px-4 py-2.5 transition ${tourClassByHref[item.href] || ""} ${
                     active
                       ? "bg-white/85 text-[#1b3641] shadow-[0_8px_24px_-14px_rgba(27,54,65,0.22)]"
                       : "text-[#49636f] hover:bg-white/40 hover:text-[#1b3641]"
                   }`}
                 >
                   <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
-                  <span>{t[item.key]}</span>
+                  <span className="inline text-sm font-semibold text-inherit">
+                    {t[item.key]}
+                  </span>
                 </Link>
               );
             })}
@@ -112,10 +118,12 @@ export default function AppChrome({ userEmail, language, children }: Props) {
           <div className="pt-4">
             <Link
               href="/app/ledger/new"
-              className="tour-new-entry flex w-full items-center justify-center gap-2 rounded-lg bg-[#006f1d] px-4 py-2.5 text-sm font-bold text-[#eaffe2] shadow-[0_14px_30px_-12px_rgba(0,111,29,0.45)] hover:brightness-105"
+              className="tour-new-entry flex w-full items-center justify-center gap-2 rounded-lg bg-[#006f1d] px-4 py-2.5 text-[#eaffe2] shadow-[0_14px_30px_-12px_rgba(0,111,29,0.45)] hover:brightness-105"
             >
               <span className="material-symbols-outlined text-[18px]">add</span>
-              <span>{t("common.actionNewEntry")}</span>
+              <span className="inline text-sm font-bold text-[#eaffe2]">
+                {t("common.actionNewEntry")}
+              </span>
             </Link>
           </div>
         </aside>
@@ -124,31 +132,34 @@ export default function AppChrome({ userEmail, language, children }: Props) {
             <header className="sticky top-0 z-20 shrink-0 border-b border-[#d8e8f3] bg-white/85 backdrop-blur-xl shadow-[0_8px_28px_-20px_rgba(27,54,65,0.3)]">
             <div className="flex items-center justify-between gap-4 px-6 py-4 lg:px-10">
               <div>
-                <p className="font-[var(--font-manrope)] text-xl font-bold text-[#1b3641]">
+                <p className="text-xl font-bold text-[#1b3641]">
                   Lush Ledger
                 </p>
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#6f8793]">
+                <p className="text-[#6f8793]">
                   {t("common.headerBrandSub")}
                 </p>
               </div>
 
               <div className="flex items-center gap-3">
                 <div className="hidden text-right leading-tight sm:block">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#6f8793]">{t("common.headerUserRole")}</p>
-                  <p className="max-w-[260px] truncate font-[var(--font-manrope)] text-sm font-bold text-[#1b3641]">{userEmail}</p>
+                  <p className="text-[#6f8793]">
+                    {t("common.headerUserRole")}
+                  </p>
+                  <p className="max-w-[260px] truncate text-sm font-bold text-[#1b3641]">
+                    {userEmail}
+                  </p>
                 </div>
-                <div className="h-11 w-11 overflow-hidden rounded-full border-2 border-[#d7e8f3] bg-[#dfeef8]">
-                  <Image
-                    src="/images/app/fiscal-atelier-avatar.png"
-                    alt="User avatar"
-                    width={44}
-                    height={44}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
+                <Avatar
+                  src="/images/app/fiscal-atelier-avatar.png"
+                  alt="User avatar"
+                  size="lg"
+                  className="border-2 border-[#d7e8f3] bg-[#dfeef8]"
+                />
                 <form action="/api/auth/logout" method="post">
                   <button className="rounded-lg border border-[#c8d8ce] bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#49636f] hover:border-[#93b3a0] hover:text-[#1b3641]">
-                    {t("common.actionLogout")}
+                    <span className="inline text-xs text-[#49636f] hover:text-[#1b3641]">
+                      {t("common.actionLogout")}
+                    </span>
                   </button>
                 </form>
               </div>

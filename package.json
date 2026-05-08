@@ -6,6 +6,8 @@
     "dev": "npm run prisma:generate && next dev --webpack",
     "build": "npm run prisma:generate && next build --webpack",
     "start": "next start",
+    "storybook": "storybook dev -p 6006",
+    "storybook:build": "storybook build",
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -20,6 +22,7 @@
     "@tanstack/react-query": "^5.96.0",
     "bcryptjs": "^3.0.3",
     "bullmq": "^5.58.4",
+    "class-variance-authority": "^0.7.1",
     "formik": "^2.4.9",
     "i18next": "^26.0.3",
     "ioredis": "^5.8.1",
@@ -38,6 +41,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.59.1",
+    "@storybook/nextjs": "^10.3.6",
     "@tailwindcss/postcss": "^4",
     "@types/luxon": "^3.7.1",
     "@types/node": "^20",
@@ -45,6 +49,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
+    "storybook": "^10.3.6",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^3.2.4"

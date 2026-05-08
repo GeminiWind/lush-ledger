@@ -135,9 +135,7 @@ export default function SettingsForm({ language, initialValues }: Props) {
                 );
               })}
             </div>
-            {formik.touched.theme && formik.errors.theme ? (
-              <p className="mt-3 text-xs text-[#a73b21]">{formik.errors.theme}</p>
-            ) : null}
+            {formik.touched.theme && formik.errors.theme ? <p className="mt-3 text-xs text-[#a73b21]">{formik.errors.theme}</p> : null}
           </article>
 
           <article className="rounded-xl bg-white p-8">
@@ -154,9 +152,7 @@ export default function SettingsForm({ language, initialValues }: Props) {
                   onBlur={formik.handleBlur}
                   className="w-full rounded-xl border-none bg-[#e7f6ff] px-5 py-4 text-[#1b3641] outline-none ring-2 ring-transparent focus:ring-[#006f1d]/25"
                 />
-                {formik.touched.name && formik.errors.name ? (
-                  <p className="mt-1 ml-1 text-xs text-[#a73b21]">{formik.errors.name}</p>
-                ) : null}
+                {formik.touched.name && formik.errors.name ? <p className="mt-1 ml-1 text-xs text-[#a73b21]">{formik.errors.name}</p> : null}
               </div>
 
               <div>
@@ -190,9 +186,7 @@ export default function SettingsForm({ language, initialValues }: Props) {
                 <option value="EUR">Euro (EUR)</option>
                 <option value="JPY">Japanese Yen (JPY)</option>
               </select>
-              {formik.touched.currency && formik.errors.currency ? (
-                <p className="mt-2 text-xs text-[#ffd8cd]">{formik.errors.currency}</p>
-              ) : null}
+              {formik.touched.currency && formik.errors.currency ? <p className="mt-2 text-xs text-[#ffd8cd]">{formik.errors.currency}</p> : null}
             </div>
           </article>
 
@@ -214,9 +208,7 @@ export default function SettingsForm({ language, initialValues }: Props) {
                 <option value="fr-FR">Français (FR)</option>
                 <option value="ja-JP">日本語 (JP)</option>
               </select>
-              {formik.touched.language && formik.errors.language ? (
-                <p className="mt-2 text-xs text-[#a73b21]">{formik.errors.language}</p>
-              ) : null}
+              {formik.touched.language && formik.errors.language ? <p className="mt-2 text-xs text-[#a73b21]">{formik.errors.language}</p> : null}
             </div>
           </article>
 

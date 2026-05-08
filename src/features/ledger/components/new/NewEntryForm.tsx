@@ -11,6 +11,7 @@ import { useUserSetting } from "@/features/settings/hooks/useUserSetting";
 import type { NewEntryFormErrors, NewEntryFormProps, NewEntryFormValues } from "@/features/ledger/types";
 import toast from "react-hot-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Switch } from "@/components/ui/Switch";
 
 const iconForCategory = (name: string) => {
   const value = name.toLowerCase();
@@ -217,20 +218,12 @@ export default function NewEntryForm({ wallets = [], defaultWalletId, categories
         <div className="space-y-3">
           <div className="flex items-center justify-between gap-4 rounded-xl bg-[#e7f6ff] px-4 py-3">
             <label className="font-[var(--font-manrope)] text-sm font-bold text-[#1b3641]">{t("newEntry.txRecurring")}</label>
-            <button
-              type="button"
-              onClick={() => formik.setFieldValue("isRecurring", !formik.values.isRecurring)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-                formik.values.isRecurring ? "bg-[#2e7d32]" : "bg-[#9bb6c4]"
-              }`}
-              aria-pressed={formik.values.isRecurring}
-            >
-              <span
-                className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${
-                  formik.values.isRecurring ? "translate-x-5" : "translate-x-0.5"
-                }`}
-              />
-            </button>
+            <Switch
+              checked={formik.values.isRecurring}
+              onCheckedChange={(nextValue) => formik.setFieldValue("isRecurring", nextValue)}
+              className={formik.values.isRecurring ? "bg-[#2e7d32]" : "bg-[#9bb6c4]"}
+              aria-label={t("newEntry.txRecurring")}
+            />
           </div>
 
           {formik.values.isRecurring ? (

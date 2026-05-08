@@ -10,6 +10,7 @@ import { useUserSetting } from "@/features/settings/hooks/useUserSetting";
 import type { SavingsPlanCreateDialogProps } from "@/features/savings/types";
 import toast from "react-hot-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Switch } from "@/components/ui/Switch";
 
 const savingsPlanIconChoices = ["home", "directions_car", "flight", "shield", "savings"] as const;
 
@@ -392,15 +393,12 @@ export default function SavingsPlanCreateDialog({ variant = "button" }: SavingsP
                   <div className="space-y-3 rounded-2xl bg-[#eef8ff] p-4">
                     <div className="flex items-center justify-between">
                       <label className="text-xs font-bold uppercase tracking-[0.18em] text-[#647e8c]">{t("savings.savingsPlanIsPrimaryLabel")}</label>
-                      <button
-                        type="button"
-                        role="switch"
-                        aria-checked={isPrimary}
-                        onClick={() => setIsPrimary((value) => !value)}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${isPrimary ? "bg-[#006f1d]" : "bg-[#9bb6c4]"}`}
-                      >
-                        <span className={`inline-block h-4 w-4 transform rounded-full bg-[#eaffe2] transition ${isPrimary ? "translate-x-6" : "translate-x-1"}`} />
-                      </button>
+                      <Switch
+                        checked={isPrimary}
+                        onCheckedChange={(nextValue) => setIsPrimary(nextValue)}
+                        className={isPrimary ? "bg-[#006f1d]" : "bg-[#9bb6c4]"}
+                        aria-label={t("savings.savingsPlanIsPrimaryLabel")}
+                      />
                     </div>
                     <p className="text-[11px] text-[#647e8c]">{t("savings.savingsPlanIsPrimaryHint")}</p>
                   </div>

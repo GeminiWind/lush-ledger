@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useFormik } from "formik";
+import { Checkbox, Text } from "@/components/ui";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { validateLoginForm } from "@/features/auth/login-form-validation";
 
@@ -85,10 +86,12 @@ export default function LoginPage() {
             <div className="space-y-12">
               <div className="flex items-center gap-3">
                 <div className="grid h-8 w-8 place-items-center rounded-full bg-[#006f1d] text-sm font-bold text-white">L</div>
-                <p className="font-[var(--font-manrope)] text-4xl font-extrabold tracking-[-0.02em]">Lush Ledger</p>
+                <p className="text-4xl font-extrabold text-[#1b3641]">
+                  Lush Ledger
+                </p>
               </div>
               <div className="max-w-[560px] space-y-6">
-                <h1 className="font-[var(--font-manrope)] text-6xl font-bold leading-[1.06] tracking-[-0.05em] text-[#1b3641]">
+                <h1 className="text-6xl font-bold leading-[1.06] text-[#1b3641]">
                   A Masterclass in <span className="text-[#006f1d]">Wealth</span> Stewardship.
                 </h1>
                 <p className="text-2xl leading-[1.6] text-[#49636f]">
@@ -99,13 +102,23 @@ export default function LoginPage() {
 
             <div className="mt-14 grid grid-cols-2 gap-8 border-l border-[#006f1d]/25 pl-8">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-[#49636f]">Portfolio Zenith</p>
-                <p className="mt-2 font-[var(--font-manrope)] text-5xl font-bold text-[#006f1d]">1.240.500.000</p>
-                <p className="mt-1 font-[var(--font-manrope)] text-3xl font-bold text-[#006f1d]">VND</p>
+                <p className="text-xs tracking-[0.2em] text-[#49636f]">
+                  Portfolio Zenith
+                </p>
+                <p className="mt-2 text-5xl text-[#006f1d]">
+                  1.240.500.000
+                </p>
+                <p className="mt-1 text-3xl text-[#006f1d]">
+                  VND
+                </p>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-[#49636f]">Growth Quarterly</p>
-                <p className="mt-2 font-[var(--font-manrope)] text-5xl font-bold">+12.4%</p>
+                <p className="text-xs tracking-[0.2em] text-[#49636f]">
+                  Growth Quarterly
+                </p>
+                <p className="mt-2 text-5xl text-[#1b3641]">
+                  +12.4%
+                </p>
               </div>
             </div>
           </div>
@@ -116,8 +129,12 @@ export default function LoginPage() {
               <div className="grid h-10 w-10 place-items-center rounded-full border-2 border-white bg-[#cbe7f6] text-[11px] font-bold text-[#1b3641]">E</div>
             </div>
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#49636f]">Security Standard</p>
-              <p className="text-sm text-[#1b3641]">End-to-End Encryption Active</p>
+              <p className="text-[10px] tracking-[0.15em] text-[#49636f]">
+                Security Standard
+              </p>
+              <p className="text-[#1b3641]">
+                End-to-End Encryption Active
+              </p>
             </div>
           </div>
         </section>
@@ -125,7 +142,7 @@ export default function LoginPage() {
         <section className="flex items-center justify-center bg-white px-6 py-12 sm:px-10 lg:px-16 xl:px-20">
           <div className="w-full max-w-[448px]">
             <div className="space-y-2">
-              <h2 className="font-[var(--font-manrope)] text-5xl font-extrabold tracking-[-0.03em] text-[#1b3641]">
+              <h2 className="text-5xl font-extrabold text-[#1b3641]">
                 Welcome Back to the Atelier
               </h2>
               <p className="text-2xl text-[#49636f]">Secure Login</p>
@@ -138,75 +155,65 @@ export default function LoginPage() {
               className="mt-10 space-y-8"
             >
               <div>
-                <label htmlFor="email" className="mb-2 block px-1 text-sm font-semibold text-[#49636f]">
-                  Email Address <span className="text-[#a73b21]">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formik.values.email}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    placeholder="name@atelier.com"
-                    className="w-full rounded-xl bg-[#e7f6ff] px-6 py-4 pr-12 text-base text-[#1b3641] placeholder:text-[#9bb6c4] outline-none ring-1 ring-transparent transition focus:ring-[#94bad1]"
-                  />
-                  <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center">
-                    <AtIcon />
-                  </div>
-                </div>
-                {formik.touched.email && formik.errors.email ? <p className="mt-2 px-1 text-xs text-[#a73b21]">{formik.errors.email}</p> : null}
+                <Text
+                  id="email"
+                  name="email"
+                  type="email"
+                  label="Email Address"
+                  isRequired
+                  value={formik.values.email}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  placeholder="name@atelier.com"
+                  endAdornment={<AtIcon />}
+                  error={formik.touched.email ? formik.errors.email : undefined}
+                  className="px-6 py-4 text-base"
+                />
               </div>
 
               <div>
-                <div className="mb-2 flex items-center justify-between px-1">
-                  <label htmlFor="password" className="text-sm font-semibold text-[#49636f]">
-                    Password <span className="text-[#a73b21]">*</span>
-                  </label>
+                <div className="mb-2 flex items-center justify-end px-1">
                   <Link href="#" className="text-xs font-semibold uppercase tracking-[0.12em] text-[#006f1d] hover:text-[#04571b]">
                     Forgot Password?
                   </Link>
                 </div>
-                <div className="relative">
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    value={formik.values.password}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    placeholder="••••••••••••"
-                    className="w-full rounded-xl bg-[#e7f6ff] px-6 py-4 pr-12 text-base text-[#1b3641] placeholder:text-[#9bb6c4] outline-none ring-1 ring-transparent transition focus:ring-[#94bad1]"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((value) => !value)}
-                    className="absolute inset-y-0 right-4 flex items-center"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
-                    <EyeIcon hidden={!showPassword} />
-                  </button>
-                </div>
-                {formik.touched.password && formik.errors.password ? <p className="mt-2 px-1 text-xs text-[#a73b21]">{formik.errors.password}</p> : null}
+                <Text
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  label="Password"
+                  isRequired
+                  value={formik.values.password}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  placeholder="••••••••••••"
+                  endAdornment={
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((value) => !value)}
+                      className="flex items-center"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      <EyeIcon hidden={!showPassword} />
+                    </button>
+                  }
+                  error={formik.touched.password ? formik.errors.password : undefined}
+                  className="px-6 py-4 text-base"
+                />
               </div>
 
-              <label className="flex items-center gap-3 px-1 text-sm text-[#49636f]">
-                <input
-                  name="remember"
-                  type="checkbox"
-                  checked={formik.values.remember}
-                  onChange={(event) => formik.setFieldValue("remember", event.target.checked)}
-                  className="h-5 w-5 rounded-md border border-[#647e8c] accent-[#006f1d]"
-                />
-                Remember this session
-              </label>
+              <Checkbox
+                checked={formik.values.remember}
+                onCheckedChange={(nextValue) => formik.setFieldValue("remember", nextValue)}
+                label="Remember this session"
+                className="px-1"
+              />
 
-              {error ? (
-                <div className="rounded-xl border border-[#f5c8bf] bg-[#fff3ef] px-4 py-3 text-sm text-[#a73b21]">
-                  {error}
-                </div>
-              ) : null}
+            {error ? (
+              <div className="rounded-xl border border-[#f5c8bf] bg-[#fff3ef] px-4 py-3 text-sm text-[#a73b21]">
+                  <p className="text-[#a73b21]">{error}</p>
+              </div>
+            ) : null}
 
                 <button
                   type="submit"
@@ -219,7 +226,7 @@ export default function LoginPage() {
             </form>
 
             <p className="pb-10 pt-8 text-center text-xl text-[#49636f]">
-              Don&apos;t have an account?{" "}
+              <span className="text-xl text-[#49636f]">Don&apos;t have an account? </span>
               <Link href="/register" className="font-semibold text-[#006f1d] hover:text-[#04571b]">
                 Sign Up
               </Link>
