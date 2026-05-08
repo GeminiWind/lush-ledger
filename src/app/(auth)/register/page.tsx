@@ -212,30 +212,28 @@ export default function RegisterPage() {
               />
             </div>
 
-            <div className="flex items-start gap-3 pt-1 text-sm text-[#49636f]">
-              <Checkbox
-                checked={formik.values.acceptedTerms}
-                onCheckedChange={(nextValue) => formik.setFieldValue("acceptedTerms", nextValue)}
-                onBlur={() => formik.setFieldTouched("acceptedTerms", true)}
-                className="pt-0.5"
-                aria-label="Accept terms"
-                isRequired
-              />
-              <span>
-                I agree to the{" "}
-                <Link href="#" className="font-medium text-[#006f1d] hover:underline">
-                  Terms of Service
-                </Link>{" "}
-                and{" "}
-                <Link href="#" className="font-medium text-[#006f1d] hover:underline">
-                  Privacy Policy
-                </Link>
-                .
-              </span>
-            </div>
-            {formik.touched.acceptedTerms && formik.errors.acceptedTerms ? (
-              <p className="ml-1 text-[#a73b21]">{formik.errors.acceptedTerms}</p>
-            ) : null}
+            <Checkbox
+              checked={formik.values.acceptedTerms}
+              onCheckedChange={(nextValue) => formik.setFieldValue("acceptedTerms", nextValue)}
+              onBlur={() => formik.setFieldTouched("acceptedTerms", true)}
+              className="items-start pt-1 text-sm text-[#49636f]"
+              aria-label="Accept terms"
+              isRequired
+              error={formik.touched.acceptedTerms ? formik.errors.acceptedTerms : undefined}
+              label={
+                <span className="text-sm text-[#49636f]">
+                  I agree to the{" "}
+                  <Link href="#" className="font-medium text-[#006f1d] hover:underline">
+                    Terms of Service
+                  </Link>{" "}
+                  and{" "}
+                  <Link href="#" className="font-medium text-[#006f1d] hover:underline">
+                    Privacy Policy
+                  </Link>
+                  .
+                </span>
+              }
+            />
 
             {error ? (
               <div className="rounded-xl border border-[#f5c8bf] bg-[#fff3ef] px-4 py-3 text-sm text-[#a73b21]">

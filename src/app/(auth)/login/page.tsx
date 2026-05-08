@@ -205,8 +205,8 @@ export default function LoginPage() {
               <Checkbox
                 checked={formik.values.remember}
                 onCheckedChange={(nextValue) => formik.setFieldValue("remember", nextValue)}
-                label="Remember this session"
                 className="px-1"
+                label={<span className="text-sm font-medium text-[#49636f]">Remember this session</span>}
               />
 
             {error ? (
