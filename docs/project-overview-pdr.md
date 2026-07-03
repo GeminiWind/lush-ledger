@@ -31,7 +31,8 @@ Out of scope (current state):
 - Ledger (`/app/ledger`, `/app/ledger/new`, `/app/ledger/reports`)
 - Atelier (budget workspace)
 - Accounts
-- Savings
+- Savings (`/app/savings`, `/app/savings/cancelled`, `/app/savings/cancelled/[id]`)
+- Settings (`/app/settings`)
 
 Auth surface:
 - `/login`
@@ -40,19 +41,19 @@ Auth surface:
 ## Functional Status Snapshot
 
 Implemented API surface:
-- `/api/auth/{login,register,logout}`
-- `/api/accounts` (GET/POST)
-- `/api/accounts/[id]` (PATCH balance)
-- `/api/categories` (GET/POST)
-- `/api/ledger` (GET/POST)
-- `/api/atelier` (GET)
-- `/api/atelier/cap` (PATCH)
+- `/api/auth/{login,register,logout}` (POST)
+- `/api/accounts` (GET/POST), `/api/accounts/[id]` (PATCH/DELETE)
+- `/api/categories` (GET/POST), `/api/categories/[id]` (PATCH/DELETE, soft-delete)
+- `/api/ledger` (GET/POST), `/api/ledger/[id]` (PATCH/DELETE), `/api/ledger/export` (GET, CSV)
+- `/api/atelier` (GET), `/api/atelier/cap` (PATCH)
+- `/api/savings/plans` (POST), `/api/savings/plans/[id]` (PATCH — also used for cancel/archive status transitions)
+- `/api/savings/auto-transfer` (GET/PUT), `/api/savings/auto-transfer/latest-run` (GET)
+- `/api/settings` (GET/PATCH)
 
 Known feature/API gaps:
-- no `/api/reports`
-- no `/api/savings` CRUD
-- no `/api/settings`
-- no update/delete APIs for accounts/categories/ledger transactions
+- no dedicated `/api/reports` endpoint — report data is computed server-side (`src/lib/ledger.ts` `getLedgerReportsData()`) and rendered client-side on `/app/ledger/reports`; this is the only remaining gap in the API surface as of this writing.
+
+Note: accounts/categories/ledger update-and-delete, savings plan CRUD, and `/api/settings` are all implemented — earlier drafts of this document listed them as missing, which is no longer accurate.
 
 ## Non-Functional Priorities
 

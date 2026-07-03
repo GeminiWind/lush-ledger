@@ -2,12 +2,12 @@ import { CancelledSavingsPlanDetailPageView } from "@/features/savings";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { serializeForClient } from "@/lib/serialize-for-client";
-import { requireUser } from "@/lib/user";
+import { getCurrentUser } from "@/lib/user";
 
 type Params = Promise<{ id: string }>;
 
 export default async function CancelledSavingsPlanDetailPage({ params }: { params: Params }) {
-  const user = await requireUser();
+  const user = await getCurrentUser();
   const { id } = await params;
   const language = user.settings?.language || "en-US";
   const currency = user.settings?.currency ?? "VND";

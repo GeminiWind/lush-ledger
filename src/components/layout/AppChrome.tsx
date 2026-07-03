@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { Avatar } from "@/components/ui";
+import { Avatar, Button } from "@/components/ui";
 import { useNamespacedTranslation } from "@/features/i18n/useNamespacedTranslation";
 import OnboardingTourProvider from "@/features/onboarding/components/OnboardingTourProvider";
 
@@ -156,11 +156,16 @@ export default function AppChrome({ userEmail, language, children }: Props) {
                   className="border-2 border-[#d7e8f3] bg-[#dfeef8]"
                 />
                 <form action="/api/auth/logout" method="post">
-                  <button className="rounded-lg border border-[#c8d8ce] bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#49636f] hover:border-[#93b3a0] hover:text-[#1b3641]">
-                    <span className="inline text-xs text-[#49636f] hover:text-[#1b3641]">
+                  <Button
+                    type="submit"
+                    variant="outline"
+                    size="small"
+                    className="rounded-lg border-[#c8d8ce] bg-white text-xs font-semibold uppercase tracking-[0.08em] text-[#49636f] hover:border-[#93b3a0] hover:text-[#1b3641]"
+                  >
+                    <span className="inline text-xs text-inherit">
                       {t("common.actionLogout")}
                     </span>
-                  </button>
+                  </Button>
                 </form>
               </div>
             </div>

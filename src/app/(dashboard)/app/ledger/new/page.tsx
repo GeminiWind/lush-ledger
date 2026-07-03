@@ -1,10 +1,10 @@
 import { NewLedgerEntryPageView } from "@/features/ledger";
 import { prisma } from "@/lib/db";
-import { requireUser } from "@/lib/user";
+import { getCurrentUser } from "@/lib/user";
 import { ensureDefaultWallet } from "@/lib/wallet";
 
 export default async function NewLedgerEntryPage() {
-  const user = await requireUser();
+  const user = await getCurrentUser();
   const language = user.settings?.language || "en-US";
 
   await ensureDefaultWallet(user.id);

@@ -1,8 +1,8 @@
 import { SettingsPageView } from "@/features/settings";
-import { requireUser } from "@/lib/user";
+import { getCurrentUser } from "@/lib/user";
 
 export default async function SettingsPage() {
-  const user = await requireUser();
+  const user = await getCurrentUser();
   const language = user.settings?.language || "en-US";
 
   return (

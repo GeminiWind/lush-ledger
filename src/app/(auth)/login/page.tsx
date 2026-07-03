@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useFormik } from "formik";
-import { Checkbox, Text } from "@/components/ui";
+import { Button, Checkbox, Text } from "@/components/ui";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { validateLoginForm } from "@/features/auth/login-form-validation";
 
@@ -215,14 +215,18 @@ export default function LoginPage() {
               </div>
             ) : null}
 
-                <button
+                <Button
                   type="submit"
                   disabled={isLoggingIn}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-[linear-gradient(170deg,#006f1d_0%,#006118_100%)] px-6 py-5 font-[var(--font-manrope)] text-xl font-bold text-[#eaffe2] shadow-[0_32px_64px_-12px_rgba(27,54,65,0.15)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-70"
+                  variant="primary"
+                  size="extralarge"
+                  className="w-full shadow-[0_32px_64px_-12px_rgba(27,54,65,0.15)]"
                 >
-                  {isLoggingIn ? "Signing In..." : "Sign In"}
+                  <span className="font-[var(--font-manrope)] text-xl font-bold text-inherit">
+                    {isLoggingIn ? "Signing In..." : "Sign In"}
+                  </span>
                   <span aria-hidden="true">→</span>
-                </button>
+                </Button>
             </form>
 
             <p className="pb-10 pt-8 text-center text-xl text-[#49636f]">

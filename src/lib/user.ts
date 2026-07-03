@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getSessionFromCookies } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
-export const requireUser = async () => {
+export const getCurrentUser = async () => {
   const session = await getSessionFromCookies();
   if (!session?.sub) {
     redirect("/login");

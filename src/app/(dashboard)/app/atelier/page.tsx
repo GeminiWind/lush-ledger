@@ -9,7 +9,7 @@ import { prisma } from "@/lib/db";
 import { nowDate } from "@/lib/date";
 import { materializeRecurringTransactions } from "@/lib/recurring";
 import { serializeForClient } from "@/lib/serialize-for-client";
-import { requireUser } from "@/lib/user";
+import { getCurrentUser } from "@/lib/user";
 import { ensureMonthlyCapSnapshot } from "@/lib/monthly-cap";
 import { DateTime } from "luxon";
 
@@ -22,7 +22,7 @@ export default async function AtelierPage({
 }: {
   searchParams: SearchParams;
 }) {
-  const user = await requireUser();
+  const user = await getCurrentUser();
   const language = user.settings?.language || "en-US";
   const currency = user.settings?.currency || "VND";
   const timezone = user.settings?.timezone || "UTC";

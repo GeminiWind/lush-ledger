@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useFormik } from "formik";
-import { Checkbox, Text } from "@/components/ui";
+import { Button, Checkbox, Text } from "@/components/ui";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import {
   AuthRequestError,
@@ -241,14 +241,18 @@ export default function RegisterPage() {
               </div>
             ) : null}
 
-              <button
+              <Button
                 type="submit"
                 disabled={isRegistering}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2e7d32] px-6 py-4 font-[var(--font-manrope)] text-lg font-bold text-[#eaffe2] shadow-[0_10px_28px_-8px_rgba(46,125,50,0.48)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-70"
+                variant="primary"
+                size="extralarge"
+                className="w-full text-lg shadow-[0_10px_28px_-8px_rgba(46,125,50,0.48)]"
               >
-                {isRegistering ? "Creating Account..." : "Join the Atelier"}
+                <span className="font-[var(--font-manrope)] text-lg font-bold text-inherit">
+                  {isRegistering ? "Creating Account..." : "Join the Atelier"}
+                </span>
                 <span aria-hidden="true">→</span>
-              </button>
+              </Button>
           </form>
 
           <p className="mt-8 text-center text-[#49636f] md:text-left">

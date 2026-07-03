@@ -41,6 +41,17 @@ Accounts:
 Savings:
 - emphasize target, saved amount, remaining amount, and due date
 
+## Core Component Library
+
+`src/components/ui/*` is the shared UI building-block layer, referred to in code comments as the "Fiscal Atelier" design system:
+
+- Components: `Button`, `Avatar`, `Loading`, `Switch`, `Typography`, `Checkbox` (`input/checkbox`), `Text` (`input/text`) — each is co-located with a Storybook story file (`*.stories.tsx`).
+- Styling is Tailwind CSS v4 layered on top of CSS custom-property design tokens (for example `var(--color-primary)`, `var(--spacing-4)`, `var(--btn-radius)`) rather than hardcoded Tailwind color/spacing utilities. Prefer referencing tokens over literal values when building new UI in this layer.
+- `class-variance-authority` (cva) is used for variant/size composition in `Button` and `Typography`. The remaining four components do not currently use cva — treat this as the current state, not a hard rule to replicate everywhere yet.
+- Preview and develop components in isolation with Storybook: `npm run storybook` (dev server) / `npm run storybook:build` (static build). Config lives in `.storybook/`.
+- `src/components/layout/AppChrome.tsx` (the authenticated app shell — sidebar nav, header, main content) composes `Avatar` and `Button` from this library, but most of its own markup is still raw Tailwind rather than token-driven. Follow the token pattern for new layout work rather than extending the raw-Tailwind style.
+- Known issue: `src/components/ui/index.ts` re-exports `ButtonSize`/`ButtonVariant` types that do not actually exist on `Button.tsx` (only `ButtonProps` is exported, with variant/size coming from `VariantProps<typeof buttonVariants>`). Do not write code examples that import `ButtonSize`/`ButtonVariant` from `@/components/ui`.
+
 ## Chart Usage
 
 - Recharts is the charting library in current implementation.

@@ -2,12 +2,12 @@ import { SavingsPageView } from "@/features/savings";
 import { prisma } from "@/lib/db";
 import { materializeRecurringTransactions } from "@/lib/recurring";
 import { serializeForClient } from "@/lib/serialize-for-client";
-import { requireUser } from "@/lib/user";
+import { getCurrentUser } from "@/lib/user";
 
 type SearchParams = Promise<{ plan?: string | string[] | undefined; filter?: string | string[] | undefined }>;
 
 export default async function SavingsPage({ searchParams }: { searchParams: SearchParams }) {
-  const user = await requireUser();
+  const user = await getCurrentUser();
   await materializeRecurringTransactions(user.id);
 
   const language = user.settings?.language || "en-US";

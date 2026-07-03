@@ -17,6 +17,9 @@ Optional (required for BullMQ worker/queue):
 - `REDIS_URL` (recommended, example: `redis://127.0.0.1:6379`)
 - or `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`
 
+Present in `.env.example` but currently unreferenced in `src/`:
+- `INTERNAL_JOB_SECRET` — reserved for a future internal-job auth mechanism; not read by any current code path, so setting it has no effect yet. Do not treat it as required.
+
 Start from:
 - `.env.example`
 
@@ -67,6 +70,18 @@ Start:
 
 ```bash
 npm run start
+```
+
+Note: `npm run dev` and `npm run build` both explicitly pass `--webpack` to `next dev`/`next build` (see `package.json`), opting out of Turbopack rather than relying on it as the default bundler.
+
+## Verification Before Deploy
+
+Run before merging or deploying:
+
+```bash
+npm run lint       # ESLint
+npm run test       # Vitest unit/integration tests
+npm run test:e2e   # Playwright end-to-end tests
 ```
 
 ## Deployment Notes

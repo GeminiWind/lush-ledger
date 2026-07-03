@@ -1,11 +1,11 @@
 import { AccountsPageView } from "@/features/accounts";
 import { prisma } from "@/lib/db";
 import { serializeForClient } from "@/lib/serialize-for-client";
-import { requireUser } from "@/lib/user";
+import { getCurrentUser } from "@/lib/user";
 import { ensureDefaultWallet } from "@/lib/wallet";
 
 export default async function AccountsPage() {
-  const user = await requireUser();
+  const user = await getCurrentUser();
   const language = user.settings?.language || "en-US";
   const currency = user.settings?.currency || "VND";
 

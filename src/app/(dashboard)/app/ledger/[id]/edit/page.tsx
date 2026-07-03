@@ -1,7 +1,7 @@
 import { EditLedgerTransactionPageView } from "@/features/ledger";
 import { toISODate } from "@/lib/date";
 import { prisma } from "@/lib/db";
-import { requireUser } from "@/lib/user";
+import { getCurrentUser } from "@/lib/user";
 import { notFound } from "next/navigation";
 
 const splitNotes = (value: string | null) => {
@@ -27,7 +27,7 @@ type Params = {
 };
 
 export default async function EditLedgerTransactionPage({ params }: Params) {
-  const user = await requireUser();
+  const user = await getCurrentUser();
   const { id } = await params;
 
   const [transaction, categories] = await Promise.all([

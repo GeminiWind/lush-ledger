@@ -1,7 +1,7 @@
 import { LedgerPageView } from "@/features/ledger";
 import { getLedgerData } from "@/lib/ledger";
 import { serializeForClient } from "@/lib/serialize-for-client";
-import { requireUser } from "@/lib/user";
+import { getCurrentUser } from "@/lib/user";
 
 type SearchParams = Promise<{
   query?: string;
@@ -17,7 +17,7 @@ export default async function LedgerPage({
 }: {
   searchParams: SearchParams;
 }) {
-  const user = await requireUser();
+  const user = await getCurrentUser();
   const language = user.settings?.language || "en-US";
   const currency = user.settings?.currency ?? "VND";
   const params = await searchParams;
