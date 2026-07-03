@@ -73,10 +73,19 @@ Current naming convention examples:
 ## Testing and Validation (Minimum)
 
 Before merging feature changes:
-- run lint/build locally
+- run lint/build locally (`npm run lint`, `npm run build`)
+- run unit/integration tests with Vitest (`npm run test`) and end-to-end tests with Playwright (`npm run test:e2e`)
 - verify auth guard behavior on page and API routes
 - verify user-scoped reads/writes for changed endpoints
 - verify budget snapshot and recurring paths if touched
+
+### End-to-end tests (Gherkin/BDD)
+
+- E2E specs are written as Gherkin `.feature` files in `tests/e2e/features/`, one per user flow (register, login, create/update/delete-category, ledger-date-grouping).
+- Step definitions live in `tests/e2e/features/steps/*.steps.ts`, organized by concern (navigation, form, assertions, auth, category) and shared across features — add new steps there before writing a one-off inline step.
+- `tests/e2e/features/steps/scenario-fixtures.ts` exposes a `scenarioContext` Playwright fixture for passing runtime-generated values (e.g. a freshly generated email, a created category's id) between steps within the same scenario. Don't use module-level variables for this — `fullyParallel: true` can run scenarios concurrently within a worker.
+- Playwright projects in `playwright.config.ts` use `defineBddProject()` from `playwright-bdd`; the existing `dependencies` chain (register → login → create-category → update-category; delete-category and ledger-date-grouping → login) is preserved so state handoff via `playwright/.e2e/credentials.json` / `category.json` still works.
+- Run locally with `npx bddgen && npx playwright test` (or just `npm run test:e2e`, which runs both). Generated specs land in `.features-gen/` (git-ignored) and must never be edited directly — edit the `.feature`/step files instead and regenerate.
 
 ## Documentation Standards
 

@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import { defineBddProject } from "playwright-bdd";
 
 export default defineConfig({
   testDir: "tests/e2e",
@@ -15,31 +16,55 @@ export default defineConfig({
   },
   projects: [
     {
-      name: "register",
-      testMatch: /.*register\.spec\.ts/,
+      ...defineBddProject({
+        name: "register",
+        features: "tests/e2e/features/register.feature",
+        steps: "tests/e2e/features/steps/**/*.ts",
+      }),
       use: { ...devices["Desktop Chrome"] },
     },
     {
-      name: "login",
-      testMatch: /.*login\.spec\.ts/,
+      ...defineBddProject({
+        name: "login",
+        features: "tests/e2e/features/login.feature",
+        steps: "tests/e2e/features/steps/**/*.ts",
+      }),
       dependencies: ["register"],
       use: { ...devices["Desktop Chrome"] },
     },
     {
-      name: "create-category",
-      testMatch: /.*create-category\.spec\.ts/,
+      ...defineBddProject({
+        name: "create-category",
+        features: "tests/e2e/features/create-category.feature",
+        steps: "tests/e2e/features/steps/**/*.ts",
+      }),
       dependencies: ["login"],
       use: { ...devices["Desktop Chrome"] },
     },
     {
-      name: "update-category",
-      testMatch: /.*update-category\.spec\.ts/,
+      ...defineBddProject({
+        name: "update-category",
+        features: "tests/e2e/features/update-category.feature",
+        steps: "tests/e2e/features/steps/**/*.ts",
+      }),
       dependencies: ["create-category"],
       use: { ...devices["Desktop Chrome"] },
     },
     {
-      name: "delete-category",
-      testMatch: /.*delete-category\.spec\.ts/,
+      ...defineBddProject({
+        name: "delete-category",
+        features: "tests/e2e/features/delete-category.feature",
+        steps: "tests/e2e/features/steps/**/*.ts",
+      }),
+      dependencies: ["login"],
+      use: { ...devices["Desktop Chrome"] },
+    },
+    {
+      ...defineBddProject({
+        name: "ledger-date-grouping",
+        features: "tests/e2e/features/ledger-date-grouping.feature",
+        steps: "tests/e2e/features/steps/**/*.ts",
+      }),
       dependencies: ["login"],
       use: { ...devices["Desktop Chrome"] },
     },

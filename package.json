@@ -11,8 +11,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test",
-    "test:e2e:headed": "playwright test --headed",
+    "test:e2e": "bddgen && playwright test",
+    "test:e2e:headed": "bddgen && playwright test --headed",
     "prisma:generate": "prisma generate",
     "postinstall": "prisma generate"
   },
@@ -49,6 +49,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
+    "playwright-bdd": "^9.2.0",
     "storybook": "^10.3.6",
     "tailwindcss": "^4",
     "typescript": "^5",
